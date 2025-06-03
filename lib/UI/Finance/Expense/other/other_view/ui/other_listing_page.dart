@@ -12,12 +12,17 @@ class OtherListingPage extends StatelessWidget {
   final Map<String, dynamic> model;
   final void Function(String? value) onDelete;
   final void Function(bool? value)? onChanged;
+  final void Function(dynamic)onEdit;
+  final void Function(dynamic)categoryDialog;
 
   const OtherListingPage(
       {super.key,
       required this.model,
       required this.onDelete,
-      required this.onChanged,});
+      required this.onChanged,
+      required this.onEdit,
+      required this.categoryDialog,
+      });
 
   @override
   Widget build(BuildContext context) {
@@ -63,37 +68,51 @@ class OtherListingPage extends StatelessWidget {
                 spacing: 10,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    spacing: 10,
-                    children: [
-                      Flexible(
-                        child: Utils.getText(
-                          model['expense_date'].toString().toDateTime().toFormat(format: 'MM-dd') ?? '',
+                  GestureDetector(
+                    onTap: () => onEdit(model),
+                    child: Row(
+                      spacing: 10,
+                      children: [
+                        Flexible(
+                          child: Utils.getText(
+                            model['expense_date'].toString().toDateTime().toFormat(format: 'MM-dd') ?? '',
+                            color: model['approved'] == 1 ? AppC.text : AppC.red,
+                          ),
                         ),
-                      ),
-                      Expanded(
-                        flex: 3,
-                        child: Utils.getText(
-                            '${model['subcategory']?['name'] ?? ''}',
-                            overFlow: TextOverflow.ellipsis,
-                            weight: FontWeight.bold),
-                      ),
-                    ],
+                        Expanded(
+                          flex: 3,
+                          child: Utils.getText(
+                              '${model['subcategory']?['name'] ?? ''}',
+                              color: model['approved'] == 1 ? AppC.text : AppC.red,
+                              overFlow: TextOverflow.ellipsis,
+                              weight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
                   ),
-                  Row(
-                    children: [
-                      Utils.getText(
-                        '${model['category']?['name'] ?? ''} ',
-                        overFlow: TextOverflow.ellipsis,
-                      ),
-                      Utils.getText(" | ", weight: FontWeight.w900),
-                      Expanded(
-                        child: Utils.getText(
-                          '${model['subcategory']?['name'] ?? ''}',
+                  GestureDetector(
+                    onTap: () => categoryDialog(model),
+                    child: Row(
+                      children: [
+                        Utils.getText(
+                          '${model['category']?['name'] ?? ''} ',
+                          color: model['approved'] == 1 ? AppC.grey : AppC.red,
                           overFlow: TextOverflow.ellipsis,
                         ),
-                      ),
-                    ],
+                        Utils.getText(
+                          " | ",
+                          weight: FontWeight.w900,
+                          color: model['approved'] == 1 ? AppC.grey : AppC.red,
+                        ),
+                        Expanded(
+                          child: Utils.getText(
+                            '${model['subcategory']?['name'] ?? ''}',
+                            color: model['approved'] == 1 ? AppC.grey : AppC.red,
+                            overFlow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
                   )
                 ],
               ),
@@ -143,6 +162,7 @@ class OtherListingPage extends StatelessWidget {
                     "\$${model['expense_amount'].toString().toDoubleDigit}",
                     weight: FontWeight.bold,
                     overFlow: TextOverflow.ellipsis,
+                    color: model['approved'] == 1 ? AppC.text : AppC.red,
                   ),
                   InkWell(
                     onTap: () {},

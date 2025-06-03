@@ -18,7 +18,7 @@ class CompactIconButton extends StatelessWidget {
       this.icon = Icons.add_rounded,
       this.backgroundColor = AppC.appColor,
       this.foregroundColor = AppC.white,
-      this.elevation = 5,
+      this.elevation = 0,
       this.onTapDown,
       this.onPressed, this.shape, this.iconSize});
 

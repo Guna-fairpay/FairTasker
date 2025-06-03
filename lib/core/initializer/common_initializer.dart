@@ -72,6 +72,7 @@ class CommonService {
   List<Map<String, dynamic>> taskCategoryGroupList = [];
   Map<String, dynamic>? _vehicleStatus;
   List<Map<String, dynamic>> _leavelistType = [];
+  List<Map<String, dynamic>> expensesCategory = [];
 
 
   final ValueNotifier<bool> updateBranch = ValueNotifier(false);
@@ -593,6 +594,19 @@ class CommonService {
       var response = await _apiRepository.getFairTechProjects();
       FairTechProjects = List<Map<String, dynamic>>.from(response?['data']?['data'] ?? []);
       return FairTechProjects;
+    } catch (e) {
+      Toaster.showError(e.toString());
+      return [];
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> expenseCategory({bool reset = false}) async {
+    if (reset) expensesCategory.clear();
+    if (expensesCategory.isNotEmpty) return expensesCategory;
+    try {
+      var response = await _apiRepository.expensesCategory();
+      expensesCategory = List<Map<String, dynamic>>.from(response?['data'] ?? []);
+      return expensesCategory;
     } catch (e) {
       Toaster.showError(e.toString());
       return [];

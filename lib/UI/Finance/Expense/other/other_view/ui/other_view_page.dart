@@ -33,10 +33,11 @@ class OtherViewPage extends StatelessWidget {
                     ),
                   ),
                   CompactIconButton(
+                    elevation: 2,
                     icon:Icons.add,
                     iconSize: 18.spMin,
                     backgroundColor: AppC.appColor,
-                    onPressed: (){},
+                    onPressed: ()=> context.read<OtherViewBloc>().add(AddEditEvent()),
                     shape: WidgetStatePropertyAll<OutlinedBorder>(RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))),
                   ),
                   30.spMin.width,
@@ -52,13 +53,15 @@ class OtherViewPage extends StatelessWidget {
                 child: ListView.separated(
                   physics: const BouncingScrollPhysics(),
                     separatorBuilder: (context, index) => const Divider(height: 0.5),
-                    itemCount: context.read<OtherViewBloc>().apiResponse.length,
+                    itemCount: context.watch<OtherViewBloc>().apiResponse.length,
                   itemBuilder: (context, index) {
-                    var data = context.read<OtherViewBloc>().apiResponse[index];
+                    var data = context.watch<OtherViewBloc>().apiResponse[index];
                     return OtherListingPage(
                       model: data,
-                      onChanged: (v){},
-                      onDelete: (v){},
+                      categoryDialog: (v) => context.read<OtherViewBloc>().add(CategoryDialogEvent(v)),
+                      onChanged: (v) => context.read<OtherViewBloc>().add(ApproveEvent(model: data, approved: v)),
+                      onDelete: (v) => context.read<OtherViewBloc>().add(DeleteEvent(id: data['id'].toString())),
+                      onEdit: (v) => context.read<OtherViewBloc>().add(AddEditEvent(id: data['id'].toString())),
                     );
                   },
                 ),

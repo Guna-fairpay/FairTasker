@@ -290,10 +290,12 @@ class PersonExpenseBloc extends Bloc<PersonExpenseEvent, PersonExpenseState> {
             id: event.model['id'].toString(), approved: event.approved);
         //emit(state.copyWith(isLoading: false));
         //_resetAll();
+        var totalAmount = existResponse.where((e) => (e['approved'] == 1),).map((e) => num.tryParse(e['expense_amount'].toString()) ?? 0).sum;
 
         emit(state.copyWith(
           isLoading: false,
-          apiResponse: existResponse
+          apiResponse: existResponse,
+          approvedAmount: totalAmount,
         ));
       } catch (e) {
         log("$e", name: "Error In ApproveEvent");
@@ -305,7 +307,7 @@ class PersonExpenseBloc extends Bloc<PersonExpenseEvent, PersonExpenseState> {
       try {
         emit(state.copyWith(isLoading: true));
        var response = await apiRepository.deletePersonExpense(event.id);
-       if(response?.message != null) {
+       if(response?['message'] != null) {
          if (event.isEditPage == false) {
          List<dynamic> existResponse = state.apiResponse;
              existResponse.removeWhere((element) => element['id'].toString() == event.id.toString());
@@ -316,7 +318,7 @@ class PersonExpenseBloc extends Bloc<PersonExpenseEvent, PersonExpenseState> {
          }
          else {
            _broadcast.broadcast("expense_person_refresh");
-           Toaster.showSuccess(response?.message);
+           Toaster.showSuccess(response?['message']);
            emit(state.copyWith(popEditPage: true));
          }
         }

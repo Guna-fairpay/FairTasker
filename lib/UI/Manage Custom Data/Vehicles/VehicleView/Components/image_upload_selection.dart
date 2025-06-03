@@ -52,7 +52,7 @@ class ImageUploadSection extends StatelessWidget {
                 spacing: 5,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  //Icon(Icons.cloud_upload, color: borderColor, size: 13.sp),
+                  Icon(Icons.cloud_upload, color: borderColor, size: 13.sp),
                   Utils.getText(title, color: borderColor, weight: FontWeight.bold, size: 12.sp),
                 ],
               ),
@@ -60,7 +60,7 @@ class ImageUploadSection extends StatelessWidget {
           ),
           const SizedBox(height: 10)
         ],
-        if (images.isNotEmpty)
+        if (images.isNotEmpty)...[
           SizedBox(
             height: 100,
             child: GridView.builder(
@@ -78,13 +78,13 @@ class ImageUploadSection extends StatelessWidget {
                 },
                 onTapDelete: () {
                   (isDeleteDialog)?
-                    AskPermissionDialog.show(context,
-                        title: "Are you sure?",
-                        description: "Do you want to remove this image?",
-                        positiveText: "Yes, Remove it!",
-                        negativeText: "Cancel",
-                        isReasonRequired: false,
-                        onPositivePressed: () => onRemove(images[index]))
+                  AskPermissionDialog.show(context,
+                      title: "Are you sure?",
+                      description: "Do you want to remove this image?",
+                      positiveText: "Yes, Remove it!",
+                      negativeText: "Cancel",
+                      isReasonRequired: false,
+                      onPositivePressed: () => onRemove(images[index]))
                       : onRemove(images[index]);
                 },
                 child: Container(
@@ -105,6 +105,8 @@ class ImageUploadSection extends StatelessWidget {
               ),
             ),
           ),
+          10.spMin.height,
+        ],
       ],
     );
   }

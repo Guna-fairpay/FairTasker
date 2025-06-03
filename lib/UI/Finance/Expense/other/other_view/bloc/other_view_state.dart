@@ -25,3 +25,17 @@ class SuccessState extends OtherViewState{
   @override
   List<Object?> get props => [message, Random().nextDouble()];
 }
+
+class AddEditState extends OtherViewState{
+  final String? id;
+  AddEditState(this.id);
+  @override
+  List<Object?> get props => [id, Random().nextDouble()];
+}
+
+class CategoryDialogState extends OtherViewState {
+  final dynamic model;
+  CategoryDialogState(this.model);
+  @override
+  List<Object?> get props => [model, Random().nextDouble()];
+}
