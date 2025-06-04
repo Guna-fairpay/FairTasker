@@ -61,7 +61,7 @@ class PreCheckMainUi extends StatelessWidget {
                   key: UniqueKey(),
                   model: model,
                   onChanged: (value) => context.read<PreCheckBloc>().add(PreCheckCheckEvent(model, value)),
-                  onCreateTask: () => context.read<PreCheckBloc>().add(PreCheckSubmitEvent(model: model)));
+                  onCreateTask: () => context.read<PreCheckBloc>().add(PreCheckSubmitEvent(model)));
             },
           ),
         ),
