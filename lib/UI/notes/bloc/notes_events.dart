@@ -1,4 +1,4 @@
-import 'package:equatable/equatable.dart';
+part of 'notes_bloc.dart';
 
 abstract class NotesEvents extends Equatable {
   @override
@@ -134,4 +134,11 @@ class NotesSwapNoteEvent extends NotesEvents {
   NotesSwapNoteEvent(this.data);
   @override
   List<Object?> get props => [data];
+}
+
+class ViewTabEvent extends NotesEvents {
+  final int index;
+  ViewTabEvent(this.index);
+  @override
+  List<Object?> get props => [index];
 }
