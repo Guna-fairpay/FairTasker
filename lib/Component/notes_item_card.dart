@@ -121,7 +121,7 @@ class NotesItemCard extends StatelessWidget {
                   return (item == null) ? DragTarget<Map<String, dynamic>>(
                     key: Key("$index"),
                     builder: (context, candidateData, rejectedData) => Container(
-                      padding: (candidateData.isNotEmpty ? 20 : 8).padding,
+                      padding: (candidateData.isNotEmpty ? 20 : 1).padding,
                       color: candidateData.isNotEmpty
                           ? AppC.blue50
                           : Colors.transparent,
@@ -176,7 +176,7 @@ class NotesItemCard extends StatelessWidget {
                     children: [
                       DragTarget<Map<String, dynamic>>(
                         builder: (context, candidateData, rejectedData) => Container(
-                          padding: (candidateData.isNotEmpty ? 20 : 8).padding,
+                          padding: (candidateData.isNotEmpty ? 20 : 1).padding,
                           color: candidateData.isNotEmpty
                               ? AppC.blue50
                               : Colors.transparent,
