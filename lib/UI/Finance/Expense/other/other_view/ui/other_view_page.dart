@@ -58,7 +58,7 @@ class OtherViewPage extends StatelessWidget {
                     var data = context.watch<OtherViewBloc>().apiResponse[index];
                     return OtherListingPage(
                       model: data,
-                      onDetailsPage: (v) => context.read<OtherViewBloc>().add(OtherDetailsPageEvent(data['id'])),
+                      onDetailsPage: (v) => context.read<OtherViewBloc>().add(OtherDetailsPageEvent(v)),
                       categoryDialog: (v) => context.read<OtherViewBloc>().add(CategoryDialogEvent(v)),
                       onChanged: (v) => context.read<OtherViewBloc>().add(ApproveEvent(model: data, approved: v)),
                       onDelete: (v) => context.read<OtherViewBloc>().add(DeleteEvent(id: data['id'].toString())),

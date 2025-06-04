@@ -6,13 +6,18 @@ abstract class OtherExpenseDetailsEvent extends Equatable{
 }
 
 class InitialEvent extends OtherExpenseDetailsEvent{
-  final dynamic id;
-  InitialEvent({required this.id});
+  final dynamic model;
+  InitialEvent({required this.model});
   @override
-  List<Object?> get props => [id];
+  List<Object?> get props => [model];
 }
 
-class PaginationEvent extends OtherExpenseDetailsEvent{}
+class PaginationEvent extends OtherExpenseDetailsEvent{
+  final int page;
+  PaginationEvent({required this.page});
+  @override
+  List<Object?> get props => [page];
+}
 
 class EditEvent extends OtherExpenseDetailsEvent{
   final dynamic id;
@@ -20,3 +25,5 @@ class EditEvent extends OtherExpenseDetailsEvent{
   @override
   List<Object?> get props => [id];
 }
+
+class RefreshEvent extends OtherExpenseDetailsEvent{}

@@ -8,13 +8,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 class OtherExpenseDetailsMainPage extends StatelessWidget {
-  final dynamic id;
-  const OtherExpenseDetailsMainPage({super.key, required this.id});
+  final dynamic model;
+  const OtherExpenseDetailsMainPage({super.key, required this.model});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => OtherExpenseDetailsBloc()..add(InitialEvent(id: id)),
+      create: (context) => OtherExpenseDetailsBloc()..add(InitialEvent(model: model)),
         child: BlocListener<OtherExpenseDetailsBloc, OtherExpenseDetailsState>(
           listener: (context, state) {
             if(state is LoadingState){

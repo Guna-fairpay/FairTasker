@@ -2,14 +2,12 @@
 import 'package:fairpytasker/UI/Manage%20Employees/Employees/Employee_add_edit_page/Bloc/employee_add_edit_bloc.dart';
 import 'package:fairpytasker/UI/Manage%20Employees/Employees/Employee_add_edit_page/Bloc/employee_add_edit_event.dart';
 import 'package:fairpytasker/UI/Manage%20Employees/Employees/Employee_add_edit_page/Bloc/employee_add_edit_state.dart';
-import 'package:fairpytasker/UI/Manage%20Employees/Employees/Employee_add_edit_page/Component/rich_text.dart';
 import 'package:fairpytasker/UI/Manage%20Employees/Employees/employee_add_edit_page/Component/custom_rich_text.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
+import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
-import '../../../../../Utilities/utils.dart';
 
 class EmployeeAddEditTextFormFieldPage extends StatelessWidget {
   final dynamic id;
@@ -71,7 +69,7 @@ class EmployeeAddEditTextFormFieldPage extends StatelessWidget {
                       onTap: () => context.read<EmployeeAddEditBloc>().add(ShowPasswordEvent())),
                 ),
               ],
-              const MyRichText(text: 'Role'),
+              const CustomRichText(text: 'Role'),
               Utils.dropdownBox(
                   'Select a role',
                   context.read<EmployeeAddEditBloc>().roleList,

@@ -167,7 +167,7 @@ class OtherListingPage extends StatelessWidget {
                     color: model['approved'] == 1 ? AppC.text : AppC.red,
                   ),
                   InkWell(
-                    onTap: () => onDetailsPage(model['id']),
+                    onTap: () => onDetailsPage(model),
                     child: Utils.getText(
                       "\$${model['approved_amount'].toString().toDoubleDigit}",
                       weight: FontWeight.bold,

@@ -41,8 +41,8 @@ class CategoryDialogState extends OtherViewState {
 }
 
 class OtherDetailsState extends OtherViewState{
-  final dynamic id;
-  OtherDetailsState(this.id);
+  final dynamic model;
+  OtherDetailsState(this.model);
   @override
-  List<Object?> get props => [id, Random().nextDouble()];
+  List<Object?> get props => [model, Random().nextDouble()];
 }

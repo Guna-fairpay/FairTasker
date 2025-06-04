@@ -27,7 +27,7 @@ class OtherMainPage extends StatelessWidget {
                   case ErrorState(): Toaster.showError(state.message); break;
                   case AddEditState(): context.push(OtherAddEditMainPage(id: state.id)); break;
                   case CategoryDialogState(): CategoryDialogUI.show(model: state.model, context: context,); break;
-                  case OtherDetailsState(): context.push(OtherExpenseDetailsMainPage(id: state.id)); break;
+                  case OtherDetailsState(): context.push(OtherExpenseDetailsMainPage(model: state.model)); break;
                   default: break;
                 }
               }
