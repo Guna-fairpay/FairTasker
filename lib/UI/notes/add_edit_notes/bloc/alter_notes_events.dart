@@ -1,6 +1,4 @@
-import 'dart:ui' show Offset;
-
-import 'package:equatable/equatable.dart';
+part of 'alter_notes_bloc.dart';
 
 abstract class AlterNotesEvents extends Equatable {
   @override
@@ -70,4 +68,21 @@ class AlterNotesCompleteEvent extends AlterNotesEvents {
   AlterNotesCompleteEvent(this.model, this.status);
   @override
   List<Object?> get props => [model, status];
+}
+
+class ViewTimePickerEvent extends AlterNotesEvents {
+  final Map<String, dynamic>? model;
+  final dynamic time;
+  ViewTimePickerEvent(this.model, {this.time});
+  @override
+  List<Object?> get props => [model, time];
+}
+
+class PickSharingUsersEvent extends AlterNotesEvents {
+  final Offset? offset;
+  final Map<String, dynamic>? model;
+  final List<dynamic>? selectedUsers;
+  PickSharingUsersEvent(this.model, {this.offset, this.selectedUsers});
+  @override
+  List<Object?> get props => [model, selectedUsers, offset];
 }

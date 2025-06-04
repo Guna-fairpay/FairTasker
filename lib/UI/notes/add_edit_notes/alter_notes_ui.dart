@@ -1,11 +1,9 @@
-import 'package:fairpytasker/Component/notes_task_component.dart';
-import 'package:fairpytasker/Component/success_button.dart';
+import 'package:fairpytasker/Component/compact_app_bar.dart';
 import 'package:fairpytasker/UI/dialog/multioption_permission_dialog.dart';
 import 'package:fairpytasker/UI/dialog/popup/resource_selection_popup.dart';
 import 'package:fairpytasker/UI/notes/add_edit_notes/alter_notes_body.dart';
 import 'package:fairpytasker/UI/notes/add_edit_notes/bloc/alter_notes_bloc.dart';
-import 'package:fairpytasker/UI/notes/add_edit_notes/bloc/alter_notes_events.dart';
-import 'package:fairpytasker/UI/notes/add_edit_notes/bloc/alter_notes_states.dart';
+import 'package:fairpytasker/UI/notes/bloc/notes_bloc.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
@@ -25,17 +23,12 @@ class AlterNotesUi extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-            (noteId.toString().isNullOrEmpty) ? "Add Notes" : "Edit Notes"),
-        leadingWidth: 0,
-        automaticallyImplyLeading: false,
-        actions: [
-          IconButton(
-              onPressed: context.pop, icon: const Icon(Icons.close_rounded)),
-        ],
-        foregroundColor: Colors.white,
-        backgroundColor: AppC.appColor,
+      appBar: CompactAppBar(
+        backgroundColour: AppC.appColor,
+        foregroundColour: AppC.white,
+        onClose: context.pop,
+        automaticallyImplyleading: false,
+        titleText: (noteId.toString().isNullOrEmpty) ? "Add Notes" : "Edit Notes",
       ),
       body: BlocProvider(
         create: (context) =>
@@ -48,6 +41,8 @@ class AlterNotesUi extends StatelessWidget {
               if (EasyLoading.isShow) EasyLoading.dismiss();
               if (state is! AlterNotesCommonState) Utils.dismissKeyboard(context);
               switch (state){
+                case PickSharingUsersState(): ResourceSelectionPopup.show(context, omitCurrentUser: true, offset: state.offset, selectedResourceIds: state.selectedUserIds ,onChanged: (value) => context.read<AlterNotesBloc>().add(PickSharingUsersEvent(state.model, selectedUsers: value))); break;
+                case ViewTimePickerState(): Utils.showPickerTime(context, is24Hr: true, value: state.model?['note_time'].toString().toTimeOfDay(inputFormat: "HH:mm:ss"), onChanged: (value) => context.read<AlterNotesBloc>().add(ViewTimePickerEvent(state.model, time: value))); break;
                 case AlterNotesRemovePermissionState(): NotesMultiOptionDialog.show(context, model: state.model, showTask: state.showTask, showNotes: state.showNotes, onChanged: (value) => context.read<AlterNotesBloc>().add(AlterNotesDeleteEvent(state.model, value))); break;
                 case AlterNotesTapUserState(): ResourceSelectionPopup.show(context, offset: state.offset, selectedResourceIds: state.selectedUserIds ,onChanged: (value) => context.read<AlterNotesBloc>().add(AlterNotesUserSelectionEvent(state.model, value))); break;
                 case AlterNotesErrorState(): Toaster.showError(state.message); break;

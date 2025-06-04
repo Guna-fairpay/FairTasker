@@ -1,4 +1,6 @@
+import 'package:fairpytasker/Component/custom_text/compact_text.dart';
 import 'package:fairpytasker/Component/success_button.dart';
+import 'package:fairpytasker/Utilities/assets.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
@@ -8,15 +10,17 @@ import 'package:fairpytasker/utilities/utils.dart';
 import 'package:fairpytasker/utilities/appC.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class NotesTaskComponent extends StatelessWidget {
-  final bool showComplete, showRemove;
+  final VoidCallback? onTimePicker;
   final Map<String, dynamic>? model;
-  final GestureTapDownCallback? onTapDown;
-  final void Function(Map<String, dynamic>? value)? onCreateTask, onRemoveTask;
+  final bool showComplete, showRemove;
   final ValueChanged<bool?>? onShowHideNotes;
-  final void Function(bool? value, Map<String, dynamic>? data)? onCompleteTask;
+  final GestureTapDownCallback? onTapDown, onShareTapDown;
   final TextEditingController? taskController, notesController;
+  final void Function(Map<String, dynamic>? value)? onCreateTask, onRemoveTask;
+  final void Function(bool? value, Map<String, dynamic>? data)? onCompleteTask;
 
   const NotesTaskComponent(
       {super.key,
@@ -29,6 +33,8 @@ class NotesTaskComponent extends StatelessWidget {
       this.onTapDown,
       this.onCompleteTask,
       this.onShowHideNotes,
+      this.onTimePicker,
+      this.onShareTapDown,
       this.showRemove = false});
 
   @override
@@ -59,6 +65,11 @@ class NotesTaskComponent extends StatelessWidget {
               validator: (value) =>
                   (value?.trim().isNullOrEmpty ?? false) ? "Required" : null,
             )),
+              10.spMin.width,
+              GestureDetector(
+                  onTap: onTimePicker,
+                  child: (model?['note_time'].toString().isNullOrEmpty ?? false) ? SvgPicture.asset(Assets.durationIcon) : CompactText(model?['note_time'].toString().toFormat(inputFormat: "HH:mm:ss", format: "hh:mm a") ?? "")
+              ),
             // SHOW NOTES BOX
             Checkbox(
                 value: (model?['showNotes'] ?? false),
@@ -98,12 +109,19 @@ class NotesTaskComponent extends StatelessWidget {
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
-            spacing: 10,
+            spacing: 10.spMin,
             children: [
               const SizedBox.shrink(),
               SuccessButton(
                   text: (((model?['todo_id'] ?? 0) != 0) && (model?['todos'] != null)) ? "Update Task" : "Create Task",
                   onPressed: () => onCreateTask?.call(model)),
+              SuccessButton(
+                text: "Share",
+                onTapDown: onShareTapDown,
+                backgroundColor: AppC.appColor,
+              ),
+              if (List.from((model?['sharedTo'] ?? [])).isNotEmpty)
+              Expanded(child: CompactText(List.from((model?['sharedTo'] ?? [])).map((e) => <String>[(e['first_name'] ?? ""), (e['last_name'] ?? '')].toInitial).join(", ")))
             ],
           ),
         ],

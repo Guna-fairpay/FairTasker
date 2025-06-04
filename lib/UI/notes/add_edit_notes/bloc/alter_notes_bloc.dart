@@ -2,19 +2,22 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:equatable/equatable.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/Response/general_response.dart';
-import 'package:fairpytasker/UI/notes/add_edit_notes/bloc/alter_notes_events.dart';
-import 'package:fairpytasker/UI/notes/add_edit_notes/bloc/alter_notes_states.dart';
 import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/extension/timeday_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fairpytasker/Utilities/str.dart';
 import 'package:flutter/material.dart';
 
+part 'alter_notes_events.dart';
+part 'alter_notes_states.dart';
 class AlterNotesBloc extends Bloc<AlterNotesEvents, AlterNotesStates> {
   dynamic noteId;
   DateTime selectedDate = DateTime.now();
@@ -37,6 +40,8 @@ class AlterNotesBloc extends Bloc<AlterNotesEvents, AlterNotesStates> {
     on<AlterNotesUserSelectionEvent>(_onUserSelectionEvent);
     on<AlterNotesSaveEvent>(_onSaveEvent);
     on<AlterNotesCompleteEvent>(_onCompleteEvent);
+    on<ViewTimePickerEvent>(_onTimePickerEvent);
+    on<PickSharingUsersEvent>(_onPickSharingUsersEvent);
   }
 
   Future<Map<String, dynamic>?> _getNote(dynamic id) async =>
@@ -67,21 +72,26 @@ class AlterNotesBloc extends Bloc<AlterNotesEvents, AlterNotesStates> {
 
   int get _randomId => Random().nextInt(99999); // USING ONLY FOR NEW TASKS
 
-  void _onInitialEvent(
-      AlterNotesInitialEvent event, Emitter<AlterNotesStates> emit) async {
+  void _addEmptyNote() {
+    noteItems.add({
+      "id": _randomId,
+      "note_id": 0,
+      "todo_id": 0,
+      "title": TextEditingController(),
+      "description": TextEditingController(),
+      "complete_status": 0,
+      "note_time" : null,
+      "showNotes": false,
+      "selectedUsers": [],
+      "sharedTo": [],
+    });
+  }
+
+  void _onInitialEvent(AlterNotesInitialEvent event, Emitter<AlterNotesStates> emit) async {
     noteId = event.noteId;
     selectedDate = event.selectedDate;
     if (noteId.toString().isNullOrEmpty) {
-      noteItems.add({
-        "id": _randomId,
-        "note_id": 0,
-        "todo_id": 0,
-        "title": TextEditingController(),
-        "description": TextEditingController(),
-        "complete_status": 0,
-        "showNotes": false,
-        "selectedUsers": [],
-      });
+      _addEmptyNote();
     } else {
       emit(AlterNotesLoadingState());
       var response = await _getNote(noteId);
@@ -95,6 +105,7 @@ class AlterNotesBloc extends Bloc<AlterNotesEvents, AlterNotesStates> {
               ..['title'] = TextEditingController(text: e['title'])
               ..['description'] = TextEditingController(
                   text: (e['todos']?['notes'] ?? e['description']) ?? "")
+              ..['sharedTo'] = getIt<CommonService>().resourcesList.where((element) => List.from(e['shared_notes'] ?? []).contains(element['id'])).toList()
               ..['selectedUsers'] =
                   ((e['todos'].toString().isNullOrEmpty) || (e['todos'] == null)) ? [] : ([e['todos']?['users']]),
           )
@@ -104,16 +115,7 @@ class AlterNotesBloc extends Bloc<AlterNotesEvents, AlterNotesStates> {
   }
 
   void _onAddEvent(AlterNotesAddEvent event, Emitter<AlterNotesStates> emit) {
-    noteItems.add({
-      "id": _randomId,
-      "note_id": 0,
-      "todo_id": 0,
-      "title": TextEditingController(),
-      "description": TextEditingController(),
-      "complete_status": 0,
-      "showNotes": false,
-      "selectedUsers": [],
-    });
+    _addEmptyNote();
     emit(AlterNotesCommonState());
   }
 
@@ -284,6 +286,8 @@ class AlterNotesBloc extends Bloc<AlterNotesEvents, AlterNotesStates> {
                     "id": (e['note_id'] != 0) ? e['id'] : "",
                     "title": (e['title'] as TextEditingController).text,
                     "todo_id": (e['todo_id'] != 0) ? e['todo_id'] : "",
+                    "note_time": e['note_time'],
+                    "shared_to" : List.from(e['sharedTo'] ?? []).map((e) => e['id']).toList(),
                     "description":
                         (e['description'] as TextEditingController).text,
                     "complete_status": e['complete_status']
@@ -317,5 +321,27 @@ class AlterNotesBloc extends Bloc<AlterNotesEvents, AlterNotesStates> {
       Console.of.error(e);
       emit(AlterNotesErrorState(e));
     }
+  }
+
+  void _onTimePickerEvent(ViewTimePickerEvent event, Emitter<AlterNotesStates> emit) {
+    var model = event.model;
+    TimeOfDay? time = event.time;
+    if (time == null) return emit(ViewTimePickerState(model));
+    for (var element in noteItems) {
+      if (element['id'] == model?['id']) element['note_time'] = time.toHMS();
+    }
+    emit(AlterNotesCommonState());
+  }
+
+  void _onPickSharingUsersEvent(PickSharingUsersEvent event, Emitter<AlterNotesStates> emit) {
+    var model = event.model;
+    var selectedUsers = event.selectedUsers;
+    var offset = event.offset;
+    var existingSelectedUsers = List.from(model?['sharedTo'] ?? []);
+    if ((selectedUsers == null) && (offset != null)) return emit(PickSharingUsersState(model, offset: offset, selectedUserIds: existingSelectedUsers.map((e) => e['id']).toList()));
+    for (var element in noteItems) {
+      if (element['id'] == model?['id']) element['sharedTo'] = selectedUsers;
+    }
+    emit(AlterNotesCommonState());
   }
 }

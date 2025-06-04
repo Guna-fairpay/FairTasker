@@ -1,7 +1,4 @@
-import 'dart:math';
-import 'dart:ui' show Offset;
-
-import 'package:equatable/equatable.dart';
+part of 'alter_notes_bloc.dart';
 
 abstract class AlterNotesStates extends Equatable {
   @override
@@ -38,3 +35,19 @@ class AlterNotesTapUserState extends AlterNotesStates {
 }
 
 class AlterNotesCloseState extends AlterNotesStates {}
+
+class ViewTimePickerState extends AlterNotesStates {
+  final Map<String, dynamic>? model;
+  ViewTimePickerState(this.model);
+  @override
+  List<Object?> get props => [model, Random().nextDouble()];
+}
+
+class PickSharingUsersState extends AlterNotesStates {
+  final Map<String, dynamic>? model;
+  final List<dynamic>? selectedUserIds;
+  final Offset offset;
+  PickSharingUsersState(this.model, {required this.offset, this.selectedUserIds});
+  @override
+  List<Object?> get props => [model, offset, selectedUserIds, Random().nextDouble()];
+}
