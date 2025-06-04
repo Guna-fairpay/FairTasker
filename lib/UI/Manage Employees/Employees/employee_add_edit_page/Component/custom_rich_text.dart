@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class MyRichText extends StatelessWidget {
+class CustomRichText extends StatelessWidget {
   final String text;
-  const MyRichText({super.key, required this.text});
+  const CustomRichText({super.key, required this.text,});
 
   @override
   Widget build(BuildContext context) {

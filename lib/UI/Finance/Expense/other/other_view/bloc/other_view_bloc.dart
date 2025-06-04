@@ -6,7 +6,6 @@ import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
-import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
@@ -35,7 +34,16 @@ class OtherViewBloc extends Bloc<OtherViewEvent, OtherViewState>{
     on<AddEditEvent>(_onAddEditEvent);
     on<RefreshEvent>(_onRefreshEvent);
     on<CategoryDialogEvent>(_onCategoryDialogEvent);
-    _broadcast.register('expense_person_refresh', (value, callback) => add(RefreshEvent()));
+    on<OtherDetailsPageEvent>(_onOtherDetailsPageEvent);
+    _broadcast.register('expense_other_refresh', (value, callback) => add(RefreshEvent()));
+  }
+
+  Future<void> _onOtherDetailsPageEvent(OtherDetailsPageEvent event, Emitter<OtherViewState> emit) async{
+    try {
+      emit(OtherDetailsState(event.model));
+    } catch (e) {
+      _onError(e, emit);
+    }
   }
 
   Future<void> _onRefreshEvent(RefreshEvent event, Emitter<OtherViewState> emit) async{

@@ -93,7 +93,8 @@ class OtherAddEditBloc extends Bloc<OtherAddEditEvent, OtherAddEditState> {
       emit(LoadingState());
       var response = await _apiRepository.deletePersonExpense(id);
       if(response?['message'].contains('Expense deleted successfully.') == true) {
-        _broadcast.broadcast("expense_person_refresh");
+        _broadcast.broadcast("expense_other_refresh");
+        _broadcast.broadcast("expense_other_refresh");
         emit(SuccessState(response?['message']));
       }else{
         emit(CommonState());
@@ -188,8 +189,8 @@ class OtherAddEditBloc extends Bloc<OtherAddEditEvent, OtherAddEditState> {
         element['path'] == data.toString().removeStorageUrl)
             .map((e) => e['id'])
             .firstOrNull;
-
         await _apiRepository.deletePersonExpenseImage(attachmentId);
+        _broadcast.broadcast("expense_other_refresh");
         attachments.remove(event.data);
       }
       emit(CommonState());
@@ -210,7 +211,7 @@ class OtherAddEditBloc extends Bloc<OtherAddEditEvent, OtherAddEditState> {
         images: attachments.whereType<File>().toList(),
       );
       if(response?['data'] != null){
-        _broadcast.broadcast("expense_person_refresh");
+        _broadcast.broadcast("expense_other_refresh");
         emit(SuccessState(response?['message']));
       }else{
         emit(CommonState());
