@@ -113,9 +113,9 @@ class NotesItemCard extends StatelessWidget {
                 buildDefaultDragHandles: false,
                 physics: const NeverScrollableScrollPhysics(),
                 padding: 26.sp.horizontalPadding.copyWith(bottom: 10.sp),
-                itemCount: (List.from(model?['note_items'] ?? []).length) + 1,
+                itemCount: (List.from(model?[ (isSharedNotes) ? 'products_items' : 'note_items'] ?? []).length) + 1,
                 itemBuilder: (context, index) {
-                  var list = List.from(model?['note_items'] ?? []);
+                  var list = List.from(model?[(isSharedNotes) ? 'products_items' : 'note_items'] ?? []);
                   var totalIndex = list.length - 1;
                   var item = (index > totalIndex) ? null : list[index];
                   return (item == null) ? DragTarget<Map<String, dynamic>>(
