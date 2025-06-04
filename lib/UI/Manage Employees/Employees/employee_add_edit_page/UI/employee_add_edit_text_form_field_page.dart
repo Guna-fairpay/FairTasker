@@ -2,13 +2,12 @@
 import 'package:fairpytasker/UI/Manage%20Employees/Employees/Employee_add_edit_page/Bloc/employee_add_edit_bloc.dart';
 import 'package:fairpytasker/UI/Manage%20Employees/Employees/Employee_add_edit_page/Bloc/employee_add_edit_event.dart';
 import 'package:fairpytasker/UI/Manage%20Employees/Employees/Employee_add_edit_page/Bloc/employee_add_edit_state.dart';
-import 'package:fairpytasker/UI/Manage%20Employees/Employees/Employee_add_edit_page/Component/rich_text.dart';
+import 'package:fairpytasker/UI/Manage%20Employees/Employees/employee_add_edit_page/Component/custom_rich_text.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
+import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
-import '../../../../../Utilities/utils.dart';
 
 class EmployeeAddEditTextFormFieldPage extends StatelessWidget {
   final dynamic id;
@@ -23,25 +22,25 @@ class EmployeeAddEditTextFormFieldPage extends StatelessWidget {
             spacing: 10,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const MyRichText(text: 'First Name'),
+              const CustomRichText(text: 'First Name'),
               Utils.getTextFormField(
                   null, context.read<EmployeeAddEditBloc>().firstNameController,
                   hintText: 'Enter first name',
                   autoValidate: context.read<EmployeeAddEditBloc>().autoValidateMode,
                   validator: (value)=>(value?.isEmpty??true)?'Please enter first name':null,),
-              const MyRichText(text: 'Last Name'),
+              const CustomRichText(text: 'Last Name'),
               Utils.getTextFormField(
                   null, context.read<EmployeeAddEditBloc>().lastController,
                   autoValidate: context.read<EmployeeAddEditBloc>().autoValidateMode,
                   validator: (value)=>(value?.isEmpty??true)?'Please enter last name':null,
                   hintText: 'Enter last name'),
-              const MyRichText(text: 'Mobile No'),
+              const CustomRichText(text: 'Mobile No'),
               Utils.getTextFormField(
                   null, context.read<EmployeeAddEditBloc>().mobileController,
                   autoValidate: context.read<EmployeeAddEditBloc>().autoValidateMode,
                   validator: (value)=>(value?.isEmpty??true)?'Please enter mobile number':null,
                   hintText: 'Enter mobile number',textType: TextInputType.phone),
-              const MyRichText(text: 'Email'),
+              const CustomRichText(text: 'Email'),
               Utils.getTextFormField(
                   null, context.read<EmployeeAddEditBloc>().emailController,
                   autoValidate: context.read<EmployeeAddEditBloc>().autoValidateMode,
@@ -49,7 +48,7 @@ class EmployeeAddEditTextFormFieldPage extends StatelessWidget {
                   hintText: 'Enter a valid email address',
                   inputAction: TextInputAction.done,textType: TextInputType.emailAddress),
               if(id==null)...[
-                const MyRichText(text: 'Password'),
+                const CustomRichText(text: 'Password'),
                 Utils.getTextFormField(
                   null,
                   context.read<EmployeeAddEditBloc>().passwordController,
@@ -70,7 +69,7 @@ class EmployeeAddEditTextFormFieldPage extends StatelessWidget {
                       onTap: () => context.read<EmployeeAddEditBloc>().add(ShowPasswordEvent())),
                 ),
               ],
-              const MyRichText(text: 'Role'),
+              const CustomRichText(text: 'Role'),
               Utils.dropdownBox(
                   'Select a role',
                   context.read<EmployeeAddEditBloc>().roleList,

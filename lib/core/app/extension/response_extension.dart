@@ -10,6 +10,7 @@ extension ResponseExtension on Response? {
   bool get isSuccess => (this != null) && _successCodes.contains(this?.statusCode);
 
   Future<Map<String, dynamic>?> get mapData async {
+    if (!isSuccess) throw Exception("${this?.statusCode}: ${jsonDecode(this?.body ?? "")?['message'] ?? jsonDecode(this?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
     return ((this == null) || (this?.body.isEmpty ?? false)) ? null : await parseString<Map<String, dynamic>>(this!.body, (json) => Map<String, dynamic>.from(json));
   }
 
