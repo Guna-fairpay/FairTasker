@@ -27,3 +27,10 @@ class FilterCohortEvent extends DetailedReportEvent {
   @override
   List<Object?> get props => [model];
 }
+
+class ViewURLEvent extends DetailedReportEvent {
+  final String? model;
+  ViewURLEvent({this.model});
+  @override
+  List<Object?> get props => [model];
+}

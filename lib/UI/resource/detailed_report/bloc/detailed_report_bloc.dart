@@ -49,6 +49,7 @@ class DetailedBloc extends Bloc<DetailedReportEvent, DetailedState> {
     on<ViewByEvent>(_onViewByEvent);
     on<ViewFilterEvent>(_onViewFilterEvent);
     on<FilterCohortEvent>(_onFilterCohortEvent);
+    on<ViewURLEvent>(_onViewURLEvent);
   }
 
   Future<List<Map<String, dynamic>>?> _getCohorts() async => await getIt<CommonService>().getCohorts();
@@ -68,6 +69,7 @@ class DetailedBloc extends Bloc<DetailedReportEvent, DetailedState> {
       var history = _employeeTaskHistory?.values.expand((element) => element).toList();
       tasks = _mainCategories;
       if (taskByDay?.isEmpty ?? false) taskByDay = List.from(history ?? []);
+      taskByDay?.sort((a, b) => (a['todo_time'].compareTo(b['todo_time'])));
       history?.forEach((element) {
         if (element['vin'].toString().isNotNullOrEmpty && element['vehicle_name'].toString().isNullOrEmpty) {
           element['vehicle_name'] = _vehicles.firstWhereOrNull((v) => v['vin'] == element['vin'])?['vehicle_name'] ?? "";
@@ -142,5 +144,9 @@ class DetailedBloc extends Bloc<DetailedReportEvent, DetailedState> {
     } catch (e) {
       _error(e, emit);
     }
+  }
+
+  void _onViewURLEvent(ViewURLEvent event, Emitter<DetailedState> emit) {
+    if (event.model.isNotNullOrEmpty) return emit(ViewURLState(url: event.model));
   }
 }
