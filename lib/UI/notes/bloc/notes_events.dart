@@ -142,3 +142,18 @@ class ViewTabEvent extends NotesEvents {
   @override
   List<Object?> get props => [index];
 }
+
+class TimePickerEvent extends NotesEvents {
+  final dynamic model;
+  TimePickerEvent(this.model);
+  @override
+  List<Object?> get props => [model];
+}
+
+class UpdateTimeEvent extends NotesEvents {
+  final dynamic model;
+  final dynamic time;
+  UpdateTimeEvent(this.model, this.time);
+  @override
+  List<Object?> get props => [model, time];
+}

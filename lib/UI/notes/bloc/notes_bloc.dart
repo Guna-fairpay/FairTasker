@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:equatable/equatable.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
+import 'package:fairpytasker/core/app/extension/timeday_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
@@ -45,6 +46,8 @@ class NotesBloc extends Bloc<NotesEvents, NotesStates> {
     on<NotesSwapNoteItemsEvent>(_onSwapNoteItemsEvent);
     on<NotesSwapNoteEvent>(_onSwapNoteEvent);
     on<ViewTabEvent>(_onViewTabEvent);
+    on<TimePickerEvent>(_onTimePickerEvent);
+    on<UpdateTimeEvent>(_onTimeUpdateEvent);
   }
 
   Future<Map<String, dynamic>?> _fetchNotes() async => await _apiRepository.getNotes(selectedDate: selectedDate, status: showCompletedStates);
@@ -242,5 +245,26 @@ class NotesBloc extends Bloc<NotesEvents, NotesStates> {
   void _onViewTabEvent(ViewTabEvent event, Emitter<NotesStates> emit) {
     selectedPageIndex = event.index;
     emit(NotesCommonState());
+  }
+
+  void _onTimePickerEvent(TimePickerEvent event, Emitter<NotesStates> emit) {
+    emit(TimePickerState(event.model));
+  }
+
+  void _onTimeUpdateEvent(UpdateTimeEvent event, Emitter<NotesStates> emit) async {
+    try {
+      emit(NotesLoadingState());
+      TimeOfDay time = event.time;
+      Map<String, dynamic>? model = event.model;
+      var body = {
+        "note_time" : time.toHMS(),
+        "type" : "inline",
+      };
+      var response = await Future.microtask(() => _updateNoteItem(id: model?['id'], body: body));
+      if (response != null) _refreshNotes();
+    } catch (e) {
+      Console.of.error(e);
+      emit(NotesErrorState(e));
+    }
   }
 }

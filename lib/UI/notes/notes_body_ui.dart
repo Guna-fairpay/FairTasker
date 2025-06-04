@@ -34,16 +34,15 @@ class NotesBodyUi extends StatelessWidget {
                         context.read<NotesBloc>().add((direction == DismissDirection.endToStart) ? NotesSwipeCompleteEvent(model) : NotesSwipeTomorrowEvent(model));
                         return true;
                       },
+                      onTimePicker: (value) => context.read<NotesBloc>().add(TimePickerEvent(value)),
                       onNotesComplete: (mod, value) => context.read<NotesBloc>().add(NotesCheckTapEvent(mod, isAll: true, status: value)),
                       onTaskComplete: (mod, value) => context.read<NotesBloc>().add(NotesCheckTapEvent(mod, isAll: false, status: value)),
                       onAddNotesPressed: ()=> context.read<NotesBloc>().add(NotesAddTaskTapEvent(model)),
                       onEditTakPressed: (value)=> context.read<NotesBloc>().add(NotesEditTaskTapEvent(value)),
                       onSwapNoteItems: (value)=> context.read<NotesBloc>().add(NotesSwapNoteItemsEvent(value)),
-                      onEditPressed: () =>
-                          context.read<NotesBloc>().add(NotesEditEvent(model)),
-                      onDeletePressed: () => context
-                          .read<NotesBloc>()
-                          .add(NotesDeletePermissionEvent(model)));
+                      onEditPressed: () => context.read<NotesBloc>().add(NotesEditEvent(model)),
+                      onDeletePressed: () => context.read<NotesBloc>().add(NotesDeletePermissionEvent(model))
+                  );
                 },
                 itemCount: context.watch<NotesBloc>().apiResponse?.length ?? 0,
                 onReorder: (oldIndex, newIndex) {
