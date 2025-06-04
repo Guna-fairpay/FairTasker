@@ -14,6 +14,7 @@ class OtherListingPage extends StatelessWidget {
   final void Function(bool? value)? onChanged;
   final void Function(dynamic)onEdit;
   final void Function(dynamic)categoryDialog;
+  final void Function(dynamic)onDetailsPage;
 
   const OtherListingPage(
       {super.key,
@@ -22,6 +23,7 @@ class OtherListingPage extends StatelessWidget {
       required this.onChanged,
       required this.onEdit,
       required this.categoryDialog,
+        required this.onDetailsPage,
       });
 
   @override
@@ -165,7 +167,7 @@ class OtherListingPage extends StatelessWidget {
                     color: model['approved'] == 1 ? AppC.text : AppC.red,
                   ),
                   InkWell(
-                    onTap: () {},
+                    onTap: () => onDetailsPage(model['id']),
                     child: Utils.getText(
                       "\$${model['approved_amount'].toString().toDoubleDigit}",
                       weight: FontWeight.bold,

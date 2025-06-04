@@ -35,7 +35,16 @@ class OtherViewBloc extends Bloc<OtherViewEvent, OtherViewState>{
     on<AddEditEvent>(_onAddEditEvent);
     on<RefreshEvent>(_onRefreshEvent);
     on<CategoryDialogEvent>(_onCategoryDialogEvent);
+    on<OtherDetailsPageEvent>(_onOtherDetailsPageEvent);
     _broadcast.register('expense_person_refresh', (value, callback) => add(RefreshEvent()));
+  }
+
+  Future<void> _onOtherDetailsPageEvent(OtherDetailsPageEvent event, Emitter<OtherViewState> emit) async{
+    try {
+      emit(OtherDetailsState(event.id));
+    } catch (e) {
+      _onError(e, emit);
+    }
   }
 
   Future<void> _onRefreshEvent(RefreshEvent event, Emitter<OtherViewState> emit) async{

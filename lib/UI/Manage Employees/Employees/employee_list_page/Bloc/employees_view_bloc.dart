@@ -73,7 +73,7 @@ class EmployeesViewBloc extends Bloc<EmployeesViewEvent, EmployeesViewState>{
     try{
       emit(EmployeesLoadingState());
       var response = await _apiRepository.getEmployeeData();
-      apiResponse =List.from(response?['role']);
+      apiResponse =List.from(response?['role'] ?? []);
       apiResponse = apiResponse
           .mapIndexed((index, element) => {...element, 'index': index + 1})
           .toList();

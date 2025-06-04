@@ -44,3 +44,10 @@ class CategoryDialogEvent extends OtherViewEvent{
   @override
   List<Object?> get props => [model];
 }
+
+class OtherDetailsPageEvent extends OtherViewEvent{
+  final dynamic id;
+  OtherDetailsPageEvent(this.id);
+  @override
+  List<Object?> get props => [id];
+}

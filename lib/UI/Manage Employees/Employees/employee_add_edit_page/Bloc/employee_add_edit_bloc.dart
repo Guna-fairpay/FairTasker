@@ -52,21 +52,21 @@ class EmployeeAddEditBloc extends Bloc<EmployeeAddEditEvent, EmployeeAddEditStat
         var departmentResponse = await _apiRepository.getDepartmentData();
         var response = await _apiRepository.getEmployeeById(id: event.id);
         apiResponse = response?['user'];
-        roleList = List.from(response?['role']);
-        departmentList =List.from(departmentResponse?['department']);
-        firstNameController.text = response?['user']?['first_name'];
-        lastController.text = response?['user']?['last_name'];
-        emailController.text = response?['user']?['email'];
-        mobileController.text = response?['user']?['phone'];
+        roleList = List.from(response?['role'] ?? []);
+        departmentList =List.from(departmentResponse?['department'] ?? []);
+        firstNameController.text = response?['user']?['first_name'] ?? '';
+        lastController.text = response?['user']?['last_name'] ?? '';
+        emailController.text = response?['user']?['email'] ?? '';
+        mobileController.text = response?['user']?['phone'] ?? '';
         selectedRole = roleList.where(
                 (element) => element['id'].toString() ==  (apiResponse['role']?['id']).toString()).firstOrNull;
-        selectedDepartment =List.from(departmentResponse?['department']).where(
+        selectedDepartment =List.from(departmentResponse?['department'] ?? []).where(
                 (element) => element['id'].toString() ==  (apiResponse['department']).toString()).firstOrNull;
       }else{
       var roleResponse = await _apiRepository.getRoleData();
       var departmentResponse = await _apiRepository.getDepartmentData();
-      roleList = List.from(roleResponse?['role']);
-      departmentList = List.from(departmentResponse?['department']);
+      roleList = List.from(roleResponse?['role'] ?? []);
+      departmentList = List.from(departmentResponse?['department'] ?? []);
       }
       emit(EmployeeAddEditCommonState());
     }catch(e){
