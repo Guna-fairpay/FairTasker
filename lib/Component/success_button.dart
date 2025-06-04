@@ -12,11 +12,13 @@ class SuccessButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final Color? backgroundColor, foregroundColor;
   final Alignment? alignment;
+  final GestureTapDownCallback? onTapDown;
 
   const SuccessButton(
       {super.key,
       this.text,
       this.icon,
+      this.onTapDown,
       this.onPressed,
       this.elevation = 0,
       this.isOutline = false,
@@ -48,36 +50,39 @@ class SuccessButton extends StatelessWidget {
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
                 fontSize: 12.sp)));
-    return (icon != null)
-        ? (isOutline)
-            ? OutlinedButton.icon(
-                key: key,
-                icon: Icon(icon),
-                onPressed: onPressed,
-                clipBehavior: Clip.antiAliasWithSaveLayer,
-                style: style,
-                label: Text(text ?? 'Submit'))
-            : ElevatedButton.icon(
-                key: key,
-                icon: Icon(icon),
-                onPressed: onPressed,
-                clipBehavior: Clip.antiAliasWithSaveLayer,
-                style: style,
-                label: Text(text ?? 'Submit'),
-              )
-        : (isOutline)
-            ? OutlinedButton(
-                key: key,
-                onPressed: onPressed,
-                clipBehavior: Clip.antiAliasWithSaveLayer,
-                style: style,
-                child: Text(text ?? 'Submit'))
-            : ElevatedButton(
-                key: key,
-                onPressed: onPressed,
-                clipBehavior: Clip.antiAliasWithSaveLayer,
-                style: style,
-                child: Text(text ?? 'Submit'),
-              );
+    return GestureDetector(
+      onTapDown: onTapDown,
+      child: (icon != null)
+          ? (isOutline)
+          ? OutlinedButton.icon(
+          key: key,
+          icon: Icon(icon),
+          onPressed: onPressed,
+          clipBehavior: Clip.antiAliasWithSaveLayer,
+          style: style,
+          label: Text(text ?? 'Submit'))
+          : ElevatedButton.icon(
+        key: key,
+        icon: Icon(icon),
+        onPressed: onPressed,
+        clipBehavior: Clip.antiAliasWithSaveLayer,
+        style: style,
+        label: Text(text ?? 'Submit'),
+      )
+          : (isOutline)
+          ? OutlinedButton(
+          key: key,
+          onPressed: onPressed,
+          clipBehavior: Clip.antiAliasWithSaveLayer,
+          style: style,
+          child: Text(text ?? 'Submit'))
+          : ElevatedButton(
+        key: key,
+        onPressed: onPressed,
+        clipBehavior: Clip.antiAliasWithSaveLayer,
+        style: style,
+        child: Text(text ?? 'Submit'),
+      ),
+    );
   }
 }

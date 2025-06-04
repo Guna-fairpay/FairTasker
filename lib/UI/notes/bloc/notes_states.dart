@@ -66,3 +66,10 @@ class NotesCheckTapState extends NotesStates {
   @override
   List<Object?> get props => [data, isAll, status, Random().nextDouble()];
 }
+
+class TimePickerState extends NotesStates {
+  final dynamic model;
+  TimePickerState(this.model);
+  @override
+  List<Object?> get props => [model, Random().nextDouble()];
+}

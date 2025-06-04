@@ -3288,12 +3288,22 @@ class Utils {
     dismissKeyboard(context);
   }
 
-  static void showPickerTime(BuildContext context, {TimeOfDay? value, void Function(TimeOfDay)? onChanged}) async {
-    var result = await showTimePicker(
+  static void showPickerTime(BuildContext context, {bool is24Hr = false, TimeOfDay? value, void Function(TimeOfDay)? onChanged}) async {
+    var result = await ((is24Hr) ? showTimePicker(
+        context: context,
+        initialTime: value ?? TimeOfDay.fromDateTime(DateTime.now()),
+        initialEntryMode: TimePickerEntryMode.dialOnly,
+        builder: (context, child) {
+          return MediaQuery(
+              data: MediaQuery.of(context).copyWith(
+                alwaysUse24HourFormat: true,
+              ),
+              child: child!);
+        }
+    ) : showTimePicker(
       context: context,
       initialTime: value ?? TimeOfDay.fromDateTime(DateTime.now()),
-      initialEntryMode: TimePickerEntryMode.dialOnly,
-    );
+      initialEntryMode: TimePickerEntryMode.dialOnly));
     if (result != null) onChanged?.call(result);
     dismissKeyboard(context);
   }

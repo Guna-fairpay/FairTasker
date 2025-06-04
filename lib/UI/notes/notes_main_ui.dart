@@ -11,6 +11,7 @@ import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter/material.dart';
@@ -56,6 +57,7 @@ class NotesMainUi extends StatelessWidget {
               case NotesEditTaskTapState(): NotesTaskAddEditDialog.show(context, model: state.data, onChanged: (value) => context.read<NotesBloc>().add(NotesUpdateTaskEvent(state.data, value)), isEdit: true); break;
               case NotesCheckTapState(): AskPermissionDialog.show(context, description: "Are you sure want to complete the task/notes", positiveText: "Yes", negativeText: "No", onPositivePressed: () => context.read<NotesBloc>().add(NotesCheckEvent(state.data, isAll: state.isAll, status: state.status))); break;
               case NotesAddNewState(): context.push(AlterNotesUi(noteId: state.noteId, selectedDate: state.selectedDate), fullscreenDialog: true); break;
+              case TimePickerState(): Utils.showPickerTime(context, is24Hr: true, value: state.model?['note_time'].toString().toTimeOfDay(inputFormat: "HH:mm:ss"), onChanged: (value) => context.read<NotesBloc>().add(UpdateTimeEvent(state.model, value)));
             }
           }
         },

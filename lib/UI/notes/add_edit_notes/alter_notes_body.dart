@@ -1,8 +1,6 @@
 import 'package:fairpytasker/Component/notes_task_component.dart';
 import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/UI/notes/add_edit_notes/bloc/alter_notes_bloc.dart';
-import 'package:fairpytasker/UI/notes/add_edit_notes/bloc/alter_notes_events.dart';
-import 'package:fairpytasker/UI/notes/add_edit_notes/bloc/alter_notes_states.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/utilities/appC.dart';
@@ -53,6 +51,8 @@ class AlterNotesBody extends StatelessWidget {
                           onRemoveTask: (value) => context.read<AlterNotesBloc>().add(AlterNotesRemoveEvent(value)),
                           onShowHideNotes: (value) => context.read<AlterNotesBloc>().add(AlterNotesShowHideNotesEvent(model, value)),
                           onTapDown: (details) => context.read<AlterNotesBloc>().add(AlterNotesTapUserEvent(model, details.globalPosition)),
+                          onTimePicker: () => context.read<AlterNotesBloc>().add(ViewTimePickerEvent(model)),
+                          onShareTapDown: (details) => context.read<AlterNotesBloc>().add(PickSharingUsersEvent(model, offset: details.globalPosition)),
                         );
                       },
                       itemCount: context.watch<AlterNotesBloc>().noteItems.length,

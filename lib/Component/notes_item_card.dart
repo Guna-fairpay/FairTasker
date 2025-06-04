@@ -1,10 +1,12 @@
-import 'dart:convert';
 
 import 'package:collection/collection.dart';
+import 'package:fairpytasker/Component/custom_text/compact_text.dart';
+import 'package:fairpytasker/Component/row_tile.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/assets.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
@@ -18,7 +20,7 @@ class NotesItemCard extends StatelessWidget {
   final List<Map<String, dynamic>>? totalItems;
   final VoidCallback? onEditPressed, onDeletePressed, onAddNotesPressed;
   final ValueChanged<Map<String, dynamic>?>? onSwapNoteItems;
-  final Function(Map<String, dynamic>? value)? onEditTakPressed;
+  final Function(Map<String, dynamic>? value)? onEditTakPressed, onTimePicker;
   final Future<bool?> Function(DismissDirection direction)? onConfirmDismiss;
   final Function(Map<String, dynamic>? model, bool? status)? onNotesComplete, onTaskComplete;
 
@@ -29,6 +31,7 @@ class NotesItemCard extends StatelessWidget {
       this.totalItems,
       this.onSwapNoteItems,
       this.onConfirmDismiss,
+      this.onTimePicker,
       this.onEditPressed,
       this.onDeletePressed,
       this.onAddNotesPressed,
@@ -62,22 +65,19 @@ class NotesItemCard extends StatelessWidget {
           shape: ContinuousRectangleBorder(
               borderRadius: BorderRadius.circular(Num.borderRadiusLarge)),
           elevation: 5,
-          color: Colors.white,
+          color: AppC.lightsGrey,
           clipBehavior: Clip.antiAliasWithSaveLayer,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ListTile(
+              RowTile(
+                expandTitle: true,
                 leading: Checkbox(
                   value: (model?['status'] == 1),
                   side: const BorderSide(width: Num.borderWidthThinField),
                   onChanged: (value) => onNotesComplete?.call(model, value),
                 ),
-                minLeadingWidth: 10,
-                dense: true,
-                titleAlignment: ListTileTitleAlignment.center,
-                horizontalTitleGap: 0,
                 title: GestureDetector(
                   onTap: onEditPressed,
                   child: Text("${model?['title'] ?? ""}", style: context.textTheme.labelLarge
@@ -86,21 +86,23 @@ class NotesItemCard extends StatelessWidget {
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    if (isSharedNotes)
+                      CompactText(<String>[(model?['users']?['first_name'] ?? ""), (model?['users']?['last_name'] ?? "")].toInitial, fontWeight: FontWeight.bold, color: AppC.appColor),
                     if (!isSharedNotes)
-                    IconButton(
-                      onPressed: onAddNotesPressed,
-                      icon: SvgPicture.asset(Assets.tablePlusIcon, color: AppC.appColor),
-                      style: const ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-                    ),
+                      IconButton(
+                        onPressed: onAddNotesPressed,
+                        icon: SvgPicture.asset(Assets.tablePlusIcon, theme: const SvgTheme(currentColor: AppC.appColor),),
+                        style: const ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+                      ),
                     IconButton(
                       onPressed: onEditPressed,
-                      icon: SvgPicture.asset(Assets.penEditIcon, color: AppC.appColor,),
+                      icon: SvgPicture.asset(Assets.penEditIcon, theme: const SvgTheme(currentColor: AppC.appColor),),
                       style: const ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
                     ),
                     IconButton(
-                        onPressed: onDeletePressed,
-                        icon: SvgPicture.asset(Assets.trashIcon, color: AppC.redAccent),
-                        style: const ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+                      onPressed: onDeletePressed,
+                      icon: SvgPicture.asset(Assets.trashIcon, theme: const SvgTheme(currentColor: AppC.redAccent)),
+                      style: const ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
                     ),
                   ],
                 ),
@@ -229,39 +231,33 @@ class NotesItemCard extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            ListTile(
-                              contentPadding: EdgeInsets.zero,
-                              minVerticalPadding: 0,
+                            RowTile(
+                              expandTitle: true,
+                              onTap: () => onEditTakPressed?.call(item),
                               leading: Checkbox(
                                 value: (item['todos']?['status'].toString().isNotNullOrEmpty ?? false) ? (item['todos']?['status'] == "Completed") : (item['complete_status'] == 1),
                                 side:
                                 const BorderSide(width: Num.borderWidthThinField),
                                 onChanged: (value) => onTaskComplete?.call(item, value),
                               ),
-                              minLeadingWidth: 0,
-                              horizontalTitleGap: 0,
-                              dense: true,
+                              title: CompactText("${item['title'] ?? ""}", styleType: TextStyleType.labelLarge, fontWeight: FontWeight.bold),
                               trailing: (!isSharedNotes) ? Row(
                                 mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  IconButton(
-                                    onPressed: () => onEditTakPressed?.call(item),
-                                    icon: SvgPicture.asset(Assets.durationIcon)
+                                  GestureDetector(
+                                      onTap: () => onTimePicker?.call(item),
+                                      child: (item?['note_time'].toString().isNullOrEmpty ?? false) ? SvgPicture.asset(Assets.durationIcon) : CompactText(item?['note_time'].toString().toFormat(inputFormat: "HH:mm:ss", format: "hh:mm a") ?? "")
                                   ),
                                   ReorderableDragStartListener(
                                     index: index,
-                                    child: Icon(Icons.drag_handle, color: Colors.black.withValues(alpha: 0.0)),
+                                    child: const Icon(Icons.drag_handle, color: AppC.trans),
                                   )
                                 ],
                               ) : ReorderableDragStartListener(
                                 index: index,
                                 child: Icon(Icons.drag_handle, color: Colors.black.withValues(alpha: 0.0)),
                               ),
-                              titleAlignment: ListTileTitleAlignment.top,
-                              title: Text("${item['title'] ?? ""}"),
-                              titleTextStyle: context.textTheme.labelLarge
-                                  ?.copyWith(fontWeight: FontWeight.bold),
-                              onTap: () => onEditTakPressed?.call(item),
                             ),
                             if ((item['description'].toString().isNotNullOrEmpty) || ((item['todos'] != null) && (item['todos']?['notes'].toString().isNotNullOrEmpty ?? false)))
                               Padding(
@@ -291,17 +287,16 @@ class NotesItemCard extends StatelessWidget {
                   "note_id" : newModel?['note_id']
                 };
                 onSwapNoteItems?.call(body);
-              },
-              ),
+              }),
               if (isSharedNotes)
               Padding(
-                  padding: 20.leftPadding,
+                  padding: 20.spMin.leftPadding.copyWith(bottom: 20.spMin),
                   child: IconButton(
                       onPressed: onAddNotesPressed,
                       icon: const Icon(Icons.add_rounded),
                       color: AppC.appColor,
                       alignment: Alignment.centerLeft)),
-              20.height,
+              // 20.height,
             ],
           ),
         ));

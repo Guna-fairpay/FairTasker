@@ -13,7 +13,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class ResourceSelectionPopup {
   ResourceSelectionPopup._();
 
-  static void show(BuildContext context, {required Offset offset, List<dynamic>? selectedResourceIds, void Function(List<Map<String, dynamic>> value)? onChanged}) async {
+  static void show(BuildContext context, {bool omitCurrentUser = false, required Offset offset, List<dynamic>? selectedResourceIds, void Function(List<Map<String, dynamic>> value)? onChanged}) async {
     int? branchId = Session.of.getInt(Str.branchIdPrefText);
     bool isAdmin = getIt<CommonService>().isAdmin;
     var acceptDepartmentIds = [isAdmin ? "8" : "", "7"];
@@ -21,6 +21,7 @@ class ResourceSelectionPopup {
     var resources = await getIt<CommonService>().getResources();
     var listing = List<Map<String, dynamic>>.from(resources);
     listing.removeWhere((element) => (element['deleted_at'].toString().isNotNullOrEmpty) || (element['branch_id'].toString().isNullOrEmpty) || ((element['branch_id'] != branchId) && (!acceptDepartmentIds.contains(element['department'])) && (element['id'] != 3)));
+    if (omitCurrentUser) listing.removeWhere((element) => element['id'] == getIt<CommonService>().userId);
     List<Map<String, dynamic>> selected = listing.where((element) => selectedResourceIds?.contains(element['id']) ?? false).toList();
     ValueNotifier<List<Map<String, dynamic>>> selection = ValueNotifier(selected);
     await showMenu(
