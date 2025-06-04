@@ -113,9 +113,9 @@ class NotesItemCard extends StatelessWidget {
                 buildDefaultDragHandles: false,
                 physics: const NeverScrollableScrollPhysics(),
                 padding: 26.sp.horizontalPadding.copyWith(bottom: 10.sp),
-                itemCount: (List.from(model?['note_items'] ?? []).length) + 1,
+                itemCount: (List.from(model?[ (isSharedNotes) ? 'products_items' : 'note_items'] ?? []).length) + 1,
                 itemBuilder: (context, index) {
-                  var list = List.from(model?['note_items'] ?? []);
+                  var list = List.from(model?[(isSharedNotes) ? 'products_items' : 'note_items'] ?? []);
                   var totalIndex = list.length - 1;
                   var item = (index > totalIndex) ? null : list[index];
                   return (item == null) ? DragTarget<Map<String, dynamic>>(
@@ -134,7 +134,7 @@ class NotesItemCard extends StatelessWidget {
                         var newIndex = ((list.length - 1) < index) ? index - 1 : index;
                         var newModel = list[newIndex];
                         if (newIndex == oldIndex) oldIndex--;
-                        var oldModel = model;
+                        var oldModel = data;
                         var body = {
                           "items" : [
                             {"id" : oldModel?['id'], "item_index" : newIndex},
@@ -142,7 +142,9 @@ class NotesItemCard extends StatelessWidget {
                           ],
                           "note_id" : newModel?['note_id']
                         };
-                        Console.of.log(body);
+                        Console.of.log(body, name: "NOTES");
+                        Console.of.log(oldModel, name: "NOTES_OLD");
+                        Console.of.log(newModel, name: "NOTES_NEW");
                         onSwapNoteItems?.call(body);
                       } else { // SWAP WITH DIFFERENT PARENT
                         var oldListIds = List.from(totalItems?.firstWhereOrNull((element) => element['id'] == data['note_id'])?['note_items'] ?? []).whereNot((element) => element['id'] == data['id']).map((e) => e['id']).toList();
@@ -184,16 +186,21 @@ class NotesItemCard extends StatelessWidget {
                           if (data['note_id'] == model?['id']) { // JUST NORMAL SWAP
                             var list = List.from(model?['note_items'] ?? []);
                             var oldIndex = data['item_index'];
-                            var newModel = list[index];
-                            var oldModel = model;
+                            var newIndex = ((list.length - 1) < index) ? index - 1 : index;
+                            var newModel = list[newIndex];
+                            if (newIndex == oldIndex) oldIndex--;
+                            var oldModel = data;
                             var body = {
                               "items" : [
-                                {"id" : oldModel?['id'], "item_index" : index},
+                                {"id" : oldModel['id'], "item_index" : newIndex},
                                 {"id" : newModel?['id'], "item_index" : oldIndex},
                               ],
                               "note_id" : newModel?['note_id']
                             };
                             Console.of.log(body);
+                            Console.of.log(data, name: "NOTES_DATA");
+                            Console.of.log(oldModel, name: "NOTES_OLD_ALT");
+                            Console.of.log(newModel, name: "NOTES_NEW_ALT");
                             onSwapNoteItems?.call(body);
                           } else { // SWAP WITH DIFFERENT PARENT
                             var oldListIds = List.from(totalItems?.firstWhereOrNull((element) => element['id'] == data['note_id'])?['note_items'] ?? []).whereNot((element) => element['id'] == data['id']).map((e) => e['id']).toList();
