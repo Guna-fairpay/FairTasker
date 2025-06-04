@@ -14,8 +14,8 @@ class ColumnTile extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        CompactText(label ?? ""),
-        CompactText(title ?? "", styleType: TextStyleType.titleMedium, fontWeight: FontWeight.bold),
+        CompactText(label ?? "", styleType: TextStyleType.labelLarge, fontWeight: FontWeight.bold),
+        CompactText(title ?? "", styleType: TextStyleType.labelLarge),
       ],
     );
   }

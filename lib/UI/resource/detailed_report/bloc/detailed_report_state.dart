@@ -31,3 +31,10 @@ class ViewFilterState extends DetailedState {
   @override
   List<Object?> get props => [model, Random().nextDouble()];
 }
+
+class ViewURLState extends DetailedState {
+  final String? url;
+  ViewURLState({this.url});
+  @override
+  List<Object?> get props => [url, Random().nextDouble()];
+}

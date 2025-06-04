@@ -36,9 +36,9 @@ class DetailedReportHeader extends StatelessWidget {
                 Padding(
                   padding: 10.spMin.horizontalPadding,
                   child: Container(
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                         border: Border(
-                            bottom: const BorderSide(
+                            bottom: BorderSide(
                                 color: AppC.borderColor,
                                 width: Num.borderWidthButton))),
                     child: Row(
