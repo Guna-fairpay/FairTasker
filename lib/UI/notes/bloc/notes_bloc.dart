@@ -1,8 +1,8 @@
 import 'dart:async';
+import 'dart:math';
 
+import 'package:equatable/equatable.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
-import 'package:fairpytasker/UI/notes/bloc/notes_events.dart';
-import 'package:fairpytasker/UI/notes/bloc/notes_states.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
@@ -10,6 +10,8 @@ import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+part 'notes_events.dart';
+part 'notes_states.dart';
 class NotesBloc extends Bloc<NotesEvents, NotesStates> {
   final TextEditingController searchController = TextEditingController();
   final APiRepository _apiRepository = APiRepository();
@@ -17,6 +19,7 @@ class NotesBloc extends Bloc<NotesEvents, NotesStates> {
   DateTime selectedDate = DateTime.now();
   bool showCompletedStates = false;
   final FBroadcast _fBroadcast = FBroadcast.instance();
+  int selectedPageIndex = 0;
   NotesBloc() : super(NotesLoadingState()) {
     _fBroadcast.register("notes_view", (value, callback) => add(NotesInitialEvent()));
     getIt<CommonService>().branchUpdate(callback: () => add(NotesInitialEvent()));
@@ -41,6 +44,7 @@ class NotesBloc extends Bloc<NotesEvents, NotesStates> {
     on<NotesCheckEvent>(_onCheckSubmitEvent);
     on<NotesSwapNoteItemsEvent>(_onSwapNoteItemsEvent);
     on<NotesSwapNoteEvent>(_onSwapNoteEvent);
+    on<ViewTabEvent>(_onViewTabEvent);
   }
 
   Future<Map<String, dynamic>?> _fetchNotes() async => await _apiRepository.getNotes(selectedDate: selectedDate, status: showCompletedStates);
@@ -233,5 +237,10 @@ class NotesBloc extends Bloc<NotesEvents, NotesStates> {
       Console.of.error("Error", error: e);
       emit(NotesErrorState(e));
     }
+  }
+
+  void _onViewTabEvent(ViewTabEvent event, Emitter<NotesStates> emit) {
+    selectedPageIndex = event.index;
+    emit(NotesCommonState());
   }
 }

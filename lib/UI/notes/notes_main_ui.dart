@@ -1,21 +1,26 @@
-import 'package:fairpytasker/Component/date_switcher.dart';
+import 'package:fairpytasker/Component/custom_tab_button.dart';
+import 'package:fairpytasker/Component/empty_widget.dart';
+import 'package:fairpytasker/Component/notes_item_card.dart';
 import 'package:fairpytasker/Component/search_with_status_add_view.dart';
 import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/UI/dialog/notes_task_edit_add_dialog.dart';
 import 'package:fairpytasker/UI/notes/add_edit_notes/alter_notes_ui.dart';
 import 'package:fairpytasker/UI/notes/bloc/notes_bloc.dart';
-import 'package:fairpytasker/UI/notes/bloc/notes_events.dart';
-import 'package:fairpytasker/UI/notes/bloc/notes_states.dart';
-import 'package:fairpytasker/UI/notes/notes_body_ui.dart';
+import 'package:fairpytasker/UI/notes/shared_notes/shared_notes_ui.dart';
+import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
-import 'package:fairpytasker/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+part 'notes_header.dart';
+part 'notes_body_ui.dart';
+part 'notes_body.dart';
 
 class NotesMainUi extends StatelessWidget {
   const NotesMainUi({super.key});
@@ -56,35 +61,11 @@ class NotesMainUi extends StatelessWidget {
         },
         child: Padding(
           padding: 5.sp.padding,
-          child: Column(
+          child: const Column(
             spacing: 5,
             children: [
-              BlocSelector<NotesBloc, NotesStates, NotesStates>(
-                selector: (state) => state,
-                builder: (context, state) => DateSwitcherView(
-                    selectedDate: context.watch<NotesBloc>().selectedDate,
-                    onCurrentDay: () =>
-                        context.read<NotesBloc>().add(NotesDatePickerEvent()),
-                    onNextDay: () =>
-                        context.read<NotesBloc>().add(NotesNextDayEvent()),
-                    onPreviousDay: () =>
-                        context.read<NotesBloc>().add(NotesPreviousDayEvent())),
-              ),
-              BlocSelector<NotesBloc, NotesStates, NotesStates>(
-                selector: (state) => state,
-                builder: (context, state) => SearchWithStatusAddView(
-                  controller: context.read<NotesBloc>().searchController,
-                  value: context.watch<NotesBloc>().showCompletedStates,
-                  onAddPressed: () =>
-                      context.read<NotesBloc>().add(NotesAddNewEvent()),
-                  onChanged: (value) =>
-                      context.read<NotesBloc>().add(NotesFilterEvent(value)),
-                  onSearchChanged: (value) =>
-                      context.read<NotesBloc>().add(NotesSearchEvent(value)),
-                ),
-              ),
-              // const EmptyWidget(),
-              const NotesBodyUi(),
+              NotesHeader(),
+              NotesBody(),
             ],
           ),
         ),

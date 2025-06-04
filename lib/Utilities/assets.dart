@@ -54,5 +54,9 @@ class Assets{
   static const String roadMapIcon = "asset/vectors/fa-solid--road.svg";
   static const String editIcon = "asset/vectors/WhhEdit.svg";
   static const String cancelIcon = "asset/vectors/HugeiconsCancelSquare.svg";
+  static const String penEditIcon = "asset/vectors/bx--edit-alt.svg";
+  static const String trashIcon = "asset/vectors/bx--trash.svg";
+  static const String durationIcon = "asset/vectors/LetsIconsTimeLight.svg";
+  static const String tablePlusIcon = "asset/vectors/TablerPlus.svg";
 
 }

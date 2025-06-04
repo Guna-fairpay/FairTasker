@@ -1,13 +1,4 @@
-import 'package:fairpytasker/Component/empty_widget.dart';
-import 'package:fairpytasker/UI/notes/bloc/notes_events.dart';
-import 'package:fairpytasker/UI/notes/bloc/notes_states.dart';
-import 'package:fairpytasker/Component/notes_item_card.dart';
-import 'package:fairpytasker/UI/notes/bloc/notes_bloc.dart';
-import 'package:fairpytasker/core/app/extension/sized_extension.dart';
-import 'package:fairpytasker/core/app/helper/console.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+part of 'notes_main_ui.dart';
 
 class NotesBodyUi extends StatelessWidget {
   const NotesBodyUi({super.key});
@@ -15,7 +6,18 @@ class NotesBodyUi extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<NotesBloc, NotesStates>(
-        builder: (context, state) => ((state is! NotesLoadingState) && (context.watch<NotesBloc>().apiResponse?.isEmpty ?? false)) ? const EmptyWidget() : Expanded(
+        builder: (context, state) => Column(
+          children: [
+            SearchWithStatusAddView(
+              selectedDate: context.watch<NotesBloc>().selectedDate,
+              controller: context.read<NotesBloc>().searchController,
+              value: context.watch<NotesBloc>().showCompletedStates,
+              onCurrentDay: () => context.read<NotesBloc>().add(NotesDatePickerEvent()),
+              onAddPressed: () => context.read<NotesBloc>().add(NotesAddNewEvent()),
+              onChanged: (value) => context.read<NotesBloc>().add(NotesFilterEvent(value)),
+              onSearchChanged: (value) => context.read<NotesBloc>().add(NotesSearchEvent(value)),
+            ),
+            ((state is! NotesLoadingState) && (context.watch<NotesBloc>().apiResponse?.isEmpty ?? false)) ? const EmptyWidget() : Expanded(
               child: ReorderableListView.builder(
                 key: UniqueKey(),
                 shrinkWrap: true,
@@ -25,12 +27,12 @@ class NotesBodyUi extends StatelessWidget {
                   var allData = context.read<NotesBloc>().apiResponse;
                   var model = allData?[index];
                   return NotesItemCard(
-                    key: Key("${model?['id'] ?? 0}"),
+                      key: Key("${model?['id'] ?? 0}"),
                       model: model,
                       totalItems: allData,
                       onConfirmDismiss: (direction) async {
-                      context.read<NotesBloc>().add((direction == DismissDirection.endToStart) ? NotesSwipeCompleteEvent(model) : NotesSwipeTomorrowEvent(model));
-                      return true;
+                        context.read<NotesBloc>().add((direction == DismissDirection.endToStart) ? NotesSwipeCompleteEvent(model) : NotesSwipeTomorrowEvent(model));
+                        return true;
                       },
                       onNotesComplete: (mod, value) => context.read<NotesBloc>().add(NotesCheckTapEvent(mod, isAll: true, status: value)),
                       onTaskComplete: (mod, value) => context.read<NotesBloc>().add(NotesCheckTapEvent(mod, isAll: false, status: value)),
@@ -60,6 +62,8 @@ class NotesBodyUi extends StatelessWidget {
                   context.read<NotesBloc>().add(NotesSwapNoteEvent(body));
                 },
               ),
-            ));
+            )
+          ],
+        ));
   }
 }

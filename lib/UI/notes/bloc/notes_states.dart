@@ -1,6 +1,4 @@
-import 'dart:math';
-
-import 'package:equatable/equatable.dart';
+part of 'notes_bloc.dart';
 
 abstract class NotesStates extends Equatable {
   @override

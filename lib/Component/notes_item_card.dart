@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:collection/collection.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
+import 'package:fairpytasker/Utilities/assets.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
@@ -9,8 +10,10 @@ import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class NotesItemCard extends StatelessWidget {
+  final bool isSharedNotes;
   final Map<String, dynamic>? model;
   final List<Map<String, dynamic>>? totalItems;
   final VoidCallback? onEditPressed, onDeletePressed, onAddNotesPressed;
@@ -21,6 +24,7 @@ class NotesItemCard extends StatelessWidget {
 
   const NotesItemCard(
       {super.key,
+      this.isSharedNotes = false,
       this.model,
       this.totalItems,
       this.onSwapNoteItems,
@@ -82,15 +86,22 @@ class NotesItemCard extends StatelessWidget {
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    if (!isSharedNotes)
+                    IconButton(
+                      onPressed: onAddNotesPressed,
+                      icon: SvgPicture.asset(Assets.tablePlusIcon, color: AppC.appColor),
+                      style: const ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+                    ),
                     IconButton(
                       onPressed: onEditPressed,
-                      icon: const Icon(Icons.mode_edit_outline_outlined),
-                      color: AppC.appColor,
+                      icon: SvgPicture.asset(Assets.penEditIcon, color: AppC.appColor,),
+                      style: const ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
                     ),
                     IconButton(
                         onPressed: onDeletePressed,
-                        icon: const Icon(Icons.delete_outline_rounded),
-                        color: AppC.red),
+                        icon: SvgPicture.asset(Assets.trashIcon, color: AppC.redAccent),
+                        style: const ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+                    ),
                   ],
                 ),
               ),
@@ -268,6 +279,7 @@ class NotesItemCard extends StatelessWidget {
                 onSwapNoteItems?.call(body);
               },
               ),
+              if (isSharedNotes)
               Padding(
                   padding: 20.leftPadding,
                   child: IconButton(
