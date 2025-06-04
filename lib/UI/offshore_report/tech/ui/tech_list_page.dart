@@ -51,14 +51,14 @@ class TechDetailsListPage extends StatelessWidget {
           onChanged: (query) => context.read<TechBloc>().add(SearchEvent(query)),
           hintText: 'Search...',
         ),
-          Expanded(
+          (context.watch<TechBloc>().filteredData ?? []).isEmpty
+              ? const EmptyWidget(withExpand: true)
+              : Expanded(
             child: ListView.builder(
               itemCount: context.watch<TechBloc>().filteredData?.length ?? 0,
               itemBuilder: (context, index) {
                 final item = context.watch<TechBloc>().filteredData?[index];
-               return (context.watch<TechBloc>().filteredData ?? []).isEmpty
-                   ? const Center(child: EmptyWidget(withExpand: true,),)
-                   : CustomCard(
+               return CustomCard(
                  color: AppC.redAccent,
                 child: Column(
                   spacing: 3,

@@ -2,6 +2,7 @@ import 'package:fairpytasker/UI/Finance/Expense/Person/UI/Person_Edit/person_exp
 import 'package:fairpytasker/UI/Finance/Expense/Person/UI/Person_List/person_expense_history_ui.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
+import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:flutter/material.dart';
@@ -78,7 +79,7 @@ class ExpensePersonListItem extends StatelessWidget {
                     spacing: 10,
                     children: [
                       Utils.getText(
-                        expense['expense_date']?.substring(5) ?? '',
+                        expense['expense_date'].toString().toDateTime()?.toFormat(format: 'MM-dd') ?? '',
                         color: approveColor,
                       ),
                       Expanded(

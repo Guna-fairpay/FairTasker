@@ -33,4 +33,25 @@ extension DatetimeExtension on DateTime? {
     return date.format(day);
   }
 
+  DateTime subtractMonth(int duration) {
+    DateTime dateTime = this ?? DateTime.now();
+    int year = DateTime.now().year;
+    int month = dateTime.month - (duration);
+
+    if (month == 0) {
+      month = 12;
+      year -= 1;
+    }
+
+    int day = dateTime.day;
+    int lastDayOfNewMonth = DateTime(year, month + 1, 0).day;
+
+    // Adjust if the original day is too big for the new month
+    if (day > lastDayOfNewMonth) {
+      day = lastDayOfNewMonth;
+    }
+
+    return DateTime(year, month, day, dateTime.hour, dateTime.minute, dateTime.second);
+  }
+
 }
