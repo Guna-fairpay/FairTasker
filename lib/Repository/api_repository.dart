@@ -378,6 +378,10 @@ class APiRepository {
 
   String get _updateOtherExpense => "updateOtherExpense";
 
+  String get _getSharedNotes => "products";
+
+  String get _updateProductsStatus => "updateProductsStatus";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -3969,6 +3973,50 @@ Future<Map<String, dynamic>?> getLocations() async {
       var mapData = await response.mapData;
       return mapData;
     }catch(e){
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getSharedNotes({dynamic dateTimeString}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_getSharedNotes";
+      Map<String, dynamic> params = {
+        "date" : dateTimeString,
+        "branch_id" : _branchId,
+      };
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl, params: params);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    }catch(e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> updateSharedNotes({dynamic id, Map<String,dynamic>? body}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_getSharedNotes/$id";
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body, method: "PUT");
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    }catch(e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> updateProductsStatus({Map<String, dynamic>? body, required dynamic id}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_updateProductsStatus/$id";
+      body?['type'] = "inline";
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body, method: "POST");
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
       rethrow;
     }
   }
