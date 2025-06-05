@@ -102,7 +102,7 @@ class AlterNotesBloc extends Bloc<AlterNotesEvents, AlterNotesStates> {
       noteItems = List<Map<String, dynamic>>.from(editModel?['note_items'])
           .map(
             (e) => e
-              ..['title'] = TextEditingController(text: e['title'])
+              ..['title'] = TextEditingController(text: e['title'] ?? "")
               ..['description'] = TextEditingController(
                   text: (e['todos']?['notes'] ?? e['description']) ?? "")
               ..['sharedTo'] = getIt<CommonService>().resourcesList.where((element) => List.from(e['shared_notes'] ?? []).contains(element['id'])).toList()
