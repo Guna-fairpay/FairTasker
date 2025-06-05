@@ -12,6 +12,7 @@ class UserListingTable extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Table(
+            border: const TableBorder(horizontalInside: BorderSide(color: AppC.borderColor, width: Num.borderWidthButton)),
             children: [
               const TableHeaderRow(labels: ["Name", "Phone", "Rent", "Date", "",], backgroundColor: AppC.appbgColor),
               ...(context.watch<RentalCustomerBloc>().filteredResponse ?? []).map((e) => TableChildRow(model: e, onEdit: () => context.read<RentalCustomerBloc>().add(EditEvent(e)), onDelete: () => context.read<RentalCustomerBloc>().add(DeleteEvent(e)))).toList()

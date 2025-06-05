@@ -51,6 +51,7 @@ class AddEditForm extends StatelessWidget {
               controller: context.read<RentalCustomerBloc>().notesController,
             ),
             CompactFilePicker(
+              pickerName: "Upload License",
               controller: context.read<RentalCustomerBloc>().licenseController,
               onPressed: () => context.read<RentalCustomerBloc>().add(PickLicenseEvent()),
             ),
@@ -58,6 +59,7 @@ class AddEditForm extends StatelessWidget {
               AttachmentLister(attachments: context.watch<RentalCustomerBloc>().licenseAttachments,
                 onDelete: (value) => context.read<RentalCustomerBloc>().add(DeleteLicenseEvent(value))),
             CompactFilePicker(
+              pickerName: "Upload Insurance",
               controller: context.read<RentalCustomerBloc>().insuranceController,
               onPressed: () => context.read<RentalCustomerBloc>().add(PickInsuranceEvent()),
             ),

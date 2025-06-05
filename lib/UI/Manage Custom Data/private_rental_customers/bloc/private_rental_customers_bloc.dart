@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:math';
+import 'package:path/path.dart' as p;
 
 import 'package:equatable/equatable.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
@@ -94,6 +95,13 @@ class RentalCustomerBloc extends Bloc<Event, State> {
   void _pagination(Emitter<State> emit) {
     filteredResponse = paginateList(data: (_filteredResponse ?? []), currentPage: currentPage, itemsPerPage: _itemsPerPage);
     emit(CommonState());
+  }
+
+  void _updateFileControllers() {
+    insuranceController.text = p.basename(insuranceAttachments.whereType<File>().lastOrNull?.path ?? "");
+    licenseController.text = p.basename(licenseAttachments.whereType<File>().lastOrNull?.path ?? "");
+    if (licenseAttachments.whereType<File>().isEmpty) licenseController.clear();
+    if (insuranceAttachments.whereType<File>().isEmpty) insuranceController.clear();
   }
 
   void _processEdit() {
@@ -206,6 +214,7 @@ class RentalCustomerBloc extends Bloc<Event, State> {
     var files = await CommonHelper.instance.pickImages();
     if (files != null) {
       licenseAttachments.addAll(files);
+      _updateFileControllers();
       emit(CommonState());
     }
   }
@@ -214,6 +223,7 @@ class RentalCustomerBloc extends Bloc<Event, State> {
     var files = await CommonHelper.instance.pickImages();
     if (files != null) {
       insuranceAttachments.addAll(files);
+      _updateFileControllers();
       emit(CommonState());
     }
   }
@@ -223,6 +233,7 @@ class RentalCustomerBloc extends Bloc<Event, State> {
     var file = event.model;
     if (file is File) {
       licenseAttachments.remove(file);
+      _updateFileControllers();
       emit(CommonState());
     } else {
       // REMOVE FROM API
@@ -234,6 +245,7 @@ class RentalCustomerBloc extends Bloc<Event, State> {
     var file = event.model;
     if (file is File) {
       insuranceAttachments.remove(file);
+      _updateFileControllers();
       emit(CommonState());
     } else {
       // REMOVE FROM API
