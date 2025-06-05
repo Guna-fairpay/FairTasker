@@ -5,7 +5,7 @@ class UserListingTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return BlocBuilder<RentalCustomerBloc, State>(builder: (context, state) => Container(
       margin: 16.spMin.topPadding,
       child: Column(
         spacing: 10.spMin,
@@ -14,12 +14,12 @@ class UserListingTable extends StatelessWidget {
           Table(
             children: [
               const TableHeaderRow(labels: ["Name", "Phone", "Rent", "Date", "",], backgroundColor: AppC.appbgColor),
-              ...List.generate(5, (index) => const TableChildRow()).toList()
+              ...(context.watch<RentalCustomerBloc>().filteredResponse ?? []).map((e) => TableChildRow(model: e, onEdit: () => context.read<RentalCustomerBloc>().add(EditEvent(e)), onDelete: () => context.read<RentalCustomerBloc>().add(DeleteEvent(e)))).toList()
             ],
           ),
-          CompactPagination(totalPages: 1, currentPage: 1, onPageChanged: (value) {})
+          CompactPagination(totalPages: context.watch<RentalCustomerBloc>().totalPages, currentPage: context.watch<RentalCustomerBloc>().currentPage, onPageChanged: (value) => context.read<RentalCustomerBloc>().add(PaginationEvent(value)))
         ],
       ),
-    );
+    ));
   }
 }

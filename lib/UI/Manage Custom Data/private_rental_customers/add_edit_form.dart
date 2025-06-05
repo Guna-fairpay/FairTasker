@@ -34,9 +34,12 @@ class AddEditForm extends StatelessWidget {
               validator: (value) => value.isNullOrEmpty ? "Required" : null,
             ),
             CustomDateTimePicker<DateTime>(
-              controller: context.read<RentalCustomerBloc>().rentalDateController,
               labelText: "dd-mm-yyyy",
+              format: "dd-MM-yyyy",
+              value: context.watch<RentalCustomerBloc>().rentalDate,
               validator: (value) => (value == null) ? "Required" : null,
+              controller: context.read<RentalCustomerBloc>().rentalDateController,
+              onChanged: (value) => context.read<RentalCustomerBloc>().add(RentalDateEvent(value)),
             ),
             CompactTextField(
               hintText: "Security Deposit",
@@ -49,23 +52,35 @@ class AddEditForm extends StatelessWidget {
             ),
             CompactFilePicker(
               controller: context.read<RentalCustomerBloc>().licenseController,
+              onPressed: () => context.read<RentalCustomerBloc>().add(PickLicenseEvent()),
             ),
+            if (context.watch<RentalCustomerBloc>().licenseAttachments.isNotEmpty)
+              AttachmentLister(attachments: context.watch<RentalCustomerBloc>().licenseAttachments,
+                onDelete: (value) => context.read<RentalCustomerBloc>().add(DeleteLicenseEvent(value))),
             CompactFilePicker(
               controller: context.read<RentalCustomerBloc>().insuranceController,
+              onPressed: () => context.read<RentalCustomerBloc>().add(PickInsuranceEvent()),
             ),
+            if (context.watch<RentalCustomerBloc>().insuranceAttachments.isNotEmpty)
+              AttachmentLister(attachments: context.watch<RentalCustomerBloc>().insuranceAttachments,
+              onDelete: (value) => context.read<RentalCustomerBloc>().add(DeleteInsuranceEvent(value))),
             Row(
               spacing: 10.spMin,
               children: [
-                const SuccessButton(
-                  text: "Save",
+                SuccessButton(
+                  text: (context.watch<RentalCustomerBloc>().isEditing) ? "Update" : "Save",
+                  onPressed: () => context.read<RentalCustomerBloc>().add(SubmitEvent()),
                 ),
-                const SuccessButton(
+                if (context.watch<RentalCustomerBloc>().isEditing)
+                SuccessButton(
                   text: "Cancel",
                   backgroundColor: AppC.redAccent,
+                  onPressed: () => context.read<RentalCustomerBloc>().add(CancelEditEvent()),
                 ),
                 Expanded(child: CompactSearchView(
                   hintText: "Search",
                   controller: context.read<RentalCustomerBloc>().searchController,
+                  onChanged: (value) => context.read<RentalCustomerBloc>().add(SearchEvent(value)),
                 ))
               ],
             )

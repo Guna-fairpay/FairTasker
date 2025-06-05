@@ -7,10 +7,10 @@ class TableChildRow extends TableRow {
 
   @override
   List<Widget> get children => [
-    TableRowInkWell(onTap: onEdit, child: Padding(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5), child: Text("${model?['first_name'] ?? ""} ${model?['last_name'] ?? ""}"))),
-    TableCell(child: Padding(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5), child: Text("${model?['phone'] ?? ""}"))),
-    TableCell(child: Padding(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5), child: Text("\$ ${model?['monthly_rental'] ?? "0"}"))),
-    TableCell(child: Padding(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5), child: Text(model?['rental_start_date'].toString().toFormat(format: "MM-dd-yy") ?? ""))),
+    TableRowInkWell(onTap: onEdit, child: Padding(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5), child: Text("${model?['first_name'] ?? ""} ${model?['last_name'] ?? ""}", maxLines: 1, overflow: TextOverflow.ellipsis))),
+    TableCell(child: Padding(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5), child: Text("${model?['phone'] ?? ""}", maxLines: 1, overflow: TextOverflow.ellipsis))),
+    TableCell(child: Padding(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5), child: Text("\$ ${model?['monthly_rental'] ?? "0"}", maxLines: 1, overflow: TextOverflow.ellipsis))),
+    TableCell(child: Padding(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5), child: Text(model?['rental_start_date'].toString().toFormat(format: "MM-dd-yy") ?? "", maxLines: 1, overflow: TextOverflow.ellipsis))),
     TableCell(child: Padding(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5), child: FittedBox(
       child: Row(
         spacing: 5.spMin,

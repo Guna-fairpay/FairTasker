@@ -56,3 +56,4 @@ class DeleteInsuranceEvent extends Event {
 }
 
 class CancelEditEvent extends Event {}
+class SubmitEvent extends Event {}

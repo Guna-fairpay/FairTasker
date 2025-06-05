@@ -25,12 +25,12 @@ class CommonHelper {
     return completer.future;
   }
 
-  Future<File?> pickVideo() async {
+  Future<File?> captureVideo() async {
     var result = await ImagePicker().pickVideo(source: ImageSource.camera);
     return (result != null) ? File(result.path) : null;
   }
 
-  Future<File?> pickImage() async {
+  Future<File?> captureImage() async {
     var result = await ImagePicker().pickImage(source: ImageSource.camera);
     return (result != null) ? File(result.path) : null;
   }

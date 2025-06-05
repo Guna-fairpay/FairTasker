@@ -1,9 +1,11 @@
+import 'package:fairpytasker/Component/close_badge.dart';
 import 'package:fairpytasker/Component/compact_app_bar.dart';
 import 'package:fairpytasker/Component/compact_file_picker.dart';
 import 'package:fairpytasker/Component/compact_text_field.dart';
 import 'package:fairpytasker/Component/custom_compact_pagination.dart';
 import 'package:fairpytasker/Component/custom_compact_search_view.dart';
 import 'package:fairpytasker/Component/custom_date_time_picker.dart';
+import 'package:fairpytasker/Component/image_viewer.dart';
 import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/Component/table_header_row.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/private_rental_customers/bloc/private_rental_customers_bloc.dart';
@@ -23,6 +25,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 part 'add_edit_form.dart';
 part 'user_listing_table.dart';
+part 'component/attachment_lister.dart';
 part 'component/listing_table_child_row.dart';
 
 class PrivateRentalCustomers extends StatelessWidget {
@@ -35,7 +38,7 @@ class PrivateRentalCustomers extends StatelessWidget {
         titleText: "Private Rental Customers",
         onClose: context.pop,
       ),
-      body: BlocProvider(create: (context) => RentalCustomerBloc(),
+      body: BlocProvider(create: (context) => RentalCustomerBloc()..add(InitEvent()),
       child: BlocListener<RentalCustomerBloc, State>(listener: (context, state) {
         if (state is LoadingState){
           if (!EasyLoading.isShow) EasyLoading.show();
