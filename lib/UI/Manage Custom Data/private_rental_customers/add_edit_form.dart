@@ -14,24 +14,29 @@ class AddEditForm extends StatelessWidget {
               hintText: "First Name",
               controller: context.read<RentalCustomerBloc>().firstNameController,
               validator: (value) => value.isNullOrEmpty ? "Required" : null,
+              textInputAction: TextInputAction.next,
             ),
             CompactTextField(
               hintText: "Last Name",
               controller: context.read<RentalCustomerBloc>().lastNameController,
+              textInputAction: TextInputAction.next,
             ),
             CompactTextField(
               hintText: "Phone",
               controller: context.read<RentalCustomerBloc>().phoneController,
               validator: (value) => value.isNullOrEmpty ? "Required" : null,
+              textInputAction: TextInputAction.next,
             ),
             CompactTextField(
               hintText: "Address",
               controller: context.read<RentalCustomerBloc>().addressController,
+              textInputAction: TextInputAction.next,
             ),
             CompactTextField(
               hintText: "Monthly Rental",
               controller: context.read<RentalCustomerBloc>().monthlyRentalController,
               validator: (value) => value.isNullOrEmpty ? "Required" : null,
+              textInputAction: TextInputAction.done,
             ),
             CustomDateTimePicker<DateTime>(
               labelText: "dd-mm-yyyy",
@@ -45,10 +50,12 @@ class AddEditForm extends StatelessWidget {
               hintText: "Security Deposit",
               controller: context.read<RentalCustomerBloc>().securityDepositController,
               validator: (value) => value.isNullOrEmpty ? "Required" : null,
+              textInputAction: TextInputAction.next,
             ),
             CompactTextField(
               hintText: "Notes",
               controller: context.read<RentalCustomerBloc>().notesController,
+              textInputAction: TextInputAction.done,
             ),
             CompactFilePicker(
               pickerName: "Upload License",
