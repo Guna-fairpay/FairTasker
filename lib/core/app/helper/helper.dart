@@ -16,7 +16,7 @@ class CommonHelper {
     final Completer<bool> completer = Completer<bool>();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (withDelay) {
-        await Future.delayed(Durations.short1);
+        await Future.delayed(Durations.medium4);
         completer.complete(true);
       } else {
         completer.complete(true);
