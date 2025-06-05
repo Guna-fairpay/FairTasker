@@ -1,0 +1,67 @@
+part of 'shared_notes_main_ui.dart';
+
+class SharedNotesListingUI extends StatelessWidget {
+  const SharedNotesListingUI({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<SharedNotesBloc, SharedNotesState>(
+      builder: (context, state) => Expanded(
+        child: Column(
+          children: [
+            ((state is! LoadingState) && (context.watch<SharedNotesBloc>().apiResponse?.isEmpty ?? false))
+                ? const EmptyWidget()
+                : Expanded(
+              child: ReorderableListView.builder(
+                key: UniqueKey(),
+                shrinkWrap: true,
+                physics: const BouncingScrollPhysics(),
+                padding: 16.sp.horizontalPadding,
+                itemBuilder: (context, index) {
+                  var allData = context.read<SharedNotesBloc>().apiResponse;
+                  var model = allData?[index];
+                  return NotesItemCard(
+                    isSharedNotes: true,
+
+                      key: Key("${model?['id'] ?? 0}"),
+                      model: model,
+                      totalItems: allData,
+                      onConfirmDismiss: (direction) async {
+                        context.read<SharedNotesBloc>().add((direction == DismissDirection.endToStart) ? MoveCompleteEvent(model) : MoveTomorrowEvent(model));
+                        return true;
+                      },
+                      // onNotesComplete: (mod, value) => context.read<SharedNotesBloc>().add(NotesCheckTapEvent(mod, isAll: true, status: value)),
+                      // onTaskComplete: (mod, value) => context.read<SharedNotesBloc>().add(NotesCheckTapEvent(mod, isAll: false, status: value)),
+                      // onAddNotesPressed: ()=> context.read<SharedNotesBloc>().add(NotesAddTaskTapEvent(model)),
+                      // onEditTakPressed: (value)=> context.read<SharedNotesBloc>().add(NotesEditTaskTapEvent(value)),
+                      // onSwapNoteItems: (value)=> context.read<SharedNotesBloc>().add(NotesSwapNoteItemsEvent(value)),
+                      // onEditPressed: () =>
+                      //     context.read<SharedNotesBloc>().add(NotesEditEvent(model)),
+                      // onDeletePressed: () => context
+                      //     .read<SharedNotesBloc>()
+                      //     .add(NotesDeletePermissionEvent(model))
+                  );
+                },
+                itemCount: context.watch<SharedNotesBloc>().apiResponse?.length ?? 0,
+                onReorder: (oldIndex, newIndex) {
+                  var list = context.read<SharedNotesBloc>().apiResponse;
+                  Console.of.log("Index $newIndex $oldIndex");
+                  var nIndex = newIndex > ((list?.length ?? 0) - 1) ? newIndex - 1 : newIndex;
+                  var newModel = list?[nIndex];
+                  var oldModel = list?[oldIndex];
+                  var body = {
+                    "items" : [
+                      {"id": oldModel?['id'], "notes_index": nIndex},
+                      {"id": newModel?['id'], "notes_index": oldIndex},
+                    ]
+                  };
+                  Console.of.log("Body $body");
+                  context.read<SharedNotesBloc>().add(SwapNoteItemsEvent(body));
+                },
+              ),
+            )
+          ],
+        ),
+      ),);
+  }
+}

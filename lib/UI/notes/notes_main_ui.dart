@@ -6,7 +6,7 @@ import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/UI/dialog/notes_task_edit_add_dialog.dart';
 import 'package:fairpytasker/UI/notes/add_edit_notes/alter_notes_ui.dart';
 import 'package:fairpytasker/UI/notes/bloc/notes_bloc.dart';
-import 'package:fairpytasker/UI/notes/shared_notes/shared_notes_ui.dart';
+import 'package:fairpytasker/UI/notes/shared_notes/ui/shared_notes_main_ui.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';

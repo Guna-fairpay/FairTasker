@@ -11,7 +11,7 @@ class NotesBody extends StatelessWidget {
               duration: Durations.long4,
               child: switch (context.watch<NotesBloc>().selectedPageIndex) {
                 0 => const NotesBodyUi(),
-                1 => const SharedNotesUi(),
+                1 => const SharedNotesMainUI(),
                 _ => Container(),
               }),
         ));
