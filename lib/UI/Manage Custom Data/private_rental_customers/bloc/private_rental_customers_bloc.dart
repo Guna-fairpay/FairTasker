@@ -140,7 +140,7 @@ class RentalCustomerBloc extends Bloc<Event, State> {
       _apiResponse = List<Map<String, dynamic>>.from((await _fetchCustomers())?['customers'] ?? []);
       _apiResponse?.sort((a, b) => b['id'].compareTo(a['id']));
       _filteredResponse = _apiResponse;
-      _pagination(emit);
+      return _pagination(emit);
     } catch (e) {
       _error(e, emit);
     }
@@ -148,10 +148,11 @@ class RentalCustomerBloc extends Bloc<Event, State> {
 
   void _onPaginationEvent(PaginationEvent event, Emitter<State> emit) {
     currentPage = event.page;
-    _pagination(emit);
+    return _pagination(emit);
   }
 
   void _onSearchEvent(SearchEvent event, Emitter<State> emit) {
+    Console.of.log("SEARCHING...");
     if (event.query.trim().isNullOrEmpty) {
       _filteredResponse = _apiResponse;
       return _pagination(emit);
@@ -194,8 +195,7 @@ class RentalCustomerBloc extends Bloc<Event, State> {
         if (_editModel?['id'] == model?['id']) _clearController();
         _apiResponse?.removeWhere((element) => element['id'] == model?['id']);
         _filteredResponse = _apiResponse;
-        _pagination(emit);
-        emit(CommonState());
+        return add(SearchEvent(searchController.text));
       } else {
         return emit(ErrorState(response?['message'] ?? "Something went wrong!"));
       }
@@ -269,7 +269,8 @@ class RentalCustomerBloc extends Bloc<Event, State> {
             _apiResponse?.add(response?['data']);
             _apiResponse?.sort((a, b) => b['id'].compareTo(a['id']));
             _filteredResponse = _apiResponse;
-            _pagination(emit);
+            // _pagination(emit);
+            add(SearchEvent(searchController.text));
           }
           _clearController();
           return emit(SuccessState(response?['message'] ?? "Saved Successfully!"));
@@ -285,7 +286,8 @@ class RentalCustomerBloc extends Bloc<Event, State> {
             _apiResponse?.add(response?['data']);
             _apiResponse?.sort((a, b) => b['id'].compareTo(a['id']));
             _filteredResponse = _apiResponse;
-            _pagination(emit);
+            // _pagination(emit);
+            add(SearchEvent(searchController.text));
           }
           _clearController();
           return emit(SuccessState(response?['message'] ?? "Saved Successfully!"));
