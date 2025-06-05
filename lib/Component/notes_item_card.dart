@@ -1,6 +1,6 @@
-
 import 'package:collection/collection.dart';
 import 'package:fairpytasker/Component/custom_text/compact_text.dart';
+import 'package:fairpytasker/Component/dismissable_background_text.dart';
 import 'package:fairpytasker/Component/row_tile.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/assets.dart';
@@ -45,22 +45,14 @@ class NotesItemCard extends StatelessWidget {
         key: key ?? Key("${model?['id'] ?? 0}"),
         direction: DismissDirection.horizontal,
         confirmDismiss: onConfirmDismiss,
-        secondaryBackground: Padding(
-            padding: 16.sp.padding,
-            child: Align(
-                alignment: Alignment.centerRight,
-                child: Text(
-                    (model?['status'] == 1) ? "In Complete" : "Complete",
-                    style: context.textTheme.titleMedium?.copyWith(
-                        color: (model?['status'] == 1) ? AppC.red : AppC.green,
-                        fontWeight: FontWeight.bold)))),
-        background: Padding(
-            padding: 16.sp.padding,
-            child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text("Tomorrow",
-                    style: context.textTheme.titleMedium?.copyWith(
-                        color: AppC.red, fontWeight: FontWeight.bold)))),
+        secondaryBackground: DismissibleBackgroundText(
+            alignment: Alignment.centerRight,
+            title: (model?['status'] == 1) ? "In Complete" : "Complete",
+            color: (model?['status'] == 1) ? AppC.red : AppC.green),
+        background: const DismissibleBackgroundText(
+            alignment: Alignment.centerLeft,
+            title: "Tomorrow",
+            color: AppC.red),
         child: Card(
           shape: ContinuousRectangleBorder(
               borderRadius: BorderRadius.circular(Num.borderRadiusLarge)),
@@ -126,51 +118,7 @@ class NotesItemCard extends StatelessWidget {
                           ? AppC.blue50
                           : Colors.transparent,
                     ),
-                    onAcceptWithDetails: (details) {
-                      var data = details.data;
-                      if (data['note_id'] == model?['id']) { // JUST NORMAL SWAP
-                        var list = List.from(model?['note_items'] ?? []);
-                        var oldIndex = data['item_index'];
-                        var newIndex = ((list.length - 1) < index) ? index - 1 : index;
-                        var newModel = list[newIndex];
-                        if (newIndex == oldIndex) oldIndex--;
-                        var oldModel = data;
-                        var body = {
-                          "items" : [
-                            {"id" : oldModel?['id'], "item_index" : newIndex},
-                            {"id" : newModel?['id'], "item_index" : oldIndex},
-                          ],
-                          "note_id" : newModel?['note_id']
-                        };
-                        Console.of.log(body, name: "NOTES");
-                        Console.of.log(oldModel, name: "NOTES_OLD");
-                        Console.of.log(newModel, name: "NOTES_NEW");
-                        onSwapNoteItems?.call(body);
-                      } else { // SWAP WITH DIFFERENT PARENT
-                        var oldListIds = List.from(totalItems?.firstWhereOrNull((element) => element['id'] == data['note_id'])?['note_items'] ?? []).whereNot((element) => element['id'] == data['id']).map((e) => e['id']).toList();
-                        Map<String, dynamic> source = {
-                          "note_id" : data['note_id'],
-                          "items" : oldListIds.mapIndexed((index, element) => {
-                            "id" : element,
-                            "item_index" : index,
-                          }).toList(),
-                        };
-                        var newListIds = list.map((e) => e['id']).toList();
-                        newListIds.insert(index, data['id']);
-                        Map<String, dynamic> destination = {
-                          "note_id" : model?['id'],
-                          "items" : newListIds.mapIndexed((index, element) => {
-                            "id" : element,
-                            "item_index" : index,
-                          }).toList(),
-                        };
-                        Map<String, dynamic> body = {
-                          "source" : source,
-                          "destination" : destination
-                        };
-                        onSwapNoteItems?.call(body);
-                      }
-                    },
+                    onAcceptWithDetails: (details) => _onAcceptWithDetails(details, list, index),
                   ) : Column(
                     key: Key("${item['id']}"),
                     children: [
@@ -181,52 +129,7 @@ class NotesItemCard extends StatelessWidget {
                               ? AppC.blue50
                               : Colors.transparent,
                         ),
-                        onAcceptWithDetails: (details) {
-                          var data = details.data;
-                          if (data['note_id'] == model?['id']) { // JUST NORMAL SWAP
-                            var list = List.from(model?['note_items'] ?? []);
-                            var oldIndex = data['item_index'];
-                            var newIndex = ((list.length - 1) < index) ? index - 1 : index;
-                            var newModel = list[newIndex];
-                            if (newIndex == oldIndex) oldIndex--;
-                            var oldModel = data;
-                            var body = {
-                              "items" : [
-                                {"id" : oldModel['id'], "item_index" : newIndex},
-                                {"id" : newModel?['id'], "item_index" : oldIndex},
-                              ],
-                              "note_id" : newModel?['note_id']
-                            };
-                            Console.of.log(body);
-                            Console.of.log(data, name: "NOTES_DATA");
-                            Console.of.log(oldModel, name: "NOTES_OLD_ALT");
-                            Console.of.log(newModel, name: "NOTES_NEW_ALT");
-                            onSwapNoteItems?.call(body);
-                          } else { // SWAP WITH DIFFERENT PARENT
-                            var oldListIds = List.from(totalItems?.firstWhereOrNull((element) => element['id'] == data['note_id'])?['note_items'] ?? []).whereNot((element) => element['id'] == data['id']).map((e) => e['id']).toList();
-                            Map<String, dynamic> source = {
-                              "note_id" : data['note_id'],
-                              "items" : oldListIds.mapIndexed((index, element) => {
-                                "id" : element,
-                                "item_index" : index,
-                              }).toList(),
-                            };
-                            var newListIds = list.map((e) => e['id']).toList();
-                            newListIds.insert(index, data['id']);
-                            Map<String, dynamic> destination = {
-                              "note_id" : model?['id'],
-                              "items" : newListIds.mapIndexed((index, element) => {
-                                "id" : element,
-                                "item_index" : index,
-                              }).toList(),
-                            };
-                            Map<String, dynamic> body = {
-                              "source" : source,
-                              "destination" : destination
-                            };
-                            onSwapNoteItems?.call(body);
-                          }
-                        },
+                        onAcceptWithDetails: (details) => _onAcceptWithDetails(details, list, index),
                       ),
                       LongPressDraggable<Map<String, dynamic>>(
                         data: item,
@@ -247,11 +150,15 @@ class NotesItemCard extends StatelessWidget {
                                 const BorderSide(width: Num.borderWidthThinField),
                                 onChanged: (value) => onTaskComplete?.call(item, value),
                               ),
-                              title: CompactText("${item['title'] ?? ""}", styleType: TextStyleType.labelLarge, fontWeight: FontWeight.bold),
-                              trailing: (!isSharedNotes) ? Row(
+                              title: CompactText("${item['title'] ?? ""}", styleType: TextStyleType.labelLarge, fontWeight: FontWeight.bold,
+                              decoration: (isSharedNotes ? ((item?['complete_status'] == 1) ? TextDecoration.lineThrough : null) : null)),
+                              trailing: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
+                                  if (isSharedNotes)
+                                    CompactText(item?['end_date'].toString().toFormat(inputFormat: "yyyy-MM-dd", format: "MM-dd-yy") ?? "", color: AppC.grey),
+                                  if (!isSharedNotes)
                                   GestureDetector(
                                       onTap: () => onTimePicker?.call(item),
                                       child: (item?['note_time'].toString().isNullOrEmpty ?? false) ? SvgPicture.asset(Assets.durationIcon) : CompactText(item?['note_time'].toString().toFormat(inputFormat: "HH:mm:ss", format: "hh:mm a") ?? "")
@@ -261,9 +168,6 @@ class NotesItemCard extends StatelessWidget {
                                     child: const Icon(Icons.drag_handle, color: AppC.trans),
                                   )
                                 ],
-                              ) : ReorderableDragStartListener(
-                                index: index,
-                                child: Icon(Icons.drag_handle, color: Colors.black.withValues(alpha: 0.0)),
                               ),
                             ),
                             if ((item['description'].toString().isNotNullOrEmpty) || ((item['todos'] != null) && (item['todos']?['notes'].toString().isNotNullOrEmpty ?? false)))
@@ -280,21 +184,7 @@ class NotesItemCard extends StatelessWidget {
                       ),
                     ],
                   );
-                }, onReorder: (oldIndex, newIndex) {
-                var list = List.from(model?['note_items'] ?? []);
-                var newModel = list[newIndex];
-                var oldModel = list[oldIndex];
-                Console.of.log("INDEX $newIndex : MODEL $newModel");
-                Console.of.log("OLD_INDEX $oldIndex : OLD_MODEL $oldModel");
-                var body = {
-                  "items" : [
-                    {"id" : oldModel?['id'], "item_index" : newIndex},
-                    {"id" : newModel?['id'], "item_index" : oldIndex},
-                  ],
-                  "note_id" : newModel?['note_id']
-                };
-                onSwapNoteItems?.call(body);
-              }),
+                }, onReorder: _onReorder),
               if (isSharedNotes)
               Padding(
                   padding: 20.spMin.leftPadding.copyWith(bottom: 20.spMin),
@@ -307,5 +197,69 @@ class NotesItemCard extends StatelessWidget {
             ],
           ),
         ));
+  }
+
+  void _onReorder(int oldIndex, int newIndex) {
+    var list = List.from(model?['note_items'] ?? []);
+    var newModel = list[newIndex];
+    var oldModel = list[oldIndex];
+    var body = {
+      "items" : [
+        {"id" : oldModel?['id'], "item_index" : newIndex},
+        {"id" : newModel?['id'], "item_index" : oldIndex},
+      ],
+      "note_id" : newModel?['note_id']
+    };
+    onSwapNoteItems?.call(body);
+  }
+
+  void _onAcceptWithDetails(DragTargetDetails<Map<String, dynamic>> details, List<dynamic> list, int index) {
+    try {
+      var data = details.data;
+      if (data['note_id'] == model?['id']) { // JUST NORMAL SWAP
+        var list = List.from(model?['note_items'] ?? []);
+        var oldIndex = data['item_index'];
+        var newIndex = ((list.length - 1) < index) ? index - 1 : index;
+        var newModel = list[newIndex];
+        if (newIndex == oldIndex) oldIndex--;
+        var oldModel = data;
+        var body = {
+          "items" : [
+            {"id" : oldModel['id'], "item_index" : newIndex},
+            {"id" : newModel?['id'], "item_index" : oldIndex},
+          ],
+          "note_id" : newModel?['note_id']
+        };
+        Console.of.log(body, name: "NOTES");
+        Console.of.log(oldModel, name: "NOTES_OLD");
+        Console.of.log(newModel, name: "NOTES_NEW");
+        onSwapNoteItems?.call(body);
+      } else { // SWAP WITH DIFFERENT PARENT
+        var oldListIds = List.from(totalItems?.firstWhereOrNull((element) => element['id'] == data['note_id'])?['note_items'] ?? []).whereNot((element) => element['id'] == data['id']).map((e) => e['id']).toList();
+        Map<String, dynamic> source = {
+          "note_id" : data['note_id'],
+          "items" : oldListIds.mapIndexed((index, element) => {
+            "id" : element,
+            "item_index" : index,
+          }).toList(),
+        };
+        var newListIds = list.map((e) => e['id']).toList();
+        newListIds.insert(index, data['id']);
+        Map<String, dynamic> destination = {
+          "note_id" : model?['id'],
+          "items" : newListIds.mapIndexed((index, element) => {
+            "id" : element,
+            "item_index" : index,
+          }).toList(),
+        };
+        Map<String, dynamic> body = {
+          "source" : source,
+          "destination" : destination
+        };
+        onSwapNoteItems?.call(body);
+      }
+    } catch (e) {
+      Console.of.error("Error", error: e);
+    }
   }
 }
