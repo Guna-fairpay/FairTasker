@@ -16,7 +16,7 @@ class CommonHelper {
     final Completer<bool> completer = Completer<bool>();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (withDelay) {
-        await Future.delayed(Durations.short1);
+        await Future.delayed(Durations.medium4);
         completer.complete(true);
       } else {
         completer.complete(true);
@@ -25,12 +25,12 @@ class CommonHelper {
     return completer.future;
   }
 
-  Future<File?> pickVideo() async {
+  Future<File?> captureVideo() async {
     var result = await ImagePicker().pickVideo(source: ImageSource.camera);
     return (result != null) ? File(result.path) : null;
   }
 
-  Future<File?> pickImage() async {
+  Future<File?> captureImage() async {
     var result = await ImagePicker().pickImage(source: ImageSource.camera);
     return (result != null) ? File(result.path) : null;
   }

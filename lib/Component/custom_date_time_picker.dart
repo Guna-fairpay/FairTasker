@@ -57,42 +57,54 @@ class CustomDateTimePicker<T> extends StatelessWidget {
       validator: validator,
       autovalidateMode: autovalidateMode,
       initialValue: value,
-      builder: (field) => Column(
-        spacing: 3,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            decoration: BoxDecoration(
+      builder: (field) {
+        WidgetsBinding.instance.addPostFrameCallback((timeStamp) => field.didChange(value));
+        return Column(
+          spacing: 3,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(Num.borderRadius),
+                  shape: BoxShape.rectangle,
+                  border: Border.all(
+                      width: Num.borderWidthButton, color: (field.hasError) ? AppC.errorTextColor : AppC.borderColor)),
+              padding: padding ?? const EdgeInsets.all(10),
+              child: InkWell(
+                onTap: () async {
+                  dynamic result;
+                  if (runtimeType == CustomDateTimePicker<DateTime>) {
+                    result = await _pickDatePicker(context);
+                  } else if (runtimeType == CustomDateTimePicker<TimeOfDay>) {
+                    result = await _pick24hTimePicker(context, onNeutral: onNeutral);
+                  }
+                  controller?.text =
+                      Utils.formatDateTime(format: format, input: result);
+                  field.didChange(result ?? value);
+                  if (result != null) onChanged?.call(result);
+                  Utils.dismissKeyboard(context);
+                },
+                radius: Num.borderRadius,
                 borderRadius: BorderRadius.circular(Num.borderRadius),
-                shape: BoxShape.rectangle,
-                border: Border.all(
-                    width: Num.borderWidthButton, color: (field.hasError) ? AppC.errorTextColor : AppC.borderColor)),
-            padding: padding ?? const EdgeInsets.all(10),
-            child: InkWell(
-              onTap: () async {
-                dynamic result;
-                if (runtimeType == CustomDateTimePicker<DateTime>) {
-                  result = await _pickDatePicker(context);
-                } else if (runtimeType == CustomDateTimePicker<TimeOfDay>) {
-                  result = await _pick24hTimePicker(context, onNeutral: onNeutral);
-                }
-                controller?.text =
-                    Utils.formatDateTime(format: format, input: result);
-                field.didChange(result ?? value);
-                if (result != null) onChanged?.call(result);
-                Utils.dismissKeyboard(context);
-              },
-              radius: Num.borderRadius,
-              borderRadius: BorderRadius.circular(Num.borderRadius),
-              child: Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                spacing: 5,
-                children: [
-                  if (prefixIcon != null) prefixIcon!,
-                  if (showAsExpanded)
-                    Expanded(
-                      child: Text(
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  spacing: 5,
+                  children: [
+                    if (prefixIcon != null) prefixIcon!,
+                    if (showAsExpanded)
+                      Expanded(
+                        child: Text(
+                          "${(value == null) ? labelText : Utils.formatDateTime(input: value, format: format)}",
+                          overflow: TextOverflow.ellipsis,
+                          style: textStyle ??
+                              context.textTheme.labelLarge?.copyWith(
+                                  color: (value == null) ? AppC.grey : AppC.text),
+                          textAlign: textAlign,
+                        ),
+                      ),
+                    if (!showAsExpanded)
+                      Text(
                         "${(value == null) ? labelText : Utils.formatDateTime(input: value, format: format)}",
                         overflow: TextOverflow.ellipsis,
                         style: textStyle ??
@@ -100,31 +112,22 @@ class CustomDateTimePicker<T> extends StatelessWidget {
                                 color: (value == null) ? AppC.grey : AppC.text),
                         textAlign: textAlign,
                       ),
-                    ),
-                  if (!showAsExpanded)
-                    Text(
-                      "${(value == null) ? labelText : Utils.formatDateTime(input: value, format: format)}",
-                      overflow: TextOverflow.ellipsis,
-                      style: textStyle ??
-                          context.textTheme.labelLarge?.copyWith(
-                              color: (value == null) ? AppC.grey : AppC.text),
-                      textAlign: textAlign,
-                    ),
-                  if (suffixIcon != null) suffixIcon!,
-                ],
+                    if (suffixIcon != null) suffixIcon!,
+                  ],
+                ),
               ),
             ),
-          ),
-          if (field.hasError)
-            Row(
-              spacing: 8,
-              children: [
-                const SizedBox.shrink(),
-                Text(field.errorText ?? "", style: context.textTheme.labelMedium?.copyWith(color: AppC.errorTextColor, fontWeight: FontWeight.w100))
-              ],
-            )
-        ],
-      ),
+            if (field.hasError)
+              Row(
+                spacing: 8,
+                children: [
+                  const SizedBox.shrink(),
+                  Text(field.errorText ?? "", style: context.textTheme.labelMedium?.copyWith(color: AppC.errorTextColor, fontWeight: FontWeight.w100))
+                ],
+              )
+          ],
+        );
+      },
     );
   }
 

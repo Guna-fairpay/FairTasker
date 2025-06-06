@@ -9,7 +9,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class CompactFilePicker extends StatelessWidget {
   final TextEditingController? controller;
   final VoidCallback? onPressed;
-  const CompactFilePicker({super.key, this.controller, this.onPressed});
+  final String pickerName;
+  const CompactFilePicker({super.key, this.controller, this.onPressed, this.pickerName = "Choose File"});
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +37,7 @@ class CompactFilePicker extends StatelessWidget {
                           width: Num.borderWidthThinField,
                           color: AppC.borderColor))),
               clipBehavior: Clip.antiAliasWithSaveLayer,
-              child: Text("Choose File",
+              child: Text(pickerName,
                   style: context.textTheme.labelMedium?.copyWith(
                       color: AppC.subText, fontWeight: FontWeight.bold)),
             ),

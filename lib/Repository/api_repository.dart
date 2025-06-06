@@ -388,6 +388,14 @@ class APiRepository {
 
   String get _swapProductsItems => "swapProductsItems";
 
+  String get _privateRentalEditCustomer => "private_rental_edit_customer";
+
+  String get _privateRentalDeleteCustomer => "private_rental_delete_customer";
+
+  String get _privateRentalStoreCustomer => "private_rental_store_customer";
+
+  String get _privateRentalUpdateCustomer => "private_rental_update_customer";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -4087,6 +4095,62 @@ Future<Map<String, dynamic>?> getLocations() async {
       var mapData = await response.mapData;
       return mapData;
     }catch(e){
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getPrivateRentalEditCustomer({required dynamic id}) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_privateRentalEditCustomer/$id";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> deletePrivateRentalCustomer({required dynamic id}) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_privateRentalDeleteCustomer/$id";
+      final http.Response? response = await _apiClient.callDelete(apiUrl);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> storePrivateRentalCustomer({required Map<String, dynamic> model, dynamic infusedFiles}) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_privateRentalStoreCustomer";
+      final http.Response? response = await _apiClient.callPostMethodWithBodyDynamic(apiUrl, body: model, infusedFiles: infusedFiles);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> updatePrivateRentalCustomer(dynamic id, {required Map<String, dynamic> model, dynamic infusedFiles}) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_privateRentalUpdateCustomer/$id";
+      final http.Response? response = await _apiClient.callPostMethodWithBodyDynamic(apiUrl, body: model, infusedFiles: infusedFiles);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    } catch (error) {
       rethrow;
     }
   }

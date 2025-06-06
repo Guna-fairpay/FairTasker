@@ -65,7 +65,7 @@ class EditLogBloc extends Bloc<EditLogEvent, EditLogState> {
 
   void _onTapRecordVideoEvent(EditLogTapRecordVideoEvent event, Emitter<EditLogState> emit) async {
     try {
-      var result = await CommonHelper.instance.pickVideo();
+      var result = await CommonHelper.instance.captureVideo();
       if (result != null) attachments.add(result);
       emit(EditLogCommonState());
     } catch (e) {

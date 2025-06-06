@@ -6,6 +6,7 @@ import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/Task/UI/task_main_pa
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Sub%20Category/subcategory_page/subcategory_main_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/UI/vehicle_main_view_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/attendance/attendance_view.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/private_rental_customers/private_rental_customers.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
@@ -123,6 +124,11 @@ class ManageCustomDataMenuUI extends StatelessWidget {
                   builder: (context) => const CustomerViewUi(),
                 ));
               },
+            ),
+            _buildCard(
+              icon: Icons.group_rounded,
+              title: 'Private Rental Customers',
+              onTap: () => context.push(const PrivateRentalCustomers(), fullscreenDialog: true),
             ),
           ],
         ),
