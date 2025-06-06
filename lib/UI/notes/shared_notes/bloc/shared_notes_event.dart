@@ -71,9 +71,10 @@ class AddTaskTapEvent extends SharedNotesEvent {
 
 class EditTaskTapEvent extends SharedNotesEvent {
   final dynamic data;
-  EditTaskTapEvent(this.data);
+  final List<dynamic>? list;
+  EditTaskTapEvent({this.data, this.list});
   @override
-  List<Object?> get props => [data, Random().nextDouble()];
+  List<Object?> get props => [data, list, Random().nextDouble()];
 }
 
 class CheckAllDialogEvent extends SharedNotesEvent {
@@ -100,5 +101,6 @@ class SearchEvent extends SharedNotesEvent {
   @override
   List<Object?> get props => [value, Random().nextDouble()];
 }
+
 
 class ReloadEvent extends SharedNotesEvent {}

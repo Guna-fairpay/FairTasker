@@ -34,9 +34,15 @@ class SharedNotesBloc  extends Bloc<SharedNotesEvent, SharedNotesState> {
     on<CheckAllEvent>(_onCheckAllEvent);
     on<DeletePermissionEvent>(_onDeletePermissionEvent);
     on<DeleteEvent>(_onDeleteEvent);
-    // on<ReloadEvent>(_onReloadEvent);
+    on<SwapNoteItemsEvent>(_onSwapNoteItemsEvent);
+    on<EditTaskTapEvent>(_onEditTaskTapEvent);
+    on<ReloadEvent>(_onReloadEvent);
     getIt<CommonService>().branchUpdate(callback: () => add(InitialEvent()));
     _broadcast.register("shared_notes_update", (value, callback) => add(InitialEvent()));
+  }
+
+  void _onEditTaskTapEvent(EditTaskTapEvent event, Emitter<SharedNotesState> emit) async{
+    emit(EditTaskTapState(data: event.data, list: event.list));
   }
 
   void _onReloadEvent(ReloadEvent event, Emitter<SharedNotesState> emit) async{
@@ -45,6 +51,21 @@ class SharedNotesBloc  extends Bloc<SharedNotesEvent, SharedNotesState> {
       await _fetchData();
       emit(CommonState());
     } catch (e) {
+      _error(e, emit);
+    }
+  }
+
+  void _onSwapNoteItemsEvent(SwapNoteItemsEvent event, Emitter<SharedNotesState> emit) async{
+    try {
+      emit(LoadingState());
+      var response = await apiRepository.swapNoteItems(body: event.data);
+      if(response?['status'] == true){
+        await _fetchData();
+        emit(SuccessState(response?['message'] ?? ""));
+      } else {
+        emit(ErrorState(response?['message'] ?? ""));
+      }
+    }catch (e) {
       _error(e, emit);
     }
   }

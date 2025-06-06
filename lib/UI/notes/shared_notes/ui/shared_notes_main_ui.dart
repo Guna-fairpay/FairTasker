@@ -5,6 +5,7 @@ import 'package:fairpytasker/Component/search_with_status_add_view.dart';
 import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/UI/notes/edit_share_notes/ui/edit_share_notes_main_ui.dart';
 import 'package:fairpytasker/UI/notes/shared_notes/bloc/shared_notes_bloc.dart';
+import 'package:fairpytasker/UI/notes/shared_notes/component/share_notes_edit_dialog/ui/share_notes_edit_dialog_ui.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
@@ -37,6 +38,7 @@ class SharedNotesMainUI extends StatelessWidget {
                   case DatePickerState(): Utils.showPickerDate(context, value: state.date, onChanged: (value) => context.read<SharedNotesBloc>().add(DatePickerEvent(date: value))); break;
                   case CheckAllState(): AskPermissionDialog.show(context, description: "Are you sure want to complete the task/product", positiveText: "Yes", negativeText: "No", onPositivePressed: () => context.read<SharedNotesBloc>().add(CheckAllEvent(state.data, isAll: state.isAll, status: state.status))); break;
                   case DeletePermissionState(): AskPermissionDialog.show(context, title: "Are you sure ?", description: "Do you want to delete this task/product?", positiveText: "Yes, delete it!", negativeText: "Cancel", onPositivePressed: () => context.read<SharedNotesBloc>().add(DeleteEvent(state.data))); break;
+                  case EditTaskTapState(): ShareNotesEditDialogUI.show(context: context, model: state.data, list: state.list); break;
                 }
               }
             },
