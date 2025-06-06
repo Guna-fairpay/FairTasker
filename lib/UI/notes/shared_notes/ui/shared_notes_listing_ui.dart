@@ -30,16 +30,13 @@ class SharedNotesListingUI extends StatelessWidget {
                         context.read<SharedNotesBloc>().add((direction == DismissDirection.endToStart) ? MoveCompleteEvent(model) : MoveTomorrowEvent(model));
                         return true;
                       },
-                      // onNotesComplete: (mod, value) => context.read<SharedNotesBloc>().add(NotesCheckTapEvent(mod, isAll: true, status: value)),
-                      // onTaskComplete: (mod, value) => context.read<SharedNotesBloc>().add(NotesCheckTapEvent(mod, isAll: false, status: value)),
-                      // onAddNotesPressed: ()=> context.read<SharedNotesBloc>().add(NotesAddTaskTapEvent(model)),
-                      // onEditTakPressed: (value)=> context.read<SharedNotesBloc>().add(NotesEditTaskTapEvent(value)),
+                       onNotesComplete: (mod, value) => context.read<SharedNotesBloc>().add(CheckAllDialogEvent(mod, isAll: true, status: value)),
+                       onTaskComplete: (mod, value) => context.read<SharedNotesBloc>().add(CheckAllEvent(mod, isAll: false, status: value)),
                       // onSwapNoteItems: (value)=> context.read<SharedNotesBloc>().add(NotesSwapNoteItemsEvent(value)),
-                      // onEditPressed: () =>
-                      //     context.read<SharedNotesBloc>().add(NotesEditEvent(model)),
-                      // onDeletePressed: () => context
-                      //     .read<SharedNotesBloc>()
-                      //     .add(NotesDeletePermissionEvent(model))
+                      onEditPressed: () =>context.push(EditShareNotesMainUI(data: model,)),
+                      onDeletePressed: () => context
+                          .read<SharedNotesBloc>()
+                          .add(DeletePermissionEvent(model))
                   );
                 },
                 itemCount: context.watch<SharedNotesBloc>().apiResponse?.length ?? 0,

@@ -54,9 +54,12 @@ class EditTaskTapState extends SharedNotesState {
   List<Object?> get props => [data, Random().nextDouble()];
 }
 
-class CheckTapState extends SharedNotesState {
+class CheckAllState extends SharedNotesState {
   final dynamic data;
   final bool isAll;
-  final bool status;
-  CheckTapState(this.data, {required this.isAll, required this.status});
+  final bool? status;
+  CheckAllState(this.data, {required this.isAll, required this.status});
+  @override
+  List<Object?> get props => [data, isAll, status, Random().nextDouble()];
+
 }

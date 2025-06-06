@@ -5,6 +5,7 @@ import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
+import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -14,7 +15,7 @@ part 'shared_notes_state.dart';
 class SharedNotesBloc  extends Bloc<SharedNotesEvent, SharedNotesState> {
 
   final APiRepository apiRepository = APiRepository();
-
+  final FBroadcast _broadcast = FBroadcast.instance();
   DateTime selectedDate = DateTime.now();
   final TextEditingController searchController = TextEditingController();
   List<Map<String, dynamic>>? apiResponse = [], unfilteredResponse = [];
@@ -29,7 +30,23 @@ class SharedNotesBloc  extends Bloc<SharedNotesEvent, SharedNotesState> {
     on<SearchEvent>(_onSearchEvent);
     on<MoveCompleteEvent>(_onMoveCompleteEvent);
     on<MoveTomorrowEvent>(_onMoveTomorrowEvent);
+    on<CheckAllDialogEvent>(_onCheckAllDialogEvent);
+    on<CheckAllEvent>(_onCheckAllEvent);
+    on<DeletePermissionEvent>(_onDeletePermissionEvent);
+    on<DeleteEvent>(_onDeleteEvent);
+    // on<ReloadEvent>(_onReloadEvent);
     getIt<CommonService>().branchUpdate(callback: () => add(InitialEvent()));
+    _broadcast.register("shared_notes_update", (value, callback) => add(InitialEvent()));
+  }
+
+  void _onReloadEvent(ReloadEvent event, Emitter<SharedNotesState> emit) async{
+    try {
+      emit(LoadingState());
+      await _fetchData();
+      emit(CommonState());
+    } catch (e) {
+      _error(e, emit);
+    }
   }
 
   void _onInitialEvent(InitialEvent event, Emitter<SharedNotesState> emit) async{
@@ -71,6 +88,31 @@ class SharedNotesBloc  extends Bloc<SharedNotesEvent, SharedNotesState> {
     }
   }
 
+  void _onCheckAllEvent(CheckAllEvent event, Emitter<SharedNotesState> emit) async{
+    try {
+        emit(LoadingState());
+        var body = {
+          "all": event.isAll,
+          "complete_time_approved": 1,
+          "complete_time_taken": "00:15",
+          "status": event.status
+        };
+        var response = await _updateProductsStatus(
+            id: event.data?['id'], body: body);
+        if (response?['status'] == true) {
+          Console.of.debug(response);
+          apiResponse?.removeWhere((element) =>
+          element['id'] == event.data?['id']);
+          await _fetchData();
+          emit(SuccessState(response?['message'] ?? ""));
+        } else {
+          emit(ErrorState(response?['message'] ?? ""));
+        }
+    } catch (e) {
+      _error(e, emit);
+    }
+  }
+
   void _onMoveCompleteEvent(MoveCompleteEvent event, Emitter<SharedNotesState> emit) async{
     try {
       emit(LoadingState());
@@ -92,7 +134,6 @@ class SharedNotesBloc  extends Bloc<SharedNotesEvent, SharedNotesState> {
     } catch (e) {
       _error(e, emit);
     }
-
   }
 
   void _onMoveTomorrowEvent(MoveTomorrowEvent event, Emitter<SharedNotesState> emit) async{
@@ -114,6 +155,35 @@ class SharedNotesBloc  extends Bloc<SharedNotesEvent, SharedNotesState> {
       _error(e, emit);
     }
   }
+
+  void _onDeletePermissionEvent(DeletePermissionEvent event, Emitter<SharedNotesState> emit) async{
+    try {
+     emit(DeletePermissionState(event.data));
+    } catch(e) {
+      _error(e, emit);
+    }
+  }
+
+  void _onDeleteEvent(DeleteEvent event, Emitter<SharedNotesState> emit) async{
+    try {
+      emit(LoadingState());
+      var response = await apiRepository.deleteShareNotes(id: event.data['id']);
+      if(response?['data'] != null){
+        apiResponse?.removeWhere((element) => element['id'] == event.data['id']);
+        await _fetchData();
+        emit(SuccessState(response?['message'] ?? ""));
+      } else{
+        emit(ErrorState(response?['message'] ?? ""));
+      }
+    } catch(e) {
+      _error(e, emit);
+      }
+  }
+
+  void _onCheckAllDialogEvent(CheckAllDialogEvent event, Emitter<SharedNotesState> emit) {
+    emit(CheckAllState(event.data, isAll: event.isAll, status: event.status));
+  }
+
 
   Future <void> _fetchData() async{
     var response = await _getSharedNotes();

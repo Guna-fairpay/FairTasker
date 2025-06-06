@@ -47,8 +47,8 @@ class NotesItemCard extends StatelessWidget {
         confirmDismiss: onConfirmDismiss,
         secondaryBackground: DismissibleBackgroundText(
             alignment: Alignment.centerRight,
-            title: (model?['status'] == 1) ? "In Complete" : "Complete",
-            color: (model?['status'] == 1) ? AppC.red : AppC.green),
+            title: (model?['status'] == 1 && !isSharedNotes) ? "In Complete" : "Complete",
+            color: (model?['status'] == 1 && !isSharedNotes) ? AppC.red : AppC.green),
         background: const DismissibleBackgroundText(
             alignment: Alignment.centerLeft,
             title: "Tomorrow",
@@ -185,14 +185,14 @@ class NotesItemCard extends StatelessWidget {
                     ],
                   );
                 }, onReorder: _onReorder),
-              if (isSharedNotes)
-              Padding(
-                  padding: 20.spMin.leftPadding.copyWith(bottom: 20.spMin),
-                  child: IconButton(
-                      onPressed: onAddNotesPressed,
-                      icon: const Icon(Icons.add_rounded),
-                      color: AppC.appColor,
-                      alignment: Alignment.centerLeft)),
+              // if (isSharedNotes)
+              // Padding(
+              //     padding: 20.spMin.leftPadding.copyWith(bottom: 20.spMin),
+              //     child: IconButton(
+              //         onPressed: onAddNotesPressed,
+              //         icon: const Icon(Icons.add_rounded),
+              //         color: AppC.appColor,
+              //         alignment: Alignment.centerLeft)),
               // 20.height,
             ],
           ),

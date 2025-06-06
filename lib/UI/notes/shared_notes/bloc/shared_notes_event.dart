@@ -50,7 +50,7 @@ class DeletePermissionEvent extends SharedNotesEvent {
   final dynamic data;
   DeletePermissionEvent(this.data);
   @override
-  List<Object?> get props => [data, Random().nextDouble()];
+  List<Object?> get props => [data];
 }
 
 class DeleteEvent extends SharedNotesEvent {
@@ -76,13 +76,22 @@ class EditTaskTapEvent extends SharedNotesEvent {
   List<Object?> get props => [data, Random().nextDouble()];
 }
 
-class CheckTapEvent extends SharedNotesEvent {
+class CheckAllDialogEvent extends SharedNotesEvent {
   final dynamic data;
   final bool isAll;
-  final bool status;
-  CheckTapEvent(this.data, {required this.isAll, required this.status});
+  final bool? status;
+  CheckAllDialogEvent(this.data, {required this.isAll, required this.status});
   @override
-  List<Object?> get props => [data, Random().nextDouble()];
+  List<Object?> get props => [data, isAll, status];
+}
+
+class CheckAllEvent extends SharedNotesEvent {
+  final Map<String, dynamic>? data;
+  final bool? isAll;
+  final bool? status;
+  CheckAllEvent(this.data, {this.isAll = false, this.status});
+  @override
+  List<Object?> get props => [data, isAll, status];
 }
 
 class SearchEvent extends SharedNotesEvent {
@@ -91,3 +100,5 @@ class SearchEvent extends SharedNotesEvent {
   @override
   List<Object?> get props => [value, Random().nextDouble()];
 }
+
+class ReloadEvent extends SharedNotesEvent {}

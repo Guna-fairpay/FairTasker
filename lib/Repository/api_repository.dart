@@ -382,6 +382,10 @@ class APiRepository {
 
   String get _updateProductsStatus => "updateProductsStatus";
 
+  String get _updateProductsItem => "updateProductsItem";
+
+  String get _removeProductsItem => "removeProductsItem";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -4017,6 +4021,59 @@ Future<Map<String, dynamic>?> getLocations() async {
       var mapData = await response.mapData;
       return mapData;
     } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> deleteShareNotes({required dynamic id}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_getSharedNotes/$id";
+      final http.Response? response = await _apiClient.callDelete(apiUrl);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    }catch(e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getEditSharedNotes({required dynamic id}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_getSharedNotes/$id";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    }catch(e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> updateProductsItem({Map<String, dynamic>? body, required dynamic id}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_updateProductsItem/$id";
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body, method: "POST");
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> removeProductsItem({required dynamic id}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_removeProductsItem/$id";
+      final http.Response? response = await _apiClient.callDelete(apiUrl);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    }catch(e) {
       rethrow;
     }
   }
