@@ -61,12 +61,10 @@ class DeleteEvent extends SharedNotesEvent {
 }
 
 class AddTaskTapEvent extends SharedNotesEvent {
-  final dynamic data;
-
-  AddTaskTapEvent(this.data);
-
+  final List<dynamic>? list;
+  AddTaskTapEvent({required this.list});
   @override
-  List<Object?> get props => [data, Random().nextDouble()];
+  List<Object?> get props => [list, Random().nextDouble()];
 }
 
 class EditTaskTapEvent extends SharedNotesEvent {
@@ -100,6 +98,13 @@ class SearchEvent extends SharedNotesEvent {
   SearchEvent(this.value);
   @override
   List<Object?> get props => [value, Random().nextDouble()];
+}
+
+class SwapProducts extends SharedNotesEvent {
+  final dynamic data;
+  SwapProducts(this.data);
+  @override
+  List<Object?> get props => [data, Random().nextDouble()];
 }
 
 

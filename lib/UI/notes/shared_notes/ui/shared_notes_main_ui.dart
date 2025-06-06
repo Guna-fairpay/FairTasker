@@ -39,6 +39,7 @@ class SharedNotesMainUI extends StatelessWidget {
                   case CheckAllState(): AskPermissionDialog.show(context, description: "Are you sure want to complete the task/product", positiveText: "Yes", negativeText: "No", onPositivePressed: () => context.read<SharedNotesBloc>().add(CheckAllEvent(state.data, isAll: state.isAll, status: state.status))); break;
                   case DeletePermissionState(): AskPermissionDialog.show(context, title: "Are you sure ?", description: "Do you want to delete this task/product?", positiveText: "Yes, delete it!", negativeText: "Cancel", onPositivePressed: () => context.read<SharedNotesBloc>().add(DeleteEvent(state.data))); break;
                   case EditTaskTapState(): ShareNotesEditDialogUI.show(context: context, model: state.data, list: state.list); break;
+                  case AddTaskTapState(): ShareNotesEditDialogUI.show(context: context, list: state.list); break;
                 }
               }
             },

@@ -47,8 +47,8 @@ class NotesItemCard extends StatelessWidget {
         confirmDismiss: onConfirmDismiss,
         secondaryBackground: DismissibleBackgroundText(
             alignment: Alignment.centerRight,
-            title: (model?['status'] == 1 && !isSharedNotes) ? "In Complete" : "Complete",
-            color: (model?['status'] == 1 && !isSharedNotes) ? AppC.red : AppC.green),
+            title: (model?['status'] == 1) ? "In Complete" : "Complete",
+            color: (model?['status'] == 1) ? AppC.red : AppC.green),
         background: const DismissibleBackgroundText(
             alignment: Alignment.centerLeft,
             title: "Tomorrow",
@@ -185,30 +185,32 @@ class NotesItemCard extends StatelessWidget {
                     ],
                   );
                 }, onReorder: _onReorder),
-              // if (isSharedNotes)
-              // Padding(
-              //     padding: 20.spMin.leftPadding.copyWith(bottom: 20.spMin),
-              //     child: IconButton(
-              //         onPressed: onAddNotesPressed,
-              //         icon: const Icon(Icons.add_rounded),
-              //         color: AppC.appColor,
-              //         alignment: Alignment.centerLeft)),
-              // 20.height,
+              if (isSharedNotes && (model?['status'] == 0))
+              Padding(
+                  padding: 20.spMin.leftPadding.copyWith(bottom: 20.spMin),
+                  child: IconButton(
+                      onPressed: onAddNotesPressed,
+                      icon: const Icon(Icons.add_rounded),
+                      color: AppC.appColor,
+                      alignment: Alignment.centerLeft)
+              ),
             ],
           ),
         ));
   }
 
   void _onReorder(int oldIndex, int newIndex) {
-    var list = List.from(model?['note_items'] ?? []);
-    var newModel = list[newIndex];
+    var list = List.from(model?[isSharedNotes ? 'products_items' : 'note_items'] ?? []);
+    var newindex = ((list.length - 1) < newIndex) ? newIndex - 1 : newIndex;
+    var newModel = list[newindex];
     var oldModel = list[oldIndex];
+    if (newIndex == oldIndex) oldIndex--;
     var body = {
       "items" : [
-        {"id" : oldModel?['id'], "item_index" : newIndex},
+        {"id" : oldModel?['id'], "item_index" : newindex},
         {"id" : newModel?['id'], "item_index" : oldIndex},
       ],
-      "note_id" : newModel?['note_id']
+      (isSharedNotes ? "products_id" : "note_id") : newModel?[ isSharedNotes ? 'products_id' : 'note_id']
     };
     onSwapNoteItems?.call(body);
   }
@@ -216,8 +218,8 @@ class NotesItemCard extends StatelessWidget {
   void _onAcceptWithDetails(DragTargetDetails<Map<String, dynamic>> details, List<dynamic> list, int index) {
     try {
       var data = details.data;
-      if (data['note_id'] == model?['id']) { // JUST NORMAL SWAP
-        var list = List.from(model?['note_items'] ?? []);
+      if (data[isSharedNotes ? "products_id" : "note_id"] == model?['id']) { // JUST NORMAL SWAP
+        var list = List.from(model?[isSharedNotes ? 'products_items' : 'note_items'] ?? []);
         var oldIndex = data['item_index'];
         var newIndex = ((list.length - 1) < index) ? index - 1 : index;
         var newModel = list[newIndex];
@@ -228,16 +230,16 @@ class NotesItemCard extends StatelessWidget {
             {"id" : oldModel['id'], "item_index" : newIndex},
             {"id" : newModel?['id'], "item_index" : oldIndex},
           ],
-          "note_id" : newModel?['note_id']
+          (isSharedNotes ? "products_id" : "note_id") : newModel?[ isSharedNotes ? 'products_id' : 'note_id']
         };
         Console.of.log(body, name: "NOTES");
         Console.of.log(oldModel, name: "NOTES_OLD");
         Console.of.log(newModel, name: "NOTES_NEW");
         onSwapNoteItems?.call(body);
       } else { // SWAP WITH DIFFERENT PARENT
-        var oldListIds = List.from(totalItems?.firstWhereOrNull((element) => element['id'] == data['note_id'])?['note_items'] ?? []).whereNot((element) => element['id'] == data['id']).map((e) => e['id']).toList();
+        var oldListIds = List.from(totalItems?.firstWhereOrNull((element) => element['id'] == data[(isSharedNotes ? "products_id" : "note_id")])?[isSharedNotes ? 'products_items' : 'note_items'] ?? []).whereNot((element) => element['id'] == data['id']).map((e) => e['id']).toList();
         Map<String, dynamic> source = {
-          "note_id" : data['note_id'],
+          (isSharedNotes ? "products_id" : "note_id") : data[(isSharedNotes ? "products_id" : "note_id")],
           "items" : oldListIds.mapIndexed((index, element) => {
             "id" : element,
             "item_index" : index,
@@ -246,7 +248,7 @@ class NotesItemCard extends StatelessWidget {
         var newListIds = list.map((e) => e['id']).toList();
         newListIds.insert(index, data['id']);
         Map<String, dynamic> destination = {
-          "note_id" : model?['id'],
+          (isSharedNotes ? "products_id" : "note_id") : model?['id'],
           "items" : newListIds.mapIndexed((index, element) => {
             "id" : element,
             "item_index" : index,

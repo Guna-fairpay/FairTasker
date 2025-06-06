@@ -18,13 +18,15 @@ class ShareNotesEditDialogBloc extends Bloc<ShareNotesEditDialogEvent, ShareNote
   TextEditingController dateController = TextEditingController();
   final FBroadcast _broadcast = FBroadcast.instance();
   DateTime? selectedDate;
-  Map<String, dynamic>? model;
+  dynamic model;
+  List<dynamic>? list;
   String? title;
   bool isDelete = false;
 
 
   Future<Map<String, dynamic>?> _updateProductsItem({dynamic id, dynamic body}) async => await _apiRepository.updateProductsItem(id: id, body: body);
   Future<Map<String, dynamic>?> _removeProductsItem({dynamic id,}) async => await _apiRepository.removeProductsItem(id: id,);
+  Future<Map<String, dynamic>?> _addProductsItem({dynamic body, dynamic id,}) async => await _apiRepository.addProductsItem(body: body, id: id,);
 
   ShareNotesEditDialogBloc() : super(LoadingState()){
     on<InitialEvent>(_onInitialEvent);
@@ -44,15 +46,23 @@ class ShareNotesEditDialogBloc extends Bloc<ShareNotesEditDialogEvent, ShareNote
 
   Future<void> _onInitialEvent(InitialEvent event, Emitter<ShareNotesEditDialogState> emit) async {
     try {
-      Console.of.log(event.model);
-      model = event.model ?? {};
-      editProductController.text = model?['title'] ?? '';
-      dateController.text = model?['end_date'] ?? '';
-      selectedDate = model?['end_date'] != null ? DateTime.parse(model?['end_date']) : null;
-      Console.of.log(event.list, name: 'LIST');
-      title = event.list?.where((element) => element['id'] == model?['products_id']).first?['title'];
-      isDelete = event.list?.where((element) => element['id'] == model?['products_id']).first?['products_items'].length != 1;
-      Console.of.log(isDelete, name: 'isDelete');
+      list = event.list ?? [];
+      if(event.model != null){
+        model = event.model;
+        editProductController.text = model?['title'] ?? '';
+        dateController.text = model?['end_date'] ?? '';
+        selectedDate = model?['end_date'] != null
+            ? DateTime.parse(model?['end_date'])
+            : null;
+        Console.of.log(event.list, name: 'LIST');
+        title = event.list
+            ?.where((element) => element['id'] == model?['products_id'])
+            .first?['title'];
+        isDelete = event.list
+                ?.where((element) => element['id'] == model?['products_id'])
+                .first?['products_items']
+                .length != 1;
+      }
       emit(CommonState());
     } catch (e) {
       _error(e, emit);
@@ -62,13 +72,12 @@ class ShareNotesEditDialogBloc extends Bloc<ShareNotesEditDialogEvent, ShareNote
   Future<void> _onSaveEvent(SaveEvent event, Emitter<ShareNotesEditDialogState> emit) async {
     try {
       emit(LoadingState());
-      var body = {
-        "type":  "Inline",
-        "title": editProductController.text,
-        "end_date": selectedDate.toFormat(format: 'yyyy-MM-dd'),
-        "complete_status": model?['complete_status'],
-      };
-      var response = await _updateProductsItem(id: model?['id'], body: body);
+      dynamic response;
+      if(model != null){
+        response = await _updateProductsItem(id: model?['id'], body: editBody);
+      }else{
+        response = await _addProductsItem(body: addBody, id: list?.first['id']);
+      }
       if(response?['status'] == true){
         _broadcast.broadcast('shared_notes_update');
         emit(SuccessState(response?['message'] ?? 'Updated Successfully'));
@@ -106,6 +115,21 @@ class ShareNotesEditDialogBloc extends Bloc<ShareNotesEditDialogEvent, ShareNote
       _error(e, emit);
     }
   }
+
+  Map<String, dynamic>?  get editBody => {
+    "type":  "Inline",
+    "title": editProductController.text,
+    "end_date": selectedDate.toFormat(format: 'yyyy-MM-dd'),
+    "complete_status": model?['complete_status'],
+  };
+
+  Map<String, dynamic>?  get addBody => {
+    "complete_status": 0,
+    "description" : "",
+    if(selectedDate != null) "end_date": selectedDate.toFormat(format: 'yyyy-MM-dd'),
+    "title": editProductController.text,
+    "type":  "Inline",
+  };
 
   void _error(dynamic error, Emitter<ShareNotesEditDialogState> emit){
     emit(ErrorState(error.toString()));

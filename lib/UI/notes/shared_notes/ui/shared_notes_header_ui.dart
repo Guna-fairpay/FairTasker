@@ -12,7 +12,7 @@ class SharedNotesHeaderUI extends StatelessWidget {
             SearchWithStatusAddView(
               selectedDate: context.watch<SharedNotesBloc>().selectedDate,
               controller: context.read<SharedNotesBloc>().searchController,
-              onSearchChanged: (v){},
+              onSearchChanged: (v)=> context.read<SharedNotesBloc>().add(SearchEvent(v)),
               onCurrentDay: ()=> context.read<SharedNotesBloc>().add(DatePickerEvent()),
             ),
           ],

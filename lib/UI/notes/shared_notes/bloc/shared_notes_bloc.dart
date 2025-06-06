@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:equatable/equatable.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
@@ -37,12 +38,33 @@ class SharedNotesBloc  extends Bloc<SharedNotesEvent, SharedNotesState> {
     on<SwapNoteItemsEvent>(_onSwapNoteItemsEvent);
     on<EditTaskTapEvent>(_onEditTaskTapEvent);
     on<ReloadEvent>(_onReloadEvent);
+    on<SwapProducts>(_onSwapProducts);
+    on<AddTaskTapEvent>(_onAddTaskTapEvent);
     getIt<CommonService>().branchUpdate(callback: () => add(InitialEvent()));
     _broadcast.register("shared_notes_update", (value, callback) => add(InitialEvent()));
   }
 
+  void _onSwapProducts(SwapProducts event, Emitter<SharedNotesState> emit) async{
+    try {
+      emit(LoadingState());
+      var response = await apiRepository.swapProducts(body: event.data);
+      if (response?['status'] == true) {
+        await _fetchData();
+        emit(SuccessState(response?['message'] ?? ""));
+      } else {
+        emit(ErrorState(response?['message'] ?? ""));
+      }
+    }catch (e){
+      _error(e, emit);
+    }
+  }
+
   void _onEditTaskTapEvent(EditTaskTapEvent event, Emitter<SharedNotesState> emit) async{
     emit(EditTaskTapState(data: event.data, list: event.list));
+  }
+
+  void _onAddTaskTapEvent(AddTaskTapEvent event, Emitter<SharedNotesState> emit) async{
+    emit(AddTaskTapState(list: event.list));
   }
 
   void _onReloadEvent(ReloadEvent event, Emitter<SharedNotesState> emit) async{
@@ -58,7 +80,7 @@ class SharedNotesBloc  extends Bloc<SharedNotesEvent, SharedNotesState> {
   void _onSwapNoteItemsEvent(SwapNoteItemsEvent event, Emitter<SharedNotesState> emit) async{
     try {
       emit(LoadingState());
-      var response = await apiRepository.swapNoteItems(body: event.data);
+      var response = await apiRepository.swapProductsItems(body: event.data);
       if(response?['status'] == true){
         await _fetchData();
         emit(SuccessState(response?['message'] ?? ""));
@@ -95,11 +117,35 @@ class SharedNotesBloc  extends Bloc<SharedNotesEvent, SharedNotesState> {
     }
   }
 
+  // void _search(){
+  //   var query = searchController.text.toLowerCase();
+  //   List<Map<String, dynamic>> filteredData = [];
+  //   if (query.trim().isNotNullOrEmpty) {
+  //     filteredData = apiResponse.where((element) {
+  //       return [
+  //         element['name'],
+  //       ].any((value) => value?.toString().toLowerCase().contains(query) ?? false);
+  //     }).toList();
+  //   } else {
+  //     filteredData = apiResponse;
+  //   }
+  //   _unFilteredResponse = filteredData;
+  //   currentIndex=1;
+  //   totalCount = filteredData.length;
+  //   filteredResponse = paginateList(data: _unFilteredResponse, currentPage: currentIndex, itemsPerPage: itemsPerPage,);
+  // }
+
   void _onSearchEvent(SearchEvent event, Emitter<SharedNotesState> emit) async{
     try {
-      emit(LoadingState());
-      if (searchController.text.trim().isNotEmpty) {
-        apiResponse = unfilteredResponse?.where((element) => element['title'].toString().toLowerCase().contains(searchController.text.toLowerCase())).toList();
+      var query = searchController.text.toLowerCase();
+      List<Map<String, dynamic>> filteredData = [];
+      if (query.trim().isNotNullOrEmpty) {
+        filteredData = (unfilteredResponse ?? []).where((element) {
+          return [
+            element['title'],
+          ].any((value) => value?.toString().toLowerCase().contains(query) ?? false);
+        }).toList();
+        apiResponse = filteredData;
       } else {
         apiResponse = unfilteredResponse;
       }
@@ -141,7 +187,7 @@ class SharedNotesBloc  extends Bloc<SharedNotesEvent, SharedNotesState> {
         "all" : true,
         "complete_time_approved" : 1,
         "complete_time_taken" : "00:15",
-        "status" : true
+        "status" : (event.data?['status'] == 0) ? true : false
       };
       var response = await _updateProductsStatus(id: event.data['id'], body: body);
       if(response?['status'] == true){

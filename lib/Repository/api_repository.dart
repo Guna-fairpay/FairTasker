@@ -384,6 +384,8 @@ class APiRepository {
 
   String get _updateProductsItem => "updateProductsItem";
 
+  String get _addProductsItem => "addProductsItem";
+
   String get _removeProductsItem => "removeProductsItem";
 
   String get _swapProductsItems => "swapProductsItems";
@@ -395,6 +397,8 @@ class APiRepository {
   String get _privateRentalStoreCustomer => "private_rental_store_customer";
 
   String get _privateRentalUpdateCustomer => "private_rental_update_customer";
+
+  String get _swapProducts => "swapProducts";
 
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
@@ -4150,6 +4154,28 @@ Future<Map<String, dynamic>?> getLocations() async {
       } else {
         throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
       }
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> swapProducts({required Map<String,dynamic>? body}) async {
+    try{
+      String apiUrl = "${Str.BASE_URL}$_swapProducts";
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl,body: body);
+      var mapData = await response.mapData;
+      return mapData;
+    }catch(e){
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> addProductsItem({Map<String, dynamic>? body, required dynamic id}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_addProductsItem/$id";
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body, method: "POST");
+      var mapData = await response.mapData;
+      return mapData;
     } catch (error) {
       rethrow;
     }

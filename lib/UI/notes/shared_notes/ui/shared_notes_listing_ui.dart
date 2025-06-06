@@ -22,7 +22,6 @@ class SharedNotesListingUI extends StatelessWidget {
                   var model = allData?[index];
                   return NotesItemCard(
                     isSharedNotes: true,
-
                       key: Key("${model?['id'] ?? 0}"),
                       model: model,
                       totalItems: allData,
@@ -30,6 +29,7 @@ class SharedNotesListingUI extends StatelessWidget {
                         context.read<SharedNotesBloc>().add((direction == DismissDirection.endToStart) ? MoveCompleteEvent(model) : MoveTomorrowEvent(model));
                         return true;
                       },
+                      onAddNotesPressed: ()=> context.read<SharedNotesBloc>().add(AddTaskTapEvent(list: allData)),
                        onNotesComplete: (mod, value) => context.read<SharedNotesBloc>().add(CheckAllDialogEvent(mod, isAll: true, status: value)),
                        onTaskComplete: (mod, value) => context.read<SharedNotesBloc>().add(CheckAllEvent(mod, isAll: false, status: value)),
                        onSwapNoteItems: (value)=> context.read<SharedNotesBloc>().add(SwapNoteItemsEvent(value)),
@@ -49,12 +49,12 @@ class SharedNotesListingUI extends StatelessWidget {
                   var oldModel = list?[oldIndex];
                   var body = {
                     "items" : [
-                      {"id": oldModel?['id'], "notes_index": nIndex},
-                      {"id": newModel?['id'], "notes_index": oldIndex},
+                      {"id": oldModel?['id'], "products_index": nIndex},
+                      {"id": newModel?['id'], "products_index": oldIndex},
                     ]
                   };
                   Console.of.log("Body $body");
-                  context.read<SharedNotesBloc>().add(SwapNoteItemsEvent(body));
+                  context.read<SharedNotesBloc>().add(SwapProducts(body));
                 },
               ),
             )

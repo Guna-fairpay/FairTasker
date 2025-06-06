@@ -40,7 +40,7 @@ class _ShareNotesEditDialogUI extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) =>
-      ShareNotesEditDialogBloc()..add(InitialEvent(model: model ?? {}, list: list ?? [] )),
+      ShareNotesEditDialogBloc()..add(InitialEvent(model: model, list: list)),
       child: BlocListener<ShareNotesEditDialogBloc, ShareNotesEditDialogState>(
         listener: (context, state) {
           if(state is LoadingState){
@@ -73,7 +73,7 @@ class _ShareNotesEditDialogUI extends StatelessWidget {
                 alignment: Alignment.center,
                 clipBehavior: Clip.antiAliasWithSaveLayer,
                 title: ListTile(
-                  title: Text("${context.read<ShareNotesEditDialogBloc>().title}"),
+                  title: Text(context.read<ShareNotesEditDialogBloc>().title ?? ''),
                   contentPadding: 0.padding.copyWith(left: 16.spMin),
                   trailing: IconButton(onPressed: context.pop, icon: const Icon(Icons.close)),
                 ),
