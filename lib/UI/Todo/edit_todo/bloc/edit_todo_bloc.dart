@@ -101,6 +101,17 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     return super.close();
   }
 
+  Future<Map<String, dynamic>?> _editToDo({dynamic id}) async => await apiRepository.editToDo(id);
+  Future<List<Map<String, dynamic>>> _getPartsList() async => await getIt<CommonService>().getPartsList();
+  Future<List<Map<String, dynamic>>> _getSuppliesList() async => await getIt<CommonService>().getSuppliesList();
+  Future<List<Map<String, dynamic>>> _getActiveVehicles() async => await getIt<CommonService>().getActiveVehicles();
+  Future<List<Map<String, dynamic>>> _getVendorsList() async => await getIt<CommonService>().getVendorsList();
+  Future<List<Map<String, dynamic>>> _getLocationsList() async => await getIt<CommonService>().getLocationsList();
+  Future<List<Map<String, dynamic>>>_getTaskExpenseData() async => await getIt<CommonService>().getTaskExpenseData();
+  Future<List<Map<String, dynamic>>>_getGroupPersons() async => await getIt<CommonService>().getGroupPersons();
+  Future<List<Map<String, dynamic>>>_getResources() async => await getIt<CommonService>().getResources();
+  Future<List<Map<String, dynamic>>>_groupVehicles() async => await getIt<CommonService>().groupVehicles();
+
   EditToDoBloc() : super(EditTodoState(
     isLoading: false,
     isTimeSensitive: false,
@@ -199,16 +210,16 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   try {
     await CommonHelper.instance.waitForPostFrameCallback();
     emit(state.copyWith(isLoading: true));
-    todoResponse = await apiRepository.editToDo(event.todoId);
-    var partsResponse = await getIt<CommonService>().getPartsList();
-    var suppliesResponse = await getIt<CommonService>().getSuppliesList();
-    var vehicleResponse = await getIt<CommonService>().getActiveVehicles();
-    var vendorResponse = await getIt<CommonService>().getVendorsList();
-    var locationResponse = await getIt<CommonService>().getLocationsList();
-    var taskResponse = await getIt<CommonService>().getTaskExpenseData();
-    var userGroupResponse = await getIt<CommonService>().getGroupPersons();
-    var assignedToResponse = await getIt<CommonService>().getResources();
-    var groupVehiclesResponse = await getIt<CommonService>().groupVehicles();
+    todoResponse = await _editToDo(id: event.todoId);
+    var partsResponse = await _getPartsList();
+    var suppliesResponse = await _getSuppliesList();
+    var vehicleResponse = await _getActiveVehicles();
+    var vendorResponse = await _getVendorsList();
+    var locationResponse = await _getLocationsList();
+    var taskResponse = await _getTaskExpenseData();
+    var userGroupResponse = await _getGroupPersons();
+    var assignedToResponse = await _getResources();
+    var groupVehiclesResponse = await _groupVehicles();
     var resources = assignedToResponse;
     resources.removeWhere((resource) => resource['id'] == 2);
     resources.removeWhere((resource) =>
@@ -1018,14 +1029,14 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     try {
       emit(state.copyWith(isLoading: true));
 
-      var partsResponse = await getIt<CommonService>().getPartsList();
-      var suppliesResponse = await getIt<CommonService>().getSuppliesList();
-      var vehicleResponse = await getIt<CommonService>().getActiveVehicles();
-      var vendorResponse = await getIt<CommonService>().getVendorsList();
-      var locationResponse = await getIt<CommonService>().getLocationsList();
-      var taskResponse = await getIt<CommonService>().getTaskExpenseData();
-      var userGroupResponse = await getIt<CommonService>().getGroupPersons();
-      var assignedToResponse = await getIt<CommonService>().getResources();
+      var partsResponse = await _getPartsList();
+      var suppliesResponse = await _getSuppliesList();
+      var vehicleResponse = await _getActiveVehicles();
+      var vendorResponse = await _getVendorsList();
+      var locationResponse = await _getLocationsList();
+      var taskResponse = await _getTaskExpenseData();
+      var userGroupResponse = await _getGroupPersons();
+      var assignedToResponse = await _getResources();
       var resources = assignedToResponse;
       resources.removeWhere((resource) => resource['id'] == 2);
       resources.removeWhere((resource) =>
