@@ -41,22 +41,26 @@ class DeletePermissionState extends SharedNotesState{
 }
 
 class AddTaskTapState extends SharedNotesState{
-  final dynamic data;
-  AddTaskTapState(this.data);
+  final List<dynamic>? list;
+  AddTaskTapState({required this.list});
   @override
-  List<Object?> get props => [data, Random().nextDouble()];
+  List<Object?> get props => [list, Random().nextDouble()];
 }
 
 class EditTaskTapState extends SharedNotesState {
   final dynamic data;
-  EditTaskTapState(this.data);
+  final List<dynamic>? list;
+  EditTaskTapState({this.data, this.list});
   @override
-  List<Object?> get props => [data, Random().nextDouble()];
+  List<Object?> get props => [data, list, Random().nextDouble()];
 }
 
-class CheckTapState extends SharedNotesState {
+class CheckAllState extends SharedNotesState {
   final dynamic data;
   final bool isAll;
-  final bool status;
-  CheckTapState(this.data, {required this.isAll, required this.status});
+  final bool? status;
+  CheckAllState(this.data, {required this.isAll, required this.status});
+  @override
+  List<Object?> get props => [data, isAll, status, Random().nextDouble()];
+
 }
