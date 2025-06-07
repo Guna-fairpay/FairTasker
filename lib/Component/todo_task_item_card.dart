@@ -1,5 +1,7 @@
 import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
+import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/gestures.dart';
@@ -60,7 +62,7 @@ class TodoTaskItemCard extends StatelessWidget {
                             : Image.network(
                                 width: context.width,
                                 height: context.height,
-                                (model['display']?['vehicle_image'] ?? ""),
+                                (model['display']?['vehicle_image'] ?? "").toString().removeStorageUrl.toStorageURL,
                                 fit: BoxFit.cover,
                                 loadingBuilder: (context, child,
                                         loadingProgress) =>
@@ -265,7 +267,7 @@ class TodoTaskItemCard extends StatelessWidget {
                                 onTap: onVehicleHistory,
                                 child: Icon(
                                   Icons.remove_red_eye,
-                                  color: (model['display']?['vehicleHistoryIconColorCode'] ?? AppC.blue) ,
+                                  color: (((model['display']?['vehicleHistoryIconColorCode'].toString().isNotNullOrEmpty ?? false) ? Color(int.parse("0xff${model['display']?['vehicleHistoryIconColorCode'] ?? ""}")) : AppC.blue)),
                                   size: 16.sp,
                                 ),
                               ),
@@ -286,25 +288,23 @@ class TodoTaskItemCard extends StatelessWidget {
                                       weight: FontWeight.bold, size: 14.sp))
                           ],
                         )),
-                        if (model['display']?['hasBouncie'] ?? false)
+                        if ((model['display']?['hasBouncie'] ?? false) || (((model['todo_date'].toString().toFormat(format: "yyyy-MM-dd")) == (DateTime.now().toFormat()) && (model['display']?['hasDistance'] ?? false) && (List.from(model['display']['vins'] ?? []).length == 1))))
                         GestureDetector(
                           onTap: onBouncie,
-                          child: Container(
-                            child: Row(
-                              spacing: 5,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  ((model['display']?['hasDistance'] ?? false) && ((model['display']['vehicle_distance'].toString().isNotNullOrEmpty))) ? Icons.location_on : Icons.location_on_outlined,
-                                  color: (model['display']['vehicle_distance'].toString().isNullOrEmpty) ? AppC.redAccent : AppC.green,
-                                  size: 17.sp,
-                                ),
-                                if (model['display']?['hasDistance'] ?? false)
-                                Utils.getText("${model['display']['vehicle_distance'] ?? ""}",
-                                    weight: FontWeight.normal, size: 13.sp, color: (model['display']['vehicle_distance'].toString().isNullOrEmpty) ? AppC.redAccent : AppC.green),
-                                const SizedBox.shrink(),
-                              ],
-                            ),
+                          child: Row(
+                            spacing: 5,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                ((model['display']?['hasDistance'] ?? false) && ((model['display']['vehicle_distance'].toString().isNotNullOrEmpty))) ? Icons.location_on : Icons.location_on_outlined,
+                                color: (model['display']['vehicle_distance'].toString().isNullOrEmpty) ? AppC.redAccent : AppC.green,
+                                size: 17.sp,
+                              ),
+                              if (model['display']?['hasDistance'] ?? false)
+                              Utils.getText("${model['display']['vehicle_distance'] ?? ""}",
+                                  weight: FontWeight.normal, size: 13.sp, color: (model['display']['vehicle_distance'].toString().isNullOrEmpty) ? AppC.redAccent : AppC.green),
+                              const SizedBox.shrink(),
+                            ],
                           ),
                         ),
                       ],
@@ -367,14 +367,14 @@ class TodoTaskItemCard extends StatelessWidget {
                         ),
                         if ((model['display']?['vendor_location'].toString().isNullOrEmpty ?? false) && (model['display']?['notes'].toString().isNullOrEmpty ?? false))
                           const Spacer(),
-                        if (model['display']?['resource_name'].toString().isNotNullOrEmpty ?? false)
+                        if ((model['display']?['resource_name'].toString().isNotNullOrEmpty ?? false) || (List.from(model['display']?['resources']).isNotEmpty))
                         Row(
                           spacing: (showCheckbox ?? false) ? 10 : 5,
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             GestureDetector(
                                 onTapDown: onResource,
-                                child: Utils.getText("${model['display']?['resource_name'] ?? ""}",
+                                child: Utils.getText(model['display']?['resource_name'] ?? (List.from(model['display']?['resources']).length == 1) ? (List.from(model['display']?['resources']).map((e) => <String>[(e['first_name'] ?? ""), (e['last_name'] ?? "")].toInitial).firstOrNull ?? "") : "${List.from(model['display']?['resources']).map((e) => <String>[(e['first_name'] ?? ""), (e['last_name'] ?? "")].toInitial).firstOrNull ?? ""}...",
                                     weight: FontWeight.w900,
                                     size: 13.sp,
                                     color: AppC().base)),
