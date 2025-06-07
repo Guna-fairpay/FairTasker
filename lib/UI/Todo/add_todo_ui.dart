@@ -25,7 +25,7 @@ class CreateTodoUI extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(future: CommonHelper.instance.waitForPostFrameCallback(withDelay: true), builder: (context, snapshot) => (snapshot.data ?? false) ? (showHeader ? withBody(context) : withOutBody(context)) : const SizedBox.shrink());
+    return FutureBuilder(future: CommonHelper.instance.waitForPostFrameCallback(), builder: (context, snapshot) => (snapshot.data ?? false) ? (showHeader ? withBody(context) : withOutBody(context)) : const SizedBox.shrink());
   }
 
   Widget withBody(BuildContext context) {

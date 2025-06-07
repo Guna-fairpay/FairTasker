@@ -139,6 +139,8 @@ dependencies:
   flutter_html: any
   flutter_date_range_picker: any
   flutter_quill: any
+  draggable_scrollbar: ^0.1.0
+  workmanager: ^0.6.0
 
 dependency_overrides:
   intl: ^0.20.2

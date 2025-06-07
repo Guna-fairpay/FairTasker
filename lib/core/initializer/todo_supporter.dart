@@ -30,7 +30,8 @@ class ToDoSupport {
 
   void _fetchTodosForToday() async {
     if ((Session.of.getBool(Str.loginPrefText) == false) || (Session.of.getString(Str.accessTokenPrefText).isNullOrEmpty)) return;
-    _todos = await _commonService.getToDos(reset: true);
+    // _todos = await _commonService.getToDos(reset: true);
+    Console.of.debug("Fetching from api deprecated!", name: "ToDoSupport");
   }
 
   bool isClearCarTaskExist({String? vin}) {
