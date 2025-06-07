@@ -182,6 +182,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
     on<AddToDoRecurringYearlySelectedMonthEvent>(_onRecurringYearlySelectedMonthEvent);
   }
 
+  Future<Map<String, dynamic>?> findClearCarExist(dynamic vin) async => await _apiRepository.checkCleanCarTask(vin: vin);
   Future<void> _findOilChangeTaskExist({required dynamic vin}) async {
     try {
       emit(state.copyWith(isLoading: true));
@@ -374,7 +375,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
   Future<List<Map<String, dynamic>>?> _getParts() async => await getIt<CommonService>().getPartsList(); // API CALL: GET-PARTS
   Future<List<Map<String, dynamic>>?> _getSupplies() async => await getIt<CommonService>().getSuppliesList(); // API CALL: GET-PARTS
   Future<List<Map<String, dynamic>>> _getGroupVehicles() async => await getIt<CommonService>().groupVehicles(); // API CALL: GET-GROUP-VEHICLES
-  Future<List<Map<String, dynamic>>> _getCurrentToDos() async => await getIt<CommonService>().getToDos(); // API CALL: GET-TODOS
+  // Future<List<Map<String, dynamic>>> _getCurrentToDos() async => await getIt<CommonService>().getToDos(); // API CALL: GET-TODOS
   Future<Map<String, dynamic>?> _getOilChangeTask({required dynamic vin}) async => await getIt<CommonService>().getLatestOilChangeTask(vin: vin, dateTime: state.selectedDate ?? DateTime.now());
   Future<Map<String, dynamic>?> _deleteToDo({dynamic todoId}) async => await _apiRepository.deleteTodo(id: todoId, reason: "");
 
@@ -507,7 +508,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
         _getSupplies(), // 5
         _getResources(), // 6
         _getGroupVehicles(), // 7
-        _getCurrentToDos(), // 8
+        // _getCurrentToDos(), // 8
       ]);
       var resources = response[6] ?? [];
       resources.removeWhere((resource) => resource['id'] == 2);
@@ -602,9 +603,10 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
             .map((e) => e['value']['vin'])
             .lastOrNull;
         if (lastVin != null) {
-          if (getIt<ToDoSupport>().isClearCarTaskExist(vin: lastVin)) {
-            var lastBody = getIt<ToDoSupport>().lastCleanCarTask(
-                vin: lastVin);
+          // TODO: FIND CLEAN CAR EXIST OR NOT
+          var checkCleanCar = await findClearCarExist(lastVin);
+          if ((checkCleanCar?['status'] == true) && (checkCleanCar?['data'] != null)) {
+            var lastBody = checkCleanCar?['data'];
             emit(state.copyWith(
                 showCleanTaskReassign: true,
                 isSaveEvent: false,
@@ -645,7 +647,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
         _getSupplies(), // 5
         _getResources(), // 6
         _getGroupVehicles(), // 7
-        _getCurrentToDos(), // 8
+        // _getCurrentToDos(), // 8
       ]);
       var resources = response[6] ?? [];
       resources.removeWhere((resource) => resource['id'] == 2);

@@ -398,6 +398,12 @@ class APiRepository {
 
   String get _privateRentalUpdateCustomer => "private_rental_update_customer";
 
+  String get _getToDoModList => "todo-data-mod";
+
+  String get _findCheckInHours => "findCheckInHours";
+
+  String get _checkCleanCarTask => "checkCleanCarTask";
+
   String get _swapProducts => "swapProducts";
 
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
@@ -4155,6 +4161,66 @@ Future<Map<String, dynamic>?> getLocations() async {
         throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
       }
     } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getToDoModList({String? selectedDate, bool? status, String? resourceId, bool showOther = false}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_getToDoModList";
+      Map<String, dynamic> params = {
+        "resource": resourceId ?? "",
+        "date": selectedDate,
+        "branch_id": _branchId ?? 1,
+        "showOther" : showOther
+      };
+      if (status != null) params["status"] = status ? "Completed" : "In Progress";
+      Console.of.log(params);
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl, params: params);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> findCheckInHours() async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_findCheckInHours";
+      Map<String, dynamic> params = {
+        "from": DateTime.now().toFormat() ?? "",
+        "to": DateTime.now().toFormat(),
+      };
+      Console.of.log(params);
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl, params: params);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> checkCleanCarTask({required dynamic vin, dynamic id}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_checkCleanCarTask";
+      Map<String, dynamic> params = {
+        "vin": vin,
+        "id": id,
+      };
+      Console.of.log(params);
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl, params: params);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    } catch (e) {
       rethrow;
     }
   }

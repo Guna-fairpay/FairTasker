@@ -25,7 +25,7 @@ class HeaderView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => HeaderBloc()..add(HeaderInitialEvent()),
+      create: (context) => HeaderBloc(),
       child: BlocListener<HeaderBloc, HeaderState>(
         listener: (context, state) {
           if (state is HeaderLoadingState) {
@@ -78,7 +78,7 @@ class HeaderView extends StatelessWidget {
                   child: Container(
                     decoration: Utils.getBoxDecoration(),
                     padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                    child: Utils.getText(' ${context.watch<HeaderBloc>().checkInCount}/${context.watch<HeaderBloc>().checkOutCount} '),
+                    child: Utils.getText(' ${context.watch<HeaderBloc>().checkInOutCount ?? "0/0"} '),
                   ),
                 ),
               ),

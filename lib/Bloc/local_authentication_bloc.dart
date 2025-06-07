@@ -16,10 +16,10 @@ class LocalAuthenticationBloc extends Bloc<LocalAuthenticationEvent, LocalAuthen
 
   void _onInitialEvent(LocalAuthenticationInitialEvent event, Emitter<LocalAuthenticationState> emit) async {
     try {
-      getIt<CommonService>().initialFetch();
       _availableBiometrics = await _auth.getAvailableBiometrics();
       showButton = true;
       emit(LocalAuthenticationCommonState());
+      await getIt<CommonService>().initialFetch();
       if (_availableBiometrics.isNotEmpty) {
         var isAuthenticated = await _auth.authenticate(localizedReason: "Please authenticate to continue");
         if (isAuthenticated) {

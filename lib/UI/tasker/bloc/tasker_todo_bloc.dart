@@ -39,7 +39,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
 
   List<Map<String, dynamic>> toDos = [], unfiltered = [];
   Map<String, dynamic> processedWorkingHours = {};
-  final ToDoProcessor _toDoProcessor = ToDoProcessor();
+  // final ToDoProcessor _toDoProcessor = ToDoProcessor();
   final TaskerHoursProcessor _taskerHoursProcessor = TaskerHoursProcessor();
 
   bool get isAdmin => getIt<CommonService>().isAdmin;
@@ -58,6 +58,10 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
   get todoKeys => _todoKeyMaps;
 
   final ScrollController scrollController = ScrollController();
+
+  int get _userId => getIt<CommonService>().userId;
+  int? get _hrmId => getIt<CommonService>().hrmId;
+  int? get _branchId => getIt<CommonService>().branchId;
 
   ToDoTaskerBloc() : super(ToDoTaskerLoadingState()) {
     _listenBroadCast();
@@ -135,74 +139,51 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
   }
 
   /* BEGIN: API CALLS */
-  Future<List<Map<String, dynamic>>?> _fetchToDoList() async =>
-      await _toDoProcessor.getToDoList(selectedDate, isCompleted,
-          resourceId: _selectedUserIds);
-
-  Future<Map<String, dynamic>?> _changeToMorrow({
-    required List<String> todoIds,
-    dynamic groupId,
-    required String groupName,
-    DateTime? date,
-    TimeOfDay? time,
-  }) async =>
-      await _aPiRepository.changeToDoByGroup(
-          todoList: todoIds,
-          groupId: groupId,
-          groupName: groupName,
-          date: date,
-          time: time);
-
-  Future<Map<String, dynamic>?> _updateToDo(
-          {required Map<String, dynamic> body,
-          required dynamic todoId}) async =>
-      await _aPiRepository.updateToDo(body: body, toDoId: todoId);
-
-  Future<Map<String, dynamic>?> _swapToDo(
-          {required dynamic fromId, required dynamic toId}) async =>
-      await _aPiRepository.swapToDo(fromId: fromId, toId: toId);
-
-  Future<GeneralResponse?> _deleteVehicle(
-      {required String? id}) async =>
-      await _aPiRepository.deleteTodoVehicle(id : id);
-
+  // Future<List<Map<String, dynamic>>?> _fetchToDoList() async => await _toDoProcessor.getToDoList(selectedDate, isCompleted, resourceId: _selectedUserIds);
+  Future<Map<String, dynamic>?> _fetchToDoList({bool showOther = false}) async => await _aPiRepository.getToDoModList(selectedDate: selectedDate.toFormat(), status: isCompleted, resourceId: _selectedUserIds, showOther: showOther);
+  Future<Map<String, dynamic>?> _changeToMorrow({required List<String> todoIds, dynamic groupId, required String groupName, DateTime? date, TimeOfDay? time}) async => await _aPiRepository.changeToDoByGroup(todoList: todoIds, groupId: groupId, groupName: groupName, date: date, time: time);
+  Future<Map<String, dynamic>?> _updateToDo({required Map<String, dynamic> body, required dynamic todoId}) async => await _aPiRepository.updateToDo(body: body, toDoId: todoId);
+  Future<Map<String, dynamic>?> _swapToDo({required dynamic fromId, required dynamic toId}) async => await _aPiRepository.swapToDo(fromId: fromId, toId: toId);
+  Future<GeneralResponse?> _deleteVehicle({required String? id}) async => await _aPiRepository.deleteTodoVehicle(id : id);
   Future<Map<String, dynamic>?> get _getLastKnownLocation async => await getIt<CommonService>().getCurrentLocation();
-
   Future<Map<String, dynamic>?> _addToDoOdometer({required dynamic toDoId, required dynamic currentOdometer, required dynamic nextOdometer, required dynamic nextMilesCheck}) async => await _aPiRepository.addToDoOdometer(toDoId: toDoId, currentOdometer: currentOdometer, nextOdometer: nextOdometer, nextMilesCheck: nextMilesCheck);
-
   Future<Map<String, dynamic>?> _addToDo({required Map<String, dynamic> body}) async => await _aPiRepository.addToDo(body: body);
-
   Future<Map<String, dynamic>?> _completeToDo({required Map<String, dynamic> body, required dynamic todoId}) async => await _aPiRepository.completeTodo(todoId: todoId, body: body);
-
   Future<Map<String, dynamic>?> _saveRecording({required File? file}) async => await _aPiRepository.saveAudio(audio: file);
-
   Future<Map<String, dynamic>?> _saveWorkingHour({required Map<String, dynamic> body}) async => await _aPiRepository.saveWorkingHour(body: body);
-
   Future<Map<String, dynamic>?> _updateWorkingHour({required Map<String, dynamic> body}) async => await _aPiRepository.updateWorkingHour(body: body);
 
   /* END: API CALLS */
 
+  void _setOtherValues(Map<String, dynamic>? model) {
+    if (model?.containsKey("vehicles") == false) return;
+    List<Map<String, dynamic>>? users = List.from(model?['users'] ?? []);
+    List<Map<String, dynamic>>? userGroup = List.from(model?['userGroup'] ?? []);
+    List<Map<String, dynamic>>? taskExpenseData = List.from(model?['taskExpenseData'] ?? []);
+    List<Map<String, dynamic>>? locations = List.from(model?['locations'] ?? []);
+    List<Map<String, dynamic>>? vendors = List.from(model?['vendors'] ?? []);
+    List<Map<String, dynamic>>? vehicleStatusCategories = List.from(model?['vehicleStatusCategories'] ?? []);
+    List<Map<String, dynamic>>? vehicles = List.from(model?['vehicles'] ?? []);
+    List<Map<String, dynamic>>? vehicleGroups = List.from(model?['vehicleGroups'] ?? []);
+    getIt<CommonService>().updateValues(userList: users, groupPersonList: userGroup, taskExpenseDataList: taskExpenseData, locationsList: locations, vendorsList: vendors, groupVehicleList: vehicleGroups, activeVehicleList: vehicles);
+  }
+
   // INITIAL EVENT PROCESSOR
   /// FETCH TO-DO LISTING API
-  void _onInitialEvent(
-      ToDoTaskerInitialEvent event, Emitter<ToDoTaskerState> emit) async {
+  void _onInitialEvent(ToDoTaskerInitialEvent event, Emitter<ToDoTaskerState> emit) async {
     try {
       toDos.clear();
       emit(ToDoTaskerLoadingState());
-      await CommonHelper.instance.waitForPostFrameCallback();
-      await getIt<CommonService>().getCurrentLocation();
+      // await CommonHelper.instance.waitForPostFrameCallback();
+      getIt<CommonService>().getCurrentLocation();
       if (!isAdmin) {
         if ((currentUser != null) && (currentUser?.isNotEmpty ?? false)) selectedUsers?.add(currentUser ?? {});
       }
-      await Future.microtask(() async => await Future.wait([
-        _toDoProcessor.initialize(),
-        _taskerHoursProcessor.initialize()
-      ]));
-      // await _toDoProcessor.initialize();
-      // await _taskerHoursProcessor.initialize();
-      var response = await _fetchToDoList();
+      await _taskerHoursProcessor.initialize();
+      var response = await _fetchToDoList(showOther: true);
+      if (response != null) _setOtherValues(response);
       processedWorkingHours = _taskerHoursProcessor.processWorkingHours();
-      unfiltered = response ?? [];
+      unfiltered = _processTodo(List.from(response?['todos'] ?? []));
       toDos = unfiltered;
       _generateKeys();
       isUserSelected = (selectedUsers?.isNotEmpty ?? false);
@@ -243,16 +224,37 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     _reFetchToDos();
   }
 
+  List<Map<String, dynamic>> _processTodo(List<dynamic>? todo) {
+    var data = List<Map<String, dynamic>>.from(todo ?? []);
+    var checkIO = ["Check In", "Check Out"];
+    var checkInOut = data
+        .where((element) => checkIO.contains(element['title']))
+        .where((element) => element['user_id'].toString().toNumeric == _userId)
+        .toList();
+    data.removeWhere((element) => checkIO.contains(element['title']));
+    data.addAll(checkInOut);
+    data.sort((a, b) =>
+    a['todo_time']
+        .toString()
+        .toDateTime(inputFormat: "HH:mm:ss")
+        ?.compareTo(
+        b['todo_time'].toString().toDateTime(inputFormat: "HH:mm:ss") ??
+            DateTime.now()) ??
+        0);
+    return data;
+  }
+
   void _reFetchToDos({bool showLoading = true, bool refresh = false}) async {
     try {
       toDos.clear();
       if ( (!showLoading) &&  (!isClosed)) emit(ToDoTaskerCommonState());
       Console.of.debug("SHOW_LOADING $showLoading");
       if ( showLoading && (!isClosed)) emit(ToDoTaskerLoadingState());
-      if (refresh) await _toDoProcessor.refresh();
-      var response = await _fetchToDoList();
+      // if (refresh) await _toDoProcessor.refresh();
+      var response = await _fetchToDoList(showOther: refresh);
+      if ((response != null) && (refresh)) _setOtherValues(response);
       processedWorkingHours = await _taskerHoursProcessor.refresh();
-      unfiltered = response ?? [];
+      unfiltered = _processTodo(List.from(response?['todos'] ?? []));
       toDos = unfiltered;
       _searchTasks();
       Console.of.debug("CHECK ${toDos.length}");
@@ -493,7 +495,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       groupIds.removeWhere((element) => element.toString().isNullOrEmpty);
       var groupId = (groupIds.length > 1) ? null : groupIds.firstOrNull;
       var groupName =
-          "${_toDoProcessor.userId}_${dateTime.year}_${dateTime.month}_${dateTime.day}_${time.hour.toString().padLeft(2, '0')}_${time.minute.toString().padLeft(2, '0')}_00";
+          "${getIt<CommonService>().userId}_${dateTime.year}_${dateTime.month}_${dateTime.day}_${time.hour.toString().padLeft(2, '0')}_${time.minute.toString().padLeft(2, '0')}_00";
       if (models.isNotEmpty) {
         emit(ToDoTaskerLoadingState());
         var response = await _changeToMorrow(
@@ -891,14 +893,14 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
         "parts" : [],
         "supplies" : [],
         "vehicle_group_id" : null,
-        "assigned_to" : [_toDoProcessor.userId],
+        "assigned_to" : [_userId],
         "todo_time" : time.toHMS(),
         "platform_check" : null,
         "identifier_id" : 28,
         "todo_user_type" : null,
         "time_sensitive" : false,
         "comments" : null,
-        "branch_id" : _toDoProcessor.branchId,
+        "branch_id" : _branchId,
         "mileage" : null,
         "resolution_notes" : null,
         "custom_link_id" : null,
@@ -969,7 +971,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
         "start_time_latitude" : lastLocation?['latitude'],
         "start_time_longitude" : lastLocation?['longitude'],
         "title" : "Todo",
-        "user_id" : _toDoProcessor.hrmId,
+        "user_id" : _hrmId,
       };
       var response = await _saveWorkingHour(body : body);
       if (response?['status'] == false) Toaster.showError(response?['message'] ?? "Sorry! Try again");

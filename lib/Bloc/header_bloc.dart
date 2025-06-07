@@ -14,11 +14,13 @@ class HeaderBloc extends Bloc<HeaderEvent, HeaderState> {
   List<Map<String, dynamic>> _userPunchList = [];
   var checkInCount = 0;
   var checkOutCount = 0;
+  String? checkInOutCount;
   final FBroadcast _broadcast = FBroadcast.instance();
   HeaderBloc() : super(HeaderLoadingState()) {
     getIt<CommonService>().branchUpdate(callback: () => add(HeaderInitialEvent()));
     _broadcast.register(Str.userPunchListRefresh, (value, callback) => add(HeaderInitialEvent()));
-   on<HeaderInitialEvent>(_onInitialEvent);
+    _broadcast.register("check_in_out_count", (value, callback) => checkInOutCount = value);
+   // on<HeaderInitialEvent>(_onInitialEvent);
    on<EmailRefreshEvent>(_onEmailRefreshEvent);
 
   }

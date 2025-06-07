@@ -613,6 +613,29 @@ class CommonService {
     }
   }
 
+  void updateValues({List<Map<String, dynamic>>? userList, List<Map<String, dynamic>>? cohortsList, List<Map<String, dynamic>>? vendorsList, List<Map<String, dynamic>>? locationsList, List<Map<String, dynamic>>? partsList, List<Map<String, dynamic>>? suppliesList, List<Map<String, dynamic>>? groupVehicleList, List<Map<String, dynamic>>? activeVehicleList, List<Map<String, dynamic>>? activeVehicleCountList, List<Map<String, dynamic>>? bouncieVehicles, List<Map<String, dynamic>>? groupPersonList, List<Map<String, dynamic>>? taskExpenseDataList, List<Map<String, dynamic>>? expenseCategoriesList, List<Map<String, dynamic>>? paymentTypesList, List<Map<String, dynamic>>? resourcesList, List<Map<String, dynamic>>? branchList, List<Map<String, dynamic>>? toDoList, List<Map<String, dynamic>>? maintenanceCheckList, List<Map<String, dynamic>>? checkList, Map<String, dynamic>? vehicleStatus}) {
+    this.usersList = userList ?? usersList;
+    this.cohortsList = cohortsList ?? this.cohortsList;
+    this.vendorsList = vendorsList ?? this.vendorsList;
+    this.locationsList = locationsList ?? this.locationsList;
+    this.partsList = partsList ?? this.partsList;
+    this.suppliesList = suppliesList ?? this.suppliesList;
+    this.groupVehicleList = groupVehicleList ?? this.groupVehicleList;
+    this.activeVehicleList = activeVehicleList ?? this.activeVehicleList;
+    this.activeVehicleCountList = activeVehicleCountList ?? this.activeVehicleCountList;
+    this.bouncieVehicles = bouncieVehicles ?? this.bouncieVehicles;
+    this.groupPersonList = groupPersonList ?? this.groupPersonList;
+    this.taskExpenseDataList = taskExpenseDataList ?? this.taskExpenseDataList;
+    this.expenseCategoriesList = expenseCategoriesList ?? this.expenseCategoriesList;
+    this.paymentTypesList = paymentTypesList ?? this.paymentTypesList;
+    this.resourcesList = resourcesList ?? this.resourcesList;
+    this._vehicleStatus = vehicleStatus ?? _vehicleStatus;
+    this.branchList = branchList ?? this.branchList;
+    _toDoList = toDoList ?? _toDoList;
+    _maintenanceCheckList = maintenanceCheckList ?? _maintenanceCheckList;
+    Console.of.log("Value resetted", name: "CommonInitializer");
+  }
+
   Future<void> clearAll() async {
     usersList.clear();
     cohortsList.clear();
