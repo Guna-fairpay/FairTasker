@@ -1,3 +1,4 @@
+import 'package:fairpytasker/Component/compact_drop_down.dart';
 import 'package:fairpytasker/Component/compact_text_field.dart';
 import 'package:fairpytasker/Component/custom_dropdown.dart';
 import 'package:fairpytasker/Component/success_button.dart';
@@ -36,15 +37,16 @@ class MaintenanceCheckItem extends StatelessWidget {
               children: [
                 if (List.from(model?['children'] ?? []).isNotEmpty)
                 Expanded(
-                    child: CustomDropdown<Map<String, dynamic>>(
+                    child: CompactDropDown<Map<String, dynamic>>(
                         items: List.from(model?['children'] ?? [])..sort((a, b) => a['order'].compareTo(b['order'])),
                         itemAsString: (item) => item['name'].toString(),
-                        value: model?['selectedValue'],
+                        initialSelection: model?['selectedValue'],
                         onChanged: onDropDownChanged,
-                        contentPadding: 1.sp.padding.copyWith(left: 5.sp, right: 5.sp),
+                        // contentPadding: 1.sp.padding.copyWith(left: 5.sp, right: 5.sp),
                         hintText: "Not Checked",
-                        labelText: null,
-                        isExpanded: true)),
+                        // labelText: null,
+                        // isExpanded: true
+                    )),
                 if (((model?['selectedValue'] != null) && (model?['selectedValue']?['name'].toString().toLowerCase() != "good")) || ( (List.from(model?['children'] ?? []).isEmpty) && (model?['checked'] == false)))
                 Expanded(
                     child: CompactTextField(

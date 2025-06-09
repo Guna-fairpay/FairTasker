@@ -58,7 +58,9 @@ class CustomDateTimePicker<T> extends StatelessWidget {
       autovalidateMode: autovalidateMode,
       initialValue: value,
       builder: (field) {
-        WidgetsBinding.instance.addPostFrameCallback((timeStamp) => field.didChange(value));
+        WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+          if (value != null && field.hasError) field.didChange(value);
+        });
         return Column(
           spacing: 3,
           crossAxisAlignment: CrossAxisAlignment.start,
