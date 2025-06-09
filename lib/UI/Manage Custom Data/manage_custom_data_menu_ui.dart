@@ -26,7 +26,7 @@ class ManageCustomDataMenuUI extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: const Text("Manage CustomData Menu"),
+        title: Text("Manage CustomData Menu", style: TextStyle(fontSize: 20.spMin, fontWeight: FontWeight.bold)),
         titleTextStyle: context.textTheme.titleMedium?.copyWith(color: AppC.white),
         automaticallyImplyLeading: false,
         leadingWidth: 0,
@@ -142,7 +142,7 @@ class ManageCustomDataMenuUI extends StatelessWidget {
     required VoidCallback onTap,
   }) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 5.0),
+      padding: EdgeInsets.only(bottom: 5.r),
       child: InkWell(
         onTap: onTap,
         child: Card(
@@ -154,26 +154,26 @@ class ManageCustomDataMenuUI extends StatelessWidget {
           ),
           elevation: 2, // Slight elevation
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10),
+            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
             child: Row(
               children: [
                 Icon(
                   icon,
                   color: AppC().base,
-                  size: 14.sp,
+                  size: 12.r,
                 ), // Darker grey-blue for icons
                 const SizedBox(width: 18),
                 Expanded(
                   child: Utils.getText(
                     title,
-                    size: 12.sp,
-                    weight: FontWeight.w400,
+                    size: 14.spMin,
+                    weight: FontWeight.bold,
                     color: Colors.black87,
                   ),
                 ),
                 Icon(
                   Icons.arrow_forward_ios,
-                  size: 12.sp,
+                  size: 12.r,
                   color: Colors.grey[600],
                 ), // Lighter grey for arrow
               ],

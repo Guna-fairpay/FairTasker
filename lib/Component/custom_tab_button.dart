@@ -61,7 +61,7 @@ class CustomTabButton<T> extends StatelessWidget {
         ),
             style: textStyle ??
                 context.textTheme.labelLarge?.copyWith(
-                  fontSize: 12.sp,
+                  fontSize: 12.r,
                     color: (selectedValue != value) ? null : AppC.appColor,
                     fontWeight: (selectedValue != value)
                         ? FontWeight.normal

@@ -104,7 +104,7 @@ class NotesItemCard extends StatelessWidget {
                 shrinkWrap: true,
                 buildDefaultDragHandles: false,
                 physics: const NeverScrollableScrollPhysics(),
-                padding: 26.sp.horizontalPadding.copyWith(bottom: 10.sp),
+                padding: 26.horizontalPadding.copyWith(bottom: 10.sp),
                 itemCount: (List.from(model?[ (isSharedNotes) ? 'products_items' : 'note_items'] ?? []).length) + 1,
                 itemBuilder: (context, index) {
                   var list = List.from(model?[(isSharedNotes) ? 'products_items' : 'note_items'] ?? []);

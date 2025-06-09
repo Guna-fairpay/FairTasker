@@ -106,6 +106,7 @@ class EmployeeListPage extends StatelessWidget {
                           ),
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
+                            spacing: 2.w,
                             children: [
                               if(getIt<CommonService>().isAdmin)...[
                                 CompactIconButton(

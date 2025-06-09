@@ -49,7 +49,7 @@ class SuccessButton extends StatelessWidget {
             ?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
-                fontSize: 12.sp)));
+                fontSize: 12.r)));
     return GestureDetector(
       onTapDown: onTapDown,
       child: (icon != null)

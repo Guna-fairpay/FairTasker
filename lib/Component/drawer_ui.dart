@@ -262,9 +262,9 @@ class DrawerView extends StatelessWidget {
     required VoidCallback onTap,
   }) {
     return ListTile(
-      leading: Icon(icon, color: AppC.appColor),
-      minLeadingWidth: 10.sp,
-      title: Utils.getText(title, size: 12.sp, weight: FontWeight.w400),
+      leading: Icon(icon, color: AppC.appColor, size: 14.r,),
+      minLeadingWidth: 10.w,
+      title: Utils.getText(title, size: 12.spMin, weight: FontWeight.bold),
       onTap: () {
         onTap.call();
         Scaffold.of(context).closeDrawer();
@@ -289,7 +289,7 @@ class DrawerView extends StatelessWidget {
               Icon(icon, color: Colors.white),
               Utils.getText(
                 label,
-                size: 12.sp,
+                size: 12.r,
                 color: Colors.white,
                 weight: FontWeight.w400,
               ),

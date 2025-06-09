@@ -53,7 +53,7 @@ class DropdownBoxWithIcon extends StatelessWidget {
           onTap: onTap,
           child: Container(
             decoration: BoxDecoration(
-              borderRadius: const BorderRadius.only(topRight: Radius.circular(4),bottomRight: Radius.circular(4)),
+              borderRadius: BorderRadius.only(topRight: Radius.circular(3.r),bottomRight: Radius.circular(3.r)),
               color: AppC.blue50,
               border:  const Border(
                 top: BorderSide(width: Num.borderWidthField, color: AppC.fieldBase),
@@ -62,7 +62,7 @@ class DropdownBoxWithIcon extends StatelessWidget {
               ),
             ),
             child: Padding(
-              padding: (5.5).sp.padding,
+              padding: (6).r.padding,
               child: const Icon(Icons.add,color: AppC.blue,),
             ),
           ),

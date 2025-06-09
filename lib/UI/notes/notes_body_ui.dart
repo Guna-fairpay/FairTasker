@@ -22,7 +22,7 @@ class NotesBodyUi extends StatelessWidget {
                 key: UniqueKey(),
                 shrinkWrap: true,
                 physics: const BouncingScrollPhysics(),
-                padding: 16.sp.horizontalPadding,
+                padding: 16.horizontalPadding,
                 itemBuilder: (context, index) {
                   var allData = context.read<NotesBloc>().apiResponse;
                   var model = allData?[index];

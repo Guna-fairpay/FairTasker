@@ -39,9 +39,9 @@ class CompactIconButton extends StatelessWidget {
               shape: shape ?? WidgetStatePropertyAll(ContinuousRectangleBorder(
                   borderRadius: BorderRadius.circular(Num.borderRadiusLarge))),
               padding: WidgetStatePropertyAll(
-                  EdgeInsets.symmetric(vertical: 12.sp, horizontal: 6.sp)),
-              iconSize: WidgetStatePropertyAll(12.sp),
-              minimumSize: WidgetStatePropertyAll(Size.fromRadius(18.sp)),
+                  EdgeInsets.symmetric(vertical: 10.h, horizontal: 5.w)),
+              iconSize: WidgetStatePropertyAll(12.r),
+              minimumSize: WidgetStatePropertyAll(Size.fromRadius(15.r)),
               foregroundColor: WidgetStatePropertyAll(foregroundColor),
               backgroundColor: WidgetStatePropertyAll(backgroundColor),
               elevation: WidgetStatePropertyAll(elevation)),
