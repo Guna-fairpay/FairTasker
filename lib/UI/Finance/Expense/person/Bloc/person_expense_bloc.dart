@@ -477,7 +477,7 @@ class PersonExpenseBloc extends Bloc<PersonExpenseEvent, PersonExpenseState> {
   }
 
   /// API CALL: Expense Vehicle
-  Future<ExpenseResponse?> _getPersonExpense(
+  Future<Map<String, dynamic>?> _getPersonExpense(
       String? minDate, String? maxDate) async {
     return await apiRepository.getPersonExpense(
         minDate: minDate, maxDate: maxDate);
@@ -564,11 +564,11 @@ class PersonExpenseBloc extends Bloc<PersonExpenseEvent, PersonExpenseState> {
       var expenseAmountResponse = await _getPersonExpense(startDate, endDate);
       var response = await _getPersonExpense(minDate, maxDate);
       var employeeResponse = await _getEmployeeList();
-      employeeList = employeeResponse?['data'];
-      var apiResponse = response?.data;
-      var amountResponse = expenseAmountResponse?.data;
+      employeeList = List.from(employeeResponse?['data']);
+      List<Map<String, dynamic>> apiResponse = List.from(response?['data'] ?? []);
+      List<Map<String, dynamic>> amountResponse = List.from(expenseAmountResponse?['data'] ?? []);
       apiResponse =
-          calculateApprovedAmounts(apiResponse ?? [], amountResponse ?? []);
+          calculateApprovedAmounts(apiResponse, amountResponse ?? []);
       approvedAmount = apiResponse
           .where((element) => element['approved'].toString() == "1")
           .map((e) => num.tryParse(e['expense_amount'].toString()) ?? 0)

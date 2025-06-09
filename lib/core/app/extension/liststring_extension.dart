@@ -28,3 +28,11 @@ extension Unique<E, Id> on List<E> {
     return list;
   }
 }
+
+String getInitials(dynamic name) {
+  if (name == null) return '';
+  return name.toString().trim().split(' ')
+      .where((word) => word.isNotEmpty)
+      .map((word) => word[0].toUpperCase())
+      .join();
+}

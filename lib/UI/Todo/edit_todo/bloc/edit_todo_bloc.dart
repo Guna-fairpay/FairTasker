@@ -932,15 +932,16 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       Toaster.showError("Platform check is required");
       return;
     }
-    if (state.selectedTask['id'] == 257) {
-      final inputValue = num.tryParse(odometerController.text) ?? 0;
-      final minMileage = num.tryParse(state.previousOdometer) ?? 0;
-      if (odometerController.text.isNotEmpty && inputValue < minMileage) {
-        Toaster.showError(
-            "Can't enter lower than previous oil change odometer");
-        return;
-      }
-    }
+
+    // if (state.selectedTask['id'] == 257) {
+    //   final inputValue = num.tryParse(odometerController.text) ?? 0;
+    //   final minMileage = num.tryParse(state.previousOdometer) ?? 0;
+    //   if (odometerController.text.isNotEmpty && inputValue < minMileage) {
+    //     Toaster.showError(
+    //         "Can't enter lower than previous oil change odometer");
+    //     return;
+    //   }
+    // }
 
     if (Str.oilChangeCheckIds.contains(state.selectedTask['id']) && !event.overrideOilCheck) {
       // TRIGGER OIL CHANGE

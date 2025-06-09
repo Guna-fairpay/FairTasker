@@ -5,6 +5,7 @@ import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter/material.dart';
 import 'package:fairpytasker/core/app/extension/relativerect_extension.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class BranchPopupMenu {
   BranchPopupMenu._();
@@ -20,8 +21,8 @@ class BranchPopupMenu {
             .map((e) => PopupMenuItem<Map<String, dynamic>>(
                   value: e,
                   child: Container(
-                    margin: const EdgeInsets.symmetric(
-                        vertical: 2), // Reduced vertical margin
+                    margin:  EdgeInsets.symmetric(
+                        vertical: 2.h), // Reduced vertical margin
                     decoration: BoxDecoration(
                       color:
                           (e['id'] == Session.of.getInt(Str.branchIdPrefText))
@@ -40,14 +41,14 @@ class BranchPopupMenu {
                                 ]
                               : [],
                     ),
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 5, horizontal: 10), // Reduced padding
+                    padding: EdgeInsets.symmetric(
+                        vertical: 4.h, horizontal: 8.w), // Reduced padding
                     child: Center(
                       child: Text(
                         "${e['city'] ?? ""}",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 14, // Smaller font size
+                          fontSize: 12.sp, // Smaller font size
                           color: (e['id'] ==
                                   Session.of.getInt(Str.branchIdPrefText))
                               ? Colors.white

@@ -930,19 +930,6 @@ class APiRepository {
     }
   }
 
-  Future<ExpenseResponse?> getPersonExpense(
-      {String? minDate, String? maxDate}) async {
-    try {
-      String apiUrl = '${Str.LIST_BASE_URL}$_getPersonExpense';
-      final http.Response? response = await _apiClient.callPostMethod(apiUrl,
-          body: jsonEncode({'minDate': minDate, 'maxDate': maxDate, 'platformCustom': 'tasker-app'}));
-      var mapData = await response.mapData;
-      return (mapData != null) ? ExpenseResponse.fromJson(mapData) : null;
-    } catch (error) {
-      rethrow;
-    }
-  }
-
   Future<Map<String, dynamic>?> expenseApprove(
       {String? id, String? approved}) async {
     try {
@@ -4248,6 +4235,25 @@ Future<Map<String, dynamic>?> getLocations() async {
       final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body, method: "POST");
       var mapData = await response.mapData;
       return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getPersonExpense({String? minDate, String? maxDate}) async {
+    try {
+      String apiUrl = '${Str.LIST_BASE_URL}$_getPersonExpense';
+      Map<String, dynamic> params = {
+        "minDate" : minDate,
+        "maxDate" : maxDate,
+        "platformCustom" : "tasker-app"
+      };
+      final http.Response? response = await _apiClient.callPostMethodWithBodyDynamic(apiUrl, body: params);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
     } catch (error) {
       rethrow;
     }

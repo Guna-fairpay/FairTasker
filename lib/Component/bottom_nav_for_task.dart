@@ -42,8 +42,8 @@ class _BottomNavigationForTaskViewState
     return Scaffold(
       drawer: const DrawerView(),
       extendBody: false,
-      appBar: const PreferredSize(
-        preferredSize: Size.fromHeight(35.0),
+      appBar:  PreferredSize(
+        preferredSize: Size.fromHeight(25.h),
         child: HeaderView(),
       ),
       backgroundColor: AppC.white,
@@ -52,12 +52,13 @@ class _BottomNavigationForTaskViewState
         type: BottomNavigationBarType.fixed,
         backgroundColor: Colors.white,
         currentIndex: index,
-        iconSize: 25.sp,
+        iconSize: 20.r,
         showSelectedLabels: true,
         showUnselectedLabels: true,
         selectedItemColor: AppC().base,
         unselectedItemColor: AppC.grey,
         unselectedLabelStyle: context.textTheme.labelMedium,
+          unselectedFontSize: 12.sp,
         selectedLabelStyle: context.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.bold),
         selectedFontSize: 14.sp,
         onTap: (value) {

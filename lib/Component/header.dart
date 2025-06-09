@@ -42,7 +42,7 @@ class HeaderView extends StatelessWidget {
           centerTitle: true,
           automaticallyImplyLeading: false,
           title: Row(
-            spacing: 10,
+            spacing: 10.w,
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
@@ -50,6 +50,9 @@ class HeaderView extends StatelessWidget {
                 onTap: Scaffold.of(context).openDrawer,
                 child: SvgPicture.asset(
                   Assets.hamburgerIcon,
+                  width: 20.w,
+                  height: 20.h,
+                  fit: BoxFit.fitHeight,
                   color: AppC().base,
                 ),
               ),
@@ -59,17 +62,17 @@ class HeaderView extends StatelessWidget {
                   onTap: () => context.pushAndRemoveUntil(const BottomNavigationForTaskView(selectedIndex: 0)),
                   child: Image.asset(
                     Assets.favicon,
-                    width: 24.sp,
-                    height: 24.sp,
+                    width: 20.w,
+                    height: 20.h,
                     fit: BoxFit.fitHeight,
                   ),
                 ),
               ),
               if (getIt<CommonService>().hasReport)
-                IconButton(onPressed: () => context.push(const LogUi(), fullscreenDialog: true), icon: const Icon(Icons.receipt_long_rounded, color: AppC.grey)),
+                IconButton(onPressed: () => context.push(const LogUi(), fullscreenDialog: true), icon: Icon(Icons.receipt_long_rounded, color: AppC.grey, size: 20.r,)),
               const Spacer(),
               if (kDebugMode)
-              Badge.count(count: 0, child: const Icon(Icons.email_rounded,color: AppC.appColor)),
+              Badge.count(count: 0, smallSize: 8.sp, child: Icon(Icons.email_rounded,color: AppC.appColor, size: 18.r)),
               BlocSelector<HeaderBloc, HeaderState, HeaderState>(
                 selector: (state) => state,
                 builder: (context, state) => GestureDetector(
@@ -77,8 +80,8 @@ class HeaderView extends StatelessWidget {
                   // onTap: () => context.push(WorkHoursViewUI(), fullscreenDialog: true),
                   child: Container(
                     decoration: Utils.getBoxDecoration(),
-                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                    child: Utils.getText(' ${context.watch<HeaderBloc>().checkInOutCount ?? "0/0"} '),
+                    padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
+                    child: Utils.getText(' ${context.watch<HeaderBloc>().checkInOutCount ?? "0/0"} ', weight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -90,7 +93,7 @@ class HeaderView extends StatelessWidget {
                   onTap: () => context.push(WorkHoursViewUI(), fullscreenDialog: true),
                   child: Container(
                     decoration: Utils.getBoxDecoration(bgColor: Colors.orange),
-                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                    padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
                     child: Utils.getText(' ${context.watch<HeaderBloc>().checkInCount}/${context.watch<HeaderBloc>().checkOutCount} '),
                   ),
                 ),
@@ -99,7 +102,7 @@ class HeaderView extends StatelessWidget {
               GestureDetector(
                 onTapDown: (details) => BranchPopupMenu.show(context, offset: details.globalPosition, onChanged: (value) => Console.of.warning(value)),
                 child: ValueListenableBuilder(valueListenable: getIt<CommonService>().updateBranch, builder: (context, value, child) => Utils.getText((Session.of.getString(Str.branchNamePrefText)?[0] ?? "D"),
-                  style: context.textTheme.titleLarge?.copyWith(fontSize: 22.sp, fontWeight: FontWeight.w900, color: AppC.appColor),
+                  style: context.textTheme.titleLarge?.copyWith(fontSize: 16.h, fontWeight: FontWeight.w900, color: AppC.appColor),
                 )),
               ),
             ],
