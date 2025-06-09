@@ -1,5 +1,6 @@
 import 'package:fairpytasker/UI/Manage%20Employees/manage_employees.dart';
 import 'package:fairpytasker/UI/Task%20List/tasklist_ui.dart';
+import 'package:fairpytasker/UI/bouncie/bouncie_main_ui.dart';
 import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/UI/import_task/import_task_main_ui.dart';
 import 'package:fairpytasker/UI/leave_management/leave_view/ui/leave_view_main_page.dart';
@@ -13,6 +14,7 @@ import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/authenticator.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fairpytasker/main.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:package_info_plus/package_info_plus.dart' show PackageInfo;
@@ -149,15 +151,16 @@ class DrawerView extends StatelessWidget {
                     onTap: () => context.push(const ImportTaskMainUi(), fullscreenDialog: true),
                     // onTap: () => navigateToPage(context, const UploadText()),
                   ),
-                  _buildDivider(),
-                  _buildListTile(
-                    context,
-                    icon:  Icons.location_on,
-                    title: "Bouncie",
-                    onTap: () {
-                      // =>navigateToPage(const UploadText())
-                    },
-                  ),
+                  if (kDebugMode)
+                    ...[
+                      _buildDivider(),
+                      _buildListTile(
+                        context,
+                        icon:  Icons.location_on,
+                        title: "Bouncie",
+                        onTap: () => context.push(const BouncieMainUi(), fullscreenDialog: true),
+                      ),
+                    ],
                   /*_buildDivider(),
                   _buildListTile(
                     icon:  Icons.sync,
@@ -171,13 +174,16 @@ class DrawerView extends StatelessWidget {
                     title: "Voice To Text",
                     onTap: () => context.push(const VoiceToTextUI(), fullscreenDialog: true),
                   ),
-                  _buildDivider(),
-                  _buildListTile(
-                    context,
-                    icon:  Icons.settings,
-                    title: "Settings",
-                    onTap: () => context.push(const GoogleAuthenticatorUI(), fullscreenDialog: true),
-                  ),
+                  if (kDebugMode)
+                    ...[
+                      _buildDivider(),
+                      _buildListTile(
+                        context,
+                        icon:  Icons.settings,
+                        title: "Settings",
+                        onTap: () => context.push(const GoogleAuthenticatorUI(), fullscreenDialog: true),
+                      ),
+                    ],
                   _buildDivider(),
                 ],
               ),

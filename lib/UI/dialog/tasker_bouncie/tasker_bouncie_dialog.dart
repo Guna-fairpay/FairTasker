@@ -52,7 +52,7 @@ class _TaskerBouncieDialogViewState extends State<_TaskerBouncieDialogView> {
           borderRadius: BorderRadius.circular(Num.borderRadiusLarge)),
       title: ListTile(
         // dense: true,
-        title: Text("${widget.model?['display']?['vehicle_name']}"),
+        title: Text("${widget.model?['vehicle_name'] ?? widget.model?['display']?['vehicle_name']}"),
         titleTextStyle:
             context.textTheme.titleMedium?.copyWith(color: AppC.appColor),
         trailing: GestureDetector(
@@ -173,6 +173,7 @@ class _TaskerBouncieMapWidget extends StatelessWidget {
               ),
             ),
           ),
+          if (context.watch<TaskerBouncieBloc>().address.toString().isNotNullOrEmpty)
           Text.rich(TextSpan(
               children: [
                 WidgetSpan(child: Icon(Icons.location_on_rounded, color: AppC.appColor, size: 16.sp,)),
