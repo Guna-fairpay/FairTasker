@@ -145,28 +145,19 @@ class EditTodoUI extends StatelessWidget {
                       ),
                       IconButton(
                           onPressed: () {
+                            Console.of.log('CLICKED>>>>');
                             AskPermissionDialog.show(context,
                                 title: "Are you sure?",
                                 description: "${context.read<EditToDoBloc>().name}, are you sure you want to delete this task? Kindly enter a valid reason to confirm the deletion",
                                 boldWords: [context.read<EditToDoBloc>().name ?? '', ","],
-                                positiveText: state.apiResponse['expense_id'] != null
-                                    ? "Yes,Delete"
-                                    : "Yes, delete it!",
+                                positiveText: state.apiResponse['expense_id'] != null ? "Yes,Delete" : "Yes, delete it!",
                                 negativeText: "Cancel",
                                 isReasonRequired: true,
-                                isExpense: state.apiResponse['expense_id'] != null
-                                    ? true
-                                    : false,
-                                subPositiveText: state.apiResponse['expense_id'] != null
-                                    ? 'Delete todo'
-                                    : state.apiResponse['recurring_id'] != null
-                                    ? 'Delete multiple'
-                                    : '',
-                                subDescription: state.apiResponse['expense_id'] != null
-                                    ? ''
-                                    : state.apiResponse['recurring'],
-                                onReasonSubmitted: (reason) {
-                              context.read<EditToDoBloc>().add(DeleteTodoEvent(
+                                isExpense: state.apiResponse['expense_id'] != null ? true : false,
+                                subPositiveText: state.apiResponse['expense_id'] != null ? 'Delete todo' : state.apiResponse['recurring_id'] != null? 'Delete multiple' : '',
+                                subDescription: state.apiResponse['expense_id'] != null ? '' : state.apiResponse['recurring'],
+                                onReasonSubmitted: (reason)async {
+                                  context.read<EditToDoBloc>().add(DeleteTodoEvent(
                                     todoId: todoId,
                                     reason: reason,
                                     isRecurring: false,
@@ -175,20 +166,18 @@ class EditTodoUI extends StatelessWidget {
                                             ? true
                                             : false,
                                     data: state.apiResponse,
-                                  ));
-                            }, onMultiSubmitted: (reason) async {
-                              if (state.apiResponse['expense_id'] != null) {
-                                context
-                                    .read<EditToDoBloc>()
-                                    .add(DeleteTodoEvent(
+                                  ));},
+                                onMultiSubmitted: (reason) async {
+                                  if (state.apiResponse['expense_id'] != null) {
+                                    context.read<EditToDoBloc>().add(DeleteTodoEvent(
                                       todoId: todoId,
                                       reason: reason,
                                       isRecurring: false,
                                       isExpenseDelete: false,
                                       data: state.apiResponse,
                                     ));
-                              }
-                            }, onSaveMultiPressed: () async {
+                                  }},
+                                onSaveMultiPressed: () async {
                               if ((state.apiResponse['recurring_id'] != null) &&
                                   (state.selectedStartDate != null &&
                                       state.selectedEndDate != null)) {
@@ -220,7 +209,7 @@ class EditTodoUI extends StatelessWidget {
                                     });
                               }
                             });
-                          },
+                            },
                           icon: const Icon(Icons.delete_outline,color: AppC.redAccent,)),
                       IconButton(
                           onPressed: () {
