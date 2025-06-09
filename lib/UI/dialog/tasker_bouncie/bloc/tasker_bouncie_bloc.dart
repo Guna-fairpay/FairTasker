@@ -28,21 +28,32 @@ class TaskerBouncieBloc extends Bloc<TaskerBouncieEvent, TaskerBouncieState> {
     try {
       emit(TaskerBouncieLoadingState());
       _model = event.model;
-      _vin = List.from(_model?['display']?['vins'] ?? []).firstOrNull;
-      Console.of.log(_vin, name: "VIN");
-      if (_vin.toString().isNotNullOrEmpty) {
-        var response = await _aPiRepository.getOdometerValue(vin: _vin);
-        if (response?['status'] == 200) {
-          hasData = true;
-          latLng = LatLng(double.tryParse("${response?['data']?['stats']?['location']?['lat'] ?? 0.0}") ?? 0.0, double.tryParse("${response?['data']?['stats']?['location']?['lon'] ?? 0.0}") ?? 0.0);
-          address = response?['data']?['stats']?['location']?['address'] ?? "";
-          fuelLevel = num.tryParse("${response?['data']?['stats']?['fuelLevel'] ?? ""}")?.ceil() ?? 0;
-          batteryLevel = response?['data']?['stats']?['battery']?['status'] ?? "";
-          lastUpdated = DateTime.parse(response?['data']?['stats']?['lastUpdated'] ?? "").toFormat(format: "MM-dd-yyyy hh:mm a");
-        } else {
-          hasData = false;
-          displayErrorMsg = response?['message'] ?? "";
+      if (_model?.containsKey("bouncie") == false) {
+        _vin = List.from(_model?['display']?['vins'] ?? []).firstOrNull;
+        Console.of.log(_vin, name: "VIN");
+        if (_vin.toString().isNotNullOrEmpty) {
+          var response = await _aPiRepository.getOdometerValue(vin: _vin);
+          if (response?['status'] == 200) {
+            hasData = true;
+            latLng = LatLng(double.tryParse("${response?['data']?['stats']?['location']?['lat'] ?? 0.0}") ?? 0.0, double.tryParse("${response?['data']?['stats']?['location']?['lon'] ?? 0.0}") ?? 0.0);
+            address = response?['data']?['stats']?['location']?['address'] ?? "";
+            fuelLevel = num.tryParse("${response?['data']?['stats']?['fuelLevel'] ?? ""}")?.ceil() ?? 0;
+            batteryLevel = response?['data']?['stats']?['battery']?['status'] ?? "";
+            lastUpdated = DateTime.parse(response?['data']?['stats']?['lastUpdated'] ?? "").toFormat(format: "MM-dd-yyyy hh:mm a");
+          } else {
+            hasData = false;
+            displayErrorMsg = response?['message'] ?? "";
+          }
         }
+      } else {
+        var bouncie = _model?['bouncie'];
+        _vin = bouncie?['vin'];
+        hasData = bouncie != null;
+        latLng = LatLng(double.tryParse("${bouncie?['stats']?['location']?['lat'] ?? 0.0}") ?? 0.0, double.tryParse("${bouncie?['stats']?['location']?['lon'] ?? 0.0}") ?? 0.0);
+        address = bouncie?['address'] ?? "";
+        fuelLevel = num.tryParse("${bouncie?['stats']?['fuelLevel'] ?? ""}")?.ceil() ?? 0;
+        batteryLevel = bouncie?['stats']?['battery']?['status'] ?? "";
+        lastUpdated = DateTime.parse(bouncie?['stats']?['lastUpdated'] ?? "").toFormat(format: "MM-dd-yyyy hh:mm a");
       }
       emit(TaskerBouncieCommonState());
     } catch (e) {

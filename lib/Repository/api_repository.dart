@@ -406,6 +406,12 @@ class APiRepository {
 
   String get _swapProducts => "swapProducts";
 
+  String get _getBouncieVehicle => "getBouncieVehicle";
+
+  String get _getCode => "get-code";
+
+  String get _getBouncieToken => "getBouncieToken";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -4240,6 +4246,43 @@ Future<Map<String, dynamic>?> getLocations() async {
     try {
       String apiUrl = "${Str.BASE_URL}$_addProductsItem/$id";
       final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body, method: "POST");
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getBouncieVehicle({required dynamic token}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_getBouncieVehicle";
+      final Map<String, dynamic> body = {};
+      body['token'] = token;
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body, method: "POST");
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getCode() async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_getCode";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getBouncieToken({required dynamic code}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_getBouncieToken";
+      Map<String, dynamic> body = {};
+      body['code'] = code;
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body);
       var mapData = await response.mapData;
       return mapData;
     } catch (error) {
