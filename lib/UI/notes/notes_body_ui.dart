@@ -42,6 +42,7 @@ class NotesBodyUi extends StatelessWidget {
                       onSwapNoteItems: (value)=> context.read<NotesBloc>().add(NotesSwapNoteItemsEvent(value)),
                       onEditPressed: () => context.read<NotesBloc>().add(NotesEditEvent(model)),
                       onDeletePressed: () => context.read<NotesBloc>().add(NotesDeletePermissionEvent(model))
+
                   );
                 },
                 itemCount: context.watch<NotesBloc>().apiResponse?.length ?? 0,
