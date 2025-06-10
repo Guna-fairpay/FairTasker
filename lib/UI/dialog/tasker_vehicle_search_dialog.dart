@@ -141,6 +141,7 @@ class _TaskerVehicleSearchBodyView extends StatelessWidget {
                 padding: 10.horizontalPadding,
                 child: SingleChildScrollView(
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     spacing: 10,
                     mainAxisSize: MainAxisSize.min,
                     children: [

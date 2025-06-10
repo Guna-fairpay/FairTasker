@@ -45,7 +45,7 @@ class CategoryConfigListPage extends StatelessWidget {
                                 onTap: () => context.read<CategoryConfigBloc>()
                                     .add(EditCategoryConfigEvent(data: item)),
                                 child: Utils.getText(item['name'] ?? '',
-                                    size: 12.sp, overFlow: TextOverflow.visible),
+                                    size: 12.spMin, overFlow: TextOverflow.visible),
                               ),
                             ),
                             Expanded(
@@ -53,7 +53,7 @@ class CategoryConfigListPage extends StatelessWidget {
                                   onTap: () => context
                                       .read<CategoryConfigBloc>()
                                       .add(EditCategoryConfigEvent(data: item)),
-                                  child: Utils.getText(item['category_name'] ?? '',),
+                                  child: Utils.getText(item['category_name'] ?? '', size: 12.spMin,),
                                 )),
                             Row(
                               spacing: 5,
@@ -66,7 +66,7 @@ class CategoryConfigListPage extends StatelessWidget {
                                     child: Icon(
                                       Icons.edit_outlined,
                                       color: AppC.blue,
-                                      size: 20.sp,
+                                      size: 20.spMin,
                                     )
                                 ),
                                 InkWell(
@@ -84,7 +84,7 @@ class CategoryConfigListPage extends StatelessWidget {
                                     child: Icon(
                                       Icons.delete_outline,
                                       color: AppC.redAccent,
-                                      size: 20.sp,
+                                      size: 20.spMin,
                                     ),
                                 ),
                               ],

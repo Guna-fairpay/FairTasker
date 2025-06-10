@@ -20,7 +20,7 @@ class EmployeeMainPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Employees', style: TextStyle(fontSize:16.r)),
+        title: Text('Employees', style: TextStyle(fontSize:20.spMin)),
         titleTextStyle:
         context.textTheme.titleMedium?.copyWith(color: AppC.white, fontWeight: FontWeight.bold),
         backgroundColor: AppC.appColor,

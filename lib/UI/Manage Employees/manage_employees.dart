@@ -18,7 +18,7 @@ class ManageEmployees extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.grey[100], // Light grey background
       appBar: AppBar(
-        title: const Text("Manage Employees"),
+        title: Text("Manage Employees", style: TextStyle(fontSize: 20.spMin, fontWeight: FontWeight.bold)),
         titleTextStyle: context.textTheme.titleMedium?.copyWith(color: AppC.white),
         automaticallyImplyLeading: false,
         leadingWidth: 0,
@@ -101,14 +101,14 @@ class ManageEmployees extends StatelessWidget {
             child: Row(
               children: [
                 Icon(icon,
-                    color: AppC().base, size: 14.sp), // Darker grey-blue for icons
+                    color: AppC().base, size: 14.r), // Darker grey-blue for icons
                 const SizedBox(width: 18),
                 Expanded(
                   child: Utils.getText(title,
-                      size: 12.sp, weight: FontWeight.w400, color: Colors.black87),
+                      size: 13.spMin, weight: FontWeight.w400, color: Colors.black87),
                 ),
                 Icon(Icons.arrow_forward_ios,
-                    size: 12.sp,
+                    size: 12.spMin,
                     color: Colors.grey[600]), // Lighter grey for arrow
               ],
             ),

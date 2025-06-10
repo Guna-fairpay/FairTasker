@@ -74,16 +74,10 @@ class TasklistUi extends StatelessWidget {
                             DateRangePicker(
                               selectedDateRange: state.selectedDateRange,
                               onDateRangeSelected: (range) {
-                                Console.of.log("DATE_RANGE ${range}");
-                                context.read<TaskListBloc>().add(
-                                    UpdateDateRangeEvent(selectedRange: range));
-
+                                context.read<TaskListBloc>().add(UpdateDateRangeEvent(selectedRange: range));
                                 String startDate = range.start.toString();
                                 String endDate = range.end.toString();
-
-                                context.read<TaskListBloc>().add(
-                                    TaskListInitial(
-                                        startDate, endDate));
+                                context.read<TaskListBloc>().add(TaskListInitial(startDate, endDate));
                               },
                             ),
                           ),
@@ -245,7 +239,7 @@ class TasklistUi extends StatelessWidget {
                                                   TextSpan(text: "${taskList['rental_status'] ?? ""}", style: context.textTheme.labelMedium?.copyWith(color: taskList['rental_status_color']))
                                                 ]
                                             ]
-                                          ), style: context.textTheme.labelMedium?.copyWith(fontSize: 12.sp, fontWeight: (taskList['vehicles'] != null &&
+                                          ), style: context.textTheme.labelMedium?.copyWith(fontSize: 12.spMin, fontWeight: (taskList['vehicles'] != null &&
                                               taskList['vehicles'].length >= 2)
                                               ? FontWeight.bold
                                               : FontWeight.normal,

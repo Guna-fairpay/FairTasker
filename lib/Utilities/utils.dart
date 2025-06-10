@@ -154,10 +154,10 @@ class Utils {
         });
         var border = OutlineInputBorder(
             borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(topLRadius.r),
-              topRight: Radius.circular(topRRadius.r),
-              bottomLeft: Radius.circular(bottomLRadius.r),
-              bottomRight: Radius.circular(bottomRRadius.r),),
+              topLeft: Radius.circular(topLRadius.spMin),
+              topRight: Radius.circular(topRRadius.spMin),
+              bottomLeft: Radius.circular(bottomLRadius.spMin),
+              bottomRight: Radius.circular(bottomRRadius.spMin),),
             borderSide: BorderSide(color: (field.hasError) ? AppC.errorTextColor : borderColor, width:  (field.hasError) ? Num.borderWidthButton : borderWidth,)
         );
         return Column(
@@ -168,13 +168,13 @@ class Utils {
               key: ValueKey(selectedKey),
               initialSelection: initialSelection,
               hintText: hintText,
-              menuHeight: 250.r,
+              menuHeight: 250.spMin,
               selectedTrailingIcon: const Icon(Icons.keyboard_arrow_up_sharp,color: AppC.appColor,),
               trailingIcon: const Icon(Icons.keyboard_arrow_down_sharp,color: AppC.appColor,),
               textStyle: TextStyle(
                   color: AppC.text,
                   overflow: TextOverflow.ellipsis,
-                  fontSize: 12.r
+                  fontSize: 12.spMin
               ),
               inputDecorationTheme:  InputDecorationTheme(
                 hintStyle: const TextStyle(color: AppC.grey),
@@ -183,8 +183,8 @@ class Utils {
                 enabledBorder: border,
                 isCollapsed: true,
                 isDense: true,
-                suffixIconConstraints:  BoxConstraints.tightFor(width: 30.w),
-                constraints: BoxConstraints(maxHeight: height.h)
+                suffixIconConstraints:  BoxConstraints.tightFor(width: 30.spMin),
+                constraints: BoxConstraints(maxHeight: height.spMin)
               ),
               menuStyle: MenuStyle(
                 backgroundColor: WidgetStateProperty.all<Color>(Colors.white),
@@ -207,7 +207,7 @@ class Utils {
             ),
               if (field.hasError)
                 Row(
-                  spacing: 8.w,
+                  spacing: 8.spMin,
                   children: [
                     const SizedBox.shrink(),
                     Text(field.errorText ?? "", style: CommonHelper.instance.navigatorKey.currentContext?.textTheme.labelMedium?.copyWith(color: AppC.errorTextColor, fontWeight: FontWeight.w100))
@@ -544,8 +544,8 @@ class Utils {
               labelText: labelText,
               hintText: hintText,
               counterText: '',
-              hintStyle: hintTextStyle ??  TextStyle(color: AppC.grey,fontSize: 12.r,fontWeight: FontWeight.w300),
-              labelStyle: labelStyle ??  TextStyle(color: AppC.grey,fontSize: 12.r,fontWeight: FontWeight.w300),
+              hintStyle: hintTextStyle ??  TextStyle(color: AppC.grey,fontSize: 12.spMin,fontWeight: FontWeight.w300),
+              labelStyle: labelStyle ??  TextStyle(color: AppC.grey,fontSize: 12.spMin,fontWeight: FontWeight.w300),
               filled: true,
               isCollapsed: isCollapsed,
               fillColor: fillColor,
@@ -578,7 +578,7 @@ class Utils {
             // fontSize: textSize,
             color: textColor,
             fontWeight: fontWeight,
-            fontSize: 12.r,
+            fontSize: 12.spMin,
           ),
           onChanged: onChangeCallback,
         )
@@ -657,7 +657,7 @@ class Utils {
             minLines: minLines,
             maxLines: maxLines,
             decoration: InputDecoration(
-              contentPadding: contentPadding.r,
+              contentPadding: contentPadding,
               constraints: const BoxConstraints(),
               isDense: isDense,
               // label: label,
@@ -670,7 +670,7 @@ class Utils {
               isCollapsed: isCollapsed,
               fillColor: fillColor,
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(borderRadius.r),
+                borderRadius: BorderRadius.circular(borderRadius.spMin),
                 borderSide: BorderSide(
                   color: borderColor,
                   width: borderWidth.w,

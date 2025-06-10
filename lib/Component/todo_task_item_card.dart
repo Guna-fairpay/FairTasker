@@ -39,10 +39,10 @@ class TodoTaskItemCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   CircleAvatar(
-                    radius: 30,
+                    radius: 30.spMin,
                     backgroundColor: (model['display']?['hasCompleted'] ?? false) ? AppC.green : AppC.appColor,
                     child: CircleAvatar(
-                      radius: 28,
+                      radius: 28.spMin,
                       backgroundColor: AppC.white,
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(28),
@@ -53,7 +53,7 @@ class TodoTaskItemCard extends StatelessWidget {
                                     ((List.from(model['display']?['vins'])).length > 1)
                                     ? "MV"
                                     : "CT",
-                                    size: 14.sp,
+                                    size: 14.spMin,
                                     overFlow: TextOverflow.ellipsis,
                                     color: AppC.appColor,
                                     align: TextAlign.center,
@@ -84,7 +84,7 @@ class TodoTaskItemCard extends StatelessWidget {
                   if (model['display']?['hasVehiclePlate'] ?? false)
                     Utils.getText(
                       (model['display']?['vehicle_plate'] ?? "No Plate"),
-                      size: 10.sp,
+                      size: 10.spMin,
                       weight: FontWeight.w900,
                       color: (model['display']?['vehicle_plate'].toString().isNotNullOrEmpty ?? false) ? AppC.appColor : AppC.red,
                     )
@@ -107,7 +107,7 @@ class TodoTaskItemCard extends StatelessWidget {
               padding: 10.padding,
               child: Utils.getText(
                   (model['display']?['hasCompleted'] ?? false) ? "In Progress" : "Complete",
-                  size: 12.sp,
+                  size: 12.spMin,
                   color: AppC.white,
                   weight: FontWeight.bold),
             ),
@@ -119,7 +119,7 @@ class TodoTaskItemCard extends StatelessWidget {
               alignment: Alignment.centerLeft,
               padding: 10.padding,
               child: Utils.getText("Tomorrow",
-                  size: 12.sp, color: AppC.white, weight: FontWeight.bold),
+                  size: 12.spMin, color: AppC.white, weight: FontWeight.bold),
             ),
             confirmDismiss: (direction) async {
               if (direction == DismissDirection.endToStart) {
@@ -165,19 +165,19 @@ class TodoTaskItemCard extends StatelessWidget {
                                           recognizer: TapGestureRecognizer()..onTap = onTap,
                                           text: model['display']?['task_title'], style: context.textTheme.labelMedium?.copyWith(color: (model?['display']?['hasTimeSensitive'] ?? false)
                                           ? AppC.red
-                                          : AppC.appColor, fontWeight: FontWeight.bold)),
+                                          : AppC.appColor, fontWeight: FontWeight.bold, fontSize: 13.spMin),),
                                       if ((model['display']?['hasReason'] ?? false) || (model['display']?['hasReasonAttachments'] ?? false))
                                         ...[
-                                          TextSpan(text: "\t(\t", style: context.textTheme.labelMedium?.copyWith(color: Colors.red, fontSize: 12.sp)),
-                                          TextSpan(text: model['display']?['reason'], style: context.textTheme.labelMedium?.copyWith(color: Colors.red, fontSize: 12.sp)),
+                                          TextSpan(text: "\t(\t", style: context.textTheme.labelMedium?.copyWith(color: Colors.red, fontSize: 12.spMin)),
+                                          TextSpan(text: model['display']?['reason'], style: context.textTheme.labelMedium?.copyWith(color: Colors.red, fontSize: 12.spMin)),
                                           if (model['display']?['hasReasonAttachments'] ?? false)
                                             WidgetSpan(child: 10.width),
                                           if (model['display']?['hasReasonAttachments'] ?? false)
                                             WidgetSpan(child: GestureDetector(
                                               onTap: onReasonAttachmentView,
-                                              child: Icon(Icons.remove_red_eye_rounded, color: Colors.red, size: 14.sp),
+                                              child: Icon(Icons.remove_red_eye_rounded, color: Colors.red, size: 14.spMin),
                                             )),
-                                          TextSpan(text: "\t)\t", style: context.textTheme.labelMedium?.copyWith(color: Colors.red, fontSize: 12.sp)),
+                                          TextSpan(text: "\t)\t", style: context.textTheme.labelMedium?.copyWith(color: Colors.red, fontSize: 12.spMin)),
                                         ],
                                       if (model['display']?['hasRelatedTask'] ?? false)
                                         ...[
@@ -188,7 +188,7 @@ class TodoTaskItemCard extends StatelessWidget {
                                 ), maxLines: 1,
                                     textAlign: TextAlign.center,
                                     overflow: TextOverflow.ellipsis,
-                                    style: context.textTheme.labelMedium?.copyWith(color: AppC.appColor, fontSize: 12.sp))),
+                                    style: context.textTheme.labelMedium?.copyWith(color: AppC.appColor, fontSize: 12.spMin))),
                               ),
                               if (model['display']?['hasCustomLink'] ?? false)
                                 GestureDetector(
@@ -197,7 +197,7 @@ class TodoTaskItemCard extends StatelessWidget {
                                     "${model['display']?['customLinkText'] ?? "T"}",
                                     color: model['display']?['customColor'] ?? Colors.black,
                                     weight: FontWeight.w900,
-                                    size: 14.sp,
+                                    size: 14.spMin,
                                   ),
                                 ),
                               if (model['display']?['hasAttachments'] ?? false)
@@ -205,7 +205,7 @@ class TodoTaskItemCard extends StatelessWidget {
                                   onTap: onViewAttachment,
                                   child: Icon(
                                     Icons.remove_red_eye_sharp,
-                                    size: 14.sp,
+                                    size: 14.spMin,
                                     color: AppC.appColor,
                                   ),
                                 ),
@@ -221,21 +221,21 @@ class TodoTaskItemCard extends StatelessWidget {
                               onTap: onDateChange,
                               child: Icon(
                                 Icons.calendar_month_outlined,
-                                size: 13.sp,
+                                size: 13.spMin,
                               ),
                             ),
                             if (model['display']?['hasCompletedTime'] ?? false)
                               GestureDetector(
                                 onTap: onCompletedTimeChange,
                                 child: Utils.getText((model['display']?['completed_time'] ?? ""),
-                                    size: 12.sp),
+                                    size: 12.spMin),
                               ),
                             GestureDetector(
                               onTap: onTimeChange,
                               child: Utils.getText(
                                   Utils.convertString24HTo12H(
                                       model['display']?['task_time'] ?? '05:30:00'),
-                                  size: 12.sp),
+                                  size: 12.spMin),
                             ),
                             const SizedBox.shrink(),
                           ],
@@ -256,7 +256,7 @@ class TodoTaskItemCard extends StatelessWidget {
                                   onTapDown: onVehicleOrPerson,
                                   child: Utils.getText(
                                     (model['display']?['vehicle_or_person_name'] ?? ""),
-                                    size: ((model['display']?['vehicle_or_person_name'] ?? "") == "MV") ? 14.sp : 11.sp,
+                                    size: ((model['display']?['vehicle_or_person_name'] ?? "") == "MV") ? 14.spMin : 11.spMin,
                                     overFlow: TextOverflow.ellipsis,
                                     weight: FontWeight.bold,
                                   ),
@@ -268,24 +268,24 @@ class TodoTaskItemCard extends StatelessWidget {
                                 child: Icon(
                                   Icons.remove_red_eye,
                                   color: (((model['display']?['vehicleHistoryIconColorCode'].toString().isNotNullOrEmpty ?? false) ? Color(int.parse("0xff${model['display']?['vehicleHistoryIconColorCode'] ?? ""}")) : AppC.blue)),
-                                  size: 16.sp,
+                                  size: 16.spMin,
                                 ),
                               ),
                             if (model['display']?['hasG'] ?? false)
                               GestureDetector(
                                   onTapDown: onVehicleGroup,
                                   child: Utils.getText("G",
-                                      weight: FontWeight.bold, size: 14.sp)),
+                                      weight: FontWeight.bold, size: 14.spMin)),
                             if (model['display']?['hasParts'] ?? false)
                               GestureDetector(
                                   onTapDown: onParts,
                                   child: Utils.getText("P",
-                                      weight: FontWeight.bold, size: 14.sp)),
+                                      weight: FontWeight.bold, size: 14.spMin)),
                             if (model['display']?['hasSupplies'] ?? false)
                               GestureDetector(
                                   onTapDown: onSupplies,
                                   child: Utils.getText("S",
-                                      weight: FontWeight.bold, size: 14.sp))
+                                      weight: FontWeight.bold, size: 14.spMin))
                           ],
                         )),
                         if ((model['display']?['hasBouncie'] ?? false) || (((model['todo_date'].toString().toFormat(format: "yyyy-MM-dd")) == (DateTime.now().toFormat()) && (model['display']?['hasDistance'] ?? false) && (List.from(model['display']['vins'] ?? []).length == 1))))
@@ -298,11 +298,11 @@ class TodoTaskItemCard extends StatelessWidget {
                               Icon(
                                 ((model['display']?['hasDistance'] ?? false) && ((model['display']['vehicle_distance'].toString().isNotNullOrEmpty))) ? Icons.location_on : Icons.location_on_outlined,
                                 color: (model['display']['vehicle_distance'].toString().isNullOrEmpty) ? AppC.redAccent : AppC.green,
-                                size: 17.sp,
+                                size: 17.spMin,
                               ),
                               if (model['display']?['hasDistance'] ?? false)
                               Utils.getText("${model['display']['vehicle_distance'] ?? ""}",
-                                  weight: FontWeight.normal, size: 13.sp, color: (model['display']['vehicle_distance'].toString().isNullOrEmpty) ? AppC.redAccent : AppC.green),
+                                  weight: FontWeight.normal, size: 13.spMin, color: (model['display']['vehicle_distance'].toString().isNullOrEmpty) ? AppC.redAccent : AppC.green),
                               const SizedBox.shrink(),
                             ],
                           ),
@@ -324,7 +324,7 @@ class TodoTaskItemCard extends StatelessWidget {
                                   child: GestureDetector(
                                       onTapDown: onVendorOrLocation,
                                       child: Utils.getText((model['display']?['vendor_location'] ?? ""),
-                                          size: 12.sp,
+                                          size: 12.spMin,
                                         overFlow: TextOverflow.ellipsis
                                       )),
                                 ),
@@ -333,7 +333,7 @@ class TodoTaskItemCard extends StatelessWidget {
                                   onTap: onVendorInfo,
                                   child: Icon(
                                     Icons.info,
-                                    size: 14.sp,
+                                    size: 14.spMin,
                                     color: Colors
                                         .blue, // Replace with AppC.appColor if defined
                                   ),
@@ -351,7 +351,7 @@ class TodoTaskItemCard extends StatelessWidget {
                                           recognizer: ((model['display']?['timeChangeReason'] ?? "").toString().length > 10) ? (TapGestureRecognizer()..onTap = ()=> onMore?.call((model['display']?['timeChangeReason'] ?? ""))) : null,
                                         )
                                       ],
-                                      style: context.textTheme.labelMedium?.copyWith(fontSize: 11.sp, overflow: TextOverflow.ellipsis, color: AppC.appColor)
+                                      style: context.textTheme.labelMedium?.copyWith(fontSize: 11.spMin, overflow: TextOverflow.ellipsis, color: AppC.appColor)
                                     )),
                                 ),
                               if (model['display']?['hasAddress'] ?? false)
@@ -359,7 +359,7 @@ class TodoTaskItemCard extends StatelessWidget {
                                   child: GestureDetector(
                                       onTapDown: onAddress,
                                       child: Utils.getText("A",
-                                          weight: FontWeight.bold, size: 13.sp)),
+                                          weight: FontWeight.bold, size: 13.spMin)),
                                 ),
                               const SizedBox.shrink(),
                             ],
@@ -376,7 +376,7 @@ class TodoTaskItemCard extends StatelessWidget {
                                 onTapDown: onResource,
                                 child: Utils.getText(model['display']?['resource_name'] ?? (List.from(model['display']?['resources']).length == 1) ? (List.from(model['display']?['resources']).map((e) => <String>[(e['first_name'] ?? ""), (e['last_name'] ?? "")].toInitial).firstOrNull ?? "") : "${List.from(model['display']?['resources']).map((e) => <String>[(e['first_name'] ?? ""), (e['last_name'] ?? "")].toInitial).firstOrNull ?? ""}...",
                                     weight: FontWeight.w900,
-                                    size: 13.sp,
+                                    size: 13.spMin,
                                     color: AppC().base)),
                             if(showCheckbox ?? false)
                               SizedBox.fromSize(

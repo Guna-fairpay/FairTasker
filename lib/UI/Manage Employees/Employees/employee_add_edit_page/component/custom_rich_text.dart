@@ -12,7 +12,7 @@ class CustomRichText extends StatelessWidget {
         RichText(
           text: TextSpan(
             style:  TextStyle(
-                fontSize: 12.sp,
+                fontSize: 12.spMin,
                 fontWeight: FontWeight.bold,
               color: const Color(0xff212529)
             ),

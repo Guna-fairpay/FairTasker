@@ -40,7 +40,7 @@ final String? title;
             if (state is TaskCommonState) {if (EasyLoading.isShow) EasyLoading.dismiss();}
           },
           child: SafeArea(
-            minimum: 16.sp.padding,
+            minimum: 16.spMin.padding,
             child: ListView(
               shrinkWrap: true,
               physics: const BouncingScrollPhysics(),

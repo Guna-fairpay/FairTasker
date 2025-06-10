@@ -1,5 +1,6 @@
 
 import "package:date_time/date_time.dart";
+import "package:fairpytasker/Component/custom_compact_icon_button.dart";
 import "package:fairpytasker/UI/CheckIn%20CheckOut/Component/custom_checkbox.dart";
 import "package:fairpytasker/UI/Finance/Expense/Component/date_range_selection.dart";
 import "package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_List/Bloc/expense_bloc.dart";
@@ -11,6 +12,7 @@ import "package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_List/UI/expense_
 import "package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_Add/UI/vehicle_expense_add_ui.dart";
 import "package:fairpytasker/Utilities/Utils.dart";
 import "package:fairpytasker/Utilities/appC.dart";
+import "package:fairpytasker/core/app/extension/context_extension.dart";
 import "package:fairpytasker/core/app/extension/sized_extension.dart";
 import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
@@ -42,6 +44,7 @@ class ExpenseVehicleViewUI extends StatelessWidget {
                     spacing: 10,
                     children: [
                       Expanded(
+                        flex : 3,
                         child: DateRangePicker(
                           selectedDateRange: state.selectedDateRange,
                           onDateRangeSelected: (range) {
@@ -55,21 +58,13 @@ class ExpenseVehicleViewUI extends StatelessWidget {
                           },
                         ),
                       ),
-                      InkWell(
-                        onTap:()=> Navigator.push(context, MaterialPageRoute(
-                            builder: (context) => const ExpenseVehicleAddUI(),
-                            fullscreenDialog: true)),
-                        child: Container(
-                          height: 40,
-                          width: 40,
-                          decoration: BoxDecoration(
-                              color: AppC.appColor,
-                              borderRadius: BorderRadiusDirectional.circular(8)),
-                          child: const Icon(
-                            Icons.add,
-                            color: Colors.white,
-                          ),
-                        ),
+                      CompactIconButton(
+                        elevation: 2,
+                        icon:Icons.add,
+                        iconSize: 18.spMin,
+                        backgroundColor: AppC.appColor,
+                        onPressed: ()=> context.push(const ExpenseVehicleAddUI()),
+                        shape: WidgetStatePropertyAll<OutlinedBorder>(RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))),
                       ),
                       Column(
                         spacing: 2,
@@ -80,7 +75,7 @@ class ExpenseVehicleViewUI extends StatelessWidget {
                             borderColor: AppC.appColor,
                             radius: 8,
                             useExpand: false,
-                            title: Utils.getText('Approved',size: 12.sp,color: AppC.grey,weight: FontWeight.bold),
+                            title: Utils.getText('Approved',size: 12.spMin,color: AppC.grey,weight: FontWeight.bold),
                             value: state.isExpenseApproved,
                             onChanged:  (value)=>context.read<ExpenseBloc>().add(ApprovedExpenseEvent(isApproved:value)),),
                           Row(

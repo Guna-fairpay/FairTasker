@@ -46,7 +46,7 @@ class ExpenseVehicleEditUI extends StatelessWidget {
                 backgroundColor: AppC.appColor,
                 title: Text(vehicleName??''),
                 titleTextStyle: TextStyle(
-                    fontSize: 18.sp,
+                    fontSize: 20.spMin,
                     fontWeight: FontWeight.bold,
                     color: AppC.white),
                 actions: [

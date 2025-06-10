@@ -167,8 +167,8 @@ class ManageCustomDataMenuUI extends StatelessWidget {
                   child: Utils.getText(
                     title,
                     size: 14.spMin,
-                    weight: FontWeight.bold,
-                    color: Colors.black87,
+                    weight: FontWeight.w300,
+
                   ),
                 ),
                 Icon(

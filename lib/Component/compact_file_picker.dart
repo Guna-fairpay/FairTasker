@@ -27,7 +27,7 @@ class CompactFilePicker extends StatelessWidget {
           spacing: 10,
           children: [
             Container(
-              padding: 7.sp.horizontalPadding.copyWith(top: 9.sp, bottom: 9.sp),
+              padding: 7.spMin.horizontalPadding.copyWith(top: 9.spMin, bottom: 9.spMin),
               decoration: const BoxDecoration(
                   color: AppC.fileButtonColor,
                   borderRadius: BorderRadius.horizontal(

@@ -99,10 +99,10 @@ class _TaskerFilterTasksDialogContentView extends StatelessWidget {
               width: context.width,
               child: ListView(shrinkWrap: true,
                   physics: const BouncingScrollPhysics(),
-                  padding: EdgeInsets.only(bottom: 20.sp),
+                  padding: EdgeInsets.only(bottom: 20.spMin),
                   children: [
                 CustomCheckboxListTile(
-                  title: Text("All Todo",style: TextStyle(fontSize: 12.sp),),
+                  title: Text("All Todo",style: TextStyle(fontSize: 12.spMin, fontWeight: FontWeight.w700,),),
                   mainAxisSize: MainAxisSize.min,
                   padding: 10.horizontalPadding,
                   value: context.watch<TFTDBloc>().isSelectedAll,
@@ -124,10 +124,10 @@ class _TaskerFilterTasksDialogContentView extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           padding: 10.padding,
                           title: Utils.getText(mainModel['name'] ?? '',
-                              weight: FontWeight.w700, size: 12.sp),
+                              weight: FontWeight.w700, size: 12.spMin),
                           suffix: Utils.getText(
                             ' ${childTasks.map<num>((e) => num.tryParse((e['count'] ?? 0).toString()) ?? 0).sum}',
-                            size: 12.sp,
+                            size: 12.spMin,
                             weight: FontWeight.w700,
                           ),
                           value: (mainModel['related_sub_names']?.every((e) =>
@@ -146,13 +146,13 @@ class _TaskerFilterTasksDialogContentView extends StatelessWidget {
                                   title: Utils.getText(
                                       "${e['task_name'] ?? ""}",
                                       weight: FontWeight.w400,
-                                      size: 12.sp),
+                                      size: 12.spMin),
                                   value: context
                                       .watch<TFTDBloc>()
                                       .selected
                                       .contains(e['task_name']),
                                   suffix: Utils.getText('${e['count'] ?? 0}',
-                                      weight: FontWeight.bold, size: 12.sp),
+                                      weight: FontWeight.bold, size: 12.spMin),
                                   mainAxisSize: MainAxisSize.min,
                                   useExpand: false,
                                   onChanged: (value) => context

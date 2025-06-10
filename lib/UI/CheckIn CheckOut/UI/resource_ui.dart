@@ -93,7 +93,7 @@ class WorkHoursViewUI extends StatelessWidget {
           BlocBuilder<WorkingHoursBloc, WorkingHoursState>(
             builder: (context, state) {
               return Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.sp, vertical: 5),
+                padding: EdgeInsets.symmetric(horizontal: 16.spMin, vertical: 5.spMin),
                 child:
                 Column(
                   children: [
@@ -241,7 +241,9 @@ class WorkHoursViewUI extends StatelessWidget {
                         ],
                       ),
                       child: ListTile(
-                        leading: Utils.getText("Working Hours History",size: 14.sp, weight: FontWeight.bold),
+                        contentPadding: 0.padding,
+                        dense: true,
+                        leading: Utils.getText("Working Hours History",size: 14.spMin, weight: FontWeight.bold),
                         trailing: GestureDetector(
                           onTap: (){
                             Navigator.push(

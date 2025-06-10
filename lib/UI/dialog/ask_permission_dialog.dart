@@ -98,30 +98,30 @@ class _AskPermissionDialogView extends StatelessWidget {
         key: _formKey,
         autovalidateMode: AutovalidateMode.onUserInteraction,
         child: Padding(
-          padding: 10.sp.padding,
+          padding: 10.spMin.padding,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.help_outline_sharp,size: 40.sp,color: Colors.blue,),
-              15.sp.height,
+              Icon(Icons.help_outline_sharp,size: 40.spMin,color: Colors.blue,),
+              15.spMin.height,
               Utils.getText(
                   title ?? 'Are you sure?',
-                  size: 18.sp,
+                  size: 18.spMin,
                   weight: FontWeight.bold,
                   align: TextAlign.center),
               8.height,
               Padding(
-                padding: 20.sp.horizontalPadding,
+                padding: 20.spMin.horizontalPadding,
                 child:buildDynamicText(context, message: description??'', boldWords:boldWords),
               ),
               if (subDescription.isNotNullOrEmpty)
                 ...[
                   8.height,
                   Padding(
-                    padding: 20.sp.horizontalPadding,
+                    padding: 20.spMin.horizontalPadding,
                     child: Utils.getText(
                       subDescription ?? '',
-                      size: 12.sp,
+                      size: 12.spMin,
                       color: Colors.black54,
                       align: TextAlign.center,
                     ),
@@ -279,7 +279,7 @@ class _AskPermissionDialogView extends StatelessWidget {
     return RichText(
       textAlign: TextAlign.center,
       text: TextSpan(
-        style: context.textTheme.labelMedium?.copyWith(color: AppC.labelColor,fontSize: 12.sp),
+        style: context.textTheme.labelMedium?.copyWith(color: AppC.labelColor,fontSize: 12.spMin),
         children: words.map((word) {
           final cleanWord = word.replaceAll(RegExp(r'[^\w\s]'), ''); // remove punctuation for match
           final isBold = boldChars?.contains(cleanWord) ?? false;

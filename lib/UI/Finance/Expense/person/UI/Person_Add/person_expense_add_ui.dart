@@ -124,6 +124,7 @@ class PersonExpenseAddUI extends StatelessWidget {
                     15.height,
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
+                      spacing: 20,
                       children: [
                         Expanded(
                             child: Utils.dropdownBox(
@@ -135,7 +136,6 @@ class PersonExpenseAddUI extends StatelessWidget {
                           labelKey: 'name',
                           initialSelection: state.selectedCohorts,
                         )),
-                        20.width,
                         Expanded(
                             child: Utils.getTextFormField(
                           "Expense Amount",

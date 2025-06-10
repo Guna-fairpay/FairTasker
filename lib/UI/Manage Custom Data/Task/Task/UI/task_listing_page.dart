@@ -22,7 +22,7 @@ class TaskListingPage extends StatelessWidget {
         return Column(
           children: [
             Padding(
-              padding: EdgeInsets.symmetric(vertical: 5.h),
+              padding: EdgeInsets.symmetric(vertical: 5.spMin),
               child: Container(
                 decoration: BoxDecoration(
                     color: const Color(0xFFF0F0F0),
@@ -30,21 +30,21 @@ class TaskListingPage extends StatelessWidget {
                       topLeft: Radius.circular(5.r),
                       topRight: Radius.circular(5.r),
                     )),
-                padding: EdgeInsets.symmetric(vertical: 5.h),
+                padding: EdgeInsets.symmetric(vertical: 5.spMin),
                 child: Row(
                   children: [
                     Expanded(
                         flex: 1,
-                        child: Utils.getText('Name', weight: FontWeight.bold)),
+                        child: Utils.getText('Name', weight: FontWeight.bold, size: 14.spMin)),
                     Expanded(
-                      child: Utils.getText('Category', weight: FontWeight.bold),
+                      child: Utils.getText('Category', weight: FontWeight.bold,  size: 14.spMin),
                     ),
                     Expanded(
                       child:
-                          Utils.getText('subcategory', weight: FontWeight.bold),
+                          Utils.getText('subcategory', weight: FontWeight.bold,  size: 14.spMin),
                     ),
                     Utils.getText('!!!!',
-                        weight: FontWeight.bold, color: AppC.trans),
+                        weight: FontWeight.bold, color: AppC.trans,  size: 14.spMin),
                   ],
                 ),
               ),
@@ -73,7 +73,7 @@ class TaskListingPage extends StatelessWidget {
                                     .read<TaskBloc>()
                                     .add(EditTaskEvent(data: item)),
                                 child: Utils.getText("${item['task']}",
-                                    size: 12.sp, overFlow: TextOverflow.visible),
+                                    size: 12.spMin, overFlow: TextOverflow.visible),
                               )),
                           Expanded(
                               flex: 1,
@@ -91,7 +91,7 @@ class TaskListingPage extends StatelessWidget {
                                   selectedKey: (item['category_id'].toString().isNullOrEmpty) ? null : context
                                       .watch<TaskBloc>()
                                       .category.firstWhereOrNull((element) => element['id'].toString() == item['category_id'].toString()),
-                                  height: 30.sp)),
+                                  height: 30.spMin)),
                           Expanded(
                               flex: 1,
                               child: Utils.dropdownBox(
@@ -112,7 +112,7 @@ class TaskListingPage extends StatelessWidget {
                                   selectedKey: List<Map<String, dynamic>>.from(context
                                       .watch<TaskBloc>()
                                       .category.firstWhereOrNull((element) => element['id'].toString() == item['category_id'].toString())?['sub_categories'] ?? [])?.firstWhereOrNull((element) => element['id'].toString() == item['subcategory_id'].toString()) ?? {},
-                                  height: 30.sp)),
+                                  height: 30.spMin)),
                           GestureDetector(
                             onTapDown: (TapDownDetails details) {
                               PopupWithIcons.show(context, details,
@@ -133,7 +133,7 @@ class TaskListingPage extends StatelessWidget {
                             child: Icon(
                               Icons.more_horiz,
                               color: AppC.appColor,
-                              size: 14.sp,
+                              size: 14.spMin,
                             ),
                           ),
                         ]),

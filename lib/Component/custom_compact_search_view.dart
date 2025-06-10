@@ -40,7 +40,7 @@ class CompactSearchView extends StatelessWidget {
           isDense: true,
           hintText: hintText,
           labelText: labelText,
-          contentPadding: padding ?? 7.sp.padding,
+          contentPadding: padding ?? 7.spMin.padding,
           fillColor: fillColor,
           filled: filled,
           prefixIconConstraints: const BoxConstraints(),

@@ -75,9 +75,9 @@ class CategoryConfigTextFieldPage extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Expanded(child: Utils.getText('Name', weight: FontWeight.bold)),
-                      Expanded(child: Utils.getText('Category', weight: FontWeight.bold)),
-                      Utils.getText('Action', weight: FontWeight.bold),
+                      Expanded(child: Utils.getText('Name', weight: FontWeight.bold,  size: 14.spMin)),
+                      Expanded(child: Utils.getText('Category', weight: FontWeight.bold,  size: 14.spMin)),
+                      Utils.getText('Action', weight: FontWeight.bold,  size: 14.spMin),
                     ],
                   ),
                 ),

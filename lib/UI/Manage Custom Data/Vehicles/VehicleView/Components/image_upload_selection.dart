@@ -43,7 +43,7 @@ class ImageUploadSection extends StatelessWidget {
           GestureDetector(
             onTap: () => onUpload?.call(),
             child: Container(
-              padding: 8.sp.padding,
+              padding: 8.spMin.padding,
               decoration: BoxDecoration(
                 border: Border.all(color: borderColor, width: 1.0),
                 borderRadius: BorderRadius.circular(4),
@@ -52,8 +52,8 @@ class ImageUploadSection extends StatelessWidget {
                 spacing: 5,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.cloud_upload, color: borderColor, size: 13.sp),
-                  Utils.getText(title, color: borderColor, weight: FontWeight.bold, size: 12.sp),
+                  Icon(Icons.cloud_upload, color: borderColor, size: 13.spMin),
+                  Utils.getText(title, color: borderColor, weight: FontWeight.bold, size: 12.spMin),
                 ],
               ),
             ),

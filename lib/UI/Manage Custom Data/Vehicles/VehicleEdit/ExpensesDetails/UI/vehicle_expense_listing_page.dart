@@ -50,7 +50,7 @@ class VehicleExpenseListingPageUI extends StatelessWidget {
                 Utils.getText(
                     "Total : \$${(context.watch<ExpenseDetailsBloc>().expenseAmount ?? 0.0).toString().toDoubleDigit}",
                 weight: FontWeight.bold,
-                size: 13.sp,
+                size: 13.spMin,
                 color: AppC.appColor)
               ],
             ),

@@ -45,12 +45,12 @@ class TodoTopHeader extends StatelessWidget {
         spacing: 10,
         children: [
           Row(
-            spacing: 10,
+            spacing: 10.r,
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
             SizedBox.fromSize(
-              size: Size.fromRadius(16.sp),
+              size: Size.fromRadius(14.r),
               child: FittedBox(
                   child: Switch(
                       trackOutlineColor: WidgetStateColor.resolveWith(
@@ -72,7 +72,7 @@ class TodoTopHeader extends StatelessWidget {
             GestureDetector(
               onTapDown: onVehicleSearchPressed,
               child: SizedBox.fromSize(
-                size: Size(20.sp, 20.sp),
+                size: Size(18.w, 18.h),
                 child: FittedBox(
                   child: Image.asset(
                     Assets.vehicleSearchIcon,
@@ -85,7 +85,7 @@ class TodoTopHeader extends StatelessWidget {
               borderRadius: BorderRadius.circular(Num.borderRadius),
               onTap: () => onChangeTimeSensitive?.call(!isTimeSensitive),
               child: SizedBox.fromSize(
-                size: Size(18.sp, 18.sp),
+                size: Size(14.w, 16.h),
                 child: Container(
                   decoration: BoxDecoration(
                     border: Border.all(
@@ -94,7 +94,7 @@ class TodoTopHeader extends StatelessWidget {
                     borderRadius: BorderRadius.circular(Num.borderRadius),
                     color: (isTimeSensitive) ? AppC.appColor : AppC.trans
                   ),
-                  child: Icon(Icons.check, size: 16.sp, color: (isTimeSensitive) ? AppC.white : AppC.trans,),
+                  child: Icon(Icons.check, size: 14.r, color: (isTimeSensitive) ? AppC.white : AppC.trans,),
                 ),
               ),
             ),
@@ -109,7 +109,7 @@ class TodoTopHeader extends StatelessWidget {
                   child: Icon(
                     Icons.chevron_left,
                     color: AppC().base,
-                    size: 22.sp,
+                    size: 22.r,
                   )),
               InkWell(
                 onTap: onDatePressed,
@@ -123,7 +123,7 @@ class TodoTopHeader extends StatelessWidget {
                   child: Icon(
                     Icons.chevron_right,
                     color: AppC().base,
-                    size: 22.sp,
+                    size: 22.r,
                   )),
               if (getIt<CommonService>().departmentId != 9)
               GestureDetector(
@@ -135,7 +135,7 @@ class TodoTopHeader extends StatelessWidget {
                           ? Icons.supervisor_account_rounded
                           : Icons.person_outline_rounded,
                       color: AppC().base,
-                      size: 17.sp,
+                      size: 17.r,
                     ),
                   ],
                 ),
@@ -149,7 +149,7 @@ class TodoTopHeader extends StatelessWidget {
                             ? Icons.filter_alt_outlined
                             : Icons.filter_alt_sharp,
                         color: AppC.black,
-                        size: 18.sp,
+                        size: 18.r,
                       ),
                     ],
                   )),

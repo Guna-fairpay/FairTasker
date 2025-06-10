@@ -1,4 +1,5 @@
 
+import 'package:fairpytasker/Component/custom_compact_search_view.dart';
 import 'package:fairpytasker/Component/empty_widget.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleEdit/ExpensesDetails/Bloc/expense_details_bloc.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleEdit/ExpensesDetails/Bloc/expense_details_event.dart';
@@ -29,12 +30,18 @@ class VehicleRMListingPage extends StatelessWidget {
               spacing: 10,
               children: [
                 Expanded(
-                  child: Utils.getSearchBarUI(
-                    searchController: context.read<ExpenseDetailsBloc>().rmSearchController,
-                    onChange: (value) => context
+                  child: CompactSearchView(
+                    controller: context.read<ExpenseDetailsBloc>().rmSearchController,
+                    onChanged: (value) => context
                         .read<ExpenseDetailsBloc>()
                         .add(SearchRmExpenseEvent(value)),
                   ),
+                  // Utils.getSearchBarUI(
+                  //   searchController: context.read<ExpenseDetailsBloc>().rmSearchController,
+                  //   onChange: (value) => context
+                  //       .read<ExpenseDetailsBloc>()
+                  //       .add(SearchRmExpenseEvent(value)),
+                  // ),
                 ),
                 Utils.getText(
                     "Total : \$${(context.watch<ExpenseDetailsBloc>().rmExpenseAmount ?? 0.0).toStringAsFixed(2)}")

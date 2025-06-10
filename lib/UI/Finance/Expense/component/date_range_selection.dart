@@ -37,7 +37,7 @@ class DateRangePicker extends StatelessWidget {
       },
       child: Container(
         width: double.maxFinite,
-        padding: 8.sp.padding,
+        padding: 8.spMin.padding,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(Num.subradiusButton),
           border: Border.all(color: AppC.borderColor)
@@ -51,7 +51,7 @@ class DateRangePicker extends StatelessWidget {
                 style: context.textTheme.labelLarge,
               ),
             ),
-            Icon(Icons.calendar_month_rounded, size: 13.sp, color: AppC.subText,)
+            Icon(Icons.calendar_month_rounded, size: 13.spMin, color: AppC.subText,)
           ],
         ),
       ),

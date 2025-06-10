@@ -121,7 +121,7 @@ class _TaskerFilterResourceDialogContentView extends StatelessWidget {
                             "${e['name'] ?? ""}",
                             style: context.textTheme.labelMedium
                                 ?.copyWith(
-                                fontSize: 12.sp,
+                                fontSize: 12.spMin,
                                 fontWeight: FontWeight.bold),
                           ),
                           ListView.builder(

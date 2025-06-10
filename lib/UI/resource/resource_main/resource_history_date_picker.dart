@@ -31,7 +31,7 @@ class ResourceHistoryDatePicker extends StatelessWidget {
                   title: const Text("Working Hours History"),
                   horizontalTitleGap: 0,
                   minVerticalPadding: 0,
-                  minTileHeight: 40.sp,
+                  minTileHeight: 40.spMin,
                   titleTextStyle: context.textTheme.titleMedium
                       ?.copyWith(fontWeight: FontWeight.bold),
                   trailing: InkWell(
