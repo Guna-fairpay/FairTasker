@@ -1554,21 +1554,13 @@ Future<Map<String, dynamic>?> getLocations() async {
           autoIncrement: true,
           fieldName: "files",
           files: images?.map((e) => e.path).toList());
-      if (response != null) {
         if (response.isSuccess) {
-          var mapData = await response.mapData;
-          Toaster.showSuccess(mapData?['message'] ?? "Expense Added Successfully");
-          return mapData;
-        } else {
-          Utils.showSomethingWentWrong();
-          return null;
+          return await response.mapData;
+        }else {
+          throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
         }
-      } else {
-        return null;
-      }
     } catch (error) {
-      log('callPersonExpenseAddOrUpdateAPI : ${error.toString()}');
-      return null;
+      rethrow;
     }
   }
 

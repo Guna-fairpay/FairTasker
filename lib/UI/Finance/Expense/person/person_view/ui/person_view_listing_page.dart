@@ -48,7 +48,7 @@ class PersonViewListingPage extends StatelessWidget {
                       var data = context.watch<PersonViewBloc>().apiResponse[index];
                       return PersonListItemPage(
                         model: data,
-                        onDetailsPage: (v) => context.read<PersonViewBloc>().add((v)),
+                        onDetailsPage: (v) => context.read<PersonViewBloc>().add(PersonExpenseDetailEvent(model: data)),
                         onChanged: (v) => context.read<PersonViewBloc>().add(ApproveEvent(model: data, approved: v)),
                         onDelete: (v) => context.read<PersonViewBloc>().add(DeleteEvent(model: data)),
                         onEdit: (v) => context.read<PersonViewBloc>().add(AddEditEvent(model: data)),

@@ -44,5 +44,6 @@ class PersonExpenseDetailEvent extends PersonViewEvent{
   PersonExpenseDetailEvent({this.model});
   @override
   List<Object?> get props => [model];
-
 }
+
+class RefreshEvent extends PersonViewEvent{}

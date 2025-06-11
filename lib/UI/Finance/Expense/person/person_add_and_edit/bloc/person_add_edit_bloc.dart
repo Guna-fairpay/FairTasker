@@ -11,13 +11,13 @@ import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-part 'other_add_edit_event.dart';
-part 'other_add_edit_state.dart';
+part 'person_add_edit_event.dart';
+part 'person_add_edit_state.dart';
 
-class OtherAddEditBloc extends Bloc<OtherAddEditEvent, OtherAddEditState> {
+class PersonAddEditBloc extends Bloc<PersonAddEditEvent, PersonAddEditState> {
 
   final APiRepository _apiRepository = APiRepository();
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
@@ -28,51 +28,61 @@ class OtherAddEditBloc extends Bloc<OtherAddEditEvent, OtherAddEditState> {
   TextEditingController descriptionController =  TextEditingController();
   final FBroadcast _broadcast = FBroadcast.instance();
 
+  List<dynamic> persons = [];
   List<dynamic> categories = [];
   List<dynamic> subCategories = [];
   List<dynamic> paymentType = [];
   List<dynamic> approved = [{'id': 1, 'name': 'Yes'}, {'id': 0, 'name': 'No'},];
   List<dynamic> attachments = [];
+  List<dynamic> expenseTo = [{'id': 1, 'name': 'FairPy'}, {'id': 2, 'name': 'Cohort'}];
 
+  dynamic selectedPerson;
   dynamic selectedCategory;
   dynamic selectedSubCategory;
   dynamic selectedPaymentType;
   dynamic selectedApproved;
+  dynamic selectedExpenseTo;
   Map<String, dynamic>? model;
-  String? id;
-
-  OtherAddEditBloc() : super(LoadingState()) {
-    on<InitialEvent>(_onInitialEvent);
-    on<CategoryEvent>(_onCategoryEvent);
-    on<SubCategoryEvent>(_onSubCategoryEvent);
-    on<PaymentEvent>(_onPaymentEvent);
-    on<ApprovedEvent>(_onApprovedEvent);
-    on<DateChangeEvent>(_onDateChangeEvent);
-    on<PickImageEvent>(_onPickImageEvent);
-    on<RemoveImageEvent>(_onRemoveImageEvent);
-    on<SaveOrUpdateEvent>(_onSaveOrUpdateEvent);
-    on<DeleteEvent>(_onDeleteEvent);
-  }
+  bool isEdit = false;
 
   Future<Map<String, dynamic>?> _getExpense({dynamic id}) async => await _apiRepository.getEditPersonExpense(expenseId: id);
   Future<List<Map<String, dynamic>>?> _getExpenseCategory() async => await getIt<CommonService>().expenseCategory();
   Future<List<Map<String, dynamic>>?> _getPaymentType() async => await getIt<CommonService>().getPaymentTypes();
+  Future<Map<String, dynamic>?> _getEmployeeList() async => await _apiRepository.getEmployeeList();
 
-  Future<void> _onInitialEvent(InitialEvent event, Emitter<OtherAddEditState> emit) async {
+
+  PersonAddEditBloc() : super(LoadingState()) {
+    on<InitialEvent>(_onInitialEvent);
+    on<SelectPersonEvent>(_onSelectPersonEvent);
+    on<SelectCategoryEvent>(_onCategoryEvent);
+    on<SelectSubCategoryEvent>(_onSubCategoryEvent);
+    on<SelectPaymentEvent>(_onPaymentEvent);
+    on<ApproveEvent>(_onApprovedEvent);
+    on<SelectDateEvent>(_onDateChangeEvent);
+    on<PickImageEvent>(_onPickImageEvent);
+    on<RemoveImageEvent>(_onRemoveImageEvent);
+    on<SaveEvent>(_onSaveEvent);
+    on<DeleteEvent>(_onDeleteEvent);
+    on<ExpenseToEvent>(_onExpenseToEvent);
+  }
+  Future<void> _onInitialEvent(InitialEvent event, Emitter<PersonAddEditState> emit) async {
     try {
       emit(LoadingState());
-      id = event.id.toString();
+      model = event.model;
+      isEdit = model != null;
+      var employeeResponse = await _getEmployeeList();
       var categoryResponse = await _getExpenseCategory();
-      categories = List.from(categoryResponse ?? []).where((g) => g['id'] == 76).toList();
       var paymentResponse = await _getPaymentType();
+      persons = employeeResponse?['data'] ?? [];
+      categories = List.from(categoryResponse ?? []).where((g) => g['id'] == 76).toList();
       paymentType = paymentResponse ?? [];
-      if(event.id != null){
-        var response = await _getExpense(id: event.id);
-        model = response;
+      if(model != null){
+        var response = await _getExpense(id: event.model['id']);
+        var model = response;
         Console.of.log(response, name: "INITIAL EVENT");
         selectedCategory = categories.firstWhereOrNull((r)=> r['id'].toString() == model?['category_id'].toString());
         subCategories = List.from(selectedCategory?['subcategories'] ?? []);
-        subCategories.removeWhere((g) => g['id'] == 100,);
+        subCategories.removeWhere((g) => g['id'] != 100,);
         subCategories.sort((a, b) => a['id'].compareTo(b['id']));
         selectedSubCategory = subCategories.firstWhereOrNull((r)=> r['id'].toString() == model?['subcategory_id'].toString());
         selectedPaymentType = paymentType.firstWhereOrNull((r)=> r['id'] == model?['payment_method_id']);
@@ -81,6 +91,8 @@ class OtherAddEditBloc extends Bloc<OtherAddEditEvent, OtherAddEditState> {
         amountController.text = "${model?['expense_amount'] ?? ''}";
         descriptionController.text = model?['expense_description'] ?? "";
         attachments = List.from(model?['attachments'] ?? []).map((e) => e['path'].toString().toStorageURL).toList();
+        selectedPerson = persons.firstWhereOrNull((e) => e['id'].toString() == response?['employee_id'].toString());
+        selectedExpenseTo = expenseTo.firstWhereOrNull((e) => e['id'] == response?['expense_to']);
       }
       emit(CommonState());
     } catch (e) {
@@ -88,73 +100,66 @@ class OtherAddEditBloc extends Bloc<OtherAddEditEvent, OtherAddEditState> {
     }
   }
 
-  Future<void> _onDeleteEvent(DeleteEvent event, Emitter<OtherAddEditState> emit) async{
+  void _onSelectPersonEvent(SelectPersonEvent event, Emitter<PersonAddEditState> emit) {
     try {
-      emit(LoadingState());
-      var response = await _apiRepository.deletePersonExpense(id);
-      if(response?['message'].contains('Expense deleted successfully.') == true) {
-        _broadcast.broadcast("expense_other_refresh");
-        emit(SuccessState(response?['message']));
-      }else{
-        emit(CommonState());
-      }
-    }catch (e){
+      selectedPerson = event.selectedPerson;
+      emit(CommonState());
+    } catch (e) {
       _onError(e, emit);
     }
   }
 
-  Future<void> _onCategoryEvent(CategoryEvent event, Emitter<OtherAddEditState> emit) async {
+  Future<void> _onCategoryEvent(SelectCategoryEvent event, Emitter<PersonAddEditState> emit) async {
     try {
       selectedCategory =  event.selectedCategory;
       subCategories = List.from(selectedCategory['subcategories'] ?? []);
-      subCategories.removeWhere((g) => g['id'] == 100,);
-      subCategories.sort((a, b) => a['id'].compareTo(b['id']));
+      Console.of.log(subCategories);
+      subCategories.removeWhere((g) => g['id'] != 100,);
+      emit(CommonState());
+    }catch(e){
+      _onError(e, emit);
+    }
+  }
+
+  void _onSubCategoryEvent(SelectSubCategoryEvent event, Emitter<PersonAddEditState> emit) {
+    try {
+      selectedSubCategory = event.selectedSubCategory;
+      selectedExpenseTo = expenseTo[0];
       emit(CommonState());
     } catch (e) {
       _onError(e, emit);
     }
   }
 
-    Future<void> _onSubCategoryEvent(SubCategoryEvent event, Emitter<OtherAddEditState> emit) async {
-      try {
-        selectedSubCategory = event.selectedSubCategory;
-        emit(CommonState());
-      } catch (e) {
-        _onError(e, emit);
-      }
-  }
-
-    Future<void> _onPaymentEvent(PaymentEvent event, Emitter<OtherAddEditState> emit) async {
-      try {
-        selectedPaymentType = event.paymentType;
-        emit(CommonState());
-      } catch (e) {
-        _onError(e, emit);
-      }
-  }
-
-      Future<void> _onApprovedEvent(ApprovedEvent event, Emitter<OtherAddEditState> emit) async {
-        try {
-          selectedApproved = event.selectedApproved;
-          emit(CommonState());
-        } catch (e) {
-          _onError(e, emit);
-        }
-    }
-
-    Future<void> _onDateChangeEvent(DateChangeEvent event, Emitter<OtherAddEditState> emit) async {
-      try {
-        emit(LoadingState());
-        selectedDate = event.selectedDate;
-        emit(CommonState());
-      } catch (e) {
-        _onError(e, emit);
-      }
-  }
-
-  Future<void> _onPickImageEvent(PickImageEvent event, Emitter<OtherAddEditState> emit) async {
+  void _onPaymentEvent(SelectPaymentEvent event, Emitter<PersonAddEditState> emit) {
     try {
-      emit(LoadingState());
+      selectedPaymentType = event.paymentType;
+      emit(CommonState());
+    } catch (e) {
+      _onError(e, emit);
+    }
+  }
+
+  void _onApprovedEvent(ApproveEvent event, Emitter<PersonAddEditState> emit) {
+    try {
+      selectedApproved = event.selectedApproved;
+      emit(CommonState());
+    } catch (e) {
+      _onError(e, emit);
+    }
+  }
+
+  void _onDateChangeEvent(SelectDateEvent event, Emitter<PersonAddEditState> emit) {
+    try {
+      selectedDate = event.selectedDate;
+      emit(CommonState());
+    } catch (e) {
+      _onError(e, emit);
+    }
+  }
+
+  Future<void> _onPickImageEvent(PickImageEvent event, Emitter<PersonAddEditState> emit) async {
+    try {
       var result = await _pickFiles();
       if (result.isNotEmpty) {
         var pickedFile = List.from(attachments);
@@ -170,13 +175,14 @@ class OtherAddEditBloc extends Bloc<OtherAddEditEvent, OtherAddEditState> {
         attachments = pickedFile;
       }
       emit(CommonState());
-      } catch (e) {
+    } catch (e) {
 
       _onError(e, emit);
     }
   }
 
-  Future<void> _onRemoveImageEvent(RemoveImageEvent event, Emitter<OtherAddEditState> emit) async {
+
+  Future<void> _onRemoveImageEvent(RemoveImageEvent event, Emitter<PersonAddEditState> emit) async {
     try {
       if (event.data == null) return;
       if (event.data is File) {
@@ -189,7 +195,7 @@ class OtherAddEditBloc extends Bloc<OtherAddEditEvent, OtherAddEditState> {
             .map((e) => e['id'])
             .firstOrNull;
         await _apiRepository.deletePersonExpenseImage(attachmentId);
-        _broadcast.broadcast("expense_other_refresh");
+        _broadcast.broadcast("expense_person_refresh");
         attachments.remove(event.data);
       }
       emit(CommonState());
@@ -198,23 +204,48 @@ class OtherAddEditBloc extends Bloc<OtherAddEditEvent, OtherAddEditState> {
     }
   }
 
-  Future<void> _onSaveOrUpdateEvent(SaveOrUpdateEvent event, Emitter<OtherAddEditState> emit) async {
+  Future<void> _onSaveEvent(SaveEvent event, Emitter<PersonAddEditState> emit) async {
     autoValidateMode = AutovalidateMode.onUserInteraction;
     if (formKey.currentState?.validate() == false) return emit(CommonState());
     try {
       autoValidateMode = null;
       emit(LoadingState());
-      var response = await _apiRepository.addOtherExpense(
-        id: id,
+      var response = await _apiRepository.personExpenseAddOrUpdateApi(
+        expenseId: model?['id'].toString(),
         body: _savePersonExpense(),
         images: attachments.whereType<File>().toList(),
       );
       if(response?['data'] != null){
-        _broadcast.broadcast("expense_other_refresh");
+        _broadcast.broadcast("expense_person_refresh");
+        emit(SuccessState(response?['message']));
+      }else{
+        emit(ErrorState(response));
+      }
+    } catch (e) {
+      _onError(e, emit);
+
+    }
+  }
+
+  Future<void> _onDeleteEvent(DeleteEvent event, Emitter<PersonAddEditState> emit) async {
+    try {
+      emit(LoadingState());
+      var response = await _apiRepository.deletePersonExpense(model?['id']);
+      if(response?['message'].contains('Expense deleted successfully.') == true) {
+        _broadcast.broadcast("expense_person_refresh");
         emit(SuccessState(response?['message']));
       }else{
         emit(CommonState());
       }
+    }catch (e){
+      _onError(e, emit);
+    }
+  }
+
+  void _onExpenseToEvent(ExpenseToEvent event, Emitter<PersonAddEditState> emit) {
+    try {
+      selectedExpenseTo = event.selectedExpenseTo;
+      emit(CommonState());
     } catch (e) {
       _onError(e, emit);
     }
@@ -222,15 +253,17 @@ class OtherAddEditBloc extends Bloc<OtherAddEditEvent, OtherAddEditState> {
 
   Map<String, String> _savePersonExpense() {
     Map<String, String> baseBody = {};
+    baseBody['employee_id'] = "${selectedPerson?['id'] ??''}";
     baseBody['expense_date'] =  selectedDate?.toFormat(format: 'yyyy-MM-dd')??'';
     baseBody['approved'] = "${selectedApproved['id'] ?? ''}";
     baseBody['expense_amount'] = amountController.text;
     baseBody['category_id'] = "${selectedCategory?['id'] ??''}";
-    baseBody['subcategory_id'] = "${selectedSubCategory?['id'] ??''}";
+    baseBody['subcategory_id'] = "${selectedSubCategory?['id'] ?? ''}";
     baseBody['expense_description'] = descriptionController.text;
+    baseBody['expense_to'] = "${selectedExpenseTo?['id'] ??''}";
     baseBody['payment_method_id'] = "${selectedPaymentType['id'] ?? ''}";
-    baseBody['expense_to'] = "${selectedSubCategory?['expense_to'] ??''}";
     baseBody['platform'] = "TaskerApp";
+    baseBody['is_employee'] = "${1}";
     Console.of.log(jsonEncode(baseBody), name: "Expense_Body");
     return baseBody;
   }
@@ -247,8 +280,9 @@ class OtherAddEditBloc extends Bloc<OtherAddEditEvent, OtherAddEditState> {
         .toList() ?? [];
   }
 
-  void _onError(dynamic error, Emitter<OtherAddEditState> emit) {
+  void _onError(dynamic error, Emitter<PersonAddEditState> emit) {
     emit(ErrorState(error));
     Console.of.error(error);
   }
+
 }
