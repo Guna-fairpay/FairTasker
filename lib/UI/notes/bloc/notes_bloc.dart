@@ -122,6 +122,7 @@ class NotesBloc extends Bloc<NotesEvents, NotesStates> {
       var body = {
         "date" : selectedDate.add(const Duration(days: 1)).toFormat(),
         "title" : event.data?['title'],
+        "type" : "inline",
       };
       var response = await Future.microtask(() => _updateNotes(body: body, id: event.data?['id']));
       if (response != null) _refreshNotes();
