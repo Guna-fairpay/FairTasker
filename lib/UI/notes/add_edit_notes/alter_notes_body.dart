@@ -30,6 +30,8 @@ class AlterNotesBody extends StatelessWidget {
                 validator: (value) =>
                     (value?.trim().isNullOrEmpty ?? false) ? "Required" : null),
             Expanded(child: SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              physics: const BouncingScrollPhysics(),
               child: Column(
                 spacing: 10,
                 mainAxisSize: MainAxisSize.min,
@@ -37,6 +39,7 @@ class AlterNotesBody extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   ListView.separated(
+                      physics: const NeverScrollableScrollPhysics(),
                       separatorBuilder: (context, index) => 10.sp.height,
                       itemBuilder: (context, index) {
                         var model = context.watch<AlterNotesBloc>().noteItems[index];
