@@ -37,6 +37,7 @@ class AddExpenseVehicleBloc extends Bloc<AddExpenseVehicleEvent, AddExpenseVehic
   String? resourceId;
   dynamic model;
   int? get _branch =>  getIt<CommonService>().branchId;
+  dynamic bouncieMessage;
 
   AddExpenseVehicleBloc() : super(
       AddExpenseVehicleState(
@@ -193,6 +194,23 @@ class AddExpenseVehicleBloc extends Bloc<AddExpenseVehicleEvent, AddExpenseVehic
       } catch (e) {
         Toaster.showError("$e");
         log(e.toString(), name: 'ERROR');
+        emit(state.copyWith(isLoading: false));
+      }
+    });
+
+    on<GetOdometerEvent>((event, emit) async {
+      try {
+        bouncieMessage = null;
+        if (state.selectedVehicle.isEmpty) return;
+        emit(state.copyWith(isLoading: true));
+        var response = await _apiRepository.getOdometerValue(vin: state.selectedVehicle['vin']);
+        odometerController.text = response?['data']?['stats']?['odometer'].toString() ?? '';
+        if(response?['status'] == 400){
+          bouncieMessage = response?['message'];
+        }
+        emit(state.copyWith(isLoading: false));
+      }catch (e) {
+        Toaster.showError("$e");
         emit(state.copyWith(isLoading: false));
       }
     });

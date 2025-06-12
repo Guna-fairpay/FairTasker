@@ -2651,8 +2651,9 @@ Future<Map<String, dynamic>?> getLocations() async {
 
   Future<Map<String, dynamic>?> getOdometerValue({required String? vin}) async {
     try {
-      String apiUrl = '${Str.BASE_URL}$_getOdometerValue?vin=$vin';
-      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      Map<String, dynamic> params = {"vin": vin,};
+      String apiUrl = '${Str.BASE_URL}$_getOdometerValue';
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl, params: params);
       var mapData = await response.mapData;
       return mapData;
     } catch (error) {
