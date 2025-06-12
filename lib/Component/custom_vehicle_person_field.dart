@@ -88,7 +88,7 @@ class CustomVehiclePersonField extends StatelessWidget {
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(5)),
                       // side: BorderSide(),
-                      label: Text(model['name'] ?? '', style: context.textTheme.labelLarge?.copyWith(color: AppC.text, fontSize: 12.sp), overflow: TextOverflow.ellipsis, maxLines: 1),
+                      label: Text(model['name'] ?? '', style: context.textTheme.labelLarge?.copyWith(color: AppC.text, fontSize: 12.spMin), overflow: TextOverflow.ellipsis, maxLines: 1),
                     ));
               },
             ).toList(),

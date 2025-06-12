@@ -38,7 +38,7 @@ class _TaskerVehicleSearchDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
         insetPadding: 10.padding,
-        contentPadding: 6.sp.horizontalPadding.copyWith(bottom: 10.sp),
+        contentPadding: 6.spMin.horizontalPadding.copyWith(bottom: 10.spMin),
         titlePadding: EdgeInsets.zero,
         shape: ContinuousRectangleBorder(
             borderRadius: BorderRadius.circular(Num.borderRadiusLarge)),
@@ -109,8 +109,8 @@ Widget _widget(BuildContext context) {
     contentPadding: EdgeInsets.zero,
     shape: ContinuousRectangleBorder(
         borderRadius: BorderRadius.circular(Num.borderRadiusLarge)),
-    insetPadding: EdgeInsets.symmetric(horizontal: 16.sp)
-        .copyWith(top: 70.sp, bottom: 16.sp),
+    insetPadding: EdgeInsets.symmetric(horizontal: 16.spMin)
+        .copyWith(top: 70.spMin, bottom: 16.spMin),
     clipBehavior: Clip.antiAliasWithSaveLayer,
     elevation: 5,
     title: ListTile(

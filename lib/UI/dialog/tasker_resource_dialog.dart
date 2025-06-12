@@ -49,7 +49,7 @@ class _TaskerResourceDialogView extends StatelessWidget {
         horizontalTitleGap: 0,
         contentPadding: EdgeInsets.zero,
         title: Utils.getText("${model?['display']?['task_title'] ?? ""}",
-            size: 12.sp,
+            size: 12.spMin,
             overFlow: TextOverflow.ellipsis,
             weight: FontWeight.bold),
         trailing: IconButton(

@@ -24,8 +24,8 @@ class CustomWrapChoice<T extends Object> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Wrap(
-      spacing: 3.sp,
-      runSpacing: 3.sp,
+      spacing: 3.spMin,
+      runSpacing: 3.spMin,
       children: List<Widget>.generate(
         items.length,
         (int idx) {
@@ -58,7 +58,7 @@ class CustomWrapChoice<T extends Object> extends StatelessWidget {
                     : selectedItems?.contains(model) ?? false)
                     ? FontWeight.bold
                     : FontWeight.normal,
-                size: 11.sp,
+                size: 12.spMin,
               ),
               selected: ((selectionItemAsString != null)
                   ? ((selectedItems

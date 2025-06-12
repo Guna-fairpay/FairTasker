@@ -44,8 +44,8 @@ class _TaskerBouncieDialogViewState extends State<_TaskerBouncieDialogView> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      insetPadding: 16.sp.padding,
-      contentPadding: 16.sp.horizontalPadding.copyWith(bottom: 16.sp),
+      insetPadding: 16.spMin.padding,
+      contentPadding: 16.spMin.horizontalPadding.copyWith(bottom: 16.spMin),
       titlePadding: EdgeInsets.zero,
       backgroundColor: Colors.white,
       shape: ContinuousRectangleBorder(
@@ -75,7 +75,7 @@ class _TaskerBouncieDialogViewState extends State<_TaskerBouncieDialogView> {
           child: SizedBox(
             width: double.maxFinite,
             child: Column(
-              spacing: 16.sp,
+              spacing: 16.spMin,
               mainAxisSize: MainAxisSize.min,
               children: const [
                 _TaskerBouncieErrorWidget(),
@@ -101,19 +101,19 @@ class _TaskerBouncieErrorWidget extends StatelessWidget {
                 .toString()
                 .isNotNullOrEmpty)
             ? Column(
-                spacing: 16.sp,
+                spacing: 16.spMin,
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
                     alignment: Alignment.center,
-                    margin: 16.sp.horizontalPadding,
+                    margin: 16.spMin.horizontalPadding,
                     decoration: BoxDecoration(
                         color: AppC.bouncieBgColor,
                         borderRadius: BorderRadius.circular(Num.borderRadius),
                         border: Border.all(color: AppC.bouncieBgBorderColor)),
-                    padding: 10.sp.padding,
+                    padding: 10.spMin.padding,
                     child: Text("${context.watch<TaskerBouncieBloc>().displayErrorMsg ?? ""}",
                         style: context.textTheme.labelLarge
                             ?.copyWith(color: AppC.bouncieFontColor)),
@@ -165,7 +165,7 @@ class _TaskerBouncieMapWidget extends StatelessWidget {
                       Marker(
                         point: context.watch<TaskerBouncieBloc>().latLng,
                         alignment: Alignment.center,
-                        child: Icon(Icons.location_on_rounded, color: AppC.redAccent, size: 26.sp,),
+                        child: Icon(Icons.location_on_rounded, color: AppC.redAccent, size: 26.spMin,),
                       ),
                     ],
                   ),
@@ -176,7 +176,7 @@ class _TaskerBouncieMapWidget extends StatelessWidget {
           if (context.watch<TaskerBouncieBloc>().address.toString().isNotNullOrEmpty)
           Text.rich(TextSpan(
               children: [
-                WidgetSpan(child: Icon(Icons.location_on_rounded, color: AppC.appColor, size: 16.sp,)),
+                WidgetSpan(child: Icon(Icons.location_on_rounded, color: AppC.appColor, size: 16.spMin,)),
                 TextSpan(text: "${context.watch<TaskerBouncieBloc>().address ?? ""}")
               ]
           ), textAlign: TextAlign.start, softWrap: true),
@@ -190,14 +190,14 @@ class _TaskerBouncieMapWidget extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               Column(
-                spacing: 5.sp,
+                spacing: 5.spMin,
                 children: [
                   const Icon(Icons.local_gas_station_rounded),
                   Text("${context.watch<TaskerBouncieBloc>().fuelLevel ?? ""}", style: context.textTheme.labelLarge?.copyWith(color: AppC.green, fontWeight: FontWeight.bold))
                 ],
               ),
               Column(
-                spacing: 5.sp,
+                spacing: 5.spMin,
                 children: [
                   const Icon(Icons.battery_3_bar_rounded),
                   Text("${context.watch<TaskerBouncieBloc>().batteryLevel ?? ""}", style: context.textTheme.labelLarge?.copyWith(color: AppC.redAccent, fontWeight: FontWeight.bold))

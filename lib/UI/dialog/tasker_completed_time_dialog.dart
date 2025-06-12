@@ -43,7 +43,7 @@ class _TaskerCompletedTimeDialogView extends StatelessWidget {
         minLeadingWidth: 0,
         minTileHeight: 0,
         contentPadding: 16.padding,
-        title: Utils.getText("Task Completed - Time", size: 16.sp, weight: FontWeight.bold, color: AppC.appColor, overFlow: TextOverflow.ellipsis),
+        title: Utils.getText("Task Completed - Time", size: 16.spMin, weight: FontWeight.bold, color: AppC.appColor, overFlow: TextOverflow.ellipsis),
         trailing: IconButton(onPressed: context.popDialog, icon: const Icon(Icons.close_rounded)),
       ),
       content: SizedBox(

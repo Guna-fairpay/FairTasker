@@ -47,7 +47,7 @@ class _TaskerVendorLocationDialogView extends StatelessWidget {
         horizontalTitleGap: 0,
         contentPadding: 10.padding,
         title: Utils.getText("${model?['display']?['task_title']}",
-            size: 12.sp, weight: FontWeight.w600),
+            size: 12.spMin, weight: FontWeight.w600),
         trailing: IconButton(
             onPressed: context.popDialog,
             icon: const Icon(Icons.close_rounded)),
@@ -68,7 +68,7 @@ class _TaskerVendorLocationDialogView extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.end,
-                spacing: 5.sp,
+                spacing: 5.spMin,
                 children: [
                   CustomVendorLocationField(
                     vendorsList: context.watch<TVLDBloc>().vendorsList,

@@ -61,7 +61,7 @@ class _TaskerPickupTaskDialogView extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Utils.getText("Pickup Car Task", size: 17.sp, weight: FontWeight.normal),
+            Utils.getText("Pickup Car Task", size: 17.spMin, weight: FontWeight.normal),
             const SizedBox.shrink(),
             ValueListenableBuilder(valueListenable: _isUpdating, builder: (context, value, child) => Row(
               spacing: 10,

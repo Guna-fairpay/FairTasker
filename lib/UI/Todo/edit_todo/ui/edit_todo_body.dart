@@ -60,7 +60,7 @@ class EditTodoBody extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         useExpand: true,
                         padding: 0.padding,
-                        title: Utils.getText('Time Sensitive', weight: FontWeight.bold,overFlow: TextOverflow.visible,size: 12.sp),
+                        title: Utils.getText('Time Sensitive', weight: FontWeight.bold,overFlow: TextOverflow.visible,size: 12.spMin),
                         value: state.isTimeSensitive,
                         activeColor: AppC.grey,
                         onChanged: (value) => context.read<EditToDoBloc>().add(EditToDoTimeSensitiveEvent()),
