@@ -46,7 +46,7 @@ class EmployeeListPage extends StatelessWidget {
                   )
                 ],
               ),
-              Expanded(child: context.watch<EmployeesViewBloc>().filteredResponse.isEmpty
+              Expanded(child: (context.watch<EmployeesViewBloc>().filteredResponse.isEmpty && state is! EmployeesLoadingState)
                   ?const EmptyWidget(withExpand: false) : Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),

@@ -18,11 +18,8 @@ class EmployeesViewBloc extends Bloc<EmployeesViewEvent, EmployeesViewState>{
 
   final APiRepository _apiRepository = APiRepository();
   final FBroadcast _broadcast = FBroadcast.instance();
-  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   final TextEditingController searchController = TextEditingController();
-
-  AutovalidateMode autoValidateMode = AutovalidateMode.onUserInteraction;
 
   List<Map<String, dynamic>> apiResponse = [];
   List<Map<String, dynamic>> _unFilteredResponse = [];
@@ -61,8 +58,8 @@ class EmployeesViewBloc extends Bloc<EmployeesViewEvent, EmployeesViewState>{
         _search();
         _broadcast.broadcast(Str.addToDoRefresh);
         _broadcast.broadcast(Str.editToDoRefresh);
-        emit(EmployeesCommonState());
       }
+      emit(EmployeesCommonState());
     }catch(e){
       Toaster.showError(e.toString());
       emit(EmployeesCommonState());

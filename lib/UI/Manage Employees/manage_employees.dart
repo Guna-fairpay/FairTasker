@@ -1,7 +1,7 @@
-import 'package:fairpytasker/UI/Manage%20Employees/Departments/department_view_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Employees/Employees/Employee_List_Page/UI/employee_main_page.dart';
 import 'package:fairpytasker/UI/Manage%20Employees/Permissions/permissions_view_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Employees/Roles/role_view_ui.dart';
+import 'package:fairpytasker/UI/Manage%20Employees/department/department_listing/ui/department_view_main_ui.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
@@ -51,7 +51,7 @@ class ManageEmployees extends StatelessWidget {
                   title: 'Departments',
                   onTap: () async {
                     await Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => const DepartmentViewUI()));
+                        builder: (context) => const DepartmentViewMainUI()));
                   },
                 ),
                 _buildCard(

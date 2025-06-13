@@ -412,6 +412,18 @@ class APiRepository {
 
   String get _getBouncieToken => "getBouncieToken";
 
+  String get _getDepartmentList => "departmentList";
+
+  String get _getUsers => "getUsers";
+
+  String get _getEditDepartment => "editDepartment";
+
+  String get _updateDepartment => "updateDepartment";
+
+  String get _addDepartment => "addDepartment";
+
+  String get _deleteDepartment => "deleteDepartment";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -4284,6 +4296,82 @@ Future<Map<String, dynamic>?> getLocations() async {
       final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body);
       var mapData = await response.mapData;
       return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getDepartmentList() async {
+    try {
+      String apiUrl = '${Str.BASE_URL}$_getDepartmentList';
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getHeadList() async {
+    try {
+      String apiUrl = '${Str.BASE_URL}$_getUsers';
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getEditDepartment({dynamic id}) async {
+    try {
+      String apiUrl = '${Str.BASE_URL}$_getEditDepartment/$id';
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> saveDepartment({dynamic id, Map<String, dynamic>? body}) async {
+    try {
+      String apiUrl = '';
+      if(id != null){
+        apiUrl = '${Str.BASE_URL}$_updateDepartment/$id';
+      }
+      else{
+        apiUrl = '${Str.BASE_URL}$_addDepartment';
+      }
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> deleteDepartment({dynamic id,}) async {
+    try {
+      String apiUrl = '${Str.BASE_URL}$_deleteDepartment/$id';
+      final http.Response? response = await _apiClient.callDelete(apiUrl);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
     } catch (error) {
       rethrow;
     }
