@@ -1,7 +1,7 @@
 import 'package:fairpytasker/UI/Manage%20Employees/Employees/Employee_List_Page/UI/employee_main_page.dart';
-import 'package:fairpytasker/UI/Manage%20Employees/Permissions/permissions_view_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Employees/Roles/role_view_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Employees/department/department_listing/ui/department_view_main_ui.dart';
+import 'package:fairpytasker/UI/Manage%20Employees/permission/permission_listing/ui/permission_listing_main_ui.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
@@ -40,8 +40,8 @@ class ManageEmployees extends StatelessWidget {
               title: 'Employees',
               onTap: () async {
                 await Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => const EmployeeMainPage()));///EmployeeMainPage ///EmployeesViewUI
-              },
+                    builder: (context) => const EmployeeMainPage()));
+                },
             ),
             if (getIt<CommonService>().isAdmin || kDebugMode)
               ...[
@@ -68,7 +68,7 @@ class ManageEmployees extends StatelessWidget {
                   title: 'Permissions',
                   onTap: () async {
                     await Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => const PermissionsViewUI()));
+                        builder: (context) => const PermissionListingMainUI()));
                   },
                 ),
               ],

@@ -42,7 +42,7 @@ class DepartmentAddEditTextFieldUI extends StatelessWidget {
                           const Text('Department Name'),
                           Utils.getTextFormField(
                             null, context.read<DepartmentAddEditBloc>().nameController,
-                            hintText: 'Enter first name',
+                            hintText: 'Enter Department name',
                             autoValidate: context.watch<DepartmentAddEditBloc>().autoValidateMode,
                             validator: (value)=>(value == null || value.isEmpty) ? 'Please Enter the name' : null,),
                           const Text('Head'),

@@ -99,7 +99,7 @@ class DepartmentListUI extends StatelessWidget {
                                         onPressed: (){
                                           AskPermissionDialog.show(context,
                                               title: "Are you sure?",
-                                              description: "Do you want to delete this User?",
+                                              description: "Do you want to delete this Department?",
                                               positiveText: "Yes, delete it!",
                                               negativeText: "Cancel",
                                               isReasonRequired: false,

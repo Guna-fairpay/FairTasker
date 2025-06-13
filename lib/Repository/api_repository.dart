@@ -424,6 +424,16 @@ class APiRepository {
 
   String get _deleteDepartment => "deleteDepartment";
 
+  String get _getPermissionList => "permissionList";
+
+  String get _getEditPermission => "editPermission";
+
+  String get _addPermission => "addPermission";
+
+  String get _updatePermission => "updatePermission";
+
+  String get _deletePermission => "deletePermission";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -4366,6 +4376,68 @@ Future<Map<String, dynamic>?> getLocations() async {
   Future<Map<String, dynamic>?> deleteDepartment({dynamic id,}) async {
     try {
       String apiUrl = '${Str.BASE_URL}$_deleteDepartment/$id';
+      final http.Response? response = await _apiClient.callDelete(apiUrl);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getPermissionList() async {
+    try {
+      String apiUrl = '${Str.BASE_URL}$_getPermissionList';
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getEditPermission({dynamic id}) async {
+    try {
+      String apiUrl = '${Str.BASE_URL}$_getEditPermission/$id';
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> savePermission({dynamic id, Map<String, dynamic>? body}) async {
+    try {
+      String apiUrl = '';
+      if(id != null){
+        apiUrl = '${Str.BASE_URL}$_updatePermission/$id';
+      }
+      else{
+        apiUrl = '${Str.BASE_URL}$_addPermission';
+      }
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> deletePermission({dynamic id,}) async {
+    try {
+      String apiUrl = '${Str.BASE_URL}$_deletePermission/$id';
       final http.Response? response = await _apiClient.callDelete(apiUrl);
       if (response?.isSuccess == true) {
         return await response.mapData;
