@@ -131,7 +131,7 @@ class CommonService {
 
   Future<void> initialFetch() async {
     await Future.wait([
-      getUsers(),
+      // getUsers(),
       getCohorts(),
       getBranches(),
       Authenticator.instance.getBearerToken(),
