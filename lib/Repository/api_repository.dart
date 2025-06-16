@@ -434,6 +434,18 @@ class APiRepository {
 
   String get _deletePermission => "deletePermission";
 
+  String get _roleList => "roleList";
+
+  String get _editRole => "editRole";
+
+  String get _editUserRole => "editUserRole";
+
+  String get _updateUserRole => "updateRole";
+
+  String get _addUserRole => "addRole";
+
+  String get _deleteRole => "deleteRole;";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -1141,27 +1153,7 @@ Future<Map<String, dynamic>?> getLocations() async {
     }
   }
 
-  Future<bool?> deleteVendorType(int? Id) async {
-    try {
-      String apiUrl = "${Str.LIST_BASE_URL}$_vendorTypes/$Id";
 
-      final http.Response? response = await _apiClient.callDelete(apiUrl);
-      if (response != null) {
-        if (response.statusCode == 200) {
-          log('deleteVendor api.response.body: ${response.body}');
-          log('deleteVendor api.statusCode: ${response.statusCode}');
-          return true;
-        } else {
-          return null;
-        }
-      } else {
-        return null;
-      }
-    } catch (error) {
-      log('deleteVendor.exception : ${error.toString()}');
-      return null;
-    }
-  }
 
   //delete image for vendor page
   Future<bool?> deleteImages(int? id) async {
@@ -4448,5 +4440,131 @@ Future<Map<String, dynamic>?> getLocations() async {
       rethrow;
     }
   }
+
+  Future<Map<String, dynamic>?> getRoleList() async {
+    try {
+      String apiUrl = '${Str.BASE_URL}$_roleList';
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getEditRole({dynamic id}) async {
+    try {
+      String apiUrl = '${Str.BASE_URL}$_editRole/$id';
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getEditUserRole({dynamic id}) async {
+    try {
+      String apiUrl = '${Str.BASE_URL}$_editUserRole/$id';
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> saveUserRole({dynamic id, Map<String, dynamic>? body}) async {
+    try {
+      String apiUrl = '';
+      if(id != null){
+        apiUrl = '${Str.BASE_URL}$_updateUserRole/$id';
+      }
+      else{
+        apiUrl = '${Str.BASE_URL}$_addUserRole';
+      }
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> deleteRole(dynamic id) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_deleteRole/$id";
+      final http.Response? response = await _apiClient.callDelete(apiUrl);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>?> getVendorType() async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_vendorTypes";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      if (response?.isSuccess == true) {
+        return await response.mapListData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> addOrEditVendorType({dynamic id, dynamic body}) async {
+    try {
+      String apiUrl = '';
+      final http.Response? response;
+      if (id != null) {
+        apiUrl = "${Str.LIST_BASE_URL}$_vendorTypes/$id";
+        response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body, method: 'PUT');
+      } else {
+        apiUrl = "${Str.LIST_BASE_URL}$_vendorTypes";
+        response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body);
+      }
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> deleteVendorType(dynamic id) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_vendorTypes/$id";
+      final http.Response? response = await _apiClient.callDelete(apiUrl);
+      if (response?.statusCode == 204) {
+        return {};
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    } catch (error) {
+      rethrow;
+    }
+  }
+
 
 }

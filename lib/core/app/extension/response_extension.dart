@@ -14,4 +14,9 @@ extension ResponseExtension on Response? {
     return ((this == null) || (this?.body.isEmpty ?? false)) ? null : await parseString<Map<String, dynamic>>(this!.body, (json) => Map<String, dynamic>.from(json));
   }
 
+  Future<List<Map<String, dynamic>>?> get mapListData async {
+    if (!isSuccess) throw Exception("${this?.statusCode}: ${jsonDecode(this?.body ?? "")?['message'] ?? jsonDecode(this?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+    return ((this == null) || (this?.body.isEmpty ?? false)) ? null : await parseString<List<Map<String, dynamic>>>(this!.body, (json) => List<Map<String, dynamic>>.from(json));
+  }
+
 }

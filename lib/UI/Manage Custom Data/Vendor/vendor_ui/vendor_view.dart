@@ -8,6 +8,7 @@ import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vendor/vendor_ui/suggesti
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vendor/vendor_ui/vendor_image_upload.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vendor/vendor_ui/vendor_list_item.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vendor/vendor_ui/vendor_type_view.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/vendors/vendor_types/ui/vendor_type_main_ui.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/cupertino.dart';
@@ -106,7 +107,7 @@ class VendorView extends StatelessWidget {
                                             print("Triggered onIconTap");
                                             Navigator.of(context).push(MaterialPageRoute(
                                               builder: (context) =>
-                                                  const VendorTypeView(),
+                                                  const VendorTypeMainUI(),
                                             ));
                                           },
                                         ),
@@ -115,7 +116,9 @@ class VendorView extends StatelessWidget {
                                   ),
                                   10.height,
                                   Utils.getTextFormField(
-                                      'Address',context.read<VendorDataBloc>().addressController,
+                                      'Address',
+                                    context.read<VendorDataBloc>().addressController,
+                                      hintText: 'Address',
                                       suffixIcon: Padding(
                                         padding: const EdgeInsets.only(right: 8),
                                         child: Row(
@@ -384,9 +387,9 @@ class VendorView extends StatelessWidget {
   Future<void> _getAddressFromLatLng(
       BuildContext context, double lat, double lng) async {
     try {
-      List<Placemark> placemarks = await placemarkFromCoordinates(lat, lng);
-      if (placemarks.isNotEmpty) {
-        Placemark place = placemarks[0];
+      List<Placemark> placeMarks = await placemarkFromCoordinates(lat, lng);
+      if (placeMarks.isNotEmpty) {
+        Placemark place = placeMarks[0];
         String address =
             '${place.street ?? ''}, ${place.locality ?? ''}, ${place.postalCode ?? ''}, ${place.country ?? ''}';
         // Update addressController only if empty
