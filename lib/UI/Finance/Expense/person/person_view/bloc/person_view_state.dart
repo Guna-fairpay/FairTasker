@@ -33,3 +33,10 @@ class AddEditPageState extends PersonViewState {
   List<Object?> get props => [model, Random().nextDouble()];
 }
 
+class PersonExpenseDetailState extends PersonViewState {
+  final dynamic model;
+  PersonExpenseDetailState({this.model});
+  @override
+  List<Object?> get props => [model, Random().nextDouble()];
+}
+

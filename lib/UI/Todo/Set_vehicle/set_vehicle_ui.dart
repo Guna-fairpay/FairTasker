@@ -14,6 +14,7 @@ import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
@@ -312,10 +313,11 @@ class SetVehicleUi extends StatelessWidget {
                       spacing: 10,
                       children: [
                         Expanded(
-                          child: Utils.getNumberFormField(
+                          child: Utils.getTextFormField(
                               'Car Number',
                               context.read<setVehicleBloc>().carNumberController,
                               hintTextColor: AppC.grey,
+                              textInputFormatter: [FilteringTextInputFormatter.digitsOnly],
                           ),
                         ),
                         Expanded(
@@ -455,7 +457,11 @@ class SetVehicleUi extends StatelessWidget {
                           child: Utils.getTextFormField('Insurance Agent', context.read<setVehicleBloc>().insuranceAgentController),
                         ),
                         Expanded(
-                          child: Utils.getNumberFormField('Insurance Cost', context.read<setVehicleBloc>().insuranceCostController),
+                          child: Utils.getTextFormField(
+                              'Insurance Cost',
+                              context.read<setVehicleBloc>().insuranceCostController,
+                            textInputFormatter: [FilteringTextInputFormatter.digitsOnly]
+                          ),
                         ),
                       ],
                     ),

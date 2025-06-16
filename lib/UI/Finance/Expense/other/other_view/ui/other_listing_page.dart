@@ -81,13 +81,19 @@ class OtherListingPage extends StatelessWidget {
                             color: model['approved'] == 1 ? AppC.text : AppC.red,
                           ),
                         ),
-                        Expanded(
-                          flex: 3,
-                          child: Utils.getText(
-                              '${model['subcategory']?['name'] ?? ''}',
-                              color: model['approved'] == 1 ? AppC.text : AppC.red,
-                              overFlow: TextOverflow.ellipsis,
-                              weight: FontWeight.bold),
+                        Expanded(flex: 3,
+                          child: RichText(text: TextSpan(
+                            children: [
+                              TextSpan(
+                                text:  '${model['subcategory']?['name'] ?? ''}',
+                              ),
+                              if(model['expense_description'] != null)
+                              TextSpan(
+                                text: '  (${model['expense_description'] ?? ''})',
+                              ),
+                            ],
+                            style: const TextStyle(color: AppC.text, fontWeight: FontWeight.bold)
+                          )),
                         ),
                       ],
                     ),
@@ -139,8 +145,8 @@ class OtherListingPage extends StatelessWidget {
               spacing: 10,
               children: [
                 SizedBox(
-                  height: 20,
-                  width: 20,
+                  height: 20.spMin,
+                  width: 20.spMin,
                   child: Checkbox(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(5),

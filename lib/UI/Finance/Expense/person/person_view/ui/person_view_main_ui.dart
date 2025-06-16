@@ -2,11 +2,14 @@
 import 'package:fairpytasker/Component/custom_compact_icon_button.dart';
 import 'package:fairpytasker/Component/empty_widget.dart';
 import 'package:fairpytasker/UI/Finance/Expense/Component/date_range_selection.dart';
+import 'package:fairpytasker/UI/Finance/Expense/person/person_add_and_edit/ui/person_add_edit_main_ui.dart';
+import 'package:fairpytasker/UI/Finance/Expense/person/person_expense_details/ui/person_expense_details_main_ui.dart';
 import 'package:fairpytasker/UI/Finance/Expense/person/person_view/bloc/person_view_bloc.dart';
 import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
+import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
@@ -37,6 +40,10 @@ class PersonViewMainUI extends StatelessWidget {
               case SuccessState(): Toaster.showSuccess(state.message);
                 break;
               case ErrorState(): Toaster.showError(state.message);
+                break;
+              case AddEditPageState(): context.push(PersonAddEditMainUI(model: state.model));
+                break;
+              case PersonExpenseDetailState(): context.push(PersonExpenseDetailsMainUI(model: state.model));
                 break;
               default:
                 break;
