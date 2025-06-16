@@ -4180,8 +4180,8 @@ Future<Map<String, dynamic>?> getLocations() async {
         "resource": resourceId ?? "",
         "date": selectedDate,
         "branch_id": _branchId ?? 1,
-        "showOther" : showOther
       };
+      if (showOther) params["showOther"] = showOther;
       if (status != null) params["status"] = status ? "Completed" : "In Progress";
       Console.of.log(params);
       final http.Response? response = await _apiClient.callGetMethod(apiUrl, params: params);

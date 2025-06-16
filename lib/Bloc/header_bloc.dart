@@ -19,9 +19,10 @@ class HeaderBloc extends Bloc<HeaderEvent, HeaderState> {
   HeaderBloc() : super(HeaderLoadingState()) {
     getIt<CommonService>().branchUpdate(callback: () => add(HeaderInitialEvent()));
     _broadcast.register(Str.userPunchListRefresh, (value, callback) => add(HeaderInitialEvent()));
-    _broadcast.register("check_in_out_count", (value, callback) => checkInOutCount = value);
+    _broadcast.register("check_in_out_count", (value, callback) => add(ManualCountUpdateEvent(value)));
    // on<HeaderInitialEvent>(_onInitialEvent);
    on<EmailRefreshEvent>(_onEmailRefreshEvent);
+   on<ManualCountUpdateEvent>(_onManualCountUpdateEvent);
 
   }
 
@@ -36,11 +37,6 @@ class HeaderBloc extends Bloc<HeaderEvent, HeaderState> {
       _userPunchList = _userPunchList.where((element) => _currentBranchHrmIds.contains(element['employee']?['id'])).toList();
       checkInCount = _userPunchList.where((element) => element['end_time'].toString().trim().isNullOrEmpty).length;
       checkOutCount = _userPunchList.where((element) => element['end_time'].toString().trim().isNotNullOrEmpty).length;
-      Console.of.log(_userPunchList, name: "USER_PUNCH_LIST");
-      Console.of.log(_currentBranchHrmIds, name: "CURRENT_BRANCH_IDS");
-      Console.of.log("$checkInCount/$checkInCount", name: "CHECK_IN_OUT");
-      Console.of.log(_userPunchList.map((e) => e['end_time'].toString().trim().isNullOrEmpty).join(", "), name: "USERPUNCH_1");
-      Console.of.log(_userPunchList.map((e) => e['end_time'].toString().trim().isNotNullOrEmpty).join(", "), name: "USERPUNCH_2");
       emit(HeaderCommonState());
     } catch (e) {
       Console.of.error("Error", error: e);
@@ -55,5 +51,10 @@ class HeaderBloc extends Bloc<HeaderEvent, HeaderState> {
       Console.of.error("Error", error: e);
       emit(HeaderErrorState(e));
     }
+  }
+
+  void _onManualCountUpdateEvent(ManualCountUpdateEvent event, Emitter<HeaderState> emit) {
+    checkInOutCount = event.count;
+    emit(HeaderCommonState());
   }
 }
