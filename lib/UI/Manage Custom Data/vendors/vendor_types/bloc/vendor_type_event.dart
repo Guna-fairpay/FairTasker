@@ -5,7 +5,12 @@ abstract class VendorTypeEvent extends Equatable{
   List<Object?> get props => [];
 }
 
-class InitialEvent extends VendorTypeEvent{}
+class InitialEvent extends VendorTypeEvent{
+  final dynamic title;
+  InitialEvent(this.title);
+  @override
+  List<Object?> get props => [title];
+}
 
 class SearchEvent extends VendorTypeEvent{
   final String query;

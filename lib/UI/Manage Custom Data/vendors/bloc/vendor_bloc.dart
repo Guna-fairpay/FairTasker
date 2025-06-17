@@ -9,8 +9,12 @@ part 'vendor_state.dart';
 
 class VendorBloc extends Bloc<VendorEvent, VendorState> {
 
-  TextEditingController vendorController = TextEditingController();
+  TextEditingController nameController = TextEditingController();
+  TextEditingController vendorTypeController = TextEditingController();
   AutovalidateMode? autoValidate;
+
+  List<Map<String, dynamic>> vendorType = [];
+  Map<String, dynamic>? selectedVendorType;
 
   VendorBloc() : super(LoadingState()) {
     on<InitialEvent>(_onInitialEvent);

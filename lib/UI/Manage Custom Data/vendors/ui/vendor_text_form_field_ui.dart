@@ -14,11 +14,21 @@ class VendorTextFormFieldUI extends StatelessWidget {
             children: [
               Utils.getTextFormField(
                 'Vendor Name',
-                context.read<VendorBloc>().vendorController,
+                context.read<VendorBloc>().nameController,
                 validator: (val) => (val == null || val.isEmpty) ? 'Please enter vendor name' : null,
                 autoValidate: context.read<VendorBloc>().autoValidate,
               ),
-
+              SearchViewField(
+                controller: context.read<VendorBloc>().vendorTypeController,
+                suggestions: context.watch<VendorBloc>().vendorType,
+                itemAsString: (item) => item['name'] ?? '',
+                onSelected: (value) => context.read<VendorBloc>().add(VendorTypeEvent()),
+                selectedItem: (context.watch<VendorBloc>().selectedVendorType != null) ? null : context.watch<VendorBloc>().selectedVendorType,
+                onEmptyTap: () => context.push(VendorTypeMainUI(title: context.read<VendorBloc>().vendorTypeController.text)),
+                showEmpty: true,
+                labelText: 'Task Name',
+                hintText: "Select Task",
+              ),
             ],
           ),
         );

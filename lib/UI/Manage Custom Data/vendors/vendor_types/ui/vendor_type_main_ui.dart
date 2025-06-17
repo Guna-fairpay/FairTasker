@@ -18,7 +18,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 part 'vendor_type_listing_ui.dart';
 
 class VendorTypeMainUI extends StatelessWidget {
-  const VendorTypeMainUI({super.key});
+  final dynamic title;
+  const VendorTypeMainUI({super.key, this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +30,7 @@ class VendorTypeMainUI extends StatelessWidget {
         onClose: ()=> context.pop(),
       ),
       body: BlocProvider(
-          create: (context) => VendorTypeBloc()..add(InitialEvent()),
+          create: (context) => VendorTypeBloc()..add(InitialEvent(title)),
           child: BlocListener<VendorTypeBloc, VendorTypeState>(
             listener: (context, state) {
               if(state is LoadingState){

@@ -48,6 +48,7 @@ class VendorTypeBloc extends Bloc<VendorTypeEvent, VendorTypeState>{
   Future<void> _onInitialEvent(InitialEvent event, Emitter<VendorTypeState> emit) async {
     try{
       emit(LoadingState());
+      nameController.text = event.title;
       await fetchVendorType();
       emit(CommonState());
     }catch(e){

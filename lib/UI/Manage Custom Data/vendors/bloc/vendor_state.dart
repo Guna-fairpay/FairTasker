@@ -25,3 +25,10 @@ class SuccessState extends VendorState {
   @override
   List<Object?> get props => [message, Random().nextDouble()];
 }
+
+class VendorTypeState extends VendorState {
+  final dynamic title;
+  VendorTypeState(this.title);
+  @override
+  List<Object?> get props => [title, Random().nextDouble()];
+}
