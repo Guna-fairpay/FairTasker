@@ -7,7 +7,6 @@ import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
-import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +18,8 @@ part 'vendor_state.dart';
 
 class VendorBloc extends Bloc<VendorEvent, VendorState> {
   final APiRepository _apiRepository = APiRepository();
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  AutovalidateMode? autoValidateMode;
   TextEditingController searchController = TextEditingController();
 
   TextEditingController nameController = TextEditingController();
@@ -28,7 +29,6 @@ class VendorBloc extends Bloc<VendorEvent, VendorState> {
   TextEditingController websiteController = TextEditingController();
   TextEditingController expertiseController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
-  AutovalidateMode? autoValidate;
 
   List<Map<String, dynamic>> vendorType = [];
   Map<String, dynamic>? selectedVendorType;
@@ -45,15 +45,17 @@ class VendorBloc extends Bloc<VendorEvent, VendorState> {
   int currentIndex = 1;
   int totalCount = 0;
 
-  double? latitude;
-  double? longitude;
+  dynamic latitude;
+  dynamic longitude;
 
   bool isEdit = false;
   bool isLatLong = false;
 
   Future<List<Map<String, dynamic>>?> _getVendorType() async => await _apiRepository.getVendorType();
   Future<Map<String, dynamic>?> _getVendors() async => await _apiRepository.getVendors();
-
+  Future<Map<String, dynamic>?> _getEditVendors({dynamic id}) async => await _apiRepository.getEditVendors(id);
+  Future<Map<String, dynamic>?> _addOrUpdateVendors({dynamic id, dynamic body, dynamic files}) async => await _apiRepository.addOrUpdateVendor(infusedFiles: files, id: id, body: body);
+  Future<Map<String, dynamic>?> _deleteVendors({dynamic id,}) async => await _apiRepository.deleteVendor(id,);
 
   VendorBloc() : super(LoadingState()) {
     on<InitialEvent>(_onInitialEvent);
@@ -124,8 +126,23 @@ class VendorBloc extends Bloc<VendorEvent, VendorState> {
   }
 
   Future<void> _onSaveEvent(SaveEvent event, Emitter<VendorState> emit) async {
+    autoValidateMode = AutovalidateMode.onUserInteraction;
+    if(formKey.currentState?.validate() == false) return emit(CommonState());
     try {
-      emit(CommonState());
+      emit(LoadingState());
+      autoValidateMode = null;
+      List<Map<String, String?>> infusedFiles = businessCardImage.whereType<File>().map((e) => {"images" : e.path }).toList();
+      var response = await _addOrUpdateVendors(
+          id: isEdit ? model['id'] : null,
+          body: saveData(),
+          files: infusedFiles
+      );
+     if(response?['data'] != null){
+       await fetchVendor();
+       emit(SuccessState(response?['message']));
+       clearAll();
+      }else{
+       emit(ErrorState(response?['message']));       }
     } catch (e) {
       _onError(e, emit);
     }
@@ -133,7 +150,14 @@ class VendorBloc extends Bloc<VendorEvent, VendorState> {
 
   Future<void> _onDeleteEvent(DeleteEvent event, Emitter<VendorState> emit) async {
     try {
-      emit(CommonState());
+      emit(LoadingState());
+      var response = await _deleteVendors(id: event.data['id']);
+      if(response != null){
+        await fetchVendor();
+        emit(SuccessState(response['message']));
+      }else{
+        emit(ErrorState(response?['message']));
+      }
     } catch (e) {
       _onError(e, emit);
     }
@@ -141,6 +165,30 @@ class VendorBloc extends Bloc<VendorEvent, VendorState> {
 
   Future<void> _onEditEvent(EditEvent event, Emitter<VendorState> emit) async {
     try {
+      emit(LoadingState());
+      var response = await _getEditVendors(id: event.data?['id']);
+      if(response != null){
+        model = response;
+        isEdit = true;
+        formKey.currentState?.reset();
+        clearAll();
+        nameController.text = model?['name'] ?? '';
+        addressController.text = model?['address'] ?? '';
+        phoneController.text = model?['phone'] ?? '';
+        websiteController.text = model?['website'] ?? '';
+        expertiseController.text = model?['expertise'] ?? '';
+        descriptionController.text = model?['description'] ?? '';
+        selectedVendorType = vendorType.firstWhereOrNull((element) => element['id'].toString() == model?['type_id'].toString());
+        vendorTypeController.text = selectedVendorType?['name'] ?? '';
+        businessCardImage = model?['images']
+            ?.map((element) => element['path'].toString().toStorageURL)
+            .toList();
+        latitude = model?['latitude'];
+        longitude = model?['longitude'];
+        if(latitude != null && longitude != null){
+          isLatLong = true;
+        }
+      }
       emit(CommonState());
     } catch (e) {
       _onError(e, emit);
@@ -149,6 +197,8 @@ class VendorBloc extends Bloc<VendorEvent, VendorState> {
 
   Future<void> _onCancelEvent(CancelEvent event, Emitter<VendorState> emit) async {
     try {
+      clearAll();
+      isEdit = false;
       emit(CommonState());
     } catch (e) {
       _onError(e, emit);
@@ -157,6 +207,7 @@ class VendorBloc extends Bloc<VendorEvent, VendorState> {
 
   Future<void> _onSelectVendorTypeEvent(SelectVendorTypeEvent event, Emitter<VendorState> emit) async {
     try {
+      selectedVendorType = event.data;
       emit(CommonState());
     } catch (e) {
       _onError(e, emit);
@@ -222,25 +273,29 @@ class VendorBloc extends Bloc<VendorEvent, VendorState> {
       if (event.data is File) {
         businessCardImage.remove(event.data);
       } else if (event.data is String) {
-        // REMOTE SELECTION REMOVE
         emit(LoadingState());
-        var data = businessCardImage.firstWhereOrNull((element) => element == event.data.toString());
-        var attachmentId = model['images'].firstWhere((e) => e['path'] == data.toString().removeAttachmentURL, orElse: () => null,)?['id'];
-        var response = await _apiRepository.deleteBillImage(id: attachmentId);
-        if(response != null){
-          emit(SuccessState(response['message']));
-          final item = apiResponse.firstWhereOrNull((e) => e['id'].toString() == response['bill_id'].toString(),);
-          item?['billimages']?.removeWhere((img) => img['id'].toString() == attachmentId.toString(),);
+        var attachmentId = List.from(model['images'] ?? []).firstWhere((e) => e['path'] == event.data.toString().removeStorageUrl, orElse: () => null,)?['id'];
+        await _apiRepository.deleteVendorImages(attachmentId);
+          for (var element in apiResponse) {
+            if (element['id'].toString() == model['id'].toString()) {
+              for (var image in (element['images'] ?? [])) {
+                if (image['id'].toString() == attachmentId.toString()) {
+                  element['images']?.remove(image);
+                  break;
+                }
+              }
+              break;
+            }
+          }
+          _unFilteredResponse = apiResponse;
+          filteredResponse = paginateList(data: _unFilteredResponse, currentPage: currentIndex, itemsPerPage: itemsPerPage);
           businessCardImage.remove(event.data);
-        }else{
-          emit(ErrorState('Something Went Wrong'));
-        }
       }
+      emit(CommonState());
     }catch(e){
       _onError(e, emit);
     }
   }
-
 
   void _onError(dynamic error, Emitter<VendorState> emit){
     Console.of.error(error);
@@ -309,6 +364,38 @@ class VendorBloc extends Bloc<VendorEvent, VendorState> {
     } else {
       throw 'Could not open the map.';
     }
+  }
+
+  Map<String, dynamic> saveData(){
+    Map<String, dynamic> data = {};
+    data['name'] = nameController.text;
+    data['address'] = addressController.text;
+    data['status'] = '1';
+    data['phone'] = phoneController.text;
+    data['expertise'] = expertiseController.text;
+    data['description'] = descriptionController.text;
+    data['website'] = websiteController.text;
+    data['type_id'] = selectedVendorType?['id'];
+    data['platform'] = 'tasker-app';
+    data['latitude'] = latitude;
+    data['longitude'] = longitude;
+    return data;
+  }
+
+  void clearAll(){
+    autoValidateMode = null;
+    nameController.clear();
+    vendorTypeController.clear();
+    addressController.clear();
+    phoneController.clear();
+    websiteController.clear();
+    expertiseController.clear();
+    descriptionController.clear();
+    businessCardImage.clear();
+    latitude = null;
+    longitude = null;
+    isLatLong = false;
+
   }
 
 

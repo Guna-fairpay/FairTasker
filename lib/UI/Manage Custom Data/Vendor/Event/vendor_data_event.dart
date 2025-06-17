@@ -164,7 +164,7 @@ class VendorImageEvent extends VendorDataEvent {
 
 class RemoveVendorImageEvent extends VendorDataEvent {
   final int index;
-  RemoveVendorImageEvent({required this.index});
+  const RemoveVendorImageEvent({required this.index});
 }
 
 class ResetLocationEvent extends VendorDataEvent {

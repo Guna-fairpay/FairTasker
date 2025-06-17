@@ -8,6 +8,7 @@ class VendorTextFormFieldUI extends StatelessWidget {
     return BlocBuilder<VendorBloc, VendorState>(
       builder: (context, state) {
         return Form(
+          key: context.read<VendorBloc>().formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             spacing: 10.spMin,
@@ -16,7 +17,7 @@ class VendorTextFormFieldUI extends StatelessWidget {
                 'Vendor Name',
                 context.read<VendorBloc>().nameController,
                 validator: (val) => (val == null || val.isEmpty) ? 'Please enter vendor name' : null,
-                autoValidate: context.read<VendorBloc>().autoValidate,
+                autoValidate: context.watch<VendorBloc>().autoValidateMode,
               ),
               SearchViewField(
                 controller: context.read<VendorBloc>().vendorTypeController,
@@ -65,7 +66,7 @@ class VendorTextFormFieldUI extends StatelessWidget {
                   ),
                 ),
                 counterText: (context.watch<VendorBloc>().isLatLong)
-                    ? "Lat : ${context.watch<VendorBloc>().latitude} Long : ${context.watch<VendorBloc>().longitude}"
+                    ? "Lat : ${context.watch<VendorBloc>().latitude ?? ''} Long : ${context.watch<VendorBloc>().longitude ?? ''}"
                     : null,
               ),
               Utils.getTextFormField(
@@ -82,7 +83,8 @@ class VendorTextFormFieldUI extends StatelessWidget {
               Utils.getTextFormField(
                 'Expertise',
                 context.read<VendorBloc>().expertiseController,
-
+                minLines: 2,
+                maxLines: 2,
               ),
               Utils.getTextFormField(
                 'Description',

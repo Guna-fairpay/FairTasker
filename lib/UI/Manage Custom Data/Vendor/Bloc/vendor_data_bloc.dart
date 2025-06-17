@@ -148,19 +148,19 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
     on<AddVendorData>((event, emit) async {
       d.log("${event.id} ${event.name} ${event.vendorTypeId} ${event.address} ${event.phone} ${event.expertise} ${event.description} ${event.images} ${event.website} ${event.latitude} ${event.longitude}");
       emit(const VendorDataLoading());
-      final response = await apiRepository.createVendor(
-        id : event.id,
-        name : event.name ??'',
-        vendorTypeId : event.vendorTypeId.toString() ?? '',
-        address : event.address ??'',
-        phone : event.phone ??'',
-        expertise : event.expertise ??'',
-        description : event.description ??'',
-        images : event.images ?? [],
-        website: event.website ?? '',
-        latitude: event.latitude?.isNotEmpty == true ? event.latitude : null,
-        longitude: event.longitude?.isNotEmpty == true ? event.longitude : null,
-      );
+      // final response = await apiRepository.createVendor(
+      //   id : event.id,
+      //   name : event.name ??'',
+      //   vendorTypeId : event.vendorTypeId.toString() ?? '',
+      //   address : event.address ??'',
+      //   phone : event.phone ??'',
+      //   expertise : event.expertise ??'',
+      //   description : event.description ??'',
+      //   images : event.images ?? [],
+      //   website: event.website ?? '',
+      //   latitude: event.latitude?.isNotEmpty == true ? event.latitude : null,
+      //   longitude: event.longitude?.isNotEmpty == true ? event.longitude : null,
+      // );
       isEditMode = false;
       nameController.clear();
       addressController.clear();
@@ -178,7 +178,7 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
       _broadcast.broadcast(Str.editToDoRefresh);
       _broadcast.broadcast(Str.refetchVendorLocation);
       emit(VendorDataCommonState());
-      d.log("response added ${response}");
+     // d.log("response added ${response}");
       add(const GetVendorList());
     });
 
@@ -336,7 +336,7 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
               orElse: () => null,
             );
             if (matchedImage != null) {
-              await apiRepository.deleteImages(matchedImage['id']);
+              await apiRepository.deleteVendorImages(matchedImage['id']);
             }
           }
           vendorImage.removeAt(event.index);
@@ -383,7 +383,7 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
       try {
         emit(const VendorDataLoading());
         final imageId = event.id;
-        await apiRepository.deleteImages(imageId);
+        await apiRepository.deleteVendorImages(imageId);
         // Remove the image from remoteImages by matching ID
         remoteImages.removeWhere((url) {
           final path = url.replaceFirst("https://phase1.fairreturns.in/storage/", "");

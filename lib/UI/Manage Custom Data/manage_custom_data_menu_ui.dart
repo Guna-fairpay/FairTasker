@@ -78,14 +78,14 @@ class ManageCustomDataMenuUI extends StatelessWidget {
               title: 'Vehicle',
               onTap: () => context.push(const VehicleMainViewUi()),
             ),
+            // _buildCard(
+            //   icon: Icons.business,
+            //   title: 'Vendor',
+            //   onTap: () => context.push(VendorView()),
+            // ),
             _buildCard(
               icon: Icons.business,
               title: 'Vendor',
-              onTap: () => context.push(VendorView()),
-            ),
-            _buildCard(
-              icon: Icons.business,
-              title: 'New Vendor',
               onTap: () => context.push(const VendorMainUI()),
             ),
             _buildCard(
