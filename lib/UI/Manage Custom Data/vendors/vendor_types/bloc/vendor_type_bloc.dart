@@ -43,12 +43,13 @@ class VendorTypeBloc extends Bloc<VendorTypeEvent, VendorTypeState>{
     on<DeleteEvent>(_onDeleteEvent);
     on<EditEvent>(_onEditEvent);
     on<CancelEvent>(_onCancelEvent);
+    on<PaginationEvent>(_onPaginationEvent);
   }
 
   Future<void> _onInitialEvent(InitialEvent event, Emitter<VendorTypeState> emit) async {
     try{
       emit(LoadingState());
-      nameController.text = event.title;
+      if(event.title != null) nameController.text = event.title;
       await fetchVendorType();
       emit(CommonState());
     }catch(e){
@@ -134,6 +135,17 @@ class VendorTypeBloc extends Bloc<VendorTypeEvent, VendorTypeState>{
     }
   }
 
+  Future<void> _onPaginationEvent(PaginationEvent event, Emitter<VendorTypeState> emit) async {
+    try{
+      currentIndex = event.page;
+      filteredResponse = paginateList(data: _unFilteredResponse, currentPage: currentIndex, itemsPerPage: itemsPerPage,);
+      emit(CommonState());
+    }catch (e){
+      _onError(e, emit);
+    }
+  }
+
+
   void _onError(dynamic error, Emitter<VendorTypeState> emit){
     Console.of.error(error);
     emit(ErrorState(error));
@@ -160,6 +172,7 @@ class VendorTypeBloc extends Bloc<VendorTypeEvent, VendorTypeState>{
   Future<void> fetchVendorType() async {
     var response = await _getVendorType();
     apiResponse = List.from(response ?? []);
+    apiResponse.sort((b, a) => a['created_at'].compareTo(b['created_at']));
     _unFilteredResponse = apiResponse;
     filteredResponse = paginateList(
         data: _unFilteredResponse,

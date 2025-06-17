@@ -120,9 +120,10 @@ class VendorView extends StatelessWidget {
                                     context.read<VendorDataBloc>().addressController,
                                       hintText: 'Address',
                                       suffixIcon: Padding(
-                                        padding: const EdgeInsets.only(right: 8),
+                                        padding: 10.padding,
                                         child: Row(
-                                          spacing: 12.spMin,
+                                          mainAxisSize: MainAxisSize.min,
+                                          spacing: 10.spMin,
                                           mainAxisAlignment: MainAxisAlignment.end,
                                           children: [
                                             InkWell(
@@ -377,31 +378,31 @@ class VendorView extends StatelessWidget {
       context.read<VendorDataBloc>().longitude = position.longitude;
       context.read<VendorDataBloc>().add(locationEvent(latitude: position.latitude, longitude: position.longitude));
       // Fetch address
-      _getAddressFromLatLng(context, position.latitude, position.longitude);
+      //_getAddressFromLatLng(context, position.latitude, position.longitude);
     } catch (e) {
       if (EasyLoading.isShow) EasyLoading.dismiss();
       Utils.showMobileToast("Failed to get location: $e");
     }
   }
 
-  Future<void> _getAddressFromLatLng(
-      BuildContext context, double lat, double lng) async {
-    try {
-      List<Placemark> placeMarks = await placemarkFromCoordinates(lat, lng);
-      if (placeMarks.isNotEmpty) {
-        Placemark place = placeMarks[0];
-        String address =
-            '${place.street ?? ''}, ${place.locality ?? ''}, ${place.postalCode ?? ''}, ${place.country ?? ''}';
-        // Update addressController only if empty
-        context.read<VendorDataBloc>().addressController.clear();
-        context.read<VendorDataBloc>().addressController.text = address;
-        context.read<VendorDataBloc>().latitude = lat;
-        context.read<VendorDataBloc>().longitude = lng;
-      } else {
-        Utils.showMobileToast("No address found for the location.");
-      }
-    } catch (e) {
-      Utils.showMobileToast("Failed to get address: $e");
-    }
-  }
+  // Future<void> _getAddressFromLatLng(
+  //     BuildContext context, double lat, double lng) async {
+  //   try {
+  //     List<Placemark> placeMarks = await placemarkFromCoordinates(lat, lng);
+  //     if (placeMarks.isNotEmpty) {
+  //       Placemark place = placeMarks[0];
+  //       String address =
+  //           '${place.street ?? ''}, ${place.locality ?? ''}, ${place.postalCode ?? ''}, ${place.country ?? ''}';
+  //       // Update addressController only if empty
+  //       context.read<VendorDataBloc>().addressController.clear();
+  //       context.read<VendorDataBloc>().addressController.text = address;
+  //       context.read<VendorDataBloc>().latitude = lat;
+  //       context.read<VendorDataBloc>().longitude = lng;
+  //     } else {
+  //       Utils.showMobileToast("No address found for the location.");
+  //     }
+  //   } catch (e) {
+  //     Utils.showMobileToast("Failed to get address: $e");
+  //   }
+  // }
 }

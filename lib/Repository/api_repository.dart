@@ -1002,17 +1002,6 @@ Future<Map<String, dynamic>?> getLocations() async {
     }
   }
 
-  Future<Map<String, dynamic>?> getVendors() async {
-    try {
-      String apiUrl = "${Str.LIST_BASE_URL}$_vendors";
-      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
-      var mapData = await response.mapData;
-      return mapData;
-    } catch (e) {
-      rethrow;
-    }
-  }
-
   Future<List<Map<String, dynamic>>?> getVendorsType() async {
     try {
       String apiUrl = "${Str.LIST_BASE_URL}$_vendorTypes";
@@ -4562,6 +4551,20 @@ Future<Map<String, dynamic>?> getLocations() async {
         throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
       }
     } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getVendors() async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_vendors";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    } catch (e) {
       rethrow;
     }
   }
