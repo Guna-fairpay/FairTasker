@@ -207,15 +207,26 @@ class ExpenseVehicleAddUI extends StatelessWidget {
                         10.height,
                         Utils.getTextFormField('Odometer Reading',
                             context.read<AddExpenseVehicleBloc>().odometerController,
-                            textType: TextInputType.number,
-                            suffixIcon: const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 10.0),
-                              child: Icon(
-                                Icons.speed,
-                                color: AppC.redAccent,
+                            textType: const TextInputType.numberWithOptions(decimal: true),
+                            inputAction: TextInputAction.done,
+                            textInputFormatter:[
+                              FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))
+                            ],
+                            suffixIcon: GestureDetector(
+                              onTap: ()=> context.read<AddExpenseVehicleBloc>().add(GetOdometerEvent()),
+                              child: const Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 10.0),
+                                child: Icon(
+                                  Icons.speed,
+                                  color: AppC.redAccent,
+                                ),
                               ),
                             )),
                         10.height,
+                        if(context.watch<AddExpenseVehicleBloc>().bouncieMessage != null)...[
+                          Utils.getText(context.watch<AddExpenseVehicleBloc>().bouncieMessage ?? '', color: AppC.redAccent),
+                          10.height,
+                        ],
                         SuccessButton(
                           text: "Save",
                           onPressed: () => context.read<AddExpenseVehicleBloc>().add(SaveExpenseEvent()),

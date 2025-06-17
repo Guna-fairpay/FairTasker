@@ -74,6 +74,7 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
   dynamic expenseId;
   dynamic tempExpenseId;
   dynamic vehicle;
+  dynamic bouncieMessage;
 
   bool isEdit = false;
   bool isSaveCategory = false;
@@ -436,12 +437,19 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
 
   Future<void> _onGetOdometerEvent(GetOdometerEvent event, Emitter<TodoExpenseState> emit) async {
     try {
-      var response = await apiRepository.getOdometerValue(vin: event.vin);
-      if (response?.isNotEmpty ?? false) {
-        emit(state.copyWith(odometerMessage: response?['message']));
+      if (state.selectedVehicle == null) return;
+      bouncieMessage = null;
+      emit(state.copyWith(isLoading: true,));
+      var response = await apiRepository.getOdometerValue(vin: state.selectedVehicle?['vin']);
+      odometerController.text = response?['data']?['stats']?['odometer'].toString() ?? '';
+      Console.of.log(response, name: 'ODOMETER');
+      if (response?['status'] == 400) {
+        bouncieMessage = response?['message'];
       }
+      emit(state.copyWith(isLoading: false));
     } catch (e) {
-      emit(state.copyWith(odometerMessage: e.toString()));
+      Toaster.showError("$e");
+      emit(state.copyWith(isLoading: false));
     }
   }
 

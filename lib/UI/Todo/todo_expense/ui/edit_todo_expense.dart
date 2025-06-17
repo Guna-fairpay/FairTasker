@@ -10,6 +10,7 @@ import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'invoice_preview_dialog.dart';
@@ -95,7 +96,10 @@ class TodoExpense extends StatelessWidget {
                     Expanded(
                       child: Utils.getTextFormField(
                         'Amount in dollars',
-                        textType: TextInputType.number,
+                        textType: const TextInputType.numberWithOptions(decimal: true),
+                        textInputFormatter:[
+                          FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))
+                        ],
                         context.read<TodoEditExpenseBloc>().amountController,
                         inputAction: TextInputAction.done,
                         autoValidate: context.watch<TodoEditExpenseBloc>().autoValidateMode,
@@ -154,7 +158,10 @@ class TodoExpense extends StatelessWidget {
               Utils.getTextFormField(
                 'Odometer',
                 context.read<TodoEditExpenseBloc>().odometerController,
-                textType: TextInputType.number,
+                textType: const TextInputType.numberWithOptions(decimal: true),
+                textInputFormatter:[
+                  FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))
+                ],
                 suffixIcon: GestureDetector(
                   onTap: () => context.read<TodoEditExpenseBloc>().add(
                       GetOdometerEvent(
@@ -169,8 +176,8 @@ class TodoExpense extends StatelessWidget {
                 ),
                 inputAction: TextInputAction.done,
               ),
-              if (state.odometerMessage!.isNotEmpty)
-                Utils.getText(state.odometerMessage ?? '', color: AppC.redAccent),
+              if (context.watch<TodoEditExpenseBloc>().bouncieMessage != null)
+                Utils.getText(context.watch<TodoEditExpenseBloc>().bouncieMessage ?? '', color: AppC.redAccent),
               Row(
                 spacing: 10,
                 mainAxisAlignment: MainAxisAlignment.start,

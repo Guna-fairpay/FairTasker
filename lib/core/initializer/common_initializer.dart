@@ -131,7 +131,7 @@ class CommonService {
 
   Future<void> initialFetch() async {
     await Future.wait([
-      getUsers(),
+      // getUsers(),
       getCohorts(),
       getBranches(),
       Authenticator.instance.getBearerToken(),
@@ -581,7 +581,7 @@ class CommonService {
     try {
       var response = await _apiRepository.getCheckOilChangeTask(vin: vin, id: id);
       var history = List.from(response?['data']);
-      return (dateTime == null) ? history.firstOrNull : history.where((element) => element['todo_date'] == dateTime.toFormat()).firstOrNull;
+      return history.firstOrNull;
     } catch (e) {
       rethrow;
     }

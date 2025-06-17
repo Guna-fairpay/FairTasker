@@ -16,35 +16,29 @@ class LocationListItem extends TableRow {
 
   @override
   List<Widget> get children => [
-    // First cell: Icon
+    TableCell(child: InkWell(onTap: onEdit, child: Padding(
+      padding: 5.spMin.padding,
+      child: Icon(Icons.add,color: AppC.blue100,),
+    ))),
+    TableRowInkWell(onTap: onEdit, child: Padding(padding: 5.spMin.padding, child: Utils.getText("${model?['name'] ?? ""}"),)),
     TableCell(
-      child: IconButton(onPressed: onEdit, icon: Icon(Icons.add), color: AppC.blue100),
-    ),
-
-    // Second cell: Category name
-    TableRowInkWell(
-      onTap: onEdit,
       child: Padding(
-        padding: 12.sp.padding,
-        child: Utils.getText("${model?['name'] ?? ""}"),
-      ),
-    ),
+        padding: 5.spMin.padding,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            InkWell(
+              onTap: onEdit,
+              child: const Icon(Icons.edit_outlined, color: AppC.appColor,),
 
-    // Third cell: Edit/Delete buttons
-    TableCell(
-      child: Row(
-        children: [
-          IconButton(
-            onPressed: onEdit,
-            icon: const Icon(Icons.edit_outlined),
-            color: AppC.appColor,
-          ),
-          IconButton(
-            onPressed: onDelete,
-            icon: const Icon(Icons.delete_outline_rounded),
-            color: AppC.redAccent,
-          ),
-        ],
+            ),
+            InkWell(
+              onTap: onDelete,
+              child: const Icon(Icons.delete_outline_rounded, color: AppC.redAccent,),
+
+            ),
+          ],
+        ),
       ),
     ),
   ];

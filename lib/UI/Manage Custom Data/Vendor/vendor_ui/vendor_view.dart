@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:math' as math;
 import 'package:fairpytasker/Component/custom_compact_search_view.dart';
 import 'package:fairpytasker/Component/success_button.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/Components/image_upload_selection.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vendor/vendor_ui/suggestion_search_bar.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vendor/vendor_ui/vendor_image_upload.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vendor/vendor_ui/vendor_list_item.dart';
@@ -113,52 +114,58 @@ class VendorView extends StatelessWidget {
                                     ],
                                   ),
                                   10.height,
-                                  Utils.getTextFormFieldWithMultipleIcon(
-                                    'Address',
-                                    context.read<VendorDataBloc>().addressController,
-                                    hintText: 'Address',
-                                    suffixIconData: Icons.location_on_outlined,
-                                    onSuffixTap: () {
-                                      _getCurrentLocation(context);
-                                    },
-                                    suffixIconData1: (context.read<VendorDataBloc>().latitude != null && context.read<VendorDataBloc>().longitude != null)
-                                        ? Icons.navigation_outlined
-                                        : null,
-                                    iconColor1: (context.read<VendorDataBloc>().latitude != null && context.read<VendorDataBloc>().longitude != null)
-                                        ? AppC.green
-                                        : null,
-                                    onSuffixTap1: (context.read<VendorDataBloc>().latitude != null && context.read<VendorDataBloc>().longitude != null)
-                                        ? () async{
-                                      final Uri mapsUri = Uri(
-                                        scheme: 'https',
-                                        host: 'www.google.com',
-                                        path:
-                                        '/maps/search/ ${context.read<VendorDataBloc>().latitude}, ${context.read<VendorDataBloc>().longitude}',
-                                        queryParameters: {
-                                          'q':
-                                          '${context.read<VendorDataBloc>().latitude}, ${context.read<VendorDataBloc>().longitude}'
-                                        },
-                                      );
-                                      if (await canLaunchUrl(mapsUri)) {
-                                        await launchUrl(mapsUri,
-                                            mode: LaunchMode
-                                                .externalApplication);
-                                      } else {
-                                        throw 'Could not open the map.';
-                                      }
-                                    } : (){},
-                                    suffixIconData2: (context.read<VendorDataBloc>().latitude != null && context.read<VendorDataBloc>().longitude != null)
-                                        ? Icons.close
-                                        : null,
-                                    iconColor2: (context.read<VendorDataBloc>().latitude != null && context.read<VendorDataBloc>().longitude != null)
-                                        ? AppC.red
-                                        : null,
-                                    onSuffixTap2: (context.read<VendorDataBloc>().latitude != null && context.read<VendorDataBloc>().longitude != null)
-                                        ? () {
-                                      context.read<VendorDataBloc>().add(const ResetLocationEvent());
-                                    }
-                                        : (){},
-                                    bottomTrailingText: (context.read<VendorDataBloc>().latitude != null && context.read<VendorDataBloc>().longitude != null)
+                                  Utils.getTextFormField(
+                                      'Address',context.read<VendorDataBloc>().addressController,
+                                      suffixIcon: Padding(
+                                        padding: const EdgeInsets.only(right: 8),
+                                        child: Row(
+                                          spacing: 12.spMin,
+                                          mainAxisAlignment: MainAxisAlignment.end,
+                                          children: [
+                                            InkWell(
+                                              onTap: ()=> _getCurrentLocation(context),
+                                                child: const Icon(Icons.location_on_outlined,color: AppC.appColor,)
+                                            ),
+                                            if(context.read<VendorDataBloc>().latitude != null && context.read<VendorDataBloc>().longitude != null)...[
+                                              InkWell(
+                                                onTap: ()async{
+                                                  final Uri mapsUri = Uri(
+                                                    scheme: 'https',
+                                                    host: 'www.google.com',
+                                                    path:
+                                                    '/maps/search/ ${context.read<VendorDataBloc>().latitude}, ${context.read<VendorDataBloc>().longitude}',
+                                                    queryParameters: {
+                                                      'q':
+                                                      '${context.read<VendorDataBloc>().latitude}, ${context.read<VendorDataBloc>().longitude}'
+                                                    },
+                                                  );
+                                                  if (await canLaunchUrl(mapsUri)) {
+                                                    await launchUrl(mapsUri,
+                                                        mode: LaunchMode
+                                                            .externalApplication);
+                                                  } else {
+                                                    throw 'Could not open the map.';
+                                                  }
+                                                },
+                                                child: Transform(
+                                                  alignment: Alignment.center,
+                                                  transform: Matrix4.rotationZ(30 * math.pi / 180),
+                                                  child: const Icon(
+                                                    Icons.navigation_outlined,
+                                                    color: AppC.green,
+                                                  ),
+                                                ),
+                                              ),
+                                              InkWell(
+                                                  onTap: ()=> context.read<VendorDataBloc>().add(const ResetLocationEvent()),
+                                                  child: const Icon(Icons.close, color: AppC.redAccent,)
+                                              ),
+                                            ],
+
+                                          ],
+                                        ),
+                                      ),
+                                    counterText: (context.read<VendorDataBloc>().latitude != null && context.read<VendorDataBloc>().longitude != null)
                                         ? "Lat : ${context.watch<VendorDataBloc>().latitude} Long : ${context.watch<VendorDataBloc>().longitude}"
                                         : null,
                                   ),
@@ -176,23 +183,25 @@ class VendorView extends StatelessWidget {
                                           .read<VendorDataBloc>()
                                           .websiteController),
                                   10.height,
-                                  Utils.getBorderedMultilineTextField(
-                                      'Expertise',
+                                  Utils.getTextFormField(
+                                      null,
                                       context
                                           .read<VendorDataBloc>()
                                           .expertiseController,
+                                      hintText: 'Expertise',
                                       minLines: 2,
                                       maxLines: 4),
                                   10.height,
-                                  Utils.getBorderedMultilineTextField(
-                                      'Description',
+                                  Utils.getTextFormField(
+                                      null,
                                       context
                                           .read<VendorDataBloc>()
                                           .descriptionController,
+                                      hintText: 'Description',
                                       minLines: 2,
                                       maxLines: 4),
                                   10.height,
-                                  VendorImageUploadSection(
+                                  ImageUploadSection(
                                     title: 'Upload Business Card',
                                     borderColor: Colors.blue,
                                     onUpload: () => context.read<VendorDataBloc>().add(VendorImageEvent()),
@@ -279,10 +288,8 @@ class VendorView extends StatelessWidget {
                                   20.height,
                                   Table(
                                     columnWidths: const {
-                                      0: FlexColumnWidth(3),
-                                      1: FlexColumnWidth(1),
-                                      2: FlexColumnWidth(2),
-                                      3: FlexColumnWidth(2),
+                                      0: FlexColumnWidth(2),
+                                      3: IntrinsicColumnWidth(),
                                     },
                                     children: [
                                       TableRow(
@@ -293,20 +300,17 @@ class VendorView extends StatelessWidget {
                                             topRight: Radius.circular(4),
                                           ),
                                         ),
-                                        children: const [
+                                        children:  [
                                           Padding(
-                                            padding: EdgeInsets.symmetric(
-                                                horizontal: 10, vertical: 8.0),
-                                            child: Text('Vendor Name',
+                                            padding: EdgeInsets.symmetric(horizontal:8.spMin, vertical: 4.spMin),
+                                            child: const Text('Vendor Name',
                                                 style: TextStyle(
                                                     fontWeight: FontWeight.bold)),
                                           ),
-                                          Text('',),
-                                          Text('',),
                                           Padding(
-                                            padding: EdgeInsets.symmetric(
-                                                horizontal: 15, vertical: 8.0),
-                                            child: Text('Actions',
+                                            padding: EdgeInsets.symmetric(horizontal:8.spMin, vertical: 4.spMin),
+                                            child: const Text('Actions',
+                                                textAlign: TextAlign.end,
                                                 style: TextStyle(
                                                     fontWeight: FontWeight.bold)),
                                           ),

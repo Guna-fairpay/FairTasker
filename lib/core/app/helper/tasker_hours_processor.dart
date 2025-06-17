@@ -1,4 +1,5 @@
 import 'package:fairpytasker/Repository/api_repository.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fbroadcast/fbroadcast.dart';
 
 class TaskerHoursProcessor {
@@ -26,9 +27,9 @@ class TaskerHoursProcessor {
 
   Map<String, dynamic> processWorkingHours() {
     return {
-      "checkIn" : _response?['startTime'],
+      "checkIn" : _response?['startTime'].toString().toFormat(inputFormat: "dd-MM-yyyy HH:mm:ss", format: "HH:mm:ss"),
       "totalHours" : _response?['activeHours'],
-      "checkOut" : _response?['endTime'],
+      "checkOut" : _response?['endTime'].toString().toFormat(inputFormat: "dd-MM-yyyy HH:mm:ss", format: "HH:mm:ss"),
     };
   }
 }
