@@ -140,8 +140,8 @@ class BottomMenuHelper {
     },
     {
       "name" : "Asset",
-      "icon" : RIcon.UFO,
-      "activeIcon" : RIcon.UFO_2,
+      "icon" : RIcon.Check_Circle,
+      "activeIcon" : RIcon.Verified_Check,
     },
     {
       "name" : "Feedback",
