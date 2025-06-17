@@ -66,24 +66,33 @@ class LocationView extends StatelessWidget {
                                   validator: (val) => val!.isEmpty ? 'Please enter location name' : null,
                                 ),
                                 10.height,
-                                Utils.getTextFormFieldWithIcon(
+                                Utils.getTextFormField(
                                   "Address",
                                   context.read<LocationDataBloc>().addressController,
-                                  onSuffixTap: () {
-                                    final bloc = context.read<LocationDataBloc>();
-                                    final text = bloc.addressController.text;
-                                    if (text.isNotEmpty) {
-                                      if (bloc.selectedAddressIndex != null) {
-                                        bloc.add(UpdateAddressEvent(text));
-                                      } else {
-                                        bloc.add(AddAddressEvent(text));
+                                  suffixIcon: InkWell (
+                                    onTap: (){
+                                      final bloc = context.read<LocationDataBloc>();
+                                      final text = bloc.addressController.text;
+                                      if (text.isNotEmpty) {
+                                        if (bloc.selectedAddressIndex != null) {
+                                          bloc.add(UpdateAddressEvent(text));
+                                        } else {
+                                          bloc.add(AddAddressEvent(text));
+                                        }
+                                        bloc.addressController.clear();
                                       }
-                                      bloc.addressController.clear();
-                                    }
-                                  },
-                                  suffixIconData: context.watch<LocationDataBloc>().selectedAddressIndex != null
-                                      ? Icons.save
-                                      : Icons.add,
+                                    },
+                                    child: Padding(
+                                      padding: 8.horizontalPadding,
+                                      child: Icon(
+                                        context.watch<LocationDataBloc>().selectedAddressIndex != null
+                                          ? Icons.save
+                                          : Icons.add,
+                                      color: context.watch<LocationDataBloc>().selectedAddressIndex != null
+                                        ? AppC.green
+                                        : AppC.blue,),
+                                    ),
+                                  ),
                                 ),
                                 10.height,
                                 Wrap(
@@ -125,7 +134,6 @@ class LocationView extends StatelessWidget {
                                               bloc.add(AddAddressEvent(addressText));
                                               WidgetsBinding.instance.addPostFrameCallback((_) {
                                                 final addresses = List<Map<String, dynamic>>.from(bloc.addressesList);
-                                                log("Saving new location with addresses: $addresses");
                                                 bloc.add(AddLocationData(
                                                   name: bloc.locationController.text,
                                                   address: addresses,
@@ -135,7 +143,6 @@ class LocationView extends StatelessWidget {
                                             } else {
                                               // No address text, proceed with current addressesList
                                               final addresses = List<Map<String, dynamic>>.from(bloc.addressesList);
-                                              log("Saving new location with addresses: $addresses");
                                               bloc.add(AddLocationData(
                                                 name: bloc.locationController.text,
                                                 address: addresses,
@@ -184,7 +191,7 @@ class LocationView extends StatelessWidget {
                                 10.height,
                                 Table(
                                   columnWidths: const {
-                                    0: FlexColumnWidth(3),
+                                    0: IntrinsicColumnWidth(),
                                     1: FlexColumnWidth(7),
                                     2: FlexColumnWidth(4),
                                   },

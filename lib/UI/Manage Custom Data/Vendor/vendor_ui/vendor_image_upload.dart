@@ -40,7 +40,7 @@ class VendorImageUploadSection extends StatelessWidget {
             padding: 5.sp.padding,
             decoration: BoxDecoration(
               border: Border.all(color: borderColor, width: 1.5),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(4),
             ),
             child: Row(
               spacing: 5,

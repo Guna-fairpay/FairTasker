@@ -5,6 +5,7 @@ import 'package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_List/Bloc/expens
 import 'package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_List/Bloc/expense_event.dart';
 import 'package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_List/Bloc/expense_state.dart';
 import 'package:fairpytasker/UI/Finance/Expense/other/other_view/ui/other_main_page.dart';
+import 'package:fairpytasker/UI/Finance/Expense/person/person_view/ui/person_view_main_ui.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -55,7 +56,7 @@ class ExpenseTab extends StatelessWidget {
                       child: state.selectedTap['id'] == 1
                           ?  const ExpenseVehicleViewUI()
                           : state.selectedTap['id'] == 2
-                          ? const PersonExpenseViewUI()
+                          ? const PersonViewMainUI()///PersonExpenseViewUI()
                           : state.selectedTap['id'] == 3
                           ? const OtherMainPage()
                           : state.selectedTap['id'] == 4

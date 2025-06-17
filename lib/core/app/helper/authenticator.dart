@@ -32,12 +32,19 @@ class Authenticator {
   Future<void> getDepartmentId() async {
     Console.of.debug("Fetching DepartmentId");
     int currentUserId = int.tryParse(Session.of.getString(Str.userIdPrefText) ?? "") ?? 0;
-    var response = await getIt<CommonService>().getUsers();
-    if (response.isNotEmpty) {
-      int departmentId = int.tryParse("${response.firstWhereOrNull((element) => element['id'] == currentUserId)?['department'] ?? ""}") ?? 0;
-      Console.of.debug("DepartmentId: $departmentId");
-      Session.of.set("departmentId", departmentId);
-      Utils.setIntPreference("departmentId", departmentId);
+    if (currentUserId == 0) {
+      var response = await getIt<CommonService>().getUsers();
+      if (response.isNotEmpty) {
+        int departmentId = int.tryParse(
+            "${response.firstWhereOrNull((element) =>
+            element['id'] ==
+                currentUserId)?['department'] ?? ""}") ?? 0;
+        Console.of.debug("DepartmentId: $departmentId");
+        Session.of.set("departmentId", departmentId);
+        Utils.setIntPreference("departmentId", departmentId);
+      }
+    } else {
+      Console.of.debug("Current DepartmentId: $currentUserId ");
     }
   }
 

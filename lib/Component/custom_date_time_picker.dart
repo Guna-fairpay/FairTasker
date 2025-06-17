@@ -67,11 +67,11 @@ class CustomDateTimePicker<T> extends StatelessWidget {
           children: [
             Container(
               decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(Num.borderRadius),
+                  borderRadius: BorderRadius.circular(Num.subradiusButton),
                   shape: BoxShape.rectangle,
                   border: Border.all(
                       width: Num.borderWidthButton, color: (field.hasError) ? AppC.errorTextColor : AppC.borderColor)),
-              padding: padding ?? const EdgeInsets.all(10),
+              padding: padding ?? EdgeInsets.all(8.spMin),
               child: InkWell(
                 onTap: () async {
                   dynamic result;

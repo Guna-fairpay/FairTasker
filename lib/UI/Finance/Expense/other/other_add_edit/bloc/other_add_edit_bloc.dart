@@ -94,7 +94,6 @@ class OtherAddEditBloc extends Bloc<OtherAddEditEvent, OtherAddEditState> {
       var response = await _apiRepository.deletePersonExpense(id);
       if(response?['message'].contains('Expense deleted successfully.') == true) {
         _broadcast.broadcast("expense_other_refresh");
-        _broadcast.broadcast("expense_other_refresh");
         emit(SuccessState(response?['message']));
       }else{
         emit(CommonState());

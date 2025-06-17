@@ -6,6 +6,7 @@ import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
+import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
 
@@ -15,6 +16,7 @@ part 'person_view_state.dart';
 class PersonViewBloc extends Bloc<PersonViewEvent, PersonViewState>{
 
   final APiRepository _apiRepository = APiRepository();
+  final FBroadcast _broadcast = FBroadcast.instance();
   DateRange selectedDateRange = DateRange(DateTime.now().subtract(const Duration(days: 7)), DateTime.now());
   dynamic totalAmount = 0.00;
   List<dynamic> apiResponse = [];
@@ -33,6 +35,9 @@ class PersonViewBloc extends Bloc<PersonViewEvent, PersonViewState>{
     on<ApproveEvent>(_onApproveEvent);
     on<DateRangeEvent>(_onDateRangeEvent);
     on<PersonExpenseDetailEvent>(_onPersonExpenseDetailEvent);
+    on<RefreshEvent>(_onRefreshEvent);
+    _broadcast.register('expense_person_refresh', (value, callback) => add(RefreshEvent()));
+
   }
 
   Future<void> _onInitialEvent(InitialEvent event, Emitter<PersonViewState> emit) async {
@@ -45,9 +50,18 @@ class PersonViewBloc extends Bloc<PersonViewEvent, PersonViewState>{
     }
   }
 
+  Future<void> _onRefreshEvent(RefreshEvent event, Emitter<PersonViewState> emit) async{
+    try {
+      await fetchData();
+      emit(CommonState());
+    } catch (e) {
+      _error(e, emit);
+    }
+  }
+
   Future<void> _onAddEditEvent(AddEditEvent event, Emitter<PersonViewState> emit) async {
     try {
-      emit(CommonState());
+      emit(AddEditPageState(model: event.model));
     } catch (e) {
       _error(e, emit);
     }
@@ -119,6 +133,11 @@ class PersonViewBloc extends Bloc<PersonViewEvent, PersonViewState>{
   }
 
   Future<void> _onPersonExpenseDetailEvent(PersonExpenseDetailEvent event, Emitter<PersonViewState> emit) async {
+    try {
+      emit(PersonExpenseDetailState(model: event.model));
+    } catch (e) {
+      _error(e, emit);
+    }
   }
 
   Future<void> fetchData() async {

@@ -75,3 +75,5 @@ class DateChangeEvent extends AddExpenseVehicleEvent {
 }
 
 class SaveExpenseEvent extends AddExpenseVehicleEvent {}
+
+class GetOdometerEvent extends AddExpenseVehicleEvent {}
