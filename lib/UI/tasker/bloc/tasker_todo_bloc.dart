@@ -165,7 +165,10 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     List<Map<String, dynamic>>? vehicleStatusCategories = List.from(model?['vehicleStatusCategories'] ?? []);
     List<Map<String, dynamic>>? vehicles = List.from(model?['vehicles'] ?? []);
     List<Map<String, dynamic>>? vehicleGroups = List.from(model?['vehicleGroups'] ?? []);
-    getIt<CommonService>().updateValues(userList: users, groupPersonList: userGroup, taskExpenseDataList: taskExpenseData, locationsList: locations, vendorsList: vendors, groupVehicleList: vehicleGroups, activeVehicleList: vehicles);
+    List<Map<String, dynamic>>? resources = List.from(model?['resources'] ?? []);
+    List<Map<String, dynamic>>? parts = List.from(model?['parts'] ?? []);
+    List<Map<String, dynamic>>? supplies = List.from(model?['supplies'] ?? []);
+    getIt<CommonService>().updateValues(userList: users, groupPersonList: userGroup, taskExpenseDataList: taskExpenseData, locationsList: locations, vendorsList: vendors, groupVehicleList: vehicleGroups, activeVehicleList: vehicles, resourcesList: resources, partsList: parts, suppliesList: supplies);
   }
 
   // INITIAL EVENT PROCESSOR
@@ -179,15 +182,16 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       if (!isAdmin) {
         if ((currentUser != null) && (currentUser?.isNotEmpty ?? false)) selectedUsers?.add(currentUser ?? {});
       }
-      await _taskerHoursProcessor.initialize();
       var response = await _fetchToDoList(showOther: true);
       if (response != null) _setOtherValues(response);
-      processedWorkingHours = _taskerHoursProcessor.processWorkingHours();
       unfiltered = _processTodo(List.from(response?['todos'] ?? []));
       toDos = unfiltered;
       _generateKeys();
       isUserSelected = (selectedUsers?.isNotEmpty ?? false);
       Console.of.log("TASKER_ALL_API_LOADED", name: "TASKER_TODO_BLOC");
+      emit(ToDoTaskerCommonState());
+      await _taskerHoursProcessor.initialize();
+      processedWorkingHours = _taskerHoursProcessor.processWorkingHours();
       emit(ToDoTaskerCommonState());
     } catch (e) {
       Console.of.error("Error", error: e);
@@ -253,11 +257,12 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       // if (refresh) await _toDoProcessor.refresh();
       var response = await _fetchToDoList(showOther: refresh);
       if ((response != null) && (refresh)) _setOtherValues(response);
-      processedWorkingHours = await _taskerHoursProcessor.refresh();
       unfiltered = _processTodo(List.from(response?['todos'] ?? []));
       toDos = unfiltered;
       _searchTasks();
       Console.of.debug("CHECK ${toDos.length}");
+      if (!isClosed) emit(ToDoTaskerCommonState());
+      processedWorkingHours = await _taskerHoursProcessor.refresh();
       if (!isClosed) emit(ToDoTaskerCommonState());
     } catch (e) {
       Console.of.error("REFRESH_TODOS", error: e);

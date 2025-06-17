@@ -24,6 +24,7 @@ class EditLogAttachments extends StatelessWidget {
                     clipBehavior: Clip.antiAliasWithSaveLayer,
                     borderRadius: BorderRadius.circular(Num.borderRadiusLarge),
                     child: Container(
+                      width: double.maxFinite,
                       decoration: BoxDecoration(
                           borderRadius:
                               BorderRadius.circular(Num.borderRadiusLarge),

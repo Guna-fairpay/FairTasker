@@ -18,6 +18,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:package_info_plus/package_info_plus.dart' show PackageInfo;
+import 'package:r_icon_pro/r_icon_pro.dart';
 import '../UI/Manage Custom Data/reports/reports_view.dart';
 import '../UI/Settings/google_authenticator.dart';
 import '../UI/authentication_ui.dart';
@@ -56,8 +57,11 @@ class DrawerView extends StatelessWidget {
     return Drawer(
       backgroundColor: Colors.transparent,
       clipBehavior: Clip.antiAliasWithSaveLayer,
-      elevation: 5.sp,
+      elevation: 5.spMin,
       width: context.width * 0.65,
+      shadowColor: AppC.appColor,
+      surfaceTintColor: AppC.appbgColor,
+      shape: ContinuousRectangleBorder(borderRadius: BorderRadiusGeometry.horizontal(right: Radius.circular(26.spMin))),
       child: Container(
         decoration: const BoxDecoration(color: AppC.white),
         clipBehavior: Clip.antiAliasWithSaveLayer,
@@ -96,7 +100,7 @@ class DrawerView extends StatelessWidget {
                 children: <Widget>[
                   _buildListTile(
                     context,
-                    icon: Icons.build,
+                    icon: RIcon.Archive_Minimalistic,
                     title: "Manage Custom Data's",
                     onTap: () => context.push(const ManageCustomDataMenuUI(), fullscreenDialog: true),
                   ),
@@ -105,7 +109,7 @@ class DrawerView extends StatelessWidget {
                       _buildDivider(),
                       _buildListTile(
                         context,
-                        icon: Icons.manage_accounts,
+                        icon: RIcon.Users_Group_Rounded,
                         title: "Manage Employees",
                         onTap: () => context.push(const ManageEmployees(), fullscreenDialog: true),
                       ),
@@ -114,21 +118,21 @@ class DrawerView extends StatelessWidget {
                   if(approveTask.contains(Session.of.getString(Str.userIdPrefText)))
                   _buildListTile(
                     context,
-                    icon: Icons.task_rounded,
+                    icon: RIcon.Checklist_Minimalistic,
                     title: "Approve Task",
                     onTap: () => context.push(TasklistUi(), fullscreenDialog: true),
                   ),
                   _buildDivider(),
                   _buildListTile(
                     context,
-                      icon:  Icons.work_history,
+                      icon:  RIcon.History_2,
                       title: "Leave Management",
                       onTap: () => navigateToPage(context, const LeaveViewMainPage()),///LeaveManagementViewUI
                   ),
                   _buildDivider(),
                   _buildListTile(
                     context,
-                    icon: Icons.file_copy,
+                    icon: RIcon.Chart_Square,
                     title: "Reports",
                     onTap: () => navigateToPage(context, const ReportsView()),
                   ),
@@ -137,7 +141,7 @@ class DrawerView extends StatelessWidget {
                       _buildDivider(),
                       _buildListTile(
                         context,
-                        icon: Icons.report_gmailerrorred_rounded,
+                        icon: RIcon.Pie_Chart_3,
                         title: "Offshore Report",
                         onTap: () => navigateToPage(context, const OffshoreReportBasePage()),
                       ),
@@ -146,7 +150,7 @@ class DrawerView extends StatelessWidget {
                   if(userId.contains(Session.of.getString(Str.userIdPrefText)))
                   _buildListTile(
                     context,
-                    icon:  Icons.upload,
+                    icon:  RIcon.Upload_Minimalistic,
                     title: "Import Task",
                     onTap: () => context.push(const ImportTaskMainUi(), fullscreenDialog: true),
                     // onTap: () => navigateToPage(context, const UploadText()),
@@ -156,7 +160,7 @@ class DrawerView extends StatelessWidget {
                       _buildDivider(),
                       _buildListTile(
                         context,
-                        icon:  Icons.location_on,
+                        icon:  RIcon.Map_Point_Wave,
                         title: "Bouncie",
                         onTap: () => context.push(const BouncieMainUi(), fullscreenDialog: true),
                       ),
@@ -170,7 +174,7 @@ class DrawerView extends StatelessWidget {
                   _buildDivider(),
                   _buildListTile(
                     context,
-                    icon:  Icons.queue_music,
+                    icon:  RIcon.Music_Library_2,
                     title: "Voice To Text",
                     onTap: () => context.push(const VoiceToTextUI(), fullscreenDialog: true),
                   ),
@@ -179,7 +183,7 @@ class DrawerView extends StatelessWidget {
                       _buildDivider(),
                       _buildListTile(
                         context,
-                        icon:  Icons.settings,
+                        icon:  RIcon.Settings_Minimalistic,
                         title: "Settings",
                         onTap: () => context.push(const GoogleAuthenticatorUI(), fullscreenDialog: true),
                       ),
@@ -218,7 +222,7 @@ class DrawerView extends StatelessWidget {
             child: Row(
               children: [
                 _buildFooterButton(
-                  icon: Icons.home_outlined,
+                  icon: RIcon.Home_,
                   label: "Home",
                   onTap: () {
                     Navigator.of(context).pushAndRemoveUntil(
@@ -240,7 +244,7 @@ class DrawerView extends StatelessWidget {
                   indent: 10.sp,
                 ),
                 _buildFooterButton(
-                  icon: Icons.power_settings_new,
+                  icon: RIcon.Exit,
                   label: "Logout",
                   onTap: () {
                     AskPermissionDialog.show(context, title: "Confirm logout", description: "Are you sure you want to logout?", negativeText: "No", positiveText: "Yes", onPositivePressed: () async {
@@ -262,11 +266,7 @@ class DrawerView extends StatelessWidget {
     );
   }
 
-  Widget _buildListTile(BuildContext context, {
-    required IconData icon,
-    required String title,
-    required VoidCallback onTap,
-  }) {
+  Widget _buildListTile(BuildContext context, {required IconData icon, required String title, required VoidCallback onTap,}) {
     return ListTile(
       leading: Icon(icon, color: AppC.appColor),
       minLeadingWidth: 10.sp,
@@ -278,12 +278,7 @@ class DrawerView extends StatelessWidget {
     );
   }
 
-
-  Expanded _buildFooterButton({
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-  }) {
+  Expanded _buildFooterButton({required IconData icon, required String label, required VoidCallback onTap,}) {
     return Expanded(
       child: InkWell(
         onTap: onTap,

@@ -21,6 +21,7 @@
     </queries>
 
     <application
+        android:allowBackup="false"
         android:label="FairPYTasker"
         android:name="${applicationName}"
         android:usesCleartextTraffic="true"

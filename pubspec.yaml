@@ -141,6 +141,7 @@ dependencies:
   flutter_quill: any
   draggable_scrollbar: ^0.1.0
   workmanager: ^0.6.0
+  r_icon_pro: ^1.0.3
 
 dependency_overrides:
   intl: ^0.20.2
