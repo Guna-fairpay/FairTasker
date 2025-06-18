@@ -25,7 +25,6 @@ class LocationBloc extends Bloc<LocationEvent, LocationState> {
   List<Map<String, dynamic>> location = [];
   List<Map<String, dynamic>> tempLocation = [];
   List<Map<String, dynamic>> filterPage = [];
-  List<Map<String, dynamic>> _apiResponse = [];
   List<Map<String, dynamic>> _filteredResponse = [];
   List<Map<String, dynamic>> filteredResponse = [];
   Map<String, dynamic>? selectedModel;
@@ -36,6 +35,7 @@ class LocationBloc extends Bloc<LocationEvent, LocationState> {
   int? selectedAddressIndex;
   int? locationId;
 
+  List<Map<String, dynamic>> get _apiResponse => List.from(getIt<CommonService>().locationsList)..sort((a, b) => DateTime.parse(b['created_at']).compareTo(DateTime.parse(a['created_at'])));
   bool get isEditAddress => ((_selectedAddress != null) && (_selectedAddress?.isNotEmpty ?? false));
   bool get isEditMode => ((selectedModel != null) && (selectedModel?.isNotEmpty ?? false));
   int get totalPages => ((_filteredResponse.length) / itemsPerPage).ceil();
@@ -44,117 +44,9 @@ class LocationBloc extends Bloc<LocationEvent, LocationState> {
   {
     on<LocationInitialEvent>(_onInitialEvent);
 
-    /*on<GetAddedLocationListData>((event, emit) async {//c
-      emit(LoadingState());
-      final locationData = await _fetchLocations();
-      location = locationData;
-      location.sort((a, b) => DateTime.parse(b['created_at'])
-          .compareTo(DateTime.parse(a['created_at'])));
-
-      filterPage = paginateList(
-          data: location,
-          currentPage: currentPage,
-          itemsPerPage: itemsPerPage);
-      totalCount = location.length;
-      emit(CommonState());
-    });*/
-
     on<PaginationEvent>(_onPaginationEvent);
 
     on<SubmitEvent>(_onSubmitEvent);
-
-    /*on<SubmitEvent>((event, emit) async {
-      emit(LoadingState());
-      final formattedAddresses = event.address?.map((addr) {
-        if (event.id != null && addr is Map && addr.containsKey('id')) {
-          return addr;
-        } else if (addr is Map &&
-            addr.containsKey('address') &&
-            !addr.containsKey('id')) {
-          return addr;
-        }
-        return addr['address'];
-      }).toList() ??
-          [];
-
-
-      final locationId = event.id ??
-          (isEditMode && tempLocation.isNotEmpty
-              ? tempLocation[0]['id']
-              : null);
-
-      final success = await apiRepository.createLocation(
-        id: locationId,
-        name: event.name,
-        address: formattedAddresses,
-      );
-      _broadcast.broadcast(Str.addToDoRefresh);
-      _broadcast.broadcast(Str.editToDoRefresh);
-      _broadcast.broadcast(Str.refetchVendorLocation);
-      if (success == true) {
-        emit(LocationDataLoaded(
-          message: locationId == null
-              ? 'Location added successfully'
-              : 'Location updated successfully',
-        ));
-        add(const GetAddedLocationListData()); // Refresh list
-        if (locationId == null) {
-          // isEditMode = false;
-          selectedAddressIndex = null;
-          locationController.clear();
-          addressController.clear();
-          addressesList.clear();
-        } else {
-          // isEditMode = false;
-          selectedAddressIndex = null;
-          locationController.clear();
-          addressController.clear();
-          addressesList.clear();
-        }
-      } else {
-
-      }
-    });*/
-
-
-    /*on<DeleteLocation>((event, emit) async {
-      emit(LoadingState());
-      final response = await _apiRepository.deleteLocation(event.id);
-      if (response == true) {
-        location.removeWhere((element) => element['id'] == event.id);
-        location.sort((a, b) => DateTime.parse(b['created_at'])
-            .compareTo(DateTime.parse(a['created_at'])));
-
-        filterPage = paginateList(
-            data: location,
-            currentPage: currentPage,
-            itemsPerPage: itemsPerPage);
-        totalCount = location.length;
-        if ((event.id == locationId)) add(ExitEditModeEvent());
-        // add(const GetAddedLocationListData());
-        _broadcast.broadcast(Str.addToDoRefresh);
-        _broadcast.broadcast(Str.editToDoRefresh);
-        _broadcast.broadcast(Str.refetchVendorLocation);
-        emit(CommonState());
-      } else {
-        emit(CommonState());
-      }
-    });*/
-
-    /*on<SearchQueryEvent>((event, emit) {
-      final allLocation = location;
-      final filtered = allLocation.where((location) {
-        final name = location['name'].toString().toLowerCase();
-        final searchTerm = event.searchTerm.toLowerCase();
-        return name.contains(searchTerm);
-      });
-      filterPage = filtered.toList();
-      currentPage = 1;
-      totalCount = filtered.length;
-
-      filterPage = paginateList(data: filterPage, currentPage: currentPage, itemsPerPage: itemsPerPage);
-      emit(CommonState());
-    });*/
 
     on<DeleteLocationEvent>(_onDeleteLocationEvent);
 
@@ -162,80 +54,11 @@ class LocationBloc extends Bloc<LocationEvent, LocationState> {
 
     on<StoreAddressEvent>(_onStoreAddressEvent);
 
-    /*on<DeleteLocationEvent>((event, emit) async {//c
-      emit(LoadingState());
-      final success = await _apiRepository.deleteAddress(event.id);
-      if (success == true) {
-        if (isEditMode) {
-          addressesList.removeWhere((addr) => addr['id'] == event.id);
-          final locationData = await _fetchLocations();
-          location = locationData;
-          location.sort((a, b) => DateTime.parse(b['created_at']).compareTo(DateTime.parse(a['created_at'])));
-          filterPage = paginateList(data: location, currentPage: currentPage, itemsPerPage: itemsPerPage);
-          totalCount = location.length;
-          _broadcast.broadcast(Str.refetchVendorLocation);
-          add(const GetAddedLocationListData());
-          emit(CommonState());
-        } else {
-          add(const GetAddedLocationListData());
-          emit(CommonState());
-        }
-      } else {
-        emit(CommonState());
-      }
-    });*/
-
     on<DeleteAddressEvent>(_onDeleteAddressEvent);
-
-    /*on<DeleteAddressEvent>((event, emit) {
-      if (event.index >= 0 && event.index < addressesList.length) {
-        if (isEditMode && addressesList[event.index].containsKey('id')) {
-          add(DeleteLocationEvent(id: addressesList[event.index]['id']));
-        } else {
-          addressesList.removeAt(event.index);
-          emit(CommonState());
-        }
-      }
-    });*/
 
     on<EnterEditModeEvent>(_onEnterEditModeEvent);
 
-    /*on<EnterEditModeEvent>((event, emit) {
-      // isEditMode = true;
-      locationId = event.location['id'];
-      tempLocation = [event.location];
-      locationController.text = event.location['name'];
-      // Use the latest location data from the location list
-      final updatedLocation = location.firstWhere(
-            (loc) => loc['id'] == event.location['id'],
-        orElse: () => event.location,
-      );
-
-      addressesList = (updatedLocation['addresses'] as List<dynamic>)
-          .map((addr) => {
-        'address': addr['address'],
-        'id': addr['id'],
-      }).toList();
-
-      selectedAddressIndex = null;
-      addressController.clear();
-      emit(CommonState());
-    });*/
-
     on<ExitEditModeEvent>(_onExitEditModeEvent);
-
-    on<UpdateAddressEvent>((event, emit) {
-      if (selectedAddressIndex != null &&
-          selectedAddressIndex! < addressesList.length) {
-        addressesList[selectedAddressIndex!] = {
-          'address': event.updatedAddress,
-          'id': addressesList[selectedAddressIndex!]['id'],
-        };
-        selectedAddressIndex = null;
-        addressController.clear();
-        emit(CommonState());
-      }
-    });
 
     on<EditAddressEvent>(_onEditAddressEvent);
 
@@ -250,6 +73,12 @@ class LocationBloc extends Bloc<LocationEvent, LocationState> {
   Future<Map<String, dynamic>?> _updateLocationAddress(dynamic id, Map<String, dynamic>? body) async => await _apiRepository.updateLocationAddress(id, body: body);
   Future<Map<String, dynamic>?> _deleteAddress(dynamic id) async => await _apiRepository.deleteAddress(id);
   Future<Map<String, dynamic>?> _deleteLocation(dynamic id) async => await _apiRepository.deleteLocation(id);
+
+  void _broadCasting() {
+    _broadcast.broadcast(Str.addToDoRefresh);
+    _broadcast.broadcast(Str.editToDoRefresh);
+    _broadcast.broadcast(Str.refetchVendorLocation);
+  }
 
   void _sort() => _apiResponse.sort((a, b) => DateTime.parse(b['created_at']).compareTo(DateTime.parse(a['created_at'])));
 
@@ -288,7 +117,7 @@ class LocationBloc extends Bloc<LocationEvent, LocationState> {
     try {
       if(event.title != null) locationController.text = event.title ?? "";
       emit(LoadingState());
-      _apiResponse = await _fetchLocations();
+      await _fetchLocations();
       _sort();
       _search();
       emit(CommonState());
@@ -421,6 +250,7 @@ class LocationBloc extends Bloc<LocationEvent, LocationState> {
           emit(ErrorState("Something went wrong"));
         }
       }
+      _broadCasting();
     } catch (e) {
       _error(e, emit);
     }
@@ -445,7 +275,7 @@ class LocationBloc extends Bloc<LocationEvent, LocationState> {
     try {
       emit(LoadingState());
       currentPage = 1;
-      _apiResponse = await _fetchLocations();
+      await _fetchLocations();
       _sort();
       _search();
       emit(CommonState());
@@ -464,6 +294,7 @@ class LocationBloc extends Bloc<LocationEvent, LocationState> {
         _apiResponse.removeWhere((element) => element['id'] == model?['id']);
         _search();
         emit(CommonState());
+        _broadCasting();
       } else {
         emit(ErrorState("Something went wrong"));
       }

@@ -89,7 +89,7 @@ class ManageCustomDataMenuUI extends StatelessWidget {
             _buildCard(
               icon: Iconsax.location,
               title: 'Location',
-              onTap: () => context.push(LocationView(),)
+              onTap: () => context.push(const LocationView())
             ),
             _buildCard(
               icon: Iconsax.magicpen,
