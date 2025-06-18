@@ -1,38 +1,43 @@
 
 part of '../Bloc/location_data_bloc.dart';
 
-abstract class LocationDataState extends Equatable {
-  const LocationDataState();
-}
-
-class LocationDataInitial extends LocationDataState {
-  @override
-  List<Object> get props => [];
-}
-
-
-class LocationDataLoading extends LocationDataState {
-  const LocationDataLoading();
+abstract class LocationState extends Equatable {
   @override
   List<Object?> get props => [];
 }
 
-class LocationListLoaded extends LocationDataState {
+class LoadingState extends LocationState {}
+
+class LoadedState extends LocationState {
   final List<Map<String, dynamic>>? resource;
-  const LocationListLoaded({required this.resource});
+  LoadedState({required this.resource});
   @override
   List<Object?> get props => [resource];
 }
 
-class LocationDataLoaded extends LocationDataState {
+class LocationDataLoaded extends LocationState {
   final String? message;
-  const LocationDataLoaded({required this.message});
+  LocationDataLoaded({required this.message});
   @override
   List<Object?> get props => [message];
 }
 
-class LocationDataCommonState extends LocationDataState {
+class CommonState extends LocationState {
   @override
   List<Object?> get props => [Random().nextDouble()];
+}
+
+class ErrorState extends LocationState {
+  final dynamic message;
+  ErrorState(this.message);
+  @override
+  List<Object?> get props => [message, Random().nextDouble()];
+}
+
+class SuccessState extends LocationState {
+  final dynamic message;
+  SuccessState(this.message);
+  @override
+  List<Object?> get props => [message, Random().nextDouble()];
 }
 

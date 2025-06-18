@@ -1377,53 +1377,38 @@ Future<Map<String, dynamic>?> getLocations() async {
 
       return response?.statusCode == 200 || response?.statusCode == 201;
     } catch (error) {
-      log('Error: $error');
-      return null;
+      rethrow;
     }
   }
 
 
-  Future<bool?> deleteLocation(int? id) async {
+  Future<Map<String, dynamic>?> deleteAddress(dynamic id) async {
     try {
       String apiUrl = '';
       apiUrl = "${Str.LIST_BASE_URL}$_location_address/$id";
       final http.Response? response = await _apiClient.callDelete(apiUrl);
-      if (response != null) {
-        if (response.statusCode == 200) {
-          return true;
-        } else {
-          Utils.showSomethingWentWrong();
-          return null;
-        }
-      } else {
-        return null;
+      if (response.isSuccess) {
+        return await response.mapData;
+      }else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
       }
     } catch (error) {
-      log('deleteLocation.exception : ${error.toString()}');
-      return null;
+      rethrow;
     }
   }
 
   // delete for location list item
-  Future<bool?> delete(int? id) async {
+  Future<Map<String, dynamic>?> deleteLocation(dynamic id) async {
     try {
-      String apiUrl;
-      apiUrl = '${Str.LIST_BASE_URL}locations/$id';
-      log("delete-locations apiUrl: $apiUrl");
+      String apiUrl = '${Str.LIST_BASE_URL}$_locations/$id';
       final http.Response? response = await _apiClient.callDelete(apiUrl);
-      if (response != null) {
-        if (response.statusCode == 200 || response.statusCode == 201) {
-          return true;
-        } else {
-          Utils.showSomethingWentWrong();
-          return null;
-        }
-      } else {
-        return null;
+      if (response.isSuccess) {
+        return await response.mapData;
+      }else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
       }
     } catch (error) {
-      log('delete Location For Item.exception : ${error.toString()}');
-      return null;
+      rethrow;
     }
   }
 
@@ -4513,6 +4498,73 @@ Future<Map<String, dynamic>?> getLocations() async {
         throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
       }
     } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getLocation(dynamic id) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_locations/$id/edit";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> saveLocation(Map<String, dynamic>? body) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_locations";
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> updateLocation(dynamic id, {required Map<String, dynamic>? body}) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_locations/$id";
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> updateLocationAddress(dynamic id, {required Map<String, dynamic>? body}) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_location_address/$id";
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> saveLocationAddress({required Map<String, dynamic>? body}) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_location_address";
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    } catch (e) {
       rethrow;
     }
   }
