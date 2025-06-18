@@ -44,7 +44,7 @@ class _BottomNavigationForTaskViewState
       extendBody: false,
       appBar:  PreferredSize(
         preferredSize: Size.fromHeight(25.h),
-        child: HeaderView(),
+        child: const HeaderView(),
       ),
       backgroundColor: AppC.white,
       bottomNavigationBar: BottomNavigationBar(
