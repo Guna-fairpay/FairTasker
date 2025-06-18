@@ -378,7 +378,7 @@ class CommonService {
     }
 
     try {
-      final response = await _apiRepository.getVendorsType();
+      final response = await _apiRepository.getVendorType();
 
       if (response != null && response is List) {
         vendorsTypeList = List<Map<String, dynamic>>.from(
