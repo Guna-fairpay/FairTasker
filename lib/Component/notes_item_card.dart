@@ -13,6 +13,8 @@ import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:r_icon_pro/r_icon_pro.dart';
+import 'package:iconsax/iconsax.dart';
 
 class NotesItemCard extends StatelessWidget {
   final bool isSharedNotes;
@@ -83,17 +85,20 @@ class NotesItemCard extends StatelessWidget {
                     if (!isSharedNotes)
                       IconButton(
                         onPressed: onAddNotesPressed,
-                        icon: SvgPicture.asset(Assets.tablePlusIcon, theme: const SvgTheme(currentColor: AppC.appColor),),
+                        icon: const Icon(Iconsax.add),
+                        color: AppC.appColor,
                         style: const ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
                       ),
                     IconButton(
                       onPressed: onEditPressed,
-                      icon: SvgPicture.asset(Assets.penEditIcon, theme: const SvgTheme(currentColor: AppC.appColor),),
+                      icon: const Icon(Iconsax.edit_2),
+                      color: AppC.appColor,
                       style: const ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
                     ),
                     IconButton(
                       onPressed: onDeletePressed,
-                      icon: SvgPicture.asset(Assets.trashIcon, theme: const SvgTheme(currentColor: AppC.redAccent)),
+                      icon: const Icon(Iconsax.trash),
+                      color: AppC.redAccent,
                       style: const ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
                     ),
                   ],
@@ -135,7 +140,6 @@ class NotesItemCard extends StatelessWidget {
                         data: item,
                         feedback: Text("${item['title'] ?? ""}"),
                         child: Column(
-                          // key: Key("${item['id']}"),
                           spacing: 5.sp,
                           mainAxisSize: MainAxisSize.min,
                           mainAxisAlignment: MainAxisAlignment.start,
@@ -144,11 +148,21 @@ class NotesItemCard extends StatelessWidget {
                             RowTile(
                               expandTitle: true,
                               onTap: () => onEditTakPressed?.call(item),
-                              leading: Checkbox(
-                                value: (item['todos']?['status'].toString().isNotNullOrEmpty ?? false) ? (item['todos']?['status'] == "Completed") : (item['complete_status'] == 1),
-                                side:
-                                const BorderSide(width: Num.borderWidthThinField),
-                                onChanged: (value) => onTaskComplete?.call(item, value),
+                              leading: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  ReorderableDragStartListener(
+                                    index: index,
+                                    child: const Icon(Icons.drag_indicator_rounded, color: AppC.appColor),
+                                  ),
+                                  Checkbox(
+                                    value: (item['todos']?['status'].toString().isNotNullOrEmpty ?? false) ? (item['todos']?['status'] == "Completed") : (item['complete_status'] == 1),
+                                    side:
+                                    const BorderSide(width: Num.borderWidthThinField),
+                                    onChanged: (value) => onTaskComplete?.call(item, value),
+                                  ),
+                                ],
                               ),
                               title: CompactText("${item['title'] ?? ""}", styleType: TextStyleType.labelLarge, fontWeight: FontWeight.bold,
                               decoration: (isSharedNotes ? ((item?['complete_status'] == 1) ? TextDecoration.lineThrough : null) : null)),
@@ -161,12 +175,8 @@ class NotesItemCard extends StatelessWidget {
                                   if (!isSharedNotes)
                                   GestureDetector(
                                       onTap: () => onTimePicker?.call(item),
-                                      child: (item?['note_time'].toString().isNullOrEmpty ?? false) ? SvgPicture.asset(Assets.durationIcon) : CompactText(item?['note_time'].toString().toFormat(inputFormat: "HH:mm:ss", format: "hh:mm a") ?? "")
+                                      child: (item?['note_time'].toString().isNullOrEmpty ?? false) ? const Icon(Iconsax.clock, color: AppC.appColor) : CompactText(item?['note_time'].toString().toFormat(inputFormat: "HH:mm:ss", format: "hh:mm a") ?? "")
                                   ),
-                                  ReorderableDragStartListener(
-                                    index: index,
-                                    child: const Icon(Icons.drag_handle, color: AppC.trans),
-                                  )
                                 ],
                               ),
                             ),

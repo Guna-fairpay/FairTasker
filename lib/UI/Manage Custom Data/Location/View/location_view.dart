@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:fairpytasker/Component/compact_app_bar.dart';
 import 'package:fairpytasker/Component/custom_compact_search_view.dart';
 import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
@@ -23,16 +24,9 @@ class LocationView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppC.white,
-      appBar: AppBar(
-        title: const Text('Location'),
-        backgroundColor: AppC.appColor,
-        automaticallyImplyLeading: false,
-        foregroundColor: Colors.white,
-        actions: [
-          IconButton(
-              onPressed: () => context.pop(),
-              icon: const Icon(Icons.close))
-        ],
+      appBar: CompactAppBar(
+        titleText: "Location",
+        onClose: context.pop,
       ),
       body: BlocProvider(
         create: (context) =>
