@@ -1146,6 +1146,7 @@ class Utils {
     return {
       'accept': 'application/json',
       'Content-Type': 'application/json',
+      'Accept-Encoding': 'gzip',
     };
   }
 
@@ -1153,6 +1154,7 @@ class Utils {
     return {
       'accept': 'application/json',
       'Content-Type': 'application/json',
+      'Accept-Encoding': 'gzip',
       'Authorization': (url.isFairReturns) ? returnBearerToken : bearerToken
     };
   }

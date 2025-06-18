@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:r_icon_pro/r_icon_pro.dart';
 
 class TodoTopSearchBar extends StatelessWidget {
   final VoidCallback? onAdd, onMic;
@@ -43,7 +44,7 @@ class TodoTopSearchBar extends StatelessWidget {
                 color: context.theme.hintColor, fontWeight: FontWeight.normal)),
       ),
       trailing:
-          IconButton(onPressed: onMic, icon: const Icon(Icons.mic_none_rounded)),
+          IconButton(onPressed: onMic, icon: const Icon(RIcon.Microphone)),
     );
   }
 }
