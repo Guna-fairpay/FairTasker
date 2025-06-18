@@ -1,4 +1,6 @@
 
+import 'package:fairpytasker/Component/custom_text/compact_text.dart';
+import 'package:fairpytasker/Component/row_tile.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Categorys/category_page/category_main_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Parts/ui/parts_main_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Supplies/UI/supplies_main_ui.dart';
@@ -12,8 +14,10 @@ import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:iconsax/iconsax.dart';
 import 'Customers/customer_view_ui.dart';
 import 'Location/View/location_view.dart';
 import 'Vehicle Status/vehicle_status_add_ui.dart';
@@ -63,52 +67,53 @@ class ManageCustomDataMenuUI extends StatelessWidget {
             ),*/
             const SizedBox(height: 10),
             _buildCard(
-              icon: Icons.calendar_month_rounded,
+              icon: Iconsax.calendar_1,
               title: 'Attendance',
               onTap: () => context.push(const AttendanceView(), fullscreenDialog: true),
             ),
             _buildCard(
-              icon: Icons.assignment,
+              icon: Iconsax.note_1,
               title: 'Task',
               onTap:() => context.push(const TaskMainPage(),),
             ),
             _buildCard(
-              icon: Icons.directions_car_rounded,
+              icon: Iconsax.car,
               title: 'Vehicle',
               onTap: () => context.push(const VehicleMainViewUi()),
             ),
             _buildCard(
-              icon: Icons.business,
+              icon: Iconsax.shop,
               title: 'Vendor',
               onTap: () => context.push(const VendorMainUI()),
             ),
             _buildCard(
-              icon: Icons.location_on,
+              icon: Iconsax.location,
               title: 'Location',
-              onTap: () => context.push(LocationView(),)
+              onTap: () => context.push(const LocationView())
             ),
             _buildCard(
-              icon: Icons.construction,
+              icon: Iconsax.magicpen,
               title: 'Parts',
               onTap:() => context.push(const PartsMainUI(),),
             ),
             _buildCard(
-              icon: Icons.shopping_cart,
+              icon: Iconsax.broom,
               title: 'Supplies',
               onTap:() => context.push(const SuppliesMainUI(),),
             ),
             _buildCard(
-              icon: Icons.category,
+              icon: Iconsax.category,
               title: 'Category',
               onTap: () => context.push(const CategoryMainUi(), fullscreenDialog: true),
             ),
             _buildCard(
-              icon: Icons.folder_open,
+              icon: Iconsax.tag_2,
               title: 'SubCategory',
               onTap: () => context.push(const SubcategoryMainUi(), fullscreenDialog: true),
             ),
+            if (kDebugMode)
             _buildCard(
-              icon: Icons.car_crash_sharp,
+              icon: Iconsax.status,
               title: 'Vehicle Status',
               onTap: () async {
                 await Navigator.of(context).push(MaterialPageRoute(
@@ -116,8 +121,9 @@ class ManageCustomDataMenuUI extends StatelessWidget {
                 ));
               },
             ),
+            if (kDebugMode)
             _buildCard(
-              icon: Icons.group_rounded,
+              icon: Iconsax.people,
               title: 'Customers',
               onTap: () async {
                 await Navigator.of(context).push(MaterialPageRoute(
@@ -126,7 +132,7 @@ class ManageCustomDataMenuUI extends StatelessWidget {
               },
             ),
             _buildCard(
-              icon: Icons.group_rounded,
+              icon: Iconsax.people,
               title: 'Private Rental Customers',
               onTap: () => context.push(const PrivateRentalCustomers(), fullscreenDialog: true),
             ),
@@ -141,43 +147,33 @@ class ManageCustomDataMenuUI extends StatelessWidget {
     required String title,
     required VoidCallback onTap,
   }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 5.0),
-      child: InkWell(
-        onTap: onTap,
-        child: Card(
-          shadowColor: Colors.white, // Subtle shadow
-          surfaceTintColor: Colors.white,
-          color: Colors.white, // White card background
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8), // Slightly rounded corners
+    return Card(
+      shadowColor: Colors.white, // Subtle shadow
+      surfaceTintColor: Colors.white,
+      color: Colors.white, // White card background
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(5.spMin), // Slightly rounded corners
+      ),
+      elevation: 2, // Slight elevation
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10),
+        child: RowTile(
+          onTap: onTap,
+          spacing: 10.spMin,
+          expandTitle: true,
+          leading: Icon(
+            icon,
+            color: AppC.appColor,
+            size: 15.spMin,
           ),
-          elevation: 2, // Slight elevation
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10),
-            child: Row(
-              children: [
-                Icon(
-                  icon,
-                  color: AppC().base,
-                  size: 14.sp,
-                ), // Darker grey-blue for icons
-                const SizedBox(width: 18),
-                Expanded(
-                  child: Utils.getText(
-                    title,
-                    size: 12.sp,
-                    weight: FontWeight.w400,
-                    color: Colors.black87,
-                  ),
-                ),
-                Icon(
-                  Icons.arrow_forward_ios,
-                  size: 12.sp,
-                  color: Colors.grey[600],
-                ), // Lighter grey for arrow
-              ],
-            ),
+          title: CompactText(
+            title,
+            color: Colors.black87,
+          ),
+          trailing: Icon(
+            Iconsax.arrow_right_3,
+            size: 13.spMin,
+            color: Colors.grey[600],
           ),
         ),
       ),
