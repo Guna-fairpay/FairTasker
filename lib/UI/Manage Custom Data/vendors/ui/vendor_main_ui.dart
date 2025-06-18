@@ -23,6 +23,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:iconsax/iconsax.dart';
+import 'package:r_icon_pro/r_icon_pro.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 part 'vendor_text_form_field_ui.dart';

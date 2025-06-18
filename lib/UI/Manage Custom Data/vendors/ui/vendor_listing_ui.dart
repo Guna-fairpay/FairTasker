@@ -51,7 +51,7 @@ class VendorListingUI extends StatelessWidget {
                               );
                             },
                             child:  Icon(
-                              Icons.visibility,
+                              Iconsax.eye,
                               color: AppC.appColor,
                               size: 20.spMin,
                             )
@@ -66,9 +66,9 @@ class VendorListingUI extends StatelessWidget {
                             onTap: ()=> context.read<VendorBloc>().add(GetDirectionEvent(e)),
                             child: Transform(
                               alignment: Alignment.center,
-                              transform: Matrix4.rotationZ(30 * math.pi / 180),
+                              transform: Matrix4.rotationZ(30 * math.pi / -120),
                               child: Icon(
-                                Icons.navigation_outlined,
+                                Iconsax.direct_right,
                                 color: AppC.green,
                                 size: 20.spMin,
                               ),
@@ -81,9 +81,9 @@ class VendorListingUI extends StatelessWidget {
                           10.spMin.width,
                           GestureDetector(
                               onTap: () => context.read<VendorBloc>().add(EditEvent(e)),
-                              child: const Icon(Icons.edit_outlined,color: AppC.blue,)
+                              child: const Icon(Iconsax.edit_2,color: AppC.blue,)
                           ),
-                          5.spMin.width,
+                          10.spMin.width,
                           GestureDetector(
                               onTap: (){
                                 AskPermissionDialog.show(context,
@@ -94,7 +94,7 @@ class VendorListingUI extends StatelessWidget {
                                     isReasonRequired: false,
                                     onPositivePressed:()=> context.read<VendorBloc>().add(DeleteEvent(e)));
                               },
-                              child: const Icon(Icons.delete_outline_rounded, color: AppC.redAccent)),
+                              child: const Icon(Iconsax.trash, color: AppC.redAccent)),
                         ],),
                       )),
                     ])).toList(),

@@ -42,16 +42,16 @@ class VendorTextFormFieldUI extends StatelessWidget {
                     children: [
                       InkWell(
                           onTap: ()=> context.read<VendorBloc>().add(AddressEvent()),
-                          child: const Icon(Icons.location_on_outlined,color: AppC.appColor,)
+                          child: const Icon(Iconsax.location,color: AppC.appColor,)
                       ),
                       if(context.watch<VendorBloc>().isLatLong)...[
                         InkWell(
                           onTap: ()=> context.read<VendorBloc>().add(NavigationEvent()),
                           child: Transform(
                             alignment: Alignment.center,
-                            transform: Matrix4.rotationZ(30 * math.pi / 180),
+                            transform: Matrix4.rotationZ(30 * math.pi / -120),
                             child: const Icon(
-                              Icons.navigation_outlined,
+                              Iconsax.direct_right,
                               color: AppC.green,
                             ),
                           ),
