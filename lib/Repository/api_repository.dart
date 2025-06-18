@@ -434,6 +434,18 @@ class APiRepository {
 
   String get _deletePermission => "deletePermission";
 
+  String get _roleList => "roleList";
+
+  String get _editRole => "editRole";
+
+  String get _editUserRole => "editUserRole";
+
+  String get _updateUserRole => "updateRole";
+
+  String get _addUserRole => "addRole";
+
+  String get _deleteRole => "deleteRole;";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -990,17 +1002,6 @@ Future<Map<String, dynamic>?> getLocations() async {
     }
   }
 
-  Future<Map<String, dynamic>?> getVendors() async {
-    try {
-      String apiUrl = "${Str.LIST_BASE_URL}$_vendors";
-      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
-      var mapData = await response.mapData;
-      return mapData;
-    } catch (e) {
-      rethrow;
-    }
-  }
-
   Future<List<Map<String, dynamic>>?> getVendorsType() async {
     try {
       String apiUrl = "${Str.LIST_BASE_URL}$_vendorTypes";
@@ -1014,93 +1015,6 @@ Future<Map<String, dynamic>?> getLocations() async {
       }
     } catch (e) {
       rethrow;
-    }
-  }
-
-  Future<Map<String, dynamic>?> createVendor({
-    int? id,
-    String? name,
-    String? vendorTypeId,
-    String? address,
-    String? phone,
-    String? expertise,
-    String? description,
-    String? latitude,
-    String? longitude,
-    String? website,
-    List<File>? images,
-    }) async {
-    try {
-      String apiUrl = '';
-      if (id != null) {
-        apiUrl = "${Str.LIST_BASE_URL}vendors/$id";
-      } else {
-        apiUrl = "${Str.LIST_BASE_URL}vendors";
-      }
-      Map<String, String> reqMap ={
-        "name": name??'',
-        "type_id": vendorTypeId??'',
-        "address": address??'',
-        "phone": phone??'',
-        "expertise": expertise??'',
-        "description": description??'',
-        "latitude": latitude??'',
-        "longitude": longitude??'',
-        "website": website??'',
-        "platform": "TaskerApp",
-        "status": "1",
-      };
-      log('repository_side : $reqMap');
-      var request = http.MultipartRequest("POST", Utils.getUri(apiUrl));
-      request.headers.addAll(Utils.getHeaders());
-      request.fields.addAll(reqMap);
-
-      for (int i = 0; i < (images?.length ?? 0); i++) {
-        var file = images![i];
-        var multipartFile = http.MultipartFile.fromBytes(
-          'images[$i]',
-          (await file.readAsBytes()).toList(),
-          filename: file.path.split('/').last,
-        );
-        request.files.add(multipartFile);
-      }
-
-      http.StreamedResponse streamedResponse = await request.send();
-
-      if(streamedResponse.statusCode == 200 || streamedResponse.statusCode == 201){
-        final http.Response response =
-        await http.Response.fromStream(streamedResponse);
-        return json.decode(response.body);
-      }
-      else {
-        Utils.showSomethingWentWrong();
-        return null;
-      }
-    } catch (error) {
-      log('createVendor.exception : ${error.toString()}');
-      return null;
-    }
-  }
-
-  Future<bool?> deleteVendor(int? vendorId) async {
-    try {
-      String apiUrl = "${Str.LIST_BASE_URL}$_vendors/$vendorId";
-      final http.Response? response = await _apiClient.callDelete(apiUrl);
-      if (response != null) {
-        if (response.statusCode == 200) {
-          log('deleteVendor api.response.body: ${response.body}');
-          log('deleteVendor api.statusCode: ${response.statusCode}');
-          return true;
-        } else {
-          Utils.showSomethingWentWrong();
-          return null;
-        }
-      } else {
-        return null;
-      }
-    } catch (error) {
-      log('deleteVendor.exception : ${error.toString()}');
-      return null;
     }
   }
 
@@ -1140,52 +1054,6 @@ Future<Map<String, dynamic>?> getLocations() async {
       return null;
     }
   }
-
-  Future<bool?> deleteVendorType(int? Id) async {
-    try {
-      String apiUrl = "${Str.LIST_BASE_URL}$_vendorTypes/$Id";
-
-      final http.Response? response = await _apiClient.callDelete(apiUrl);
-      if (response != null) {
-        if (response.statusCode == 200) {
-          log('deleteVendor api.response.body: ${response.body}');
-          log('deleteVendor api.statusCode: ${response.statusCode}');
-          return true;
-        } else {
-          return null;
-        }
-      } else {
-        return null;
-      }
-    } catch (error) {
-      log('deleteVendor.exception : ${error.toString()}');
-      return null;
-    }
-  }
-
-  //delete image for vendor page
-  Future<bool?> deleteImages(int? id) async {
-    try {
-      String apiUrl = "${Str.LIST_BASE_URL}$_vendorImageDelete/$id";
-      log("deleteExpenseImages apiUrl: $apiUrl");
-      final http.Response? response = await _apiClient.callDelete(apiUrl);
-      if (response != null) {
-        if (response.statusCode == 200 || response.statusCode == 201) {
-          log('deleteExpenseImages api.response.body: ${response.body}');
-          log('deleteExpenseImages api.statusCode: ${response.statusCode}');
-          return true;
-        } else {
-          return null;
-        }
-      } else {
-        return null;
-      }
-    } catch (error) {
-      log('deleteExpenseImages.exception : ${error.toString()}');
-      return null;
-    }
-  }
-
 
   Future<Map<String, dynamic>?> getParts() async {
     try {
@@ -4448,5 +4316,207 @@ Future<Map<String, dynamic>?> getLocations() async {
       rethrow;
     }
   }
+
+  Future<Map<String, dynamic>?> getRoleList() async {
+    try {
+      String apiUrl = '${Str.BASE_URL}$_roleList';
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getEditRole({dynamic id}) async {
+    try {
+      String apiUrl = '${Str.BASE_URL}$_editRole/$id';
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getEditUserRole({dynamic id}) async {
+    try {
+      String apiUrl = '${Str.BASE_URL}$_editUserRole/$id';
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> saveUserRole({dynamic id, Map<String, dynamic>? body}) async {
+    try {
+      String apiUrl = '';
+      if(id != null){
+        apiUrl = '${Str.BASE_URL}$_updateUserRole/$id';
+      }
+      else{
+        apiUrl = '${Str.BASE_URL}$_addUserRole';
+      }
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> deleteRole(dynamic id) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_deleteRole/$id";
+      final http.Response? response = await _apiClient.callDelete(apiUrl);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>?> getVendorType() async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_vendorTypes";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      if (response?.isSuccess == true) {
+        return await response.mapListData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> addOrEditVendorType({dynamic id, dynamic body}) async {
+    try {
+      String apiUrl = '';
+      final http.Response? response;
+      if (id != null) {
+        apiUrl = "${Str.LIST_BASE_URL}$_vendorTypes/$id";
+        response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body, method: 'PUT');
+      } else {
+        apiUrl = "${Str.LIST_BASE_URL}$_vendorTypes";
+        response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body);
+      }
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> deleteVendorType(dynamic id) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_vendorTypes/$id";
+      final http.Response? response = await _apiClient.callDelete(apiUrl);
+      if (response?.statusCode == 204) {
+        return {};
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getVendors() async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_vendors";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> deleteVendorImages(dynamic id) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_vendorImageDelete/$id";
+      final http.Response? response = await _apiClient.callDelete(apiUrl);
+      if (response?.statusCode == 204) {
+        return {"message" : "Deleted successfully!"};
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> addOrUpdateVendor({dynamic id, dynamic body, dynamic infusedFiles}) async {
+    try {
+      String apiUrl = '';
+      if (id != null) {
+        apiUrl = "${Str.LIST_BASE_URL}$_vendors/$id";
+      } else {
+        apiUrl = "${Str.LIST_BASE_URL}$_vendors";
+      }
+      final http.Response? response = await _apiClient.callPostMethodWithBodyDynamic(apiUrl, body: body, infusedFiles: infusedFiles);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getEditVendors(dynamic id) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_vendors/$id/edit";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> deleteVendor(dynamic id) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_vendors/$id";
+      final http.Response? response = await _apiClient.callDelete(apiUrl);
+      if (response?.isSuccess == true) {
+        return {"message" : "Deleted successfully!"};
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+
 
 }

@@ -7,6 +7,7 @@ import 'package:fairpytasker/UI/Manage%20Custom%20Data/Sub%20Category/subcategor
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/UI/vehicle_main_view_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/attendance/attendance_view.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/private_rental_customers/private_rental_customers.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/vendors/ui/vendor_main_ui.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
@@ -16,7 +17,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'Customers/customer_view_ui.dart';
 import 'Location/View/location_view.dart';
 import 'Vehicle Status/vehicle_status_add_ui.dart';
-import 'Vendor/vendor_ui/vendor_view.dart';
 
 class ManageCustomDataMenuUI extends StatelessWidget {
   const ManageCustomDataMenuUI({super.key});
@@ -80,7 +80,7 @@ class ManageCustomDataMenuUI extends StatelessWidget {
             _buildCard(
               icon: Icons.business,
               title: 'Vendor',
-              onTap: () => context.push(VendorView()),
+              onTap: () => context.push(const VendorMainUI()),
             ),
             _buildCard(
               icon: Icons.location_on,

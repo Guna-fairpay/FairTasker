@@ -61,7 +61,7 @@ class DrawerView extends StatelessWidget {
       width: context.width * 0.65,
       shadowColor: AppC.appColor,
       surfaceTintColor: AppC.appbgColor,
-      shape: ContinuousRectangleBorder(borderRadius: BorderRadiusGeometry.horizontal(right: Radius.circular(26.spMin))),
+      shape: ContinuousRectangleBorder(borderRadius: BorderRadius.horizontal(right: Radius.circular(26.spMin))),
       child: Container(
         decoration: const BoxDecoration(color: AppC.white),
         clipBehavior: Clip.antiAliasWithSaveLayer,
