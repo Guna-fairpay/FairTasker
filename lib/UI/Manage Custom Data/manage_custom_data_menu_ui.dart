@@ -17,7 +17,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'Customers/customer_view_ui.dart';
 import 'Location/View/location_view.dart';
 import 'Vehicle Status/vehicle_status_add_ui.dart';
-import 'Vendor/vendor_ui/vendor_view.dart';
 
 class ManageCustomDataMenuUI extends StatelessWidget {
   const ManageCustomDataMenuUI({super.key});
@@ -78,11 +77,6 @@ class ManageCustomDataMenuUI extends StatelessWidget {
               title: 'Vehicle',
               onTap: () => context.push(const VehicleMainViewUi()),
             ),
-            // _buildCard(
-            //   icon: Icons.business,
-            //   title: 'Vendor',
-            //   onTap: () => context.push(VendorView()),
-            // ),
             _buildCard(
               icon: Icons.business,
               title: 'Vendor',

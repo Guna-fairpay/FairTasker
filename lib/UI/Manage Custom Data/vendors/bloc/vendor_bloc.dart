@@ -4,10 +4,12 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
+import 'package:fairpytasker/Utilities/Str.dart';
 import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
+import 'package:fbroadcast/fbroadcast.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,6 +21,7 @@ part 'vendor_state.dart';
 class VendorBloc extends Bloc<VendorEvent, VendorState> {
   final APiRepository _apiRepository = APiRepository();
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  final FBroadcast _broadcast = FBroadcast.instance();
   AutovalidateMode? autoValidateMode;
   TextEditingController searchController = TextEditingController();
 
@@ -51,8 +54,11 @@ class VendorBloc extends Bloc<VendorEvent, VendorState> {
   bool isEdit = false;
   bool isLatLong = false;
 
-  Future<List<Map<String, dynamic>>?> _getVendorType() async => await _apiRepository.getVendorType();
-  Future<Map<String, dynamic>?> _getVendors() async => await _apiRepository.getVendors();
+  Future<List<Map<String, dynamic>>> _getVendors() async => await getIt<CommonService>().getVendorsList(reset: true);
+  Future<List<Map<String, dynamic>>> _getVendorType() async => await getIt<CommonService>().getVendorTypeList(reset: true);
+
+  // Future<List<Map<String, dynamic>>?> _getVendorType() async => await _apiRepository.getVendorType();
+  // Future<Map<String, dynamic>?> _getVendors() async => await _apiRepository.getVendors();
   Future<Map<String, dynamic>?> _getEditVendors({dynamic id}) async => await _apiRepository.getEditVendors(id);
   Future<Map<String, dynamic>?> _addOrUpdateVendors({dynamic id, dynamic body, dynamic files}) async => await _apiRepository.addOrUpdateVendor(infusedFiles: files, id: id, body: body);
   Future<Map<String, dynamic>?> _deleteVendors({dynamic id,}) async => await _apiRepository.deleteVendor(id,);
@@ -73,10 +79,23 @@ class VendorBloc extends Bloc<VendorEvent, VendorState> {
     on<GetDirectionEvent>(_getDirectionEvent);
     on<ClearLatLongEvent>(_onClearLatLongEvent);
     on<NavigationEvent>(_onNavigationEvent);
+    on<RefreshEvent>(_onRefreshEvent);
+    _broadcast.register('refresh_vendor_type', (value, callback) => add(RefreshEvent()));
+  }
+
+  Future<void> _onRefreshEvent(RefreshEvent event, Emitter<VendorState> emit) async {
+    try {
+      var response = await _getVendorType();
+      vendorType = List.from(response ?? []);
+      emit(CommonState());
+    } catch (e) {
+      _onError(e, emit);
+    }
   }
 
   Future<void> _onInitialEvent(InitialEvent event, Emitter<VendorState> emit) async {
     try {
+      if(event.title != null) nameController.text = event.title;
       emit(LoadingState());
       await fetchVendor();
       emit(CommonState());
@@ -139,6 +158,9 @@ class VendorBloc extends Bloc<VendorEvent, VendorState> {
       );
      if(response?['data'] != null){
        await fetchVendor();
+       _broadcast.broadcast(Str.addToDoRefresh);
+       _broadcast.broadcast(Str.editToDoRefresh);
+       _broadcast.broadcast(Str.refetchVendorLocation);
        emit(SuccessState(response?['message']));
        clearAll();
       }else{
@@ -154,6 +176,9 @@ class VendorBloc extends Bloc<VendorEvent, VendorState> {
       var response = await _deleteVendors(id: event.data['id']);
       if(response != null){
         await fetchVendor();
+        _broadcast.broadcast(Str.addToDoRefresh);
+        _broadcast.broadcast(Str.editToDoRefresh);
+        _broadcast.broadcast(Str.refetchVendorLocation);
         emit(SuccessState(response['message']));
       }else{
         emit(ErrorState(response?['message']));
@@ -322,9 +347,10 @@ class VendorBloc extends Bloc<VendorEvent, VendorState> {
 
   Future<void> fetchVendor() async {
     var response = await _getVendorType();
-    vendorType = List.from(response ?? []);
+    vendorType = List.from(response);
     var response1 = await _getVendors();
-    apiResponse = List.from(response1?['data'] ?? []);
+     apiResponse = response1;
+    // apiResponse = List.from(response1?['data'] ?? []);
     apiResponse.sort((b, a) => a['created_at'].compareTo(b['created_at']));
     _unFilteredResponse = apiResponse;
     filteredResponse = paginateList(

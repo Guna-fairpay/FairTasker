@@ -5,7 +5,12 @@ abstract class VendorEvent extends Equatable{
   List<Object?> get props => [];
 }
 
-class InitialEvent extends VendorEvent {}
+class InitialEvent extends VendorEvent {
+  final dynamic title;
+  InitialEvent(this.title);
+  @override
+  List<Object?> get props => [title];
+}
 
 class VendorTypeEvent extends VendorEvent {
   final dynamic title;
@@ -74,3 +79,5 @@ class GetDirectionEvent extends VendorEvent {
 class ClearLatLongEvent extends VendorEvent {}
 
 class NavigationEvent extends VendorEvent {}
+
+class RefreshEvent extends VendorEvent {}

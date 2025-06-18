@@ -29,7 +29,8 @@ part 'vendor_text_form_field_ui.dart';
 part 'vendor_listing_ui.dart';
 
 class VendorMainUI extends StatelessWidget {
-  const VendorMainUI({super.key});
+  final dynamic title;
+  const VendorMainUI({super.key, this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +41,7 @@ class VendorMainUI extends StatelessWidget {
         onClose: context.pop,
       ),
       body: BlocProvider(
-        create: (context) => VendorBloc()..add(InitialEvent()),
+        create: (context) => VendorBloc()..add(InitialEvent(title)),
         child: BlocListener<VendorBloc, VendorState>(
             listener: (context, state) {
               if(state is LoadingState) {
