@@ -349,6 +349,7 @@ class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
           _broadcast.broadcast(Str.addToDoRefresh);
           _broadcast.broadcast(Str.editToDoRefresh);
           _broadcast.stickyBroadcast("vehicle_refresh", value: true);
+          _broadcast.broadcast('set_vehicle_is_updated');
           // _broadcast.broadcast("todo_view");
           TaskerHelper.instance.refresh();
           Toaster.showSuccess("Update successfully");
@@ -489,6 +490,7 @@ class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
           _broadcast.stickyBroadcast("vehicle_refresh", value: true);
           _broadcast.broadcast(Str.addToDoRefresh);
           _broadcast.broadcast(Str.editToDoRefresh);
+          _broadcast.broadcast('set_vehicle_is_updated');
           _broadcast.broadcast("todo_view");
           return data;
         } else {

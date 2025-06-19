@@ -306,7 +306,7 @@ class APiRepository {
 
   String get _updateExpenseTemp => "updateExpenseTemp";
 
-  String get _update_Expense => "update-expense";
+  String get _update_expense => "update-expense";
 
   String get _editExpenseTemp => "editExpenseTemp";
 
@@ -3387,7 +3387,7 @@ Future<Map<String, dynamic>?> getLocations() async {
 
   Future<Map<String, dynamic>?> updateExpenseTemp({required Map<String, dynamic> body}) async {
     try{
-      String apiUrl = "${Str.BASE_URL}$_update_Expense";
+      String apiUrl = "${Str.BASE_URL}$_update_expense";
       final http.Response? response = await _apiClient.callPostMethodWithBody(
         apiUrl,
         body:body,
