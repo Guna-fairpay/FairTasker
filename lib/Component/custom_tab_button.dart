@@ -13,6 +13,7 @@ class CustomTabButton<T> extends StatelessWidget {
   final T value, selectedValue;
   final Decoration? decoration;
   final Color? selectedBorderColor;
+  final Color? overrideTextColor;
   final IconData? icon;
 
   const CustomTabButton(
@@ -24,6 +25,7 @@ class CustomTabButton<T> extends StatelessWidget {
       this.tapBorderRaius,
       this.icon,
       this.selectedBorderColor,
+      this.overrideTextColor,
       required this.buttonText,
       required this.value,
       required this.selectedValue});
@@ -62,7 +64,7 @@ class CustomTabButton<T> extends StatelessWidget {
             style: textStyle ??
                 context.textTheme.labelLarge?.copyWith(
                   fontSize: 12.sp,
-                    color: (selectedValue != value) ? null : AppC.appColor,
+                    color: overrideTextColor ?? ((selectedValue != value) ? null : AppC.appColor),
                     fontWeight: (selectedValue != value)
                         ? FontWeight.normal
                         : FontWeight.bold,

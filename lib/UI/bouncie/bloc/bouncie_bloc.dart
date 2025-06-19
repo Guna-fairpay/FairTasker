@@ -15,19 +15,25 @@ class BouncieBloc extends Bloc<BouncieEvent, BouncieState> {
   final APiRepository _aPiRepository = APiRepository();
   Map<String, dynamic>? _codeResponse, _tokenResponse;
   List<Map<String, dynamic>>? _bouncies;
-  // List<Map<String, dynamic>>? lists = [];
   BouncieBloc() : super(LoadingState()) {
    on<InitialEvent>(_onInitialEvent);
    on<ViewBouncieEvent>(_onViewBouncieEvent);
   }
 
   List<Map<String, dynamic>>? get lists {
-    var vinList = _bouncies?.map((e) => e['vin'] ?? "").toList();
-    var lists = _vehicles.where((element) => vinList?.contains(element['vin']) ?? false).toList();
+    var vinList = _bouncies?.map((e) => (e['vin'] ?? "").toString().toUpperCase()).toList();
+    Console.of.log(vinList?.length, name: "vinList_length");
+    var lists = _vehicles.where((element) => vinList?.contains(element['vin'].toString().toUpperCase()) ?? false).toList();
     for (var element in lists) {
-      element['bouncie'] = _bouncies?.firstWhereOrNull((e) => e['vin'] == element['vin']);
+      element['bouncie'] = _bouncies?.firstWhereOrNull((e) => e['vin'].toString().toUpperCase() == element['vin'].toString().toUpperCase());
     }
-
+    lists.sort((a, b) {
+      int indexA = (vinList?.indexOf(a["vin"].toString().toUpperCase()) ?? 0);
+      int indexB = (vinList?.indexOf(b["vin"].toString().toUpperCase()) ?? 0);
+      return indexA.compareTo(indexB);
+    });
+    Console.of.log(lists.length, name: "lists_length");
+    Console.of.log(vinList, name: "VIN_LIST");
     return lists;
   }
 

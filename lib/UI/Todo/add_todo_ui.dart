@@ -14,6 +14,7 @@ import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CreateTodoUI extends StatelessWidget {
   final bool showHeader;
@@ -151,6 +152,8 @@ class CreateTodoUI extends StatelessWidget {
             }
           },
           child: SafeArea(
+            top: true,
+            minimum: 10.spMin.topPadding,
             child: AddTodoMainForm(showHeader: showHeader),
           )),
     );

@@ -309,7 +309,9 @@ class CommonService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getGroupPersons() async {
+  Future<List<Map<String, dynamic>>> getGroupPersons({bool reset = false}) async {
+    if (reset) groupPersonList.clear();
+    if (groupPersonList.isNotEmpty) return groupPersonList;
     try {
       var response = await _apiRepository.getGroupPersonList();
       groupPersonList = response?.data ?? [];
