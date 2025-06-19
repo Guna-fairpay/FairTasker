@@ -78,20 +78,19 @@ class VehicleStatusBloc extends Bloc<VehicleStatusEvent, VehicleStatusState> {
       var response = await Future.wait([
         _getVehicleStatusCategories(),
         _getVehicleStatus(statusId: 1),
-        _getCohorts(),
         _getFilter(1)
       ]);
       var categories = response[0];
       var status = response[1];
-      var cohorts = response[2];
-      var filter = response[3];
+      var cohorts = await _getCohorts();
+      var filter = response[2];
       vehicleStatusCategories =
           List<Map<String, dynamic>>.from(categories?['data'] ?? []);
       vehicleStatus = List<Map<String, dynamic>>.from(status?['data'] ?? []);
       var vehiclesCount =
           List<Map<String, dynamic>>.from(status?['vehiclesCount'] ?? []);
       cohortsData =
-          List<Map<String, dynamic>>.from(cohorts?['cohortsData'] ?? []);
+          List<Map<String, dynamic>>.from(cohorts);
       cohortsData.insert(0, {'cohort': 'All', 'id': 0});
       vehicleStatusCategories = vehicleStatusCategories
           .map((e) => e
@@ -324,8 +323,8 @@ class VehicleStatusBloc extends Bloc<VehicleStatusEvent, VehicleStatusState> {
           {dynamic statusId, dynamic cohortId}) async =>
       await _aPiRepository.getVehicleStatus(statusId, cohortId: cohortId);
 
-  Future<Map<String, dynamic>?> _getCohorts() async =>
-      await _aPiRepository.getCohorts();
+  Future<List<Map<String, dynamic>>> _getCohorts() async =>
+      await getIt<CommonService>().getCohorts();
 
   Future<Map<String, dynamic>?> _getTuroVehiclesList() async =>
       await _aPiRepository.getTuroVehiclesList();

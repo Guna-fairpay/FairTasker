@@ -207,7 +207,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
   }
 
   Future<void> _findReservationColor(String? vin) async {
-    if (vin == null) return;
+    if ((vin == null) || (isNextTask)) return;
     var response = await getIt<CommonService>().findVehicleReservation(vin: vin);
     Console.of.log("${response?['identifier_id']}", name: "AddToDoBloc");
     existingRefId = response?['reference_id'] ?? "";
