@@ -7,12 +7,14 @@ class FeedbackTabButton extends StatelessWidget {
   final int value, selectedValue;
   final bool showBade;
   final int? badgeCount;
+  final Color? overrideTextColor;
   final Function(int val)? onPressed;
 
   const FeedbackTabButton({super.key,
     this.onPressed,
     this.showBade = false,
     this.badgeCount,
+    this.overrideTextColor,
     required this.buttonText,
     required this.value,
     required this.selectedValue});
@@ -23,6 +25,7 @@ class FeedbackTabButton extends StatelessWidget {
       count: badgeCount,
       showBadge: showBade,
       child: CustomTabButton<int>(
+        overrideTextColor: overrideTextColor,
         buttonText: buttonText,
         value: value,
         selectedValue: selectedValue,

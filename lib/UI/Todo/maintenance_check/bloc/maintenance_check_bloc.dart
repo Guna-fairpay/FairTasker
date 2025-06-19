@@ -47,7 +47,7 @@ class MaintenanceCheckBloc extends Bloc<MaintenanceCheckEvent, MaintenanceCheckS
   void _onInitialEvent(MaintenanceCheckInitialEvent event, Emitter<MaintenanceCheckState> emit) async {
     try {
       _editToDoModel = event.todoItem;
-      _selectedVehicle = event.selectedVehicle;
+      _selectedVehicle = Map<String, dynamic>.from(event.selectedVehicle ?? {});
       emit(MaintenanceCheckLoadingState());
       var response = await Future.wait([
         _fetchMaintenanceCheckList(),

@@ -18,7 +18,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class MaintenanceCheckUi extends StatelessWidget {
   final TextEditingController? commentsController;
   final Map<String, dynamic>? editToDo;
-  final Map<String, dynamic>? selectedVehicle;
+  final dynamic selectedVehicle;
   final VoidCallback? onClose;
   const MaintenanceCheckUi({super.key, this.commentsController, this.editToDo, this.onClose, this.selectedVehicle});
 
