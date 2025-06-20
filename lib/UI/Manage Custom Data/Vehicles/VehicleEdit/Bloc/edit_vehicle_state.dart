@@ -1,6 +1,5 @@
 
-import 'dart:math';
-import 'package:equatable/equatable.dart';
+part of 'edit_vehicle_bloc.dart';
 
 abstract class EditVehicleState extends Equatable {
   @override
