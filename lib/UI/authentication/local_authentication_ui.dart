@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:fairpytasker/Bloc/local_authentication_bloc.dart';
 import 'package:fairpytasker/Event/local_authentication_event.dart';
 import 'package:fairpytasker/State/local_authentication_state.dart';
-import 'package:fairpytasker/UI/authentication_ui.dart';
+import 'package:fairpytasker/UI/authentication/authentication_ui.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/assets.dart';
 import 'package:fairpytasker/Utilities/num.dart';

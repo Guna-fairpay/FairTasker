@@ -21,7 +21,7 @@ import 'package:package_info_plus/package_info_plus.dart' show PackageInfo;
 import 'package:r_icon_pro/r_icon_pro.dart';
 import '../UI/Manage Custom Data/reports/reports_view.dart';
 import '../UI/Settings/google_authenticator.dart';
-import '../UI/authentication_ui.dart';
+import '../UI/authentication/authentication_ui.dart';
 import '../UI/Manage Custom Data/manage_custom_data_menu_ui.dart';
 import '../UI/Voice To Text/UI/voice_to_text_ui.dart';
 import '../Utilities/str.dart';

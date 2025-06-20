@@ -1,8 +1,8 @@
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/UI/Splash/bloc/splash_bloc.dart';
-import 'package:fairpytasker/UI/local_authentication_ui.dart';
+import 'package:fairpytasker/UI/authentication/local_authentication_ui.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:fairpytasker/UI/authentication_ui.dart';
+import 'package:fairpytasker/UI/authentication/authentication_ui.dart';
 import 'package:fairpytasker/Utilities/assets.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
