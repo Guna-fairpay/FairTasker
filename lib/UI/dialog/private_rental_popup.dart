@@ -5,12 +5,12 @@ import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import '../../../Utilities/Utils.dart';
-import '../../../Utilities/appC.dart';
-import '../../../Utilities/num.dart';
+import '../../Utilities/Utils.dart';
+import '../../Utilities/appC.dart';
+import '../../Utilities/num.dart';
 
-class MaintenanceChecklistPopup{
-  MaintenanceChecklistPopup._();
+class PrivateRentalDialog{
+  PrivateRentalDialog._();
   static void show(BuildContext context,{
     VoidCallback? onCompleted,
     VoidCallback? onDelete,
@@ -18,7 +18,7 @@ class MaintenanceChecklistPopup{
     await showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => _DialogView(
+      builder: (context) => _PrivateRentalDialogView(
         onCompleted: onCompleted,
         onDelete: onDelete,
       ),
@@ -26,10 +26,10 @@ class MaintenanceChecklistPopup{
   }
 }
 
-class _DialogView extends StatelessWidget {
+class _PrivateRentalDialogView extends StatelessWidget {
   final VoidCallback? onCompleted;
   final VoidCallback? onDelete;
-  const _DialogView({this.onCompleted, this.onDelete});
+  const _PrivateRentalDialogView({this.onCompleted, this.onDelete});
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -62,8 +62,8 @@ class _DialogView extends StatelessWidget {
                 }, bgColor: AppC.green),
                 const SizedBox(width: 20,),
                 Utils.getAddFilledButton("Delete", () {
-                  onDelete?.call();
                   Navigator.pop(context);
+                  onDelete?.call();
                 }, bgColor: AppC.red),
               ],
             ),

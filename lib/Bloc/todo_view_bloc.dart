@@ -697,18 +697,18 @@ class TodoViewBloc extends Bloc<TodoViewEvent, TodoViewState> {
 
     on<GetCheckList>((event, emit) async {
       emit(TodoListLoading());
-      await todoListRepo.getCheckList().then((value) {
-        emit(CheckListLoaded(data: value?.data ?? []));
-      });
+      // await todoListRepo.getCheckList().then((value) {
+      //   emit(CheckListLoaded(data: value?.data ?? []));
+      // });
     });
 
     on<GetMaintenanceCheckList>((event, emit) async {
       emit(TodoListLoading());
-      await todoListRepo.getMaintenanceCheckList().then((value) {
-        emit(MaintenanceCheckListLoaded(
-          data: value?.data ?? [],
-        ));
-      });
+      // await todoListRepo.getMaintenanceCheckList().then((value) {
+      //   emit(MaintenanceCheckListLoaded(
+      //     data: value?.data ?? [],
+      //   ));
+      // });
     });
 
     on<GetBranchList>((event, emit) async {
