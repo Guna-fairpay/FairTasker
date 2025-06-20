@@ -60,7 +60,7 @@ class VehicleDetailsUi extends StatelessWidget {
               ),
               VehicleDetailDualValueItem(
                 firstLabel: "Wholesale Amount",
-                lastLabel: "Vehicle Status",
+                lastLabel: "vehicle_status",
                 firstValue: model?['wholesale_amount'],
                 lastValue: getIt<CommonService>().activeVehicleCountList.firstWhereOrNull((element) => element['id'] == model?['vehicle_status'])?['category_name'] ?? "" ,
               ),

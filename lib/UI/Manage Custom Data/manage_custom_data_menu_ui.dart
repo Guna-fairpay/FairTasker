@@ -114,7 +114,7 @@ class ManageCustomDataMenuUI extends StatelessWidget {
             if (kDebugMode)
             _buildCard(
               icon: Iconsax.status,
-              title: 'Vehicle Status',
+              title: 'vehicle_status',
               onTap: () async {
                 await Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => const VehicleStatusAddUI(),
