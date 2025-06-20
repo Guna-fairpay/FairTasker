@@ -1,5 +1,6 @@
 import 'package:fairpytasker/UI/Manage%20Employees/manage_employees.dart';
 import 'package:fairpytasker/UI/Task%20List/tasklist_ui.dart';
+import 'package:fairpytasker/UI/approve_task/ui/approve_task_main_ui.dart';
 import 'package:fairpytasker/UI/bouncie/bouncie_main_ui.dart';
 import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/UI/import_task/import_task_main_ui.dart';
@@ -120,14 +121,14 @@ class DrawerView extends StatelessWidget {
                     context,
                     icon: RIcon.Checklist_Minimalistic,
                     title: "Approve Task",
-                    onTap: () => context.push(TasklistUi(), fullscreenDialog: true),
+                    onTap: () => context.push(const ApproveTaskMainUI()),
                   ),
                   _buildDivider(),
                   _buildListTile(
                     context,
                       icon:  RIcon.History_2,
                       title: "Leave Management",
-                      onTap: () => navigateToPage(context, const LeaveViewMainPage()),///LeaveManagementViewUI
+                      onTap: () => navigateToPage(context, const LeaveViewMainPage()),
                   ),
                   _buildDivider(),
                   _buildListTile(

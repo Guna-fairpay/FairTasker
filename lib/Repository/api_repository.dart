@@ -3,9 +3,7 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:fairpytasker/Response/assigned_to_response.dart';
 import 'package:fairpytasker/Response/cohorts_response.dart';
-import 'package:fairpytasker/Response/employee_response.dart';
 import 'package:fairpytasker/Response/general_response.dart';
-import 'package:fairpytasker/Response/leave_management_employee_list_response.dart';
 import 'package:fairpytasker/Response/user_group_response.dart';
 import 'package:fairpytasker/Response/vehicle_history_response.dart';
 import 'package:fairpytasker/UI/tasker/helper/tasker_helper.dart';
@@ -21,10 +19,8 @@ import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fairpytasker/data/api_client.dart';
 import 'package:flutter/material.dart' show TimeOfDay;
 import 'package:http/http.dart' as http;
-import 'package:permission_handler/permission_handler.dart';
 import '../Response/GetActiveHoursResponse.dart';
 import '../Response/GetWorkingHoursData.dart';
-import '../Response/punchList_Response.dart';
 import '../Response/subcategories_response.dart';
 import '../Response/expense_response.dart';
 import '../Response/todo_list_response.dart';
@@ -310,7 +306,7 @@ class APiRepository {
 
   String get _updateExpenseTemp => "updateExpenseTemp";
 
-  String get _update_Expense => "update-expense";
+  String get _update_expense => "update-expense";
 
   String get _editExpenseTemp => "editExpenseTemp";
 
@@ -445,6 +441,8 @@ class APiRepository {
   String get _addUserRole => "addRole";
 
   String get _deleteRole => "deleteRole;";
+
+  String get _vehicleExpenses => "vehilceExpenses";
 
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
@@ -951,14 +949,14 @@ class APiRepository {
     }
   }
 
-  Future<ExpenseResponse?> getVehicleExpenseList(
+  Future<Map<String, dynamic>?> getVehicleExpenseList(
       {String? minDate, String? maxDate}) async {
     try {
       String apiUrl =
           '${Str.LIST_BASE_URL}$_expenses/all?minDate=$minDate&maxDate=$maxDate&platformCustom=tasker-app';
       final http.Response? response = await _apiClient.callGetMethod(apiUrl);
       var mapData = await response.mapData;
-      return (mapData != null) ? ExpenseResponse.fromJson(mapData) : null;
+      return mapData;
     } catch (error) {
       rethrow;
     }
@@ -970,8 +968,11 @@ class APiRepository {
       String apiUrl = '${Str.LIST_BASE_URL}$_expenseApprove';
       final http.Response? response = await _apiClient.callPostMethod(apiUrl,
           body: jsonEncode({'approved': approved, 'expenseId': id}));
-      var mapData = await response.mapData;
-      return mapData;
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
     } catch (error) {
       rethrow;
     }
@@ -1176,14 +1177,15 @@ Future<Map<String, dynamic>?> getLocations() async {
     }
   }
 
-  Future<SubCategoriesResponse?> getExpenseTo() async {
+  Future<Map<String, dynamic>?> getExpenseTo() async {
     try {
       String apiUrl = '${Str.LIST_BASE_URL}$_expensesCategory';
       final http.Response? response = await _apiClient.callGetMethod(apiUrl);
-      var mapData = await response.mapData;
-      return (mapData != null)
-          ? SubCategoriesResponse.fromJson(mapData)
-          : null;
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
     } catch (error) {
       rethrow;
     }
@@ -3385,7 +3387,7 @@ Future<Map<String, dynamic>?> getLocations() async {
 
   Future<Map<String, dynamic>?> updateExpenseTemp({required Map<String, dynamic> body}) async {
     try{
-      String apiUrl = "${Str.BASE_URL}$_update_Expense";
+      String apiUrl = "${Str.BASE_URL}$_update_expense";
       final http.Response? response = await _apiClient.callPostMethodWithBody(
         apiUrl,
         body:body,
@@ -4565,6 +4567,25 @@ Future<Map<String, dynamic>?> getLocations() async {
         throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
       }
     } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> vehicleExpense(
+      {String? minDate, String? maxDate}) async {
+    try {
+      String apiUrl = '${Str.BASE_URL}$_vehicleExpenses';
+      var params = {
+        "minDate": minDate,
+        "maxDate": maxDate,
+      };
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl, params:params );
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    } catch (error) {
       rethrow;
     }
   }

@@ -11,6 +11,7 @@ import "package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_List/UI/expense_
 import "package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_Add/UI/vehicle_expense_add_ui.dart";
 import "package:fairpytasker/Utilities/Utils.dart";
 import "package:fairpytasker/Utilities/appC.dart";
+import "package:fairpytasker/core/app/extension/datetime_extension.dart";
 import "package:fairpytasker/core/app/extension/sized_extension.dart";
 import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
@@ -24,10 +25,7 @@ class ExpenseVehicleViewUI extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider<ExpenseBloc>(
         create: (context) => ExpenseBloc()
-          ..add(GetVehicleExpenseData(
-              minDate: DateTime.now().subtract(const Duration(days: 7))
-                  .format('yyyy-MM-dd').toString(),
-              maxDate: DateTime.now().format('yyyy-MM-dd').toString())),
+          ..add(const GetVehicleExpenseData()),
         child: BlocListener<ExpenseBloc, ExpenseState>(
           listener: (context, state) {
             state.isLoading ? EasyLoading.show() : EasyLoading.dismiss();
@@ -47,8 +45,8 @@ class ExpenseVehicleViewUI extends StatelessWidget {
                           onDateRangeSelected: (range) {
                             context.read<ExpenseBloc>().add(
                                 UpdateDateRangeEvent(selectedRange: range));
-                            String startDate = range.start.toString();
-                            String endDate = range.end.toString();
+                            dynamic startDate = range.start.toFormat().toString();
+                            dynamic endDate = range.end.toFormat().toString();
                             context.read<ExpenseBloc>().add(
                                 GetVehicleExpenseData(
                                     minDate: startDate, maxDate: endDate));

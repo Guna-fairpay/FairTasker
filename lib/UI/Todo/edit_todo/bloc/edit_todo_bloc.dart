@@ -390,7 +390,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       final matches = dateRegExp.allMatches(todoResponse?['recurring']??[]).toList();
       if (matches.isNotEmpty) {
         String startDate = matches[0].group(0)!;
-        DateTime parsedStart = DateFormat('MM-dd-yyyy').parse(startDate);
+        DateTime parsedStart = DateFormat('yyyy-MM-dd').parse(startDate);
         recurringStartDate = parsedStart;
         selectedStartDate = DateFormat('yyyy-MM-dd').parse(todoResponse?['todo_date']);
         selectedEndDate = DateFormat('yyyy-MM-dd').parse(todoResponse?['recurring_last_date']);
