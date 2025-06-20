@@ -7,7 +7,6 @@ import 'package:fairpytasker/UI/Todo/edit_todo/bloc/edit_todo_state.dart';
 import 'package:fairpytasker/UI/Todo/pre_checks/ui/precheck_main_ui.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/bloc/edit_todo_bloc.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
-import 'package:fairpytasker/UI/Todo/Set_vehicle/set_vehicle_ui.dart';
 import 'package:fairpytasker/UI/Todo/Odometer/odometer_view.dart';
 import 'package:fairpytasker/Component/feedback_tab_button.dart';
 import 'package:fairpytasker/UI/Todo/add_todo_ui.dart';

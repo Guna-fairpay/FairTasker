@@ -11,7 +11,7 @@ import 'package:fairpytasker/Response/cumulative_cost_response.dart';
 import 'package:fairpytasker/Response/expense_summary_details_response.dart';
 import 'package:fairpytasker/Response/expense_summary_response.dart';
 import 'package:fairpytasker/Response/location_response.dart';
-import 'package:fairpytasker/UI/Todo/maintenance/maintenance_check_list_response.dart';
+
 import 'package:fairpytasker/Response/parts_response.dart';
 import 'package:fairpytasker/Response/supplies_response.dart';
 import 'package:fairpytasker/Response/task_category_group_response.dart';
@@ -44,7 +44,7 @@ import '../Response/GetActiveHoursResponse.dart';
 import '../Response/GetWorkingHoursData.dart';
 import '../Response/branch_response.dart';
 import '../Response/category_config_response.dart';
-import '../UI/Todo/CheckList/checklist_response.dart';
+
 import '../Response/cohorts_response.dart';
 import '../Response/create_fix_task_data.dart';
 import '../Response/expense_other_categories.dart';
@@ -63,9 +63,8 @@ import '../Response/vehicle_status_response.dart';
 import '../Response/vehicle_status_response_list.dart';
 import '../Response/working_history_response.dart';
 import '../Response/working_hours_get_response.dart';
-import '../UI/Todo/Private Rental Check/private_rental_check_response.dart';
 import '../UI/Todo/create_sparekey_data.dart';
-import '../UI/Todo/maintenance/get_todolist_Response.dart';
+
 
 class TodoListRepo {
   ApiClient apiClient = ApiClient();
@@ -2291,84 +2290,6 @@ class TodoListRepo {
       }
     } catch (error) {
       log('sendChatMessages.exception : ${error.toString()}');
-      return null;
-    }
-  }
-
-  Future<ChecklistResponse?> getCheckList() async {
-    try {
-      String apiUrl = "${Str.BASE_URL}getCheckList";
-      debugPrint("getCheckList apiUrl: $apiUrl");
-      final http.Response? response = await apiClient.callGetMethod(
-        apiUrl,
-      );
-      if (response != null) {
-        ChecklistResponse checklistResponse =
-        ChecklistResponse.fromJson(jsonDecode(response.body));
-        return checklistResponse;
-      } else {
-        return null;
-      }
-    } catch (error) {
-      log('getCheckList.exception : ${error.toString()}');
-      return null;
-    }
-  }
-
-  Future<PrivateRentalCheckResponse?> getPrivateRentalCheck() async {
-    try {
-      String apiUrl = "${Str.BASE_URL}getPrivateRentalCheck";
-      debugPrint("getPrivateRentalCheck apiUrl: $apiUrl");
-      final http.Response? response = await apiClient.callGetMethod(
-        apiUrl,);
-      if (response != null) {
-        PrivateRentalCheckResponse privateRentalCheckResponse =
-        PrivateRentalCheckResponse.fromJson(jsonDecode(response.body));
-        return privateRentalCheckResponse;
-      } else {
-        return null;
-      }
-      } catch(e) {
-      log('privateRentalCheckResponse.exception : ${e.toString()}');
-      return null;
-      }
-  }
-
-  Future<MaintenanceCheckListResponse?> getMaintenanceCheckList() async {
-    try {
-      String apiUrl = "${Str.BASE_URL}getMaintanceCheckList";
-      debugPrint("getMaintenanceCheckList apiUrl: $apiUrl");
-      final http.Response? response = await apiClient.callGetMethod(
-        apiUrl,
-      );
-      if (response != null) {
-        MaintenanceCheckListResponse maintenanceCheckListResponse =
-        MaintenanceCheckListResponse.fromJson(json.decode(response.body));
-        return maintenanceCheckListResponse;
-      } else {
-        return null;
-      }
-    } catch (error) {
-      log('getMaintenanceCheckList.exception : ${error.toString()}');
-      return null;
-    }
-  }
-  Future<GetTodoListResponse?> getTodoList() async {
-    try {
-      String apiUrl = "${Str.BASE_URL}todo";
-      debugPrint("getTodoList apiUrl: $apiUrl");
-      final http.Response? response = await apiClient.callGetMethod(
-        apiUrl,
-      );
-      if (response != null) {
-        GetTodoListResponse getTodoListResponse =
-        GetTodoListResponse.fromJson(json.decode(response.body));
-        return getTodoListResponse;
-      } else {
-        return null;
-      }
-    } catch (error) {
-      log('getTodoList.exception : ${error.toString()}');
       return null;
     }
   }
