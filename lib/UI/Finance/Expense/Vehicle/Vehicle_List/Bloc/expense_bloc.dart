@@ -1,26 +1,24 @@
 
 import 'dart:convert';
 import 'dart:developer';
+import 'package:flutter/material.dart';
+import 'package:fbroadcast/fbroadcast.dart';
 import 'package:collection/collection.dart';
-import 'package:fairpytasker/Repository/api_repository.dart';
-import 'package:fairpytasker/Response/expense_response.dart';
-import 'package:fairpytasker/Response/subcategories_response.dart';
-import 'package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_List/Bloc/expense_event.dart';
-import 'package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_List/Bloc/expense_state.dart';
-import 'package:fairpytasker/UI/Todo/add_todo/add_todo_const.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fairpytasker/Utilities/Str.dart';
 import 'package:fairpytasker/Utilities/Utils.dart';
 import 'package:fairpytasker/Utilities/prefs.dart';
-import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
-import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
-import 'package:fairpytasker/core/app/extension/string_extension.dart';
-import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
+import 'package:fairpytasker/Repository/api_repository.dart';
+import 'package:fairpytasker/UI/Todo/add_todo/add_todo_const.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
-import 'package:fbroadcast/fbroadcast.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
+import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
+import 'package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_List/Bloc/expense_event.dart';
+import 'package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_List/Bloc/expense_state.dart';
 
 class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
   final APiRepository apiRepository = APiRepository();
@@ -42,8 +40,8 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
   TextEditingController odometerController = TextEditingController();
   List<dynamic>? selectedCohorts;
   List<dynamic>? selectedVehicle;
-  String? minDate;
-  String? maxDate;
+  dynamic minDate;
+  dynamic maxDate;
   List<dynamic>? employeeList;
   DateTime now = DateTime.now();
   dynamic approvedAmount = 0.0;
@@ -80,6 +78,16 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
     Console.of.log("ExpenseBloc Closed");
     return super.close();
   }
+
+  /// API CALL: Expense Vehicle
+  Future<Map<String, dynamic>?> _getExpense(String? minDate, String? maxDate) async => await apiRepository.getVehicleExpenseList(minDate: minDate, maxDate: maxDate);
+
+  /// API CALL: SUB CATEGORY EXPENSE TO
+  Future<Map<String,dynamic>?> _getSubCategoryExpenseTo() async => await apiRepository.getExpenseTo();
+
+  /// API CALL: Expense Vehicle Local
+ /// Future<Map<String, dynamic>?> _getExpenseLocal({String? minDate, String? maxDate}) async => await apiRepository.vehicleExpense(minDate: minDate, maxDate: maxDate);
+
 
   ExpenseBloc({bool listenBroadcast = true})
       : super(ExpenseState(
@@ -350,11 +358,8 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
       try {
         emit(state.copyWith(isLoading: true));
         var response = await _getSubCategoryExpenseTo();
-        var apiResponse = response?.expenseTo;
-        emit(state.copyWith(
-            expenseTo: apiResponse,
-            isLoading: false
-        ));
+        var apiResponse = response?['expenseTo'];
+        emit(state.copyWith(expenseTo: apiResponse, isLoading: false));
       }catch(e){
         log("$e", name: "Error In GetSubCategoryExpenseTo");
         emit(state.copyWith(isLoading: false));
@@ -390,19 +395,6 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
     baseBody['vin'] = "${expense['vin'] ?? ''}";
     log(jsonEncode(baseBody), name: "Expense_Body");
     return baseBody;
-  }
-
-
-
-  /// API CALL: Expense Vehicle
-  Future<ExpenseResponse?> _getExpense(String? minDate, String? maxDate) async {
-    return await apiRepository.getVehicleExpenseList(
-        minDate: minDate, maxDate: maxDate);
-  }
-
-  /// API CALL: SUB CATEGORY EXPENSE TO
-  Future<SubCategoriesResponse?> _getSubCategoryExpenseTo() async {
-    return await apiRepository.getExpenseTo();
   }
 
   List<dynamic> filterApprovedResponse(
@@ -464,17 +456,17 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
       var endDate = DateTime.now().toFormat(format: 'yyyy-MM-dd');
       var expenseAmountResponse = await _getExpense(startDate, endDate);
       var response = await _getExpense(minDate, maxDate);
+      // var local = await _getExpenseLocal(minDate: minDate, maxDate: maxDate);
+      // Console.of.log(jsonEncode(local));
       var usersList = await getIt<CommonService>().getUsers();
       var categories = await getIt<CommonService>().getExpenseCategories();
-      ExpenseResponse? expenseResponse = response;
-      ExpenseResponse? expenseAmount = expenseAmountResponse;
-      var apiResponse = expenseResponse?.data;
-      var amountResponse = expenseAmount?.data;
-      apiResponse?.removeWhere((element) => element['vehicle'].toString().isNullOrEmpty);
-      amountResponse?.removeWhere((element) => element['vehicle'].toString().isNullOrEmpty);
-      apiResponse?.removeWhere((element) => element['vehicle']?['branch_code'] != Session.of.getInt(Str.branchIdPrefText));
-      amountResponse?.removeWhere((element) => element['vehicle']?['branch_code'] != Session.of.getInt(Str.branchIdPrefText));
-      apiResponse = calculateApprovedAmounts(apiResponse ?? [], amountResponse ?? []);
+      var apiResponse = List<Map<String, dynamic>>.from(response?['data'] ?? []);
+      var amountResponse = List<Map<String, dynamic>>.from(expenseAmountResponse?['data']);
+      apiResponse.removeWhere((element) => element['vehicle'].toString().isNullOrEmpty);
+      amountResponse.removeWhere((element) => element['vehicle'].toString().isNullOrEmpty);
+      apiResponse.removeWhere((element) => element['vehicle']?['branch_code'] != Session.of.getInt(Str.branchIdPrefText));
+      amountResponse.removeWhere((element) => element['vehicle']?['branch_code'] != Session.of.getInt(Str.branchIdPrefText));
+      apiResponse = calculateApprovedAmounts(apiResponse, amountResponse);
       apiResponse = employeeNames(apiResponse, usersList);
       apiResponse = cohortList(apiResponse);
       apiResponse.sort((a, b) => DateTime.parse(b['created_at'] ?? '')

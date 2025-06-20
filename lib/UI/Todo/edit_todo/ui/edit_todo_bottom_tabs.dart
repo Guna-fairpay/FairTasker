@@ -1,5 +1,6 @@
 import 'package:fairpytasker/UI/Todo/private_rental/UI/private_rental_check_list_page.dart';
 import 'package:fairpytasker/UI/Todo/maintenance_check/maintenance_check_ui.dart';
+import 'package:fairpytasker/UI/Todo/set_vehicles/ui/set_vehicles_main_ui.dart';
 import 'package:fairpytasker/UI/Todo/todo_expense/ui/edit_todo_expense.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/bloc/edit_todo_event.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/bloc/edit_todo_state.dart';
@@ -71,7 +72,10 @@ class EditTodoBottomTabs extends StatelessWidget {
                   editToDo: state.apiResponse,
                   onClose: context.pop,
                   selectedVehicle: state.selectedVehicle),
-              5 => SetVehicleUi(
+              // 5 => SetVehicleUi(
+              //     todoItems: state.apiResponse,
+              //     selectedVehicle: state.selectedVehicle),
+              5 => SetVehiclesMainUI(
                   todoItems: state.apiResponse,
                   selectedVehicle: state.selectedVehicle),
               6 => PrivateRentalCheckMainPage(todoData: state.apiResponse),

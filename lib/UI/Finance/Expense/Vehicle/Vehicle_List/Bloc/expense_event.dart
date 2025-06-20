@@ -10,9 +10,9 @@ abstract class ExpenseEvent extends Equatable {
 }
 
 class GetVehicleExpenseData extends ExpenseEvent {
-   final String? minDate;
-   final String? maxDate;
-  const GetVehicleExpenseData({required this.minDate, required this.maxDate});
+   final dynamic minDate;
+   final dynamic maxDate;
+  const GetVehicleExpenseData({this.minDate, this.maxDate});
   @override
   List<Object?> get props => [minDate, maxDate];
 }

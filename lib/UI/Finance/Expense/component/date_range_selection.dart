@@ -12,12 +12,14 @@ class DateRangePicker extends StatelessWidget {
   final DateRange? selectedDateRange;
   final String? splitter;
   final Function(DateRange) onDateRangeSelected;
+  final EdgeInsets? padding;
 
   const DateRangePicker({
     super.key,
     this.splitter = "-",
     this.selectedDateRange,
     required this.onDateRangeSelected,
+    this.padding,
   });
 
   @override
@@ -37,7 +39,7 @@ class DateRangePicker extends StatelessWidget {
       },
       child: Container(
         width: double.maxFinite,
-        padding: 8.sp.padding,
+        padding: padding ?? 8.spMin.padding,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(Num.subradiusButton),
           border: Border.all(color: AppC.borderColor)

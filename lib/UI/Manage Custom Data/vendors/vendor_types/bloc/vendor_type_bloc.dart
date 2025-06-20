@@ -5,6 +5,7 @@ import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -33,7 +34,7 @@ class VendorTypeBloc extends Bloc<VendorTypeEvent, VendorTypeState>{
 
   bool isEdit = false;
 
-  Future<List<Map<String, dynamic>>?> _getVendorType() async => await _apiRepository.getVendorType();
+  Future<List<Map<String, dynamic>>> _getVendorType() async => await getIt<CommonService>().getVendorTypeList(reset: true);
   Future<Map<String, dynamic>?> _addOrEditVendorType({dynamic body, dynamic id}) async => await _apiRepository.addOrEditVendorType(body: body, id: id);
   Future<Map<String, dynamic>?> _deleteVendorType(dynamic id) async => await _apiRepository.deleteVendorType(id);
 
@@ -99,6 +100,7 @@ class VendorTypeBloc extends Bloc<VendorTypeEvent, VendorTypeState>{
       emit(LoadingState());
       var response = await _deleteVendorType(event.data['id']);
         await fetchVendorType();
+      FBroadcast.instance().broadcast('refresh_vendor_type');
         if(model != null && model?['id'] == event.data['id']){
           model = null;
           isEdit = false;
@@ -171,7 +173,7 @@ class VendorTypeBloc extends Bloc<VendorTypeEvent, VendorTypeState>{
 
   Future<void> fetchVendorType() async {
     var response = await _getVendorType();
-    apiResponse = List.from(response ?? []);
+    apiResponse = List.from(response);
     apiResponse.sort((b, a) => a['created_at'].compareTo(b['created_at']));
     _unFilteredResponse = apiResponse;
     filteredResponse = paginateList(
