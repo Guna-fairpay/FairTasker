@@ -1,14 +1,16 @@
 
-import 'dart:developer';
+import 'dart:math';
 
+import 'package:equatable/equatable.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
-import 'package:fairpytasker/UI/Voice%20To%20Text/Bloc/voice_to_text_event.dart';
-import 'package:fairpytasker/UI/Voice%20To%20Text/Bloc/voice_to_text_state.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
+
+part 'voice_to_text_event.dart';
+part 'voice_to_text_state.dart';
 
 class VoiceToTextBloc extends Bloc<VoiceToTextEvent, VoiceToTextState>{
   final APiRepository _apiRepository = APiRepository();
@@ -36,7 +38,7 @@ class VoiceToTextBloc extends Bloc<VoiceToTextEvent, VoiceToTextState>{
               .toFormat(format: 'yyyy-MM-dd');
           endDate = DateTime.now().toFormat(format: 'yyyy-MM-dd');
         }
-        log("$startDate $endDate", name: "VoiceToTextBloc");
+        Console.of.log("$startDate $endDate", name: "VoiceToTextBloc");
 
         var response = await getVoiceTextList(startDate: startDate,endDate: endDate);
         voiceData = List.from(response?['data'] ?? []);

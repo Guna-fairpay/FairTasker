@@ -1,6 +1,5 @@
 
-import 'package:equatable/equatable.dart';
-import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
+part of 'voice_to_text_bloc.dart';
 
 abstract class VoiceToTextEvent extends Equatable {
   @override
