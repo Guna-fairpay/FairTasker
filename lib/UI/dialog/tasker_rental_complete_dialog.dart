@@ -1,5 +1,5 @@
 import 'package:fairpytasker/Component/compact_chips_wrap_builder.dart';
-import 'package:fairpytasker/UI/CheckIn%20CheckOut/Component/custom_checkbox.dart';
+import 'package:fairpytasker/Component/custom_checkbox.dart';
 import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
 import 'package:fairpytasker/UI/dialog/tasker_rental_complete_dialog_bloc/tasker_rental_complete_dialog_bloc.dart';

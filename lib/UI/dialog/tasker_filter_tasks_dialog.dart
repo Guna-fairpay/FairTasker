@@ -1,4 +1,4 @@
-import 'package:fairpytasker/UI/CheckIn%20CheckOut/Component/custom_checkbox.dart';
+import 'package:fairpytasker/Component/custom_checkbox.dart';
 import 'package:fairpytasker/UI/dialog/tasker_filter_tasks_dialog_bloc/tasker_filter_tasks_dialog_bloc.dart';
 import 'package:fairpytasker/UI/dialog/tasker_filter_tasks_dialog_bloc/tasker_filter_tasks_dialog_events.dart';
 import 'package:fairpytasker/UI/dialog/tasker_filter_tasks_dialog_bloc/tasker_filter_tasks_dialog_states.dart';
