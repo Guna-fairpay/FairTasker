@@ -1,6 +1,5 @@
 
-import 'dart:math';
-import 'package:equatable/equatable.dart';
+part of 'voice_to_text_bloc.dart';
 
 abstract class VoiceToTextState extends Equatable {
   @override

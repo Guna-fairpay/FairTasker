@@ -1,10 +1,7 @@
 
- import 'package:date_time/date_time.dart';
 import 'package:fairpytasker/UI/Finance/Expense/Component/date_range_selection.dart';
-import 'package:fairpytasker/UI/Voice%20To%20Text/Bloc/voice_to_text_bloc.dart';
-import 'package:fairpytasker/UI/Voice%20To%20Text/Bloc/voice_to_text_state.dart';
-import 'package:fairpytasker/UI/Voice%20To%20Text/Bloc/voice_to_text_event.dart';
 import 'package:fairpytasker/UI/dialog/play_audio_dialog.dart';
+import 'package:fairpytasker/UI/voice_to_text/bloc/voice_to_text_bloc.dart';
 import 'package:fairpytasker/Utilities/Utils.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
