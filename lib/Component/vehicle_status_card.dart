@@ -1,6 +1,7 @@
 import 'package:fairpytasker/Component/outlined_button_icon.dart';
-import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_list/bloc/vehicle_status_bloc.dart';
-import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_list/bloc/vehicle_status_config.dart';
+import 'package:fairpytasker/UI/vehicle_status/vehicle_status_list/bloc/vehicle_status_bloc.dart';
+import 'package:fairpytasker/UI/vehicle_status/vehicle_status_list/bloc/vehicle_status_config.dart';
+import 'package:fairpytasker/UI/vehicle_status/vehicle_status_list/bloc/vehicle_status_config.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';

@@ -37,7 +37,7 @@ class _VehicleStatusAddUIState extends State<VehicleStatusAddUI> {
         automaticallyImplyLeading: false,
         foregroundColor: Colors.white,
         title: const Text(
-          'Add Vehicle Status',),
+          'Add vehicle_status',),
         actions: [
           IconButton(
               onPressed: ()=> Navigator.pop(context),

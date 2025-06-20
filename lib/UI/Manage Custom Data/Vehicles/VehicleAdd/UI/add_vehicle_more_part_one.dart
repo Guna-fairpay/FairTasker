@@ -44,7 +44,7 @@ class AddVehicleMorePartOne extends StatelessWidget {
                 textInputFormatter: [FilteringTextInputFormatter.digitsOnly],
               ),
               10.height,
-              Utils.dropdownBox('Select Vehicle Status', context.read<AddVehicleBloc>().vehicleStatus, (value) => context.read<AddVehicleBloc>().add(VehicleStatusDropDownEvent(model: value)), labelKey: 'category_name',initialSelection: context.read<AddVehicleBloc>().selectedVehicleStatus),
+              Utils.dropdownBox('Select vehicle_status', context.read<AddVehicleBloc>().vehicleStatus, (value) => context.read<AddVehicleBloc>().add(VehicleStatusDropDownEvent(model: value)), labelKey: 'category_name',initialSelection: context.read<AddVehicleBloc>().selectedVehicleStatus),
               10.height,
               Utils.dropdownBox('Select Active Status', context.read<AddVehicleBloc>().activeStatus, (value) => context.read<AddVehicleBloc>().add(VehicleActiveDropDownEvent(model: value)), labelKey: 'category_name',initialSelection: context.read<AddVehicleBloc>().selectedActiveStatus),
               10.height,
