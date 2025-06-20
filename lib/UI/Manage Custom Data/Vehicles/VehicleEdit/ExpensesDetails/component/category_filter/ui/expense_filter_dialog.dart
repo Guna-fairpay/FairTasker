@@ -1,6 +1,6 @@
 import 'package:fairpytasker/Component/compact_alert_dialog.dart';
 import 'package:fairpytasker/Component/custom_text/compact_text.dart';
-import 'package:fairpytasker/UI/CheckIn%20CheckOut/Component/custom_checkbox.dart';
+import 'package:fairpytasker/Component/custom_checkbox.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleEdit/ExpensesDetails/component/category_filter/bloc/category_filter_bloc.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';

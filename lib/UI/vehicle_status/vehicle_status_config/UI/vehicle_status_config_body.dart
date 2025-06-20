@@ -1,5 +1,5 @@
 
-import 'package:fairpytasker/UI/CheckIn%20CheckOut/Component/custom_checkbox.dart';
+import 'package:fairpytasker/Component/custom_checkbox.dart';
 import 'package:fairpytasker/UI/vehicle_status/vehicle_status_config/Bloc/vehicle_status_config_bloc.dart';
 import 'package:fairpytasker/UI/vehicle_status/vehicle_status_config/Bloc/vehicle_status_config_event.dart';
 import 'package:fairpytasker/UI/vehicle_status/vehicle_status_config/Bloc/vehicle_status_config_state.dart';
