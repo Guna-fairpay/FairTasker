@@ -1,7 +1,9 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'dart:ui' show VoidCallback;
 import 'package:date_time/date_time.dart';
+import 'package:fairpytasker/Response/authentication_response.dart';
 import 'package:fairpytasker/core/initializer/receive_intent.dart';
 import 'package:fairpytasker/core/initializer/todo_supporter.dart';
 import 'package:flutter/foundation.dart' show ValueNotifier, kDebugMode;
@@ -82,9 +84,11 @@ class CommonService {
   bool get showExpense => ((roles?.contains("admin") ?? false) || ([3, 1, 28, 17].contains(userId)));///22 - Saeed ali , 21 - hidayath
   bool get hideReportItems => [20, 21, 10, 23, 2, 16, 15].contains(userId);
 
-  int get departmentId => Session.of.getInt("departmentId") ?? 0;
+  int get departmentId => Session.of.getInt(Str.departmentIdPrefText) ?? 0;
   int? get branchId => Session.of.getInt(Str.branchIdPrefText);
   int? get hrmId => Session.of.getInt(Str.hrmIdPrefText);
+
+  User? get _user => User.fromJson(jsonDecode(Session.of.getString(Str.userPrefText) ?? ""));
 
   String get currentPlatform => Platform.isAndroid ? "android" : "ios";
 
@@ -131,11 +135,11 @@ class CommonService {
 
   Future<void> initialFetch() async {
     await Future.wait([
-      getUsers(),
+      // getUsers(),
       getCohorts(),
       getBranches(),
       Authenticator.instance.getBearerToken(),
-      Authenticator.instance.getDepartmentId(),
+      // Authenticator.instance.getDepartmentId(),
     ]);
     Console.of.log("$timeNow", name: "TIME_NOW_IN_AMERICA");
   }
@@ -190,8 +194,10 @@ class CommonService {
   }
 
   Map<String, dynamic>? get user {
-    var userId = getUserId;
-    return usersList.firstWhereOrNull((element) => element['id'] == userId);
+    // var userId = getUserId;
+
+    // return usersList.firstWhereOrNull((element) => element['id'] == userId);
+    return _user?.toJson();
   }
 
   Future<List<Map<String, dynamic>>> getUsers({bool reset = false}) async {

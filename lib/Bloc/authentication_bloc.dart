@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
 import 'package:fairpytasker/Repository/authentication_repository.dart';
@@ -51,7 +53,10 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
               user.email ?? "",
               (response.userPermissions ?? []),
               user.branchId ?? 1,
-              user.hrmId ?? 0);
+              user.hrmId ?? 0,
+             departmentId: user.departmentId,
+            data: user.toString()
+          );
 
           await getIt<CommonService>().clearAll();
           await getIt<CommonService>().initialFetch();
