@@ -1619,6 +1619,7 @@ class Utils {
     List<String> userPermissionList,
     int branchId,
     int hrmId,
+      {int? departmentId, String? data}
   ) async {
     // accessTokenGlobal = token; Str.userPermissionPrefText
     // userPermissionsGlobal = [];
@@ -1637,7 +1638,9 @@ class Utils {
     ..set(Str.branchIdPrefText, branchId)
     ..set(Str.hrmIdPrefText, hrmId)
     ..set(Str.accessTokenPrefText, token)
-    ..set(Str.emailPrefText, email);
+    ..set(Str.emailPrefText, email)
+    ..set(Str.departmentIdPrefText, departmentId)
+    ..set(Str.userPrefText, data);
 
     Utils.setStringPreference("name", name.toString());
     Utils.setStringListPreference(Str.rolePrefText, role ?? []);
@@ -1649,6 +1652,8 @@ class Utils {
     Utils.setIntPreference(Str.hrmIdPrefText, hrmId);
     Utils.setStringPreference(Str.accessTokenPrefText, token);
     Utils.setStringPreference(Str.emailPrefText, email);
+    Utils.setStringPreference(Str.userPrefText, data ?? "");
+    Utils.setIntPreference(Str.departmentIdPrefText, departmentId ?? 0);
   }
 
   /*---------------------------------------------------Shared preference---------------------------------------------------*/

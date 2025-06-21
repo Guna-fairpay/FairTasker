@@ -1,11 +1,8 @@
 import 'dart:async';
 import 'dart:math';
-
-import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
-import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 part 'bouncie_event.dart';
@@ -13,45 +10,21 @@ part 'bouncie_state.dart';
 
 class BouncieBloc extends Bloc<BouncieEvent, BouncieState> {
   final APiRepository _aPiRepository = APiRepository();
-  Map<String, dynamic>? _codeResponse, _tokenResponse;
   List<Map<String, dynamic>>? _bouncies;
   BouncieBloc() : super(LoadingState()) {
    on<InitialEvent>(_onInitialEvent);
    on<ViewBouncieEvent>(_onViewBouncieEvent);
   }
 
-  List<Map<String, dynamic>>? get lists {
-    var vinList = _bouncies?.map((e) => (e['vin'] ?? "").toString().toUpperCase()).toList();
-    Console.of.log(vinList?.length, name: "vinList_length");
-    var lists = _vehicles.where((element) => vinList?.contains(element['vin'].toString().toUpperCase()) ?? false).toList();
-    for (var element in lists) {
-      element['bouncie'] = _bouncies?.firstWhereOrNull((e) => e['vin'].toString().toUpperCase() == element['vin'].toString().toUpperCase());
-    }
-    lists.sort((a, b) {
-      int indexA = (vinList?.indexOf(a["vin"].toString().toUpperCase()) ?? 0);
-      int indexB = (vinList?.indexOf(b["vin"].toString().toUpperCase()) ?? 0);
-      return indexA.compareTo(indexB);
-    });
-    Console.of.log(lists.length, name: "lists_length");
-    Console.of.log(vinList, name: "VIN_LIST");
-    return lists;
-  }
+  List<Map<String, dynamic>>? get lists => _bouncies;
 
-  List<Map<String, dynamic>> get _vehicles => List.from(getIt<CommonService>().activeVehicleList);
-  Future<Map<String, dynamic>?> _fetchCode() async => await _aPiRepository.getCode();
-  Future<Map<String, dynamic>?> _fetchBouncieToken() async => await _aPiRepository.getBouncieToken(code: _codeResponse?['code']);
-  Future<Map<String, dynamic>?> _fetchBouncie() async => await _aPiRepository.getBouncieVehicle(token: _tokenResponse?['access_token']);
-  Future<List<Map<String, dynamic>>> _fetchActiveVehicles() async => await getIt<CommonService>().getActiveVehicles();
+  Future<Map<String, dynamic>?> _fetchBouncies() async => await _aPiRepository.getBouncies();
 
   void _onInitialEvent(InitialEvent event, Emitter<BouncieState> emit) async {
     try {
       emit(LoadingState());
-      await _fetchActiveVehicles();
-      var response = await _fetchCode();
-      _codeResponse = response?['code'];
-      _tokenResponse = (await _fetchBouncieToken())?['data'];
-      var bouncieResponse = await _fetchBouncie();
-      _bouncies = List<Map<String, dynamic>>.from(bouncieResponse?['data'] ?? []);
+      var bouncieResponse = await _fetchBouncies();
+      _bouncies = List<Map<String, dynamic>>.from(bouncieResponse?['bouncieVehicles'] ?? []);
       emit(CommonState());
     } catch (e) {
       _error(e, emit);

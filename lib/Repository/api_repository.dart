@@ -437,6 +437,8 @@ class APiRepository {
 
   String get _vehicleExpenses => "vehilceExpenses";
 
+  String get _getBouncies => "getBouncies";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -4331,6 +4333,20 @@ Future<Map<String, dynamic>?> getLocations() async {
         "maxDate": maxDate,
       };
       final http.Response? response = await _apiClient.callGetMethod(apiUrl, params:params );
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getBouncies() async {
+    try {
+      String apiUrl = '${Str.BASE_URL}$_getBouncies';
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
       if (response?.isSuccess == true) {
         return await response.mapData;
       } else {

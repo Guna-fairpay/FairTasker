@@ -23,6 +23,8 @@ class Str{
   static const String emailPrefText = 'EmailPref';
   static const String frBearerToken = 'fr_bearerToken';
   static const String accessTokenPrefText = 'AccessTokenPref';
+  static const String departmentIdPrefText = 'departmentIdPref';
+  static const String userPrefText = 'userDataPref';
 
   static const String userPunchListRefresh = 'refresh_user_punch_list';
 
