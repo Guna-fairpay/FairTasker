@@ -18,7 +18,13 @@ class DateRangeEvent extends ApproveTaskEvent{
   List<Object?> get props => [dateRange];
 }
 
-class ListCheckEvent extends ApproveTaskEvent{}
+class ListCheckEvent extends ApproveTaskEvent{
+  final dynamic data;
+  final bool? isApproved;
+  ListCheckEvent({this.data, this.isApproved});
+  @override
+  List<Object?> get props => [data, isApproved];
+}
 
 class TaskInCompletedEvent extends ApproveTaskEvent{}
 

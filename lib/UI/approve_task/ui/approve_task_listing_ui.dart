@@ -92,10 +92,22 @@ class ApproveTaskListingUI extends StatelessWidget {
                 child: ListView.separated(
                   shrinkWrap: true,
                   physics: const BouncingScrollPhysics(),
-                  separatorBuilder: (context, index) => Divider(),
+                  separatorBuilder: (context, index) => const Divider(),
                   padding: 5.spMin.verticalPadding,
-                  itemCount: 10,
-                  itemBuilder: (context, index) => Row(
+                  itemCount: context.watch<ApproveTaskBloc>().filterResponse?.length ?? 0,
+                  itemBuilder: (context, index) {
+                    var item = context.watch<ApproveTaskBloc>().filterResponse?[index];
+                    var vehicleName = List.from(item?['vehicleList'] ?? []).length <= 1 ? (List.from(item?['vehicleList'] ?? []).firstOrNull?['vehicle_name']) : 'MV';
+                    var userList = List.from(item?['users'] ?? [])
+                        .map((e) => [e['first_name'].toString(), e['last_name'].toString()]
+                        .toInitial)
+                        .toList();
+                    bool isRentalStatus = List.from(item?['vehicleList'] ?? []).length == 1
+                        ? (List.from(item?['vehicleList'] ?? []).firstOrNull?['rental_status']) == 3
+                        ? true : false
+                        : false;
+                    Color color = (item['complete_time_approved'] == 0) && (item?['extraMin'] != null) ? AppC.redAccent : AppC.appColor;
+                    return Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     spacing: 10,
                     children: [
@@ -106,14 +118,29 @@ class ApproveTaskListingUI extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             RichText(
-                                text: const TextSpan(children: [
-                                  TextSpan(text: 'Move location'),
-                                  TextSpan(text: '(00:30)'),
+                                text: TextSpan(children: [
+                                  TextSpan(text: item?['title']),
+                                  if(item?['complete_time_taken'] != null)
+                                  TextSpan(text: ' (${item?['complete_time_taken']})'),
                                 ],
-                                    style: TextStyle( color: AppC.appColor, fontWeight: FontWeight.bold))
+                                    style: TextStyle( color: color, fontWeight: FontWeight.bold))
                             ),
-                            Utils.getText('2018 NISSAN ROGUE SPORT S (GRAY)', size: 12.spMin),
-                            Utils.getText('00:05', size: 12.spMin, color: AppC.redAccent),
+                            RichText(
+                                text: TextSpan(children: [
+                                  TextSpan(text: vehicleName, style: TextStyle( color: AppC.text, fontWeight: (vehicleName == 'MV') ? FontWeight.bold : FontWeight.normal)),
+                                  if(isRentalStatus)
+                                    const TextSpan(text: ' (P)', style: TextStyle(color: Color(0xFFFFCC99), fontWeight: FontWeight.bold)),
+                                ],
+                                )
+                            ),
+                            if(item?['extraMin'] != null)
+                            RichText(
+                                text: TextSpan(children: [
+                                  TextSpan(text: item?['extraMin'], style: const TextStyle(color: AppC.redAccent, fontWeight: FontWeight.bold)),
+                                  if(item?['notes_complete'] != null)
+                                    TextSpan(text: ' - ${item?['notes_complete']}', style: const TextStyle(color: AppC.text, fontWeight: FontWeight.bold)),
+                                ],),
+                            ),
                           ],
                         ),
                       ),
@@ -123,18 +150,22 @@ class ApproveTaskListingUI extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             RichText(
-                                text: const TextSpan(children: [
-                                  TextSpan(text: '05-28'),
-                                  TextSpan(text: ' 10:47 AM'),
+                                text: TextSpan(children: [
+                                  TextSpan(text: item['todo_date'].toString().toDateTime()?.toFormat(format: 'MM-dd') ?? '',
+                                  ),
+                                  WidgetSpan(child: 5.spMin.width),
+                                  TextSpan(text: item?['todo_time'].toString().toFormat(inputFormat: "HH:mm:ss", format: "hh:mm a") ?? '',),
                                 ],
-                                    style: TextStyle( color: AppC.appColor))
+                                    style: TextStyle( color: color))
                             ),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Padding(
-                                  padding: 10.horizontalPadding,
-                                  child: Utils.getText('AI ', size: 12.spMin, weight: FontWeight.bold),
+                                Expanded(
+                                  child: Padding(
+                                    padding: 10.horizontalPadding,
+                                    child: Utils.getText(userList.join(', '), size: 12.spMin, weight: FontWeight.bold, overFlow: TextOverflow.ellipsis),
+                                  ),
                                 ),
                                 FittedBox(
                                   child: SizedBox.fromSize(
@@ -145,20 +176,20 @@ class ApproveTaskListingUI extends StatelessWidget {
                                       ),
                                       side: const BorderSide(width: 0.8, color: AppC.appColor),
                                       activeColor: AppC.appColor,
-                                      value: true,
-                                      onChanged: (v){},
+                                      value: (item['complete_time_approved'] == 1),
+                                      onChanged: (v)=> context.read<ApproveTaskBloc>().add(ListCheckEvent(data: item, isApproved: v)),
                                       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                     ),
                                   ),
                                 ),
                               ],
                             ),
-
                           ],
                         ),
                       ),
                     ],
-                  ),
+                  );
+                    },
                 ),
               )
             ],
