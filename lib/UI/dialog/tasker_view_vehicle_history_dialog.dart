@@ -129,7 +129,7 @@ class _TaskerViewVehicleHistoryView extends StatelessWidget {
                     ),
                   );
                 },
-                imageUrl: model?['display']?['vehicle_image'] ?? "",
+                imageUrl: (model?['display']?['vehicle_image'] ?? "").toString().toStorageURL,
                 placeholder: (context, url) =>
                     Utils.getProgressIndicator(context),
                 errorWidget: (context, url, error) {
