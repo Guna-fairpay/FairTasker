@@ -155,22 +155,13 @@ class DrawerView extends StatelessWidget {
                     onTap: () => context.push(const ImportTaskMainUi(), fullscreenDialog: true),
                     // onTap: () => navigateToPage(context, const UploadText()),
                   ),
-                  if (kDebugMode)
-                    ...[
-                      _buildDivider(),
-                      _buildListTile(
-                        context,
-                        icon:  RIcon.Map_Point_Wave,
-                        title: "Bouncie",
-                        onTap: () => context.push(const BouncieMainUi(), fullscreenDialog: true),
-                      ),
-                    ],
-                  /*_buildDivider(),
+                  _buildDivider(),
                   _buildListTile(
-                    icon:  Icons.sync,
-                    title: "Recurrence Task",
-                    onTap: () => navigateToPage(const RecurrenceTask()),
-                  ),*/
+                    context,
+                    icon:  RIcon.Map_Point_Wave,
+                    title: "Bouncie",
+                    onTap: () => context.push(const BouncieMainUi(), fullscreenDialog: true),
+                  ),
                   _buildDivider(),
                   _buildListTile(
                     context,
