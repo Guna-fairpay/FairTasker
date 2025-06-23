@@ -40,82 +40,80 @@ class AuthenticationUI extends StatelessWidget {
           }
         },
         child: BlocBuilder<AuthenticationBloc, AuthenticationState>(
-            builder: (context, state) {
-          return Container(
-            padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 30),
-            height: MediaQuery.of(context).size.height,
-            width: MediaQuery.of(context).size.width,
-            decoration: const BoxDecoration(
-                color: AppC.white,
-                image: DecorationImage(
-                    opacity: 0.18,
-                    image: AssetImage(Assets.splashBg),
-                    repeat: ImageRepeat.repeat,
-                    fit: BoxFit.contain)),
-            child: Form(
-              key: context.read<AuthenticationBloc>().formKey,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                spacing: 10.sp,
-                children: [
-                  AnimatedContainer(
-                      duration: Durations.long1,
-                      curve: Curves.bounceIn,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 40, vertical: 5),
-                        child: Image.asset(Assets.taskManagerLogo),
-                      )),
-                  Column(
-                    children: [
-                      Text("Welcome Back !",
-                          style: context.textTheme.titleLarge
-                              ?.copyWith(color: AppC.appColor)),
-                      Text("Sign in to continue.",
-                          style: context.textTheme.labelLarge
-                              ?.copyWith(color: AppC.grey)),
-                    ],
-                  ),
-                  CompactTextFieldWithLabelTitle(
-                    controller:
-                        context.read<AuthenticationBloc>().emailController,
-                    label: "Email",
-                    hintText: "Enter email",
-                    textInputAction: TextInputAction.next,
-                    keyboardType: TextInputType.emailAddress,
-                    validator: (value) => (value.isNullOrEmpty)
-                        ? "Please enter email"
-                        : (value?.isValidEmail() == false)
-                            ? "Please enter valid email"
-                            : null,
-                  ),
-                  CompactTextFieldWithLabelTitle(
-                    controller:
-                        context.read<AuthenticationBloc>().passwordController,
-                    label: "Password",
-                    hintText: "Enter password",
-                    isPasswordField: true,
-                    textInputAction: TextInputAction.done,
-                    keyboardType: TextInputType.visiblePassword,
-                    validator: (value) => (value.isNullOrEmpty)
-                        ? "Please enter password"
-                        : (value?.isValidPassword() == false)
-                            ? "Please enter valid password"
-                            : null,
-                  ),
-                  Utils.getFilledButton(
-                      'Sign In',
-                      () => context
-                          .read<AuthenticationBloc>()
-                          .add(DoLoginEvent()),
-                      verticalPadding: 5),
-                ],
+            builder: (context, state) => Container(
+              padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 30),
+              height: MediaQuery.of(context).size.height,
+              width: MediaQuery.of(context).size.width,
+              decoration: const BoxDecoration(
+                  color: AppC.white,
+                  image: DecorationImage(
+                      opacity: 0.18,
+                      image: AssetImage(Assets.splashBg),
+                      repeat: ImageRepeat.repeat,
+                      fit: BoxFit.contain)),
+              child: Form(
+                key: context.read<AuthenticationBloc>().formKey,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  spacing: 10.sp,
+                  children: [
+                    AnimatedContainer(
+                        duration: Durations.long1,
+                        curve: Curves.bounceIn,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 40, vertical: 5),
+                          child: Image.asset(Assets.taskManagerLogo),
+                        )),
+                    Column(
+                      children: [
+                        Text("Welcome Back !",
+                            style: context.textTheme.titleLarge
+                                ?.copyWith(color: AppC.appColor)),
+                        Text("Sign in to continue.",
+                            style: context.textTheme.labelLarge
+                                ?.copyWith(color: AppC.grey)),
+                      ],
+                    ),
+                    CompactTextFieldWithLabelTitle(
+                      controller:
+                      context.read<AuthenticationBloc>().emailController,
+                      label: "Email",
+                      hintText: "Enter email",
+                      textInputAction: TextInputAction.next,
+                      keyboardType: TextInputType.emailAddress,
+                      validator: (value) => (value.isNullOrEmpty)
+                          ? "Please enter email"
+                          : (value?.isValidEmail() == false)
+                          ? "Please enter valid email"
+                          : null,
+                    ),
+                    CompactTextFieldWithLabelTitle(
+                      controller:
+                      context.read<AuthenticationBloc>().passwordController,
+                      label: "Password",
+                      hintText: "Enter password",
+                      isPasswordField: true,
+                      textInputAction: TextInputAction.done,
+                      keyboardType: TextInputType.visiblePassword,
+                      validator: (value) => (value.isNullOrEmpty)
+                          ? "Please enter password"
+                          : (value?.isValidPassword() == false)
+                          ? "Please enter valid password"
+                          : null,
+                    ),
+                    Utils.getFilledButton(
+                        'Sign In',
+                            () => context
+                            .read<AuthenticationBloc>()
+                            .add(DoLoginEvent()),
+                        verticalPadding: 5),
+                  ],
+                ),
               ),
-            ),
-          );
-        }),
+            )),
       ),
     ));
   }

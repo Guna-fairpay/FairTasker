@@ -13,7 +13,7 @@ class WorkingHourRow extends TableRow {
 
   @override
   List<Widget> get children => [
-    TableCell(verticalAlignment: TableCellVerticalAlignment.middle,child: Padding(padding: 5.padding, child: Text("${model?['employee']?['name'].toString().getInitials()}", textAlign: textAlign))),
+    TableCell(verticalAlignment: TableCellVerticalAlignment.middle,child: Padding(padding: 5.padding, child: Text("${model?['name'].toString().getInitials()}", textAlign: textAlign))),
     TableCell(verticalAlignment: TableCellVerticalAlignment.middle,child: Text("${model?['start_time'].toString().toDateTime(inputFormat: "dd-MM-yyyy HH:mm:ss")?.toFormat(format: "hh:mm a")}", textAlign: textAlign)),
     TableCell(verticalAlignment: TableCellVerticalAlignment.middle,child: Text(model?['end_time'].toString().toDateTime(inputFormat: "dd-MM-yyyy HH:mm:ss")?.toFormat(format: "hh:mm a") ?? "", textAlign: textAlign)),
     TableCell(verticalAlignment: TableCellVerticalAlignment.middle,child: Text(model?['active'] ?? "", textAlign: textAlign)),
