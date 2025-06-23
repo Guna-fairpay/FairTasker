@@ -60,7 +60,7 @@ class ManageEmployees extends StatelessWidget {
                   title: 'Roles',
                   onTap: ()=> context.push(const RoleViewMainUI())),
                 _buildCard(
-                  icon: Iconsax.unlock,
+                  icon: Iconsax.shield_tick,
                   title: 'Permissions',
                   onTap: ()=> context.push(const PermissionListingMainUI())),
               ],
