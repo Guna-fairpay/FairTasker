@@ -65,6 +65,7 @@ class SetVehiclesBloc extends Bloc<SetVehiclesEvent, SetVehiclesState> {
   Future<Map<String, dynamic>?> _deleteVehicleExpenseImage(dynamic id) async => await _apiRepository.deleteVehicleExpenseImage(id);
   Future<Map<String, dynamic>?> _vehicleAddOrUpdateApi({required dynamic id, required List<Map<String, String?>> infusedFiles, required dynamic body}) async => await _apiRepository.vehicleAddOrUpdateApi(infusedFiles: infusedFiles, body: body, id: id,);
   Future<Map<String, dynamic>?> _addTodo({required dynamic body}) async => await _apiRepository.addToDo(body: body,);
+  Future<Map<String, dynamic>?> _updateToDoApi({required dynamic body, dynamic id}) async => await _apiRepository.updateToDoApi(body: body, todoId: id);
 
   SetVehiclesBloc() : super(LoadingState()){
     on<InitialEvent>(_onInitialEvent);
@@ -387,7 +388,16 @@ class SetVehiclesBloc extends Bloc<SetVehiclesEvent, SetVehiclesState> {
         Console.of.log(response, name: "response");
         getIt<CommonService>().getActiveVehicles(reset: true);
         if (event.overRide == true){
-          await _addTodo(body: spareKeyTaskBody());
+          var response = await _addTodo(body: spareKeyTaskBody());
+          if(todoItem['identifier_id'] == 257){
+           var todoResponse = await _updateToDoApi(body: {
+              'fix_tasks': { '' : List.from(response?['todo'] ?? []).firstOrNull?['id']},
+              'type': 'inline',
+            },
+             id: todoItem?['id'].toString(),
+           );
+           Console.of.log(todoResponse);
+          }
           // _broadcast.stickyBroadcast("todo_view", value: true);
           TaskerHelper.instance.refresh();
           emit(SuccessState("SpareKey Task Added"));
