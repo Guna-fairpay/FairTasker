@@ -23,7 +23,7 @@ class OtherViewBloc extends Bloc<OtherViewEvent, OtherViewState>{
   List<dynamic>? otherAttachments;
   final FBroadcast _broadcast = FBroadcast.instance();
 
-  Future<Map<String, dynamic>?> _getOtherExpense({String? startDate, String? endDate}) async => await _apiRepository.getOtherExpense(startDate: startDate, endDate: endDate);
+  Future<Map<String, dynamic>?> _getOtherExpense({String? startDate, String? endDate}) async => await _apiRepository.otherExpenses(minDate: startDate, maxDate: endDate);
   Future<Map<String, dynamic>?> _approveExpense({dynamic id, dynamic approved}) async => await _apiRepository.approvePersonExpense(id: id, approved: approved);
 
   OtherViewBloc() : super(LoadingState()){
@@ -138,15 +138,12 @@ class OtherViewBloc extends Bloc<OtherViewEvent, OtherViewState>{
   }
 
   Future<void> fetchData() async {
-    var oneMonthResponse = await _getOtherExpense(
-      startDate: '${DateTime.now().subtractMonth(1).toFormat()}',
-      endDate: '${DateTime.now().toFormat()}');
-    var response = await _getOtherExpense(
+    var data = await _getOtherExpense(
       startDate: selectedDateRange.start.toFormat(),
       endDate: selectedDateRange.end.toFormat(),
     );
-    monthResponse = oneMonthResponse?['data'] ?? [];
-    apiResponse = response?['data'] ?? [];
+    monthResponse = List.from(data?['monthlyData'] ?? []);
+    apiResponse = List.from(data?['requestData'] ?? []);
     apiResponse.sort((a, b) => DateTime.parse(b['created_at'] ?? '')
         .compareTo(DateTime.parse(a['created_at'] ?? '')));
     for (var element in apiResponse) {
@@ -156,25 +153,7 @@ class OtherViewBloc extends Bloc<OtherViewEvent, OtherViewState>{
   }
 
   Future<void> reloadData() async {
-    var filterResponse =
-    calculateApprovedAmounts(List.from(apiResponse), List.from(monthResponse));
-
-    apiResponse = filterResponse;
-
     totalAmount = apiResponse.where((e) => (e['approved'] == 1),).map((e) => num.tryParse(e['expense_amount'].toString()) ?? 0).sum;
-  }
-
-  List<Map<String, dynamic>> calculateApprovedAmounts(
-      List<Map<String, dynamic>> apiResponse,
-      List<Map<String, dynamic>> amountResponse) {
-    return apiResponse.map((e) {
-      var matchingAmounts = amountResponse
-          .where((element) => ((element['subcategory_id'] == e['subcategory_id']) && element['approved'] == 1))
-          .map((item) => num.tryParse(item['expense_amount'].toString()) ?? 0)
-          .sum;
-      e["approved_amount"] = matchingAmounts;
-      return e;
-    }).toList();
   }
 
   Map<String, dynamic> get body => {

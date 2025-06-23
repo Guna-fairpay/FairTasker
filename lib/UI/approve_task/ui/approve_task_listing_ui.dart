@@ -145,7 +145,6 @@ class ApproveTaskListingUI extends StatelessWidget {
                         ),
                       ),
                       Flexible(
-                        flex: 2,
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [

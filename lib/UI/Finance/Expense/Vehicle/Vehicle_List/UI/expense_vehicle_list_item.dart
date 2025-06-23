@@ -248,7 +248,7 @@ class ExpenseVehicleListItem extends StatelessWidget {
                                       )));
                         },
                         child: Utils.getText(
-                          "\$${expense['approved_amount'].toString().toDoubleDigit}",
+                          "\$${expense['approveAmount'].toString().toDoubleDigit}",
                           weight: FontWeight.bold,
                           color: AppC.grey,
                           overFlow: TextOverflow.ellipsis,

@@ -92,7 +92,7 @@ class OtherListingPage extends StatelessWidget {
                                 text: '  (${model['expense_description'] ?? ''})',
                               ),
                             ],
-                            style: const TextStyle(color: AppC.text, fontWeight: FontWeight.bold)
+                            style: TextStyle(color: model['approved'] == 1 ? AppC.text : AppC.red, fontWeight: FontWeight.bold)
                           )),
                         ),
                       ],
@@ -125,8 +125,13 @@ class OtherListingPage extends StatelessWidget {
                 ],
               ),
             ),
-            (model['attachments'].isNotEmpty)
-                ? InkWell(
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              spacing: 10,
+              children: [
+                (model['attachments'].isNotEmpty)
+                    ? InkWell(
                     onTap: () => ShowAttachmentsDialog.of.show(context,
                         attachments: List.from(model['attachments_paths'] ?? []),
                         title: '${model['subcategory']?['name'] ?? ''}'),
@@ -135,27 +140,23 @@ class OtherListingPage extends StatelessWidget {
                       Icons.remove_red_eye,
                       color: AppC.appColor,
                     ))
-                : const Icon(
-                    Icons.remove_red_eye,
-                    color: AppC.trans,
-                  ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              spacing: 10,
-              children: [
-                SizedBox(
-                  height: 20.spMin,
-                  width: 20.spMin,
-                  child: Checkbox(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5),
+                    : const Icon(
+                  Icons.remove_red_eye,
+                  color: AppC.trans,
+                ),
+                FittedBox(
+                  child: SizedBox.fromSize(
+                    size: Size.fromRadius(10.spMin),
+                    child: Checkbox(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      side: const BorderSide(width: 0.8, color: AppC.appColor),
+                      activeColor: AppC.appColor,
+                      value: (model['approved'] == 1),
+                      onChanged: onChanged,
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
-                    side: const BorderSide(width: 0.8, color: AppC.appColor),
-                    activeColor: AppC.appColor,
-                    value: (model['approved'] == 1),
-                    onChanged: onChanged,
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
                 ),
               ],
@@ -175,7 +176,7 @@ class OtherListingPage extends StatelessWidget {
                   InkWell(
                     onTap: () => onDetailsPage(model),
                     child: Utils.getText(
-                      "\$${model['approved_amount'].toString().toDoubleDigit}",
+                      "\$${model['approveAmount'].toString().toDoubleDigit}",
                       weight: FontWeight.bold,
                       overFlow: TextOverflow.ellipsis,
                       color: AppC.grey
