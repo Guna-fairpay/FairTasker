@@ -23,7 +23,7 @@ class PersonViewBloc extends Bloc<PersonViewEvent, PersonViewState>{
   List<dynamic> monthResponse = [];
   List<dynamic> personList = [];
 
-  Future<Map<String, dynamic>?> _getPersonExpense({String? startDate, String? endDate}) async => await _apiRepository.getPersonExpense(minDate: startDate, maxDate: endDate);
+  Future<Map<String, dynamic>?> _getPersonExpense({String? startDate, String? endDate}) async => await _apiRepository.personExpenses(minDate: startDate, maxDate: endDate);
   Future<Map<String, dynamic>?> _getEmployeeList() async => await _apiRepository.getEmployeeList();
   Future<Map<String, dynamic>?> _approveExpense({dynamic id, dynamic approved}) async => await _apiRepository.approvePersonExpense(id: id, approved: approved);
 
@@ -141,26 +141,17 @@ class PersonViewBloc extends Bloc<PersonViewEvent, PersonViewState>{
   }
 
   Future<void> fetchData() async {
-    var oneMonthResponse = await _getPersonExpense(
-        startDate: '${DateTime.now().subtractMonth(1).toFormat()}',
-        endDate: '${DateTime.now().toFormat()}');
-    var response = await _getPersonExpense(
+    var data =  await _getPersonExpense(
       startDate: selectedDateRange.start.toFormat(),
       endDate: selectedDateRange.end.toFormat(),
     );
-    var employeeResponse = await _getEmployeeList();
-    personList = employeeResponse?['data'] ?? [];
-    monthResponse = oneMonthResponse?['data'] ?? [];
-    apiResponse = response?['data'] ?? [];
+    Console.of.log(data);
+    var oneMonthResponse = List.from(data?['monthlyData'] ?? []);
+    var response = List.from(data?['requestData'] ?? []);
+    monthResponse = oneMonthResponse;
+    apiResponse = response;
     apiResponse.sort((a, b) => DateTime.parse(b['created_at'] ?? '')
         .compareTo(DateTime.parse(a['created_at'] ?? '')));
-    for (var element in apiResponse) {
-      final person = personList.firstWhereOrNull((p) => p['id'] == element['employee_id']);
-      element['employee_name'] = person != null
-          ? "${person['first_name'] ?? ''} ${person['last_name'] ?? ''}".trim()
-          : '';
-    }
-
     for (var element in apiResponse) {
       element['attachments_paths'] = element['attachments'].map((e) => e['path'].toString().toStorageURL).toList();
     }
@@ -168,22 +159,7 @@ class PersonViewBloc extends Bloc<PersonViewEvent, PersonViewState>{
   }
 
   Future<void> reloadData() async {
-    var filterResponse = calculateApprovedAmounts(List.from(apiResponse), List.from(monthResponse));
-    apiResponse = filterResponse;
     totalAmount = apiResponse.where((e) => (e['approved'] == 1),).map((e) => num.tryParse(e['expense_amount'].toString()) ?? 0).sum;
-  }
-
-  List<Map<String, dynamic>> calculateApprovedAmounts(
-      List<Map<String, dynamic>> apiResponse,
-      List<Map<String, dynamic>> amountResponse) {
-    return apiResponse.map((e) {
-      var matchingAmounts = amountResponse
-          .where((element) => ((element['employee_id'] == e['employee_id']) && element['approved'] == 1))
-          .map((item) => num.tryParse(item['expense_amount'].toString()) ?? 0)
-          .sum;
-      e["approved_amount"] = matchingAmounts;
-      return e;
-    }).toList();
   }
 
   void _error(dynamic message, Emitter<PersonViewState> emit){

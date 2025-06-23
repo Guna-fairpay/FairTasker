@@ -69,7 +69,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
   List<Map<String, dynamic>>? expenseCategories =[];
   List <dynamic> apiResponse =[];
   final FBroadcast _broadcast = FBroadcast.instance();
-  int? get _branch =>  getIt<CommonService>().branchId;
+  // int? get _branch =>  getIt<CommonService>().branchId;
 
 
   @override
@@ -79,16 +79,11 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
     return super.close();
   }
 
-  /// API CALL: Expense Vehicle
-  Future<Map<String, dynamic>?> _getExpense(String? minDate, String? maxDate) async => await apiRepository.getVehicleExpenseList(minDate: minDate, maxDate: maxDate);
-
   /// API CALL: SUB CATEGORY EXPENSE TO
   Future<Map<String,dynamic>?> _getSubCategoryExpenseTo() async => await apiRepository.getExpenseTo();
 
-  /// API CALL: Expense Vehicle Local
- /// Future<Map<String, dynamic>?> _getExpenseLocal({String? minDate, String? maxDate}) async => await apiRepository.vehicleExpense(minDate: minDate, maxDate: maxDate);
-
-
+   ///API CALL: Expense Vehicle Local
+  Future<Map<String, dynamic>?> _getExpense({String? minDate, String? maxDate}) async => await apiRepository.vehicleExpense(minDate: minDate, maxDate: maxDate);
   ExpenseBloc({bool listenBroadcast = true})
       : super(ExpenseState(
           apiResponse: const [],
@@ -407,17 +402,17 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
     return existResponse;
   }
 
-  List<Map<String, dynamic>> calculateApprovedAmounts(
-      List<Map<String, dynamic>> apiResponse,
-      List<Map<String, dynamic>> amountResponse) {
-    return apiResponse.map((e) {
-      var matchingAmounts = amountResponse
-          .where((element) => element['vin'] == e['vin'] && element['approved'] == 1)
-          .map((item) => num.tryParse(item['expense_amount'].toString()) ?? 0).sum;
-      e["approved_amount"] = matchingAmounts;
-      return e;
-    }).toList();
-  }
+  // List<Map<String, dynamic>> calculateApprovedAmounts(
+  //     List<Map<String, dynamic>> apiResponse,
+  //     List<Map<String, dynamic>> amountResponse) {
+  //   return apiResponse.map((e) {
+  //     var matchingAmounts = amountResponse
+  //         .where((element) => element['vin'] == e['vin'] && element['approved'] == 1)
+  //         .map((item) => num.tryParse(item['expense_amount'].toString()) ?? 0).sum;
+  //     e["approved_amount"] = matchingAmounts;
+  //     return e;
+  //   }).toList();
+  // }
 
   List<Map<String, dynamic>> employeeNames(
       List<Map<String, dynamic>> apiResponse,
@@ -450,23 +445,16 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
   void _resetAll() async {
     try {
       if(!isClosed) emit(state.copyWith(isLoading: true));
-      var startDate = DateTime.now()
-          .subtract(const Duration(days: 31))
-          .toFormat(format: 'yyyy-MM-dd');
-      var endDate = DateTime.now().toFormat(format: 'yyyy-MM-dd');
-      var expenseAmountResponse = await _getExpense(startDate, endDate);
-      var response = await _getExpense(minDate, maxDate);
-      // var local = await _getExpenseLocal(minDate: minDate, maxDate: maxDate);
-      // Console.of.log(jsonEncode(local));
+
+      var getExpense = await _getExpense(minDate: minDate, maxDate: maxDate);
+      var monthlyResponse = List<Map<String, dynamic>>.from(getExpense?['monthlyData'] ?? []);
+      var apiResponse = List<Map<String, dynamic>>.from(getExpense?['requestData'] ?? []);
       var usersList = await getIt<CommonService>().getUsers();
       var categories = await getIt<CommonService>().getExpenseCategories();
-      var apiResponse = List<Map<String, dynamic>>.from(response?['data'] ?? []);
-      var amountResponse = List<Map<String, dynamic>>.from(expenseAmountResponse?['data']);
       apiResponse.removeWhere((element) => element['vehicle'].toString().isNullOrEmpty);
-      amountResponse.removeWhere((element) => element['vehicle'].toString().isNullOrEmpty);
+      monthlyResponse.removeWhere((element) => element['vehicle'].toString().isNullOrEmpty);
       apiResponse.removeWhere((element) => element['vehicle']?['branch_code'] != Session.of.getInt(Str.branchIdPrefText));
-      amountResponse.removeWhere((element) => element['vehicle']?['branch_code'] != Session.of.getInt(Str.branchIdPrefText));
-      apiResponse = calculateApprovedAmounts(apiResponse, amountResponse);
+      monthlyResponse.removeWhere((element) => element['vehicle']?['branch_code'] != Session.of.getInt(Str.branchIdPrefText));
       apiResponse = employeeNames(apiResponse, usersList);
       apiResponse = cohortList(apiResponse);
       apiResponse.sort((a, b) => DateTime.parse(b['created_at'] ?? '')

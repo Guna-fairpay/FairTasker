@@ -433,9 +433,13 @@ class APiRepository {
 
   String get _addUserRole => "addRole";
 
-  String get _deleteRole => "deleteRole;";
+  String get _deleteRole => "deleteRole";
 
   String get _vehicleExpenses => "vehilceExpenses";
+
+  String get _personExpenses => "personExpenses";
+
+  String get _otherExpenses => "otherExpenses";
 
   String get _getApproveTask => "getApproveTask";
 
@@ -4334,6 +4338,44 @@ Future<Map<String, dynamic>?> getLocations() async {
       {String? minDate, String? maxDate}) async {
     try {
       String apiUrl = '${Str.BASE_URL}$_vehicleExpenses';
+      var params = {
+        "minDate": minDate,
+        "maxDate": maxDate,
+      };
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl, params:params );
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> personExpenses(
+      {String? minDate, String? maxDate}) async {
+    try {
+      String apiUrl = '${Str.BASE_URL}$_personExpenses';
+      var params = {
+        "minDate": minDate,
+        "maxDate": maxDate,
+      };
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl, params:params );
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> otherExpenses(
+      {String? minDate, String? maxDate}) async {
+    try {
+      String apiUrl = '${Str.BASE_URL}$_otherExpenses';
       var params = {
         "minDate": minDate,
         "maxDate": maxDate,

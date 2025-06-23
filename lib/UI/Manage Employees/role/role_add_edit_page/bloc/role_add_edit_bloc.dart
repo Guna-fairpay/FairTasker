@@ -28,6 +28,8 @@ class RoleAddEditBloc extends Bloc<RoleAddEditEvent, RoleAddEditState>{
   bool isUserEdit = false;
   bool isRoleEdit = false;
 
+  dynamic message;
+
   Future<Map<String, dynamic>?> _getEmployeeData() async => await _apiRepository.getEmployeeData();
   Future<Map<String, dynamic>?> _getPermissionList() async => await _apiRepository.getPermissionList();
   Future<Map<String, dynamic>?> _getEditRole({dynamic id}) async => await _apiRepository.getEditRole(id: id);
@@ -109,6 +111,7 @@ class RoleAddEditBloc extends Bloc<RoleAddEditEvent, RoleAddEditState>{
     if(formKey.currentState?.validate() == false) return emit(CommonState());
     try {
       emit(LoadingState());
+      if(selectedPermissionId.isEmpty) return emit(ErrorState('The permission field is required.'));
       var response = await (
           (isUserEdit || selectedBase?['id'] == 2)
           ? _addEditUserRole(id: model?['user']?['id'], body: {

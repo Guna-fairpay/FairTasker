@@ -109,10 +109,11 @@ class ApproveTaskListingUI extends StatelessWidget {
                     Color color = (item['complete_time_approved'] == 0) && (item?['extraMin'] != null) ? AppC.redAccent : AppC.appColor;
                     return Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     spacing: 10,
                     children: [
                       Expanded(
-                        flex: 5,
+                        flex: 2,
                         child: Column(
                           spacing: 5,
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -145,23 +146,25 @@ class ApproveTaskListingUI extends StatelessWidget {
                         ),
                       ),
                       Flexible(
-                        flex: 2,
                         child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             RichText(
                                 text: TextSpan(children: [
                                   TextSpan(text: item['todo_date'].toString().toDateTime()?.toFormat(format: 'MM-dd') ?? '',
                                   ),
                                   WidgetSpan(child: 5.spMin.width),
-                                  TextSpan(text: item?['todo_time'].toString().toFormat(inputFormat: "HH:mm:ss", format: "hh:mm a") ?? '',),
+                                  TextSpan(text: item?['todo_time'].toString().toFormat(inputFormat: "HH:mm:ss", format: "hh:mm a") ?? ''),
                                 ],
                                     style: TextStyle( color: color))
                             ),
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              mainAxisSize: MainAxisSize.min,
+                              spacing: 10,
                               children: [
-                                Expanded(
+                                Flexible(
                                   child: Padding(
                                     padding: 10.horizontalPadding,
                                     child: Utils.getText(userList.join(', '), size: 12.spMin, weight: FontWeight.bold, overFlow: TextOverflow.ellipsis),
