@@ -217,12 +217,6 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
     }
     });
 
-    // on<SelectedPaymentEvent>((event, emit) =>
-    //     emit(state.copyWith(selectedPaymentType: event.paymentType)));
-
-    on<VehicleEvent>((event, emit) =>
-        emit(state.copyWith(selectedVehicle: event.selectedVehicle)));
-
     on<SubcategoryDropdownEvent>((event, emit) =>
         emit(state.copyWith(selectedExpenseTo: event.selectedExpenseTo)));
 
@@ -401,18 +395,6 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
     }
     return existResponse;
   }
-
-  // List<Map<String, dynamic>> calculateApprovedAmounts(
-  //     List<Map<String, dynamic>> apiResponse,
-  //     List<Map<String, dynamic>> amountResponse) {
-  //   return apiResponse.map((e) {
-  //     var matchingAmounts = amountResponse
-  //         .where((element) => element['vin'] == e['vin'] && element['approved'] == 1)
-  //         .map((item) => num.tryParse(item['expense_amount'].toString()) ?? 0).sum;
-  //     e["approved_amount"] = matchingAmounts;
-  //     return e;
-  //   }).toList();
-  // }
 
   List<Map<String, dynamic>> employeeNames(
       List<Map<String, dynamic>> apiResponse,
