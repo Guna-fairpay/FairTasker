@@ -49,12 +49,13 @@ class TaskerBouncieBloc extends Bloc<TaskerBouncieEvent, TaskerBouncieState> {
         }
       } else {
         var bouncie = _model?['bouncie_data'];
+        Console.of.log(jsonEncode(_model));
         if (bouncie != null) {
           _vin = bouncie?['vin'];
           hasData = bouncie != null;
           latLng = LatLng(double.tryParse("${bouncie?['stats']?['location']?['lat'] ?? 0.0}") ?? 0.0, double.tryParse("${bouncie?['stats']?['location']?['lon'] ?? 0.0}") ?? 0.0);
           address = bouncie?['address'] ?? "";
-          fuelLevel = num.tryParse("${bouncie?['stats']?['fuelLevel'] ?? ""}")?.ceil() ?? 0;
+          fuelLevel = num.tryParse("${bouncie?['stats']?['fuelLevel'] ?? ""}")?.round() ?? 0;
           batteryLevel = bouncie?['stats']?['battery']?['status'] ?? "";
           lastUpdated = DateTime.parse(bouncie?['stats']?['lastUpdated'] ?? "").toFormat(format: "MM-dd-yyyy hh:mm a");
         }

@@ -185,7 +185,7 @@ class _TaskerBouncieMapWidget extends StatelessWidget {
             children: [
               TextSpan(text: "${context.watch<TaskerBouncieBloc>().lastUpdated ?? ""}")
             ]
-          ), style: context.textTheme.labelMedium?.copyWith(color: AppC.redAccent)),
+          ), style: context.textTheme.labelLarge?.copyWith(color: AppC.redAccent, fontWeight: FontWeight.w200)),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -193,14 +193,14 @@ class _TaskerBouncieMapWidget extends StatelessWidget {
                 spacing: 5.sp,
                 children: [
                   const Icon(Icons.local_gas_station_rounded),
-                  Text("${context.watch<TaskerBouncieBloc>().fuelLevel ?? ""}", style: context.textTheme.labelLarge?.copyWith(color: AppC.green, fontWeight: FontWeight.bold))
+                  Text("${context.watch<TaskerBouncieBloc>().fuelLevel ?? ""}%", style: context.textTheme.labelLarge?.copyWith(color: AppC.green, fontWeight: FontWeight.bold))
                 ],
               ),
               Column(
                 spacing: 5.sp,
                 children: [
                   const Icon(Icons.battery_3_bar_rounded),
-                  Text("${context.watch<TaskerBouncieBloc>().batteryLevel ?? ""}", style: context.textTheme.labelLarge?.copyWith(color: AppC.redAccent, fontWeight: FontWeight.bold))
+                  Text("${context.watch<TaskerBouncieBloc>().batteryLevel ?? ""}".toTitleCase(), style: context.textTheme.labelLarge?.copyWith(color: AppC.redAccent, fontWeight: FontWeight.bold))
                 ],
               ),
             ],
