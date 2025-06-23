@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:developer';
+import 'dart:math';
 import 'package:collection/collection.dart';
+import 'package:equatable/equatable.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/Bloc/vehicle_state.dart';
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/Bloc/vehicle_event.dart';
 import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
@@ -12,6 +12,9 @@ import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+part 'vehicle_event.dart';
+part 'vehicle_state.dart';
 
 class VehicleBloc extends Bloc<VehicleEvent, VehicleState>{
   final FBroadcast _broadcast = FBroadcast.instance();
@@ -125,7 +128,7 @@ class VehicleBloc extends Bloc<VehicleEvent, VehicleState>{
       emit(VehicleLoadingState());
       var response = await _apiRepository.moveVehicleToPrivateRental(
           rentalData: event.vehicleData);
-      log(response.toString(), name: "VehicleBloc");
+      Console.of.log(response.toString(), name: "VehicleBloc");
       if (response?['data'] != null) {
         var existResponse = apiResponse.map((e) {
           if (e['id'] == event.vehicleData['id']) {
@@ -145,7 +148,7 @@ class VehicleBloc extends Bloc<VehicleEvent, VehicleState>{
       emit(VehicleCommonState());
     } catch (e) {
       emit(VehicleCommonState());
-      log("$e", name: "VehicleBloc");
+      Console.of.log("$e", name: "VehicleBloc");
     }
   }
   void _onEditVehicleTabEvent(EditVehicleTabEvent event, Emitter<VehicleState> emit) async {

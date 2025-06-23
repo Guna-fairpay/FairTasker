@@ -3,10 +3,10 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'dart:math';
 import 'package:collection/collection.dart';
+import 'package:equatable/equatable.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleEdit/Bloc/edit_vehicle_event.dart';
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleEdit/Bloc/edit_vehicle_state.dart';
 import 'package:fairpytasker/UI/tasker/helper/tasker_helper.dart';
 import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/Utilities/Utils.dart';
@@ -19,6 +19,9 @@ import 'package:fbroadcast/fbroadcast.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+part 'edit_vehicle_event.dart';
+part 'edit_vehicle_state.dart';
 
 class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
   final APiRepository _apiRepository = APiRepository();
@@ -179,7 +182,7 @@ class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
       }catch(e){
         Console.of.error("Error", error: e);
         emit(EditVehicleErrorState(e.toString()));
-        log(e.toString(),name: "EditVehicleInitialEvent");
+        Console.of.log(e.toString(),name: "EditVehicleInitialEvent");
       }
 
     });
@@ -209,13 +212,13 @@ class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
 
     on<PurchaseReceiptImageEvent>((event, emit) async {
       receiptImage = await _handleFileSelection(receiptImage, "receiptImageFile");
-      log("$receiptImage", name: "PurchaseReceiptImageEvent");
+      Console.of.log("$receiptImage", name: "PurchaseReceiptImageEvent");
       emit(EditVehicleCommonState());
     });
 
     on<VehicleImageEvent>((event, emit) async {
       vehicleImage = await _handleFileSelection(vehicleImage, "vehicleImageFile");
-      log("$vehicleImage", name: "VehicleImageEvent");
+      Console.of.log("$vehicleImage", name: "VehicleImageEvent");
 
       emit(EditVehicleCommonState());
     });
@@ -360,7 +363,7 @@ class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
         }
       } catch (e) {
         Toaster.showError("$e");
-        log(e.toString(), name: 'ERROR');
+        Console.of.log(e.toString(), name: 'ERROR');
         emit(EditVehicleCommonState());
       }
     });
@@ -414,7 +417,7 @@ class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
     baseBody['insurance_cost'] = insuranceCostController.text;
     baseBody['employee_id'] = "${getIt<CommonService>().userId}";
     baseBody['platform_from'] = 'tasker-app';
-    log(jsonEncode(baseBody), name: "Expense_Body");
+    Console.of.log(jsonEncode(baseBody), name: "Expense_Body");
     return baseBody;
   }
 
@@ -456,7 +459,7 @@ class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
       fileList.addAll(existing);
       fileList.addAll(newFiles);
 
-      log("$fileList", name: logName);
+      Console.of.log("$fileList", name: logName);
       Console.of.warning(vehicleImage, name: "vehicleImage");
       return fileList;
       // emit(EditVehicleCommonState());
@@ -474,9 +477,9 @@ class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
       fileList.remove(data);
       return data;
     } else if(data is String){
-      log(data, name: "data");
-      log(fileList.toString(), name: "fileList");
-      log("$fullImageList", name: "fullImageList");
+      Console.of.log(data, name: "data");
+      Console.of.log(fileList.toString(), name: "fileList");
+      Console.of.log("$fullImageList", name: "fullImageList");
       try {
         var path = fileList.firstWhereOrNull((element) => element == data.toString());
         var lastData = fullImageList.firstWhereOrNull((element) => element['path'] == path.toString().removeStorageUrl);

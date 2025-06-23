@@ -5,7 +5,11 @@ import 'package:fairpytasker/UI/approve_task/bloc/approve_task_bloc.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
+import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/extension/timeday_extension.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -28,8 +32,8 @@ class ApproveTaskMainUI extends StatelessWidget {
        body: BlocProvider(create: (context) => ApproveTaskBloc()..add(InitialEvent()),
          child: BlocListener<ApproveTaskBloc, ApproveTaskState>(
            listener: (context, state) {
-             if(State is LoadingState){
-              if(!EasyLoading.isShow) EasyLoading.show();
+             if(state is LoadingState){
+              EasyLoading.show();
              }else{
                if(EasyLoading.isShow) EasyLoading.dismiss();
                switch(state){
@@ -37,7 +41,7 @@ class ApproveTaskMainUI extends StatelessWidget {
                  case SuccessState(): Toaster.showSuccess(state.message); break;
                }
              }
-             },
+           },
            child: const ApproveTaskListingUI(),
          ),
        ),

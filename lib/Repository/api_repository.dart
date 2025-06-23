@@ -437,6 +437,10 @@ class APiRepository {
 
   String get _vehicleExpenses => "vehilceExpenses";
 
+  String get _getApproveTask => "getApproveTask";
+
+  String get _approveTodo => "approveTodo";
+
   String get _getBouncies => "getBouncies";
 
   String get _checkInOut => "checkInOut";
@@ -4376,6 +4380,36 @@ Future<Map<String, dynamic>?> getLocations() async {
     }
   }
 
+  Future<Map<String, dynamic>?> getApproveTask({dynamic fromDate, dynamic toDate}) async {
+    try {
+      String apiUrl = '${Str.BASE_URL}$_getApproveTask';
+      var params = {
+        "from": fromDate,
+        "to": toDate,
+      };
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl, params:params );
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    }catch(error){
+      rethrow;
+    }
+  }
 
+  Future<Map<String, dynamic>?> approveTodo({dynamic body}) async{
+    try {
+      String apiUrl = '${Str.BASE_URL}$_approveTodo';
+      final http.Response? response = await _apiClient.callPostMethodWithBodyDynamic(apiUrl, body: body);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      }else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    }catch(error){
+      rethrow;
+    }
+  }
 
 }
