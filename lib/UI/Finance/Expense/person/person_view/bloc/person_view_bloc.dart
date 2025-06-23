@@ -145,7 +145,6 @@ class PersonViewBloc extends Bloc<PersonViewEvent, PersonViewState>{
       startDate: selectedDateRange.start.toFormat(),
       endDate: selectedDateRange.end.toFormat(),
     );
-    Console.of.log(data);
     var oneMonthResponse = List.from(data?['monthlyData'] ?? []);
     var response = List.from(data?['requestData'] ?? []);
     monthResponse = oneMonthResponse;
