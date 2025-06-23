@@ -379,10 +379,11 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         .where((e) => addressIds.contains(e['id']))
         .toList();
     if(vinList.isNotEmpty){
-      previousOdometer = await _getPreviousOdometer(
+      previousOdometer = List.from(todoResponse?['previousOdometer']).firstOrNull;
+      /*previousOdometer = await _getPreviousOdometer(
           date: todoResponse?['todo_date'],
           vin: List.from(vinList).firstOrNull ?? '',
-          identifierId: todoResponse?['identifier_id']);
+          identifierId: todoResponse?['identifier_id']);*/
     }
     showCleanCar = Str.cleanCarCheckIds.contains(todoResponse?['identifier_id']);
     RegExp dateRegExp = RegExp(r'\d{2}-\d{2}-\d{4}');
@@ -427,7 +428,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       bottomTapData: tabs,
       resourceName: list,
       apiResponse: todoResponse,
-      previousOdometer: "${previousOdometer?['data'] ?? ''}",
+      previousOdometer: "${previousOdometer?['odometer'] ?? ''}",
       todoStatus: todoResponse?['status'] == 'In Progress' ? false : true,
       selectedBottomTap: selectionTaps,
       tasks: task,
