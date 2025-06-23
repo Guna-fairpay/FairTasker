@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/UI/dialog/tasker_bouncie/bloc/tasker_bouncie_event.dart';
 import 'package:fairpytasker/UI/dialog/tasker_bouncie/bloc/tasker_bouncie_state.dart';
@@ -28,7 +30,7 @@ class TaskerBouncieBloc extends Bloc<TaskerBouncieEvent, TaskerBouncieState> {
     try {
       emit(TaskerBouncieLoadingState());
       _model = event.model;
-      if (_model?.containsKey("bouncie") == false) {
+      if (_model?.containsKey("bouncie_data") == false) {
         _vin = List.from(_model?['display']?['vins'] ?? []).firstOrNull;
         Console.of.log(_vin, name: "VIN");
         if (_vin.toString().isNotNullOrEmpty) {
@@ -46,14 +48,16 @@ class TaskerBouncieBloc extends Bloc<TaskerBouncieEvent, TaskerBouncieState> {
           }
         }
       } else {
-        var bouncie = _model?['bouncie'];
-        _vin = bouncie?['vin'];
-        hasData = bouncie != null;
-        latLng = LatLng(double.tryParse("${bouncie?['stats']?['location']?['lat'] ?? 0.0}") ?? 0.0, double.tryParse("${bouncie?['stats']?['location']?['lon'] ?? 0.0}") ?? 0.0);
-        address = bouncie?['address'] ?? "";
-        fuelLevel = num.tryParse("${bouncie?['stats']?['fuelLevel'] ?? ""}")?.ceil() ?? 0;
-        batteryLevel = bouncie?['stats']?['battery']?['status'] ?? "";
-        lastUpdated = DateTime.parse(bouncie?['stats']?['lastUpdated'] ?? "").toFormat(format: "MM-dd-yyyy hh:mm a");
+        var bouncie = _model?['bouncie_data'];
+        if (bouncie != null) {
+          _vin = bouncie?['vin'];
+          hasData = bouncie != null;
+          latLng = LatLng(double.tryParse("${bouncie?['stats']?['location']?['lat'] ?? 0.0}") ?? 0.0, double.tryParse("${bouncie?['stats']?['location']?['lon'] ?? 0.0}") ?? 0.0);
+          address = bouncie?['address'] ?? "";
+          fuelLevel = num.tryParse("${bouncie?['stats']?['fuelLevel'] ?? ""}")?.ceil() ?? 0;
+          batteryLevel = bouncie?['stats']?['battery']?['status'] ?? "";
+          lastUpdated = DateTime.parse(bouncie?['stats']?['lastUpdated'] ?? "").toFormat(format: "MM-dd-yyyy hh:mm a");
+        }
       }
       emit(TaskerBouncieCommonState());
     } catch (e) {
