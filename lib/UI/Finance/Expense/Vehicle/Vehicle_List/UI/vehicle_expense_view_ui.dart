@@ -7,6 +7,7 @@ import "package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_List/Bloc/expens
 import "package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_List/Bloc/expense_state.dart";
 import "package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_List/Dialog/category_subcategory_dialog.dart";
 import "package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_List/Dialog/cohort_dialog.dart";
+import "package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_List/Dialog/expense_summery_dialog/ui/expense_summery_main_ui.dart";
 import "package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_List/UI/expense_vehicle_list_item.dart";
 import "package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_Add/UI/vehicle_expense_add_ui.dart";
 import "package:fairpytasker/Utilities/Utils.dart";
@@ -81,18 +82,21 @@ class ExpenseVehicleViewUI extends StatelessWidget {
                             title: Utils.getText('Approved',size: 12.sp,color: AppC.grey,weight: FontWeight.bold),
                             value: state.isExpenseApproved,
                             onChanged:  (value)=>context.read<ExpenseBloc>().add(ApprovedExpenseEvent(isApproved:value)),),
-                          Row(
-                            spacing: 35,
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Utils.getText(
-                                  '\$ ${state.unApprovedAmount.toStringAsFixed(2)}',
-                                  color: AppC.redAccent,
-                                  weight: FontWeight.bold),
-                              Utils.getText('\$ ${state.approvedAmount.toStringAsFixed(2)}',
-                                  color: AppC.appColor,
-                                  weight: FontWeight.bold),
-                            ],
+                          InkWell(
+                            onTap: () => ExpenseSummeryMainUI.show(context),
+                            child: Row(
+                              spacing: 35,
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Utils.getText(
+                                    '\$ ${state.unApprovedAmount.toStringAsFixed(2)}',
+                                    color: AppC.redAccent,
+                                    weight: FontWeight.bold),
+                                Utils.getText('\$ ${state.approvedAmount.toStringAsFixed(2)}',
+                                    color: AppC.appColor,
+                                    weight: FontWeight.bold),
+                              ],
+                            ),
                           ),
                         ],
                       )
