@@ -433,7 +433,7 @@ class APiRepository {
 
   String get _addUserRole => "addRole";
 
-  String get _deleteRole => "deleteRole;";
+  String get _deleteRole => "deleteRole";
 
   String get _vehicleExpenses => "vehilceExpenses";
 

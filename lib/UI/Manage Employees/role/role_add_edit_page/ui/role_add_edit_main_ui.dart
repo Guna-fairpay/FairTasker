@@ -29,7 +29,7 @@ class RoleAddEditMainUI extends StatelessWidget {
           if(state is LoadingState){
             EasyLoading.show();
           }else {
-            if (EasyLoading.isShow) EasyLoading.dismiss();
+            if(state is! SuccessState) if (EasyLoading.isShow) EasyLoading.dismiss();
             switch (state) {
               case ErrorState(): Toaster.showError(state.message); break;
               case SuccessState():

@@ -90,7 +90,7 @@ class RoleViewBloc extends Bloc<RoleViewEvent, RoleViewState>{
     try {
       emit(LoadingState());
       var response = await _deleteRole(id: event.data?['id']);
-      if(response?['status'] == true){
+      if(response?['status'] == 200){
         await _reFetch();
         emit(SuccessState(response?['message']));
       }else{
