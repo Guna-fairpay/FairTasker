@@ -4,6 +4,7 @@ import 'package:fairpytasker/UI/dialog/tasker_bouncie/bloc/tasker_bouncie_event.
 import 'package:fairpytasker/UI/dialog/tasker_bouncie/bloc/tasker_bouncie_state.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
+import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
@@ -118,9 +119,11 @@ class _TaskerBouncieErrorWidget extends StatelessWidget {
                         style: context.textTheme.labelLarge
                             ?.copyWith(color: AppC.bouncieFontColor)),
                   ),
-                  const SuccessButton(
+                  if (context.watch<TaskerBouncieBloc>().displayErrorMsg == "Login to bouncie to get details")
+                  SuccessButton(
                     text: "Login Bouncie",
                     backgroundColor: AppC.bouncieButtonColor,
+                    onPressed: () => Utils.openURL("https://www.bouncie.app/login"),
                   )
                 ],
               )
