@@ -156,7 +156,7 @@ class ManageCustomDataMenuUI extends StatelessWidget {
       ),
       elevation: 2, // Slight elevation
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10),
+        padding: 10.spMin.padding,
         child: RowTile(
           onTap: onTap,
           spacing: 10.spMin,
@@ -164,11 +164,9 @@ class ManageCustomDataMenuUI extends StatelessWidget {
           leading: Icon(
             icon,
             color: AppC.appColor,
-            size: 15.spMin,
           ),
           title: CompactText(
-            title,
-            color: Colors.black87,
+            title, color: Colors.black87,
           ),
           trailing: Icon(
             Iconsax.arrow_right_3,

@@ -1,14 +1,16 @@
+import 'package:fairpytasker/Component/custom_text/compact_text.dart';
 import 'package:fairpytasker/UI/Manage%20Employees/Employees/Employee_List_Page/UI/employee_main_page.dart';
 import 'package:fairpytasker/UI/Manage%20Employees/department/department_listing/ui/department_view_main_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Employees/permission/permission_listing/ui/permission_listing_main_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Employees/role/role_view_page/ui/role_view_main_ui.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:fairpytasker/Utilities/utils.dart';
+import 'package:iconsax/iconsax.dart';
 
 
 class ManageEmployees extends StatelessWidget {
@@ -30,20 +32,19 @@ class ManageEmployees extends StatelessWidget {
       ),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+          padding: 10.spMin.horizontalPadding,
           children: [
             const SizedBox(
               height: 5,
             ),
             _buildCard(
-              icon: Icons.groups,
+              icon: Iconsax.people,
               title: 'Employees',
               onTap: () => context.push(const EmployeeMainPage())),
             if (getIt<CommonService>().isAdmin || kDebugMode)
               ...[
                 _buildCard(
-                  icon: Icons
-                      .business_center, // or Icons.apartment, Icons.business_center, Icons.people_alt
+                  icon: Iconsax.briefcase, // or Icons.apartment, Icons.business_center, Icons.people_alt
                   title: 'Departments',
                   onTap:  ()=> context.push(const DepartmentViewMainUI())),
                 // _buildCard(
@@ -55,11 +56,11 @@ class ManageEmployees extends StatelessWidget {
                 //   },
                 // ),
                 _buildCard(
-                  icon: Icons.badge_outlined,
+                  icon: Iconsax.personalcard,
                   title: 'Roles',
                   onTap: ()=> context.push(const RoleViewMainUI())),
                 _buildCard(
-                  icon: Icons.lock_person,
+                  icon: Iconsax.unlock,
                   title: 'Permissions',
                   onTap: ()=> context.push(const PermissionListingMainUI())),
               ],
@@ -88,15 +89,13 @@ class ManageEmployees extends StatelessWidget {
           ),
           elevation: 2, // Slight elevation
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10),
+            padding: 10.spMin.padding,
             child: Row(
               children: [
-                Icon(icon,
-                    color: AppC().base, size: 14.sp), // Darker grey-blue for icons
+                Icon(icon, color: AppC.appColor), // Darker grey-blue for icons
                 const SizedBox(width: 18),
                 Expanded(
-                  child: Utils.getText(title,
-                      size: 12.sp, weight: FontWeight.w400, color: Colors.black87),
+                  child: CompactText(title, fontWeight: FontWeight.w400, color: Colors.black87),
                 ),
                 Icon(Icons.arrow_forward_ios,
                     size: 12.sp,
