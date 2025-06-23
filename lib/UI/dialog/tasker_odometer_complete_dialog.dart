@@ -1,0 +1,171 @@
+import 'package:fairpytasker/UI/dialog/tasker_odometer_complete_dialog_bloc/tasker_odometer_complete_states.dart';
+import 'package:fairpytasker/UI/dialog/tasker_odometer_complete_dialog_bloc/tasker_odometer_complete_events.dart';
+import 'package:fairpytasker/UI/dialog/tasker_odometer_complete_dialog_bloc/tasker_odometer_complete_bloc.dart';
+import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/helper/warning_helper.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:fairpytasker/Component/success_button.dart';
+import 'package:fairpytasker/core/app/helper/toaster.dart';
+import 'package:fairpytasker/Utilities/utils.dart';
+import 'package:fairpytasker/Utilities/num.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+class TaskerOdometerCompleteDialog {
+  TaskerOdometerCompleteDialog._();
+
+  static void show(BuildContext context, Map<String, dynamic>? model, {void Function(num currentOdometer, num nextMileCheck, num nextOdometer)? onChanged}) async {
+    await showDialog(context: context, barrierDismissible: false, useSafeArea: true, builder: (context) => _TaskerOdometerCompleteDialog(model: model, onChanged: onChanged));
+  }
+}
+
+class _TaskerOdometerCompleteDialog extends StatelessWidget {
+  final Map<String, dynamic>? model;
+  final void Function(num currentOdometer, num nextMileCheck, num nextOdometer)? onChanged;
+
+  const _TaskerOdometerCompleteDialog({required this.model, this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      shape: ContinuousRectangleBorder(borderRadius: BorderRadius.circular(Num.borderRadiusLarge)),
+      insetPadding: 10.padding,
+      titlePadding: 16.padding,
+      title: ListTile(
+        dense: true,
+        minVerticalPadding: 0,
+        minLeadingWidth: 0,
+        minTileHeight: 0,
+        title: const Text(""),
+        contentPadding: EdgeInsets.zero,
+        trailing: IconButton(
+            onPressed: context.popDialog,
+            icon: const Icon(Icons.close_rounded)),
+      ),
+      contentPadding: 20.padding,
+      content: BlocProvider(
+        create: (context) => TOCDBloc()..add(TOCDInitialEvents(model)),
+        child: BlocListener<TOCDBloc, TOCDStates>(
+            listener: (context, state) {
+              if (state is TOCDLoadingState) {
+                if (!EasyLoading.isShow) EasyLoading.show();
+              } else {
+                if (EasyLoading.isShow) EasyLoading.dismiss();
+                switch (state) {
+                  case TOCDErrorState(): Toaster.showError(state.message); break;
+                  case TOCDSuccessState(): Toaster.showSuccess(state.message); break;
+                  case TOCDOdometerWarningState(): WarningHelper.odometerWarning(context, onPositive: () => context.read<TOCDBloc>().add(TOCDSubmitEvent(isOverride: true))); break;
+                  case TOCDCompleteState():
+                    {
+                      onChanged?.call(state.currentOdometer ?? 0, state.nextMileCheck ?? 0, state.nextOdometer ?? 0);
+                      context.popDialog();
+                    }
+                    break;
+                }
+              }
+            },
+            child: const _TaskerOdometerCompleteDialogBodyView()),
+      ),
+    );
+  }
+}
+
+class _TaskerOdometerCompleteDialogBodyView extends StatelessWidget {
+  const _TaskerOdometerCompleteDialogBodyView();
+
+  @override
+  Widget build(BuildContext _) {
+    return BlocBuilder<TOCDBloc, TOCDStates>(
+        builder: (context, state) => SizedBox(
+              width: MediaQuery.of(context).size.width,
+              child: Form(
+                key: context.read<TOCDBloc>().formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 10,
+                  children: [
+                     if ((num.tryParse("${context
+                        .watch<TOCDBloc>()
+                        .previousOdometerResponse?['data'] ?? ""}") ?? 0) >
+                        0)
+                      Text.rich(
+                        TextSpan(
+                            text: "Previous Oil Change Odometer : ",
+                            children: [
+                              TextSpan(
+                                  text:
+                                      "${context.watch<TOCDBloc>().previousOdometerResponse?['data'] ?? 0}",
+                                  style: context.textTheme.labelLarge
+                                      ?.copyWith(fontWeight: FontWeight.w900))
+                            ]),
+                        style: context.textTheme.labelLarge,
+                      ),
+                    Row(
+                      spacing: 10,
+                      children: [
+                        Expanded(
+                          child: Utils.getText(
+                            'Oil Change Odometer',
+                            weight: FontWeight.bold,
+                          ),
+                        ),
+                        Expanded(
+                          child: Utils.getText(
+                            'Next Miles Check',
+                            weight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      spacing: 10,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Utils.getTextFormField(
+                            'Oil Change Odometer',
+                            autoValidate: AutovalidateMode.always,
+                            context.read<TOCDBloc>().oilChangeController,
+                            inputAction: TextInputAction.next,
+                            textType: const TextInputType.numberWithOptions(
+                                decimal: true),
+                            textInputFormatter: [
+                              FilteringTextInputFormatter.allow(
+                                  RegExp(r'^\d*\.?\d*')),
+                            ],
+                            validator: (val) => val.isNullOrEmpty ? "Please enter a valid odometer" : null,
+                          ),
+                        ),
+                        Expanded(
+                          child: Utils.getTextFormField(
+                              'Next Miles Check',
+                              textType: const TextInputType.numberWithOptions(
+                                  decimal: true),
+                              textInputFormatter: [
+                                FilteringTextInputFormatter.allow(
+                                    RegExp(r'^\d*\.?\d*')),
+                              ],
+                              context.read<TOCDBloc>().nextMilesCheckController,
+                              inputAction: TextInputAction.done),
+                        ),
+                      ],
+                    ),
+                    Utils.getText('Next Odometer', weight: FontWeight.bold),
+                    Utils.getTextFormField('Next Odometer', context.read<TOCDBloc>().nextOdometerController, readOnly: true),
+                      Align(
+                        alignment: AlignmentDirectional.centerEnd,
+                        child: SuccessButton(
+                          text: "Submit",
+                          onPressed: () => context.read<TOCDBloc>().add(TOCDSubmitEvent()),
+                        ),
+                      )
+                  ],
+                ),
+              ),
+            ));
+  }
+}

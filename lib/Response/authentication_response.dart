@@ -1,17 +1,22 @@
+import 'dart:convert';
 
 class AuthenticationResponse {
   AuthenticationResponse({
-      this.status, 
-      this.user, 
-      this.userPermissions, 
-      this.message,});
+    this.status,
+    this.user,
+    this.userPermissions,
+    this.message,
+  });
 
   AuthenticationResponse.fromJson(dynamic json) {
     status = json['status'];
     user = json['user'] != null ? User.fromJson(json['user']) : null;
-    userPermissions = json['userPermissions'] != null ? json['userPermissions'].cast<String>() : [];
+    userPermissions = json['userPermissions'] != null
+        ? json['userPermissions'].cast<String>()
+        : [];
     message = json['message'];
   }
+
   int? status;
   User? user;
   List<String>? userPermissions;
@@ -27,30 +32,32 @@ class AuthenticationResponse {
     map['message'] = message;
     return map;
   }
-
 }
 
 class User {
-  User({
-    this.name,
-    this.id,
-    this.token,
-    this.role,
-  this.password,
-  this.email,
-    this.hrmId
-  });
+  User(
+      {this.name,
+      this.id,
+      this.token,
+      this.role,
+      this.password,
+      this.email,
+      this.hrmId,
+      this.departmentId});
 
   User.fromJson(dynamic json) {
     name = json['name'];
     token = json['token'];
     id = json['id'];
-    branchId=json['branch_id'];
+    branchId = json['branch_id'];
     hrmId = json['hrm_id'];
+    departmentId = json['department_id'];
     role = json['role'] != null ? json['role'].cast<String>() : [];
+    resource = json['resource'] != null ? json['resource'].cast<int>() : [];
     password = '';
     email = '';
   }
+
   String? password;
   String? name;
   String? token;
@@ -58,15 +65,23 @@ class User {
   int? id;
   int? branchId;
   int? hrmId;
+  int? departmentId;
   List<String>? role;
+  List<int>? resource;
 
-  Map<String, dynamic> toJson() {
-    final map = <String, dynamic>{};
-    map['name'] = name;
-    map['token'] = token;
-    map['id'] = id;
-    map['role'] = role;
-    return map;
-  }
+  Map<String, dynamic> toJson() => {
+    "name" : name,
+    "token" : token,
+    "id" : id,
+    "hrm_id" : hrmId,
+    "role" : role,
+    "department_id" : departmentId,
+    "branch_id" : branchId,
+    "resource" : resource,
+    "password" : password,
+    "email" : email
+  };
 
+  @override
+  String toString() => jsonEncode(toJson());
 }

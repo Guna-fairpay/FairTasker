@@ -1,4 +1,13 @@
 import 'dart:io';
+import 'package:fairpytasker/UI/Feedback/feedback_edit/bloc/fb_edit_bloc.dart';
+import 'package:fairpytasker/UI/Feedback/feedback_edit/bloc/fb_edit_events.dart';
+import 'package:fairpytasker/UI/Feedback/feedback_edit/bloc/fb_edit_states.dart';
+import 'package:fairpytasker/UI/Feedback/feedback_edit/feedback_edit_form.dart';
+import 'package:fairpytasker/UI/Feedback/feedback_edit/feedback_edit_header.dart';
+import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
+import 'package:fairpytasker/core/app/helper/toaster.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'package:flutter/material.dart';
@@ -8,20 +17,84 @@ import '../../Utilities/appC.dart';
 import '../../Utilities/utils.dart';
 import 'Comments/feedback_comments_ui.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
-import 'dart:convert';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
-class FeedbackEditViewUI extends StatefulWidget {
+import 'Comments/feedback_comments_view.dart';
+
+class FeedbackEditViewUI extends StatelessWidget {
+  final dynamic feedBackId;
+  const FeedbackEditViewUI({super.key, required this.feedBackId});
+
+  @override
+  Widget build(BuildContext _) {
+    return BlocProvider<FBEditBloc>(
+      create: (context) => FBEditBloc()..add(FBInitialEvent(feedBackId)),
+      child: BlocListener<FBEditBloc, FBEditStates>(
+        listener: (context, state) {
+          Utils.dismissKeyboard(context);
+          if (state is FBLoadingState) {
+            EasyLoading.show();
+          } else {
+            if (EasyLoading.isShow) EasyLoading.dismiss();
+            switch(state) {
+              case FBErrorState(): Toaster.showError(state.message); break;
+              case FBSuccessState(): Toaster.showSuccess(state.message); break;
+              case FBFeedViewAttachmentState(): ShowAttachmentsDialog.of.show(context, attachments: state.attachments, title: "", currentAttachment: state.attachment); break;
+            }
+          }
+        },
+        child: BlocBuilder<FBEditBloc, FBEditStates>(
+          builder: (context, state) => Scaffold(
+            appBar: AppBar(
+              clipBehavior: Clip.antiAliasWithSaveLayer,
+              title: Utils.getText("${context.read<FBEditBloc>().pageTitle}",
+                  weight: FontWeight.bold, color: Colors.white),
+              backgroundColor: const Color(0xFF364290).withValues(alpha: 0.95),
+              foregroundColor: Colors.white,
+              actions: (context.read<FBEditBloc>().pageId != 0)
+                  ? []
+                  : [
+                IconButton(
+                  onPressed: () => context
+                      .read<FBEditBloc>()
+                      .add(FBFeedSubmitEvent()),
+                  icon: const Icon(Icons.save_rounded),
+                ),
+              ],
+            ),
+            body: SafeArea(
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  child: const Column(
+                    spacing: 5,
+                    children: [
+                      FeedBackEditHeader(),
+                      FeedbackEditForm(),
+                      // FeedbackEditComments(),
+                      FeedbackCommentsView(),
+                    ],
+                  ),
+                )
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class FeedbackEditViewUi extends StatefulWidget {
   final Map<String, dynamic> feedbacks;
   final String status;
-  const FeedbackEditViewUI(
+
+  const FeedbackEditViewUi(
       {super.key, required this.feedbacks, required this.status});
 
   @override
-  State<FeedbackEditViewUI> createState() => _FeedbackEditViewUIState();
+  State<FeedbackEditViewUi> createState() => _FeedbackEditViewUIState();
 }
 
-class _FeedbackEditViewUIState extends State<FeedbackEditViewUI> {
+class _FeedbackEditViewUIState extends State<FeedbackEditViewUi> {
   quill.QuillController descriptionController = quill.QuillController.basic();
   late TextEditingController titleController;
   PageController pageController = PageController(initialPage: 0);
@@ -45,10 +118,11 @@ class _FeedbackEditViewUIState extends State<FeedbackEditViewUI> {
 
     titleController = TextEditingController(text: widget.feedbacks['title']);
     descriptionController = quill.QuillController(
-      document: quill.Document.fromJson(widget.feedbacks['des']),
+      document: quill.Document.fromHtml("${widget.feedbacks['description']}"),
       selection: const TextSelection.collapsed(offset: 0),
     );
-    imagePaths = widget.feedbacks['imgurls'] as List<dynamic>;
+    imagePaths =
+        widget.feedbacks?["attachments"]?.map((e) => e['path']).toList() ?? [];
     selectedPriority = widget.feedbacks['priority'];
     selectedStatus = widget.status;
   }
@@ -256,23 +330,23 @@ class _FeedbackEditViewUIState extends State<FeedbackEditViewUI> {
                     const SizedBox(height: 10),
                     SizedBox(
                       height: 40,
-                      child: Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                      child: Utils.getTextFormField(
                         '',
                         titleController,
                         label: Utils.getText('Title'),
                       ),
                     ),
                     const SizedBox(height: 20),
-                    Utils.buildDropdownButton(
-                      'Select Priority',
-                      priority,
-                      selectedPriority,
-                      (value) {
-                        setState(() {
-                          selectedPriority = value;
-                        });
-                      },
-                    ),
+                    // Utils.buildDropdownButton(
+                    //   'Select Priority',
+                    //   priority,
+                    //   selectedPriority,
+                    //   (value) {
+                    //     setState(() {
+                    //       selectedPriority = value;
+                    //     });
+                    //   },
+                    // ),
                     const SizedBox(
                       height: 4,
                     ),
@@ -318,7 +392,7 @@ class _FeedbackEditViewUIState extends State<FeedbackEditViewUI> {
                     const SizedBox(
                       height: 10,
                     ),
-                    Utils.buildDropdownButton(
+                    /*Utils.buildDropdownButton(
                       'Select Status', // Changed from 'Select Priority' to 'Select Status'
                       status,
                       selectedStatus,
@@ -327,7 +401,7 @@ class _FeedbackEditViewUIState extends State<FeedbackEditViewUI> {
                           selectedStatus = value;
                         });
                       },
-                    ),
+                    ),*/
                     const SizedBox(
                       height: 10,
                     ),

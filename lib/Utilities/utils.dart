@@ -1,21 +1,34 @@
 
-
+import 'dart:developer';
+import 'dart:io';
+import 'dart:math' as math;
+import 'package:date_time/date_time.dart' as dt;
+import 'package:fairpytasker/Component/custom_search_bar.dart';
+import 'package:fairpytasker/Component/focus_node_wrapper.dart';
+import 'package:fairpytasker/Component/tasker_button.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/assets.dart';
 import 'package:fairpytasker/Utilities/num.dart';
+import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/Utilities/str.dart';
+import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
+import 'package:fairpytasker/core/app/helper/helper.dart';
 import 'package:fairpytasker/main.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:dropdown_search/dropdown_search.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:open_file/open_file.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter_date_range_picker/flutter_date_range_picker.dart'
-    as DateRangePicker;
+import 'package:url_launcher/url_launcher.dart';
 
 enum ImageUploadType {
   gallery,
@@ -30,6 +43,29 @@ enum ImageUploadType {
 class Utils {
   static final Connectivity _connectivity = Connectivity();
   final viewTransformationController = TransformationController();
+  static final ImagePicker _picker = ImagePicker();
+
+
+  static String get returnBearerToken => Session.of.getString(Str.frBearerToken).toBearer;
+
+  static String get bearerToken => Session.of.getString(Str.accessTokenPrefText).toBearer;
+
+  static Future<List<File>> pickImages(ImageSource source) async {
+    List<File> images = [];
+
+    if (source == ImageSource.gallery) {
+      final List<XFile> selectedImages = await _picker.pickMultiImage();
+      if (selectedImages.isNotEmpty) {
+        images.addAll(selectedImages.map((image) => File(image.path)));
+      }
+    } else {
+      final XFile? image = await _picker.pickImage(source: source);
+      if (image != null) {
+        images.add(File(image.path));
+      }
+    }
+    return images;
+  }
 
   static Future showCustomDeleteDialog(
       BuildContext context,
@@ -54,24 +90,29 @@ class Utils {
               align: TextAlign.center),
               const SizedBox(height: 8),
               Utils.getText(
-                confirmText,
+                "Do you want to delete this $confirmText",
                 size: 12,
                 color: Colors.black54,
                 align: TextAlign.center,
               ),
               const SizedBox(height: 8),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.center,
+                spacing: 10,
                 children: [
-                  Utils.getFilledButton(
-                    'Yes, delete it!',
-                        ()=>Navigator.pop(context, true),
-                    bgColor: AppC.blue,
+                  Expanded(
+                    child: Utils.getFilledButton(
+                      'Yes, delete it!',
+                          ()=>Navigator.pop(context, true),
+                      bgColor: AppC.blue,
+                    ),
                   ),
-                  Utils.getFilledButton(
-                    'Cancel',
-                        ()=>Navigator.pop(context, false),
-                    bgColor: AppC.redAccent,
+                  Flexible(
+                    child: Utils.getFilledButton(
+                      'Cancel',
+                          ()=>Navigator.pop(context, false),
+                      bgColor: AppC.redAccent,
+                    ),
                   ),
                 ],
               ),
@@ -86,16 +127,110 @@ class Utils {
 
   static Widget dropdownBox(
       String hintText,
-      List<Map<String, dynamic>> listData,
+      List<dynamic> listData,
       Function(dynamic selectedValue) onSelected,
       {required String labelKey,
       dynamic initialSelection,
-        // bool enableSearch = false,
-        // bool requestFocusOnTap = false,
-        // bool enableFilter = false,
-         dynamic selectedKey,
-        // Color? arrowColor=AppC.appColor,
-        // TextEditingController? controller,
+        String? labelKey2,
+        dynamic selectedKey,
+        double topLRadius = 4,
+        double topRRadius = 4,
+        double bottomLRadius = 4,
+        double bottomRRadius = 4,
+        double height = 35,
+        Color borderColor = AppC.fieldBase,
+        double borderWidth = Num.borderWidthField,
+        AutovalidateMode? autovalidateMode,
+        FormFieldValidator<dynamic>? validator,
+      }) {
+    return FormField<dynamic>(
+      initialValue: initialSelection,
+      autovalidateMode: autovalidateMode,
+      validator: validator,
+      builder: (field) {
+        WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+          //((field.value is Map) && ((field.value as Map).isEmpty))
+          if ((initialSelection != null) && (field.hasError && ((field.value == null)))) field.didChange(initialSelection);
+        });
+        var border = OutlineInputBorder(
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(topLRadius),
+              topRight: Radius.circular(topRRadius),
+              bottomLeft: Radius.circular(bottomLRadius),
+              bottomRight: Radius.circular(bottomRRadius),),
+            borderSide: BorderSide(color: (field.hasError) ? AppC.errorTextColor : borderColor, width:  (field.hasError) ? Num.borderWidthButton : borderWidth,)
+        );
+        return Column(
+          spacing: 3,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            DropdownMenu<dynamic>(
+              key: ValueKey(selectedKey),
+              initialSelection: initialSelection,
+              hintText: hintText,
+              menuHeight: 250,
+              selectedTrailingIcon: const Icon(Icons.keyboard_arrow_up_sharp,color: AppC.appColor,),
+              trailingIcon: const Icon(Icons.keyboard_arrow_down_sharp,color: AppC.appColor,),
+              textStyle: TextStyle(
+                  color: AppC.text,
+                  overflow: TextOverflow.ellipsis,
+                  fontSize: 12.sp
+              ),
+              inputDecorationTheme:  InputDecorationTheme(
+                hintStyle: const TextStyle(color: AppC.grey),
+                contentPadding: EdgeInsets.symmetric(horizontal: 10.sp),
+                border: border,
+                enabledBorder: border,
+                isCollapsed: true,
+                isDense: true,
+                suffixIconConstraints: const BoxConstraints.tightFor(width: 30),
+                constraints: BoxConstraints(maxHeight: height.sp)
+              ),
+              menuStyle: MenuStyle(
+                backgroundColor: WidgetStateProperty.all<Color>(Colors.white),
+                visualDensity: const VisualDensity(vertical: VisualDensity.minimumDensity),
+              ),
+              expandedInsets: 0.padding,
+              dropdownMenuEntries:
+              listData.map<DropdownMenuEntry<Map<String, dynamic>>>(
+                    (dynamic value){
+                  return  DropdownMenuEntry<Map<String, dynamic>>(
+                    value: value,
+                    label: '${value[labelKey]??''} ${value[labelKey2]??''}'.trim(),
+                  );
+                },
+              ).toList(),
+              onSelected: (selectedValue) {
+                onSelected(selectedValue);
+                field.didChange(selectedValue ?? initialSelection);
+              },
+            ),
+              if (field.hasError)
+                Row(
+                  spacing: 8,
+                  children: [
+                    const SizedBox.shrink(),
+                    Text(field.errorText ?? "", style: CommonHelper.instance.navigatorKey.currentContext?.textTheme.labelMedium?.copyWith(color: AppC.errorTextColor, fontWeight: FontWeight.w100))
+                  ],
+                )
+          ],
+        );
+      },
+    );
+  }
+
+  static Widget dropdownSearchBox(
+      String hintText,
+      List<dynamic> listData,
+      Function(dynamic selectedValue) onSelected,
+      {required String labelKey,
+        dynamic initialSelection,
+        bool enableSearch = false,
+        bool requestFocusOnTap = false,
+        bool enableFilter = false,
+        dynamic selectedKey,
+        Color? arrowColor=AppC.appColor,
+        TextEditingController? controller,
       }) {
     return Container(
       height: 35,
@@ -124,22 +259,22 @@ class Utils {
           DropdownMenu<dynamic>(
             key: ValueKey(selectedKey),
             initialSelection: initialSelection,
-           // controller: controller,
+            controller: controller,
             hintText: hintText,
             menuHeight: 250,
-            //enableSearch: enableSearch,
-          //  requestFocusOnTap:requestFocusOnTap ,
-           // enableFilter: enableFilter,
-            trailingIcon: const Icon(
+            enableSearch: enableSearch,
+             requestFocusOnTap:requestFocusOnTap ,
+            enableFilter: enableFilter,
+            /*trailingIcon: const Icon(
               Icons.keyboard_arrow_down_sharp,
               size: 12,
               color: AppC.trans,
-            ),
-            selectedTrailingIcon: const Icon(
+            ),*/
+            /*selectedTrailingIcon: const Icon(
               Icons.keyboard_arrow_down_sharp,
               size: 12,
               color: AppC.trans,
-            ),
+            ),*/
             textStyle: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
@@ -160,15 +295,14 @@ class Utils {
             },
             menuStyle: MenuStyle(
               backgroundColor: WidgetStateProperty.all<Color>(Colors.white),
-              shadowColor: WidgetStateProperty.all<Color>(Colors.blue),
-              surfaceTintColor: WidgetStateProperty.all<Color>(Colors.blue),
-              visualDensity:
-                  const VisualDensity(vertical: VisualDensity.minimumDensity),
+              shadowColor: WidgetStateProperty.all<Color>(Colors.grey),
+              //surfaceTintColor: WidgetStateProperty.all<Color>(Colors.white),
+              visualDensity: const VisualDensity(vertical: VisualDensity.minimumDensity),
             ),
             expandedInsets: const EdgeInsets.only(top: 50),
             dropdownMenuEntries:
-                listData.map<DropdownMenuEntry<Map<String, dynamic>>>(
-              (Map<String, dynamic> value){
+            listData.map<DropdownMenuEntry<Map<String, dynamic>>>(
+                  (dynamic value){
                 return DropdownMenuEntry<Map<String, dynamic>>(
                   value: value,
                   label: '${value[labelKey]??''}',
@@ -196,42 +330,114 @@ class Utils {
     return format.format(dateTime);
   }
 
+  static Widget getElevatedButton(
+      VoidCallback onPressedCallback, {
+        String text='Save',
+        Color? bgColor=AppC.green,
+        Color textColor = AppC.white,
+        double borderRadius = Num.subradiusButton,
+        double textSize= 12,
+        IconData? icon,
+      }) {
+    return ElevatedButton.icon(
+        onPressed: onPressedCallback,
+      label: Utils.getText(text, color: AppC.white, weight: FontWeight.bold),
+      icon: icon != null ? Icon(icon) : const SizedBox(),
+      style: ButtonStyle(
+          backgroundColor:  WidgetStatePropertyAll(bgColor),
+          iconColor: const WidgetStatePropertyAll(AppC.white),
+          //padding: const WidgetStatePropertyAll(EdgeInsets.zero),
+          shape: WidgetStatePropertyAll(ContinuousRectangleBorder(
+              borderRadius: BorderRadius.circular(16)))),
+    );
+  }
+
+  static Widget getAddElevatedButton(
+      VoidCallback onPressedCallback, {
+        Color? bgColor=AppC.appColor,
+        Color textColor = AppC.white,
+        double borderRadius = Num.subradiusButton,
+      }) {
+    return ElevatedButton(
+      onPressed: onPressedCallback,
+      style: ButtonStyle(
+          backgroundColor:  WidgetStatePropertyAll(bgColor),
+          iconColor: const WidgetStatePropertyAll(AppC.white),
+          shape: WidgetStatePropertyAll(ContinuousRectangleBorder(
+              borderRadius: BorderRadius.circular(16)
+          )
+          )
+      ),
+      child: Icon(Icons.add,size: 20,color: textColor,),
+    );
+  }
+
   static Widget getAddFilledButton(
     String textLabel,
     VoidCallback onPressedCallback, {
     Color? bgColor,
     Color textColor = AppC.white,
     double borderRadius = Num.subradiusButton,
+        double textSize= 12
   }) {
-    return MaterialButton(
+    return TaskerButton(
       onPressed: onPressedCallback,
       color: bgColor ?? AppC.appColor,
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(borderRadius)),
-      ),
-      child: Center(
-        child: Text(
-          textLabel,
-          style: TextStyle(
-            color: textColor,
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-          ),
+      padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+      // border: Border.all(
+      //   color: AppC.orange,
+      //   width: 2
+      // ),
+      // minWidth: 20,
+      // height: 20,
+      // clipBehavior: Clip.antiAliasWithSaveLayer,
+      // shape: RoundedRectangleBorder(
+      //   borderRadius: BorderRadius.all(Radius.circular(borderRadius)),
+      // ),
+      borderRadius: BorderRadius.circular(borderRadius),
+      child: Text(
+        textLabel,
+        style: TextStyle(
+          color: textColor,
+          fontSize: textSize,
+          fontWeight: FontWeight.bold,
         ),
       ),
     );
   }
 
   static Text getText(String text,
-      {double size = 12,
+      {double size = 14,
       TextAlign? align,
       Color color = AppC.text,
+      TextStyle? style,
+        bool? softWrap,
       FontWeight weight = FontWeight.normal,
       TextDecoration? decoration,
         Color? colorDecoration,
       TextOverflow? overFlow}) {
     return Text(text,
+        textAlign: align,
+        softWrap: softWrap,
+        style: style ?? TextStyle(
+          color: color,
+          fontSize: size,
+          fontWeight: weight,
+          decorationColor:colorDecoration,
+          overflow: overFlow,
+          decoration: decoration,
+        ));
+  }
+
+  static Text getListText(List<String> text,
+      {double size = 12,
+        TextAlign? align,
+        Color color = AppC.text,
+        FontWeight weight = FontWeight.normal,
+        TextDecoration? decoration,
+        Color? colorDecoration,
+        TextOverflow? overFlow}) {
+    return Text(text.join(',\n'),
         textAlign: align,
         style: TextStyle(
           color: color,
@@ -257,75 +463,128 @@ class Utils {
         textAlign: align, style: TextStyle(color: color, fontSize: size));
   }
 
-  static Widget getBackgroundFilledTextFieldFirstLetterCaps(
-      String labelText, TextEditingController controller,
+  static Widget getTextFormField(
+      String? labelText,
+      TextEditingController controller,
       {Key? key,
       FocusNode? focusNode,
       Widget? label,
       double textSize = 12,
       Color textColor = AppC.text,
-      FontWeight fontWeight = FontWeight.normal,
+      FontWeight fontWeight = FontWeight.w400,
       bool readOnly = false,
       bool autoFocus = false,
       ValueChanged? onChangeCallback,
       TextInputType textType = TextInputType.text,
+      TextInputAction? inputAction,
+        TextStyle? style,
       int? maxLength,
       Color borderColor = AppC.fieldBase,
       Color hintTextColor = AppC.text,
       String? hintText,
       Widget? suffixIcon,
+        Widget? prefixIcon,
       bool obscure = false,
+        bool isDense = true,
+      double? height,
+      TextStyle? hintTextStyle,
+      TextStyle? labelStyle,
       Color fillColor = AppC.trans,
       EdgeInsets contentPadding =
-          const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          const EdgeInsets.all(9),
       // VoidCallback? suffixIconCallback,
       VoidCallback? onTapCallback,
       String? Function(String?)? validator,
-      AutovalidateMode autoValidate = AutovalidateMode.disabled,
+        bool showErrorSuffix = false,
+        int minLines = 1,
+        int maxLines = 1,
+        bool isCollapsed = false,
+      AutovalidateMode? autoValidate,
       List<TextInputFormatter>? textInputFormatter,
       double borderRadius = Num.subradiusButton,
-      double borderWidth = Num.borderWidthField}) {
-    hintText = hintText ?? labelText;
-    return SizedBox(
-      height: 35,
-      child: TextFormField(
-        key: key,
-        validator: validator,
-        autovalidateMode: autoValidate,
-        onTap: onTapCallback,
-        focusNode: focusNode,
-        autofocus: autoFocus,
-        controller: controller,
-        keyboardType: textType,
-        readOnly: readOnly,
-        maxLength: maxLength,
-        obscureText: obscure,
-        textCapitalization: TextCapitalization.sentences,
-        inputFormatters: textInputFormatter,
-        decoration: InputDecoration(
-            contentPadding: contentPadding,
-            label: label,
-            hintText: hintText,
-            counterText: '',
-            hintStyle: const TextStyle(color: AppC.grey),
-            filled: true,
-            fillColor: fillColor,
-            focusedBorder: OutlineInputBorder(
+        TextAlign textAlign = TextAlign.start,
+      double borderWidth = Num.borderWidthField,
+      textCapitalization = TextCapitalization.sentences,
+      String?  counterText,
+        TextStyle? counterTextStyle,
+      }) {
+    // hintText = hintText ?? labelText;
+    return FocusNodeWrapper(
+      builder:(f) => ValueListenableBuilder(
+        valueListenable: controller,
+        builder: (context, value, child) => TextFormField(
+          key: key,
+          validator: validator,
+          spellCheckConfiguration: const SpellCheckConfiguration(),
+          autovalidateMode: autoValidate,
+          textInputAction: inputAction ?? TextInputAction.next,
+          onTap: onTapCallback,
+          focusNode: f,
+          autofocus: autoFocus,
+          controller: controller,
+          keyboardType: textType,
+          readOnly: readOnly,
+          maxLength: maxLength,
+          obscureText: obscure,
+          //onTapUpOutside: (event) => controller.value.copyWith(selection: const TextSelection.collapsed(offset: 0)),
+          //onTapOutside: (event) => controller.value.copyWith(selection: const TextSelection.collapsed(offset: 0)),
+          onTapOutside: (event) {
+            f.unfocus();
+            dismissKeyboard(context);
+          },
+          textCapitalization: textCapitalization,
+          inputFormatters: textInputFormatter,
+          textAlign: textAlign,
+          minLines: minLines,
+          maxLines: maxLines,
+          decoration: InputDecoration(
+              contentPadding: contentPadding,
+              constraints: const BoxConstraints(),
+              errorMaxLines: 3,
+              isDense: isDense,
+              // label: label,
+              labelText: labelText,
+              hintText: hintText,
+              counterText: counterText,
+              counterStyle: counterTextStyle ?? const TextStyle(color: AppC.red),
+              hintStyle: hintTextStyle ??  TextStyle(color: AppC.grey,fontSize: 12.sp,fontWeight: FontWeight.w300),
+              labelStyle: labelStyle ??  TextStyle(color: AppC.grey,fontSize: 12.sp,fontWeight: FontWeight.w300),
+              filled: true,
+              isCollapsed: isCollapsed,
+              fillColor: fillColor,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(borderRadius),
                 borderSide: BorderSide(
                   color: borderColor,
                   width: borderWidth,
                 ),
-                borderRadius: BorderRadius.circular(borderRadius)),
-            enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: borderColor, width: borderWidth),
-                borderRadius: BorderRadius.circular(borderRadius)),
-            suffixIcon: suffixIcon),
-        style: TextStyle(
-          fontSize: textSize,
-          color: textColor,
-          fontWeight: fontWeight,
-        ),
-        onChanged: onChangeCallback,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(borderRadius),
+                borderSide: BorderSide(
+                  color: borderColor,
+                  width: borderWidth,
+                ),
+              ),
+              // focusedBorder: OutlineInputBorder(
+              //     borderSide: BorderSide(
+              //       color: borderColor,
+              //       width: borderWidth,
+              //     ),
+              //     borderRadius: BorderRadius.circular(borderRadius)),
+              suffixIconConstraints: BoxConstraints(),
+              suffixIcon: suffixIcon,
+            prefixIconConstraints: BoxConstraints(),
+            prefixIcon: prefixIcon,
+          ),
+          style: style ?? TextStyle(
+            // fontSize: textSize,
+            color: textColor,
+            fontWeight: fontWeight,
+            fontSize: 12.sp,
+          ),
+          onChanged: onChangeCallback,
+        )
       ),
     );
   }
@@ -382,46 +641,71 @@ class Utils {
       FontWeight fontWeight = FontWeight.normal,
       ValueChanged? onChangeCallback,
       Color borderColor = AppC.fieldBase,
-      Color hintTextColor = AppC.text,
+      Color hintTextColor = AppC.grey,
+      AutovalidateMode autoValidate = AutovalidateMode.disabled,
+      String? Function(String?)? validator,
+      String? hintText,
       Color? fillColor=AppC.white,
-
+      TextInputAction? inputAction,
       int minLines = 5,
-      Widget? label,
+      int? maxLines,
+        double borderRadius = Num.subradiusButton,
+        double borderWidth = Num.borderWidthField,
+     // Widget? label,
       bool autofocus = false}) {
-    return TextFormField(
-      autofocus: autofocus,
-      focusNode: focusNode,
-      readOnly: readOnly,
-      controller: controller,
-      keyboardType: TextInputType.text,
-      maxLength: null,
-      maxLines: null,
-      minLines: minLines,
-      textCapitalization: TextCapitalization.sentences,
-      decoration: InputDecoration(
-        contentPadding: const EdgeInsets.symmetric(
-            horizontal: 12.0, vertical: 5),        label: label,
-        hintText: labelText,
-        hintStyle: TextStyle(color: hintTextColor),
-        filled: true,
-        fillColor: fillColor,
-        focusedBorder: OutlineInputBorder(
-          borderSide:
-              BorderSide(color: borderColor, width: Num.borderWidthField),
-          borderRadius: BorderRadius.circular(Num.radiusButton),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderSide:
-              BorderSide(color: borderColor, width: Num.borderWidthField),
-          borderRadius: BorderRadius.circular(Num.radiusButton),
-        ),
-      ),
-      style: TextStyle(
-        fontSize: textSize,
-        color: textColor,
-        fontWeight: fontWeight,
-      ),
-      onChanged: onChangeCallback,
+    return ValueListenableBuilder(
+        valueListenable: controller,
+      builder: (context, value, child) {
+        return TextFormField(
+          autofocus: autofocus,
+          focusNode: focusNode,
+          readOnly: readOnly,
+          controller: controller,
+          spellCheckConfiguration: const SpellCheckConfiguration(),
+          keyboardType: TextInputType.text,
+          validator: validator,
+          autovalidateMode: autoValidate,
+          maxLength: null,
+          maxLines: maxLines,
+          minLines: minLines,
+          textCapitalization: TextCapitalization.sentences,
+          textInputAction: inputAction ?? TextInputAction.next,
+          decoration: InputDecoration(
+            constraints: BoxConstraints(),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10),
+            //label: Utils.getText(labelText,color: AppC.grey),
+            hintText: labelText,
+            hintStyle: TextStyle(color: hintTextColor),
+            filled: true,
+            fillColor: fillColor,
+            focusedBorder: OutlineInputBorder(
+              borderSide:
+                  BorderSide(color: borderColor, width: Num.borderWidthField),
+              borderRadius: BorderRadius.circular(Num.radiusButton),
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(borderRadius),
+              borderSide: BorderSide(
+                color: borderColor,
+                width: borderWidth,
+              ),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(borderRadius),
+              borderSide: BorderSide(
+                color: borderColor,
+                width: borderWidth,
+              ),
+            ),
+          ),
+          style: TextStyle(
+            fontSize: textSize,
+            color: textColor,
+            fontWeight: fontWeight,
+          ),
+          onChanged: onChangeCallback,
+        );
+      }
     );
   }
 
@@ -432,25 +716,24 @@ class Utils {
       Color textColor = AppC.white,
       double borderRadius = Num.radiusButton,
       Alignment textAlign = Alignment.center}) {
-    return SizedBox(height: 35,
+    return SizedBox(
       child: TextButton(
           onPressed: onPressedCallback,
           style: TextButton.styleFrom(
+            padding: EdgeInsets.zero,
             backgroundColor: bgColor ?? AppC().base,
             shape: const RoundedRectangleBorder(
               borderRadius:
                   BorderRadius.all(Radius.circular(Num.subradiusButton)),
             ),
           ),
+
           child: Align(
             alignment: textAlign,
-            child: Padding(
-              padding: EdgeInsets.symmetric(vertical: verticalPadding),
-              child: Text(
-                textLabel,
-                style: TextStyle(
-                    color: textColor, fontWeight: FontWeight.w800, fontSize: 12),
-              ),
+            child: Text(
+              textLabel,
+              style: TextStyle(
+                  color: textColor, fontWeight: FontWeight.w800, fontSize: 12),
             ),
           )),
     );
@@ -613,7 +896,8 @@ class Utils {
     }
   }
 
-  static Future<DateTime?> datePicker(BuildContext context, String existingDate,
+/*  static Future<DateTime?> datePickerDialog(
+      BuildContext context, String existingDate,
       {DateTime? initial, DateTime? last}) {
     var initialDate = initial ?? DateTime.now();
     var currentDate = DateTime.now();
@@ -646,10 +930,9 @@ class Utils {
         );
       },
     );
-  }
+  }*/
 
-  static Future<DateTime?> todoDatePickerDialog(
-      BuildContext context, String existingDate,
+  static Future<DateTime?> datePicker(BuildContext context, String existingDate,
       {DateTime? initial, DateTime? last}) {
     var initialDate = initial;
     var currentDate = DateTime.now();
@@ -657,10 +940,46 @@ class Utils {
       currentDate = convertStringToDateTime(existingDate);
     }
     var lastDate = last ??
-        DateTime(currentDate.year + 1, currentDate.month, currentDate.day);
+        DateTime(currentDate.year + 10, currentDate.month, currentDate.day);
 
     Widget dialog = DatePickerDialog(
       initialDate: initialDate,
+      firstDate:DateTime(1900, 1, 1),
+      lastDate: lastDate,
+      currentDate: currentDate,
+      initialEntryMode: DatePickerEntryMode.calendarOnly,
+      confirmText: 'Ok',
+      cancelText: 'Cancel',
+    );
+
+    return showDialog<DateTime>(
+      context: context,
+      builder: (BuildContext context) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            primaryColor: AppC().base,
+            colorScheme: ColorScheme.light(primary: AppC().base),
+            dialogTheme: const DialogThemeData(backgroundColor: Colors.white),
+          ),
+          child: dialog,
+        );
+      },
+    );
+  }
+
+  static Future<DateTime?> todoDatePickerDialog(
+      BuildContext context, String existingDate,
+      {DateTime? initial, DateTime? last, int lastYear = 1}) {
+    var initialDate = initial;
+    var currentDate = DateTime.now();
+    if (existingDate.isNotEmpty) {
+      currentDate = convertStringToDateTime(existingDate);
+    }
+    var lastDate = last ??
+        DateTime(currentDate.year + lastYear, currentDate.month, currentDate.day);
+
+    Widget dialog = DatePickerDialog(
+      initialDate: initialDate ?? DateTime.now(),
       firstDate: DateTime(1999, 9, 7, 17, 30),
       lastDate: lastDate,
       currentDate: currentDate,
@@ -768,7 +1087,7 @@ class Utils {
     }
   }
 
-  static String convertDateTimeToTheFormats(String? value,
+  static String convertDateToYearMonthDateFormat(String? value,
       {String formatToConvert = 'yyyy-MM-dd'}) {
     if (value != null && value.isNotEmpty) {
       DateTime dateValue = DateTime.parse(value);
@@ -778,8 +1097,28 @@ class Utils {
     }
   }
 
-  static String convertCurrentDateTimeToTheStringFormat(DateTime? value,
+  static String convertDateToMonthDateYearFormat(String? value,
+      {String formatToConvert = 'MM-dd-yy'}) {
+    if (value != null && value.isNotEmpty) {
+      DateTime dateValue = DateTime.parse(value);
+      return DateFormat(formatToConvert).format(dateValue);
+    } else {
+      return DateFormat(formatToConvert).format(DateTime.now());
+    }
+  }
+
+  static String convertCurrentDateToDateMonthYearFormat(String? value,
       {String formatToConvert = 'dd-MM-yyyy'}) {
+    if (value != null && value.isNotEmpty) {
+      DateTime dateValue = DateTime.parse(value);
+      return DateFormat(formatToConvert).format(dateValue);
+    } else {
+      return DateFormat(formatToConvert).format(DateTime.now());
+    }
+  }
+
+  static String convertCurrentDateToStringFormat(DateTime? value,
+      {String formatToConvert = 'yyyy-MM-dd'}) {
     if (value != null) {
       return DateFormat(formatToConvert).format(value);
     } else {
@@ -807,15 +1146,16 @@ class Utils {
     return {
       'accept': 'application/json',
       'Content-Type': 'application/json',
+      'Accept-Encoding': 'gzip',
     };
   }
 
-  static Map<String, String> getHeadersWithToken() {
-    debugPrint('accessTokenGlobal: $accessTokenGlobal');
+  static Map<String, String> getHeadersWithToken({required String url}) {
     return {
       'accept': 'application/json',
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer $accessTokenGlobal'
+      'Accept-Encoding': 'gzip',
+      'Authorization': (url.isFairReturns) ? returnBearerToken : bearerToken
     };
   }
 
@@ -836,6 +1176,19 @@ class Utils {
       gravity: ToastGravity.BOTTOM,
       timeInSecForIosWeb: 4,
       backgroundColor: Colors.black87,
+      textColor: Colors.white,
+      fontSize: 15.0,
+      webShowClose: true,
+    );
+  }
+
+  static void successMobileToast(String message) {
+    Fluttertoast.showToast(
+      msg: message,
+      toastLength: Toast.LENGTH_LONG,
+      gravity: ToastGravity.BOTTOM,
+      timeInSecForIosWeb: 4,
+      backgroundColor: AppC.green,
       textColor: Colors.white,
       fontSize: 15.0,
       webShowClose: true,
@@ -1216,8 +1569,8 @@ class Utils {
   static Widget getOvalCachedImageNetworkDisplay(
       BuildContext context, String imageUrl) {
     return SizedBox(
-      width: 60.0, // Set the width as needed
-      height: 60.0, // Set the width as needed
+      width: 60.0,
+      height: 60.0,
       child: ClipRRect(
         child: CachedNetworkImage(
           imageBuilder: (context, imageProvider) {
@@ -1266,24 +1619,41 @@ class Utils {
     List<String> userPermissionList,
     int branchId,
     int hrmId,
+      {int? departmentId, String? data}
   ) async {
     // accessTokenGlobal = token; Str.userPermissionPrefText
-    userPermissionsGlobal = [];
-    userPermissionsGlobal!.addAll(userPermissionList);
+    // userPermissionsGlobal = [];
+    // userPermissionsGlobal!.addAll(userPermissionList);
     // userRole=[];
     // userRole!.addAll(roleList);
-    accessTokenGlobal = token;
-    userIdGlobal = userId.toString();
+    // accessTokenGlobal = token;
+    // userIdGlobal = userId.toString();
+    Session.of
+    ..set(Str.loginPrefText, token.isNotEmpty)
+    ..set("name", name)
+    ..set(Str.rolePrefText, role ?? [])
+    ..set(Str.userPermissionPrefText, (userPermissionList ?? []))
+    ..set(Str.passwordPrefText, password.toString())
+    ..set(Str.userIdPrefText, userId.toString())
+    ..set(Str.branchIdPrefText, branchId)
+    ..set(Str.hrmIdPrefText, hrmId)
+    ..set(Str.accessTokenPrefText, token)
+    ..set(Str.emailPrefText, email)
+    ..set(Str.departmentIdPrefText, departmentId)
+    ..set(Str.userPrefText, data);
+
     Utils.setStringPreference("name", name.toString());
     Utils.setStringListPreference(Str.rolePrefText, role ?? []);
     Utils.setStringListPreference(
-        Str.userPermissionPrefText, (userPermissionsGlobal ?? []));
+        Str.userPermissionPrefText, (userPermissionList ?? []));
     Utils.setStringPreference(Str.passwordPrefText, password.toString());
     Utils.setStringPreference(Str.userIdPrefText, userId.toString());
     Utils.setIntPreference(Str.branchIdPrefText, branchId);
     Utils.setIntPreference(Str.hrmIdPrefText, hrmId);
     Utils.setStringPreference(Str.accessTokenPrefText, token);
     Utils.setStringPreference(Str.emailPrefText, email);
+    Utils.setStringPreference(Str.userPrefText, data ?? "");
+    Utils.setIntPreference(Str.departmentIdPrefText, departmentId ?? 0);
   }
 
   /*---------------------------------------------------Shared preference---------------------------------------------------*/
@@ -1349,7 +1719,7 @@ class Utils {
 /*---------------------------------------------------------------------------------------*/
 
   static void dismissKeyboard(BuildContext context) {
-    FocusScope.of(context).requestFocus(FocusNode());
+    FocusScope.of(context).unfocus();
   }
 
   static Widget customAutoCompleteList(
@@ -1658,6 +2028,17 @@ class Utils {
                 ),
               )));
     }).closed;
+  }
+
+  static String formatDateTime({dynamic input, required String? format}) {
+    if (input is DateTime) {
+      return DateFormat(format).format(input);
+    } else if (input is TimeOfDay) {
+      var val = input;
+      return DateFormat(format).format(dt.Time.fromMinutes(val.hour * 60 + val.minute).asDateTime);
+    } else {
+      return "";
+    }
   }
 
   /* ListView.builder(
@@ -2285,51 +2666,71 @@ class Utils {
   static Widget getCircleCheckWidget(
       VoidCallback voidCallback, bool isChecked, String label) {
     return GestureDetector(
+
       onTap: voidCallback,
       child: Row(
         children: [
           Container(
+            height: 18,
+            width: 18,
             margin: const EdgeInsets.only(right: 5),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                color: AppC().base, // Border color when unchecked
+                color: isChecked ? AppC.blue : AppC.grey,
                 width: 1.0,
               ),
-              color: isChecked ? AppC().base : AppC.trans,
+              color: isChecked ? AppC.blue : AppC.trans,
             ),
-            child: Padding(
-              padding: const EdgeInsets.all(2.0),
-              child: isChecked
-                  ? const Icon(
+            child: isChecked
+                ? const Center(
+                  child: Icon(
                       Icons.check,
                       size: 15.0,
                       color: AppC.white, // Check icon color when checked
-                    )
-                  : Container(
-                      padding: const EdgeInsets.all(8.0),
                     ),
-            ),
+                )
+                : Container(
+                    padding: const EdgeInsets.all(8.0),
+                  ),
           ),
-          getText(label)
+          getText(label,weight: FontWeight.bold)
         ],
       ),
     );
   }
 
-  static Widget getSearchBarUI(VoidCallback? onTap, Function(String) onChange,
-      TextEditingController searchController, FocusNode searchFocusNode) {
+  static Widget getSearchBarUI({void Function(String)? onChange,
+    void Function(String value)? onSearch,
+    required TextEditingController searchController,
+  bool readOnly = false}) {
+    return CustomSearchBar(
+      controller: searchController,
+      onChanged: onChange,
+      onSearch: onSearch,
+      readOnly: readOnly,
+    );
+  }
+
+/*  static Widget getSearchBarUI(
+      VoidCallback? onTap, Function(String) onChange,
+      TextEditingController searchController,
+      {FocusNode? searchFocusNode, VoidCallback? onSubmitted, TextInputAction? inputAction} )
+  {
     return SizedBox(
       height: 30,
       child: TextField(
         controller: searchController,
-        focusNode: searchFocusNode,
+        // focusNode: FocusNode(),
         onChanged: onChange,
         cursorColor: AppC.black, // Set the cursor color
         style: const TextStyle(
           fontSize: 16, // Text size for entered text
           color: Colors.black, // Text color for entered text
         ),
+        onEditingComplete: onSubmitted,
+        textInputAction: inputAction,
+        onSubmitted: (val) => onSubmitted?.call(),
         decoration: InputDecoration(
           prefixIcon: const Icon(
             Icons.search_sharp,
@@ -2362,7 +2763,7 @@ class Utils {
         ),
       ),
     );
-  }
+  }*/
 
 
   static Widget getBorderedIcon(IconData? icon,
@@ -2431,6 +2832,62 @@ class Utils {
     } else {
       return DateFormat('yyyy-MM-dd').format(val);
     }
+  }
+
+  static void openURL(String url, {bool isFile = false}) async {
+    // if ((!url.isNetworkURL) && (isFile)) return;
+    if (isFile) {
+      OpenFile.open(url);
+      return;
+    }
+    final Uri uri = isFile ? Uri.file(url) : Uri.parse(url);
+    try {
+      Console.of.error(uri);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(
+          uri,
+          mode: LaunchMode.externalApplication,
+        );
+      } else {
+        showMobileToast("Could not launch $uri");
+      }
+    } catch (e) {
+      log('Error launching URL: $e');
+      showMobileToast(e.toString());
+    }
+  }
+
+  static void showPickerDate(BuildContext context, {DateTime? value, void Function(DateTime)? onChanged}) async {
+    var result = await Future.microtask(() => showDatePicker(
+        context: context,
+        // firstDate: DateTime.now().subtract(const Duration(days: 180)),
+        firstDate: DateTime(2000),
+        currentDate: DateTime.now(),
+        initialDate: value,
+        initialEntryMode: DatePickerEntryMode.calendarOnly,
+        lastDate: DateTime.now().add(const Duration(days: 1825000))));
+    if (result != null) onChanged?.call(result);
+    dismissKeyboard(context);
+  }
+
+  static void showPickerTime(BuildContext context, {bool is24Hr = false, TimeOfDay? value, void Function(TimeOfDay)? onChanged}) async {
+    var result = await ((is24Hr) ? showTimePicker(
+        context: context,
+        initialTime: value ?? TimeOfDay.fromDateTime(DateTime.now()),
+        initialEntryMode: TimePickerEntryMode.dialOnly,
+        builder: (context, child) {
+          return MediaQuery(
+              data: MediaQuery.of(context).copyWith(
+                alwaysUse24HourFormat: true,
+              ),
+              child: child!);
+        }
+    ) : showTimePicker(
+      context: context,
+      initialTime: value ?? TimeOfDay.fromDateTime(DateTime.now()),
+      initialEntryMode: TimePickerEntryMode.dialOnly));
+    if (result != null) onChanged?.call(result);
+    dismissKeyboard(context);
   }
 }
 

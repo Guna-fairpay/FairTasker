@@ -1,174 +1,144 @@
+
+import 'package:fairpytasker/Component/custom_text/compact_text.dart';
+import 'package:fairpytasker/Component/row_tile.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Categorys/category_page/category_main_ui.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Parts/ui/parts_main_ui.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Supplies/UI/supplies_main_ui.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/Task/UI/task_main_page.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Sub%20Category/subcategory_page/subcategory_main_ui.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/UI/vehicle_main_view_ui.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/attendance/attendance_view.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/private_rental_customers/private_rental_customers.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/vendors/ui/vendor_main_ui.dart';
+import 'package:fairpytasker/Utilities/appC.dart';
+import 'package:fairpytasker/Utilities/utils.dart';
+import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import '../../Component/drawer_ui.dart';
-import '../../Component/header.dart';
-import '../../Utilities/appC.dart';
-import '../../Utilities/utils.dart';
-import 'Categorys/category_view_ui.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:iconsax/iconsax.dart';
 import 'Customers/customer_view_ui.dart';
-import 'Location/location_view_ui.dart';
-import 'Parts/part_view_ui.dart';
-import 'Sub Category/subcategory_view_ui.dart';
-import 'Supplies/supplies_view_ui.dart';
-import 'Task/task_view_ui.dart';
+import 'Location/View/location_view.dart';
 import 'Vehicle Status/vehicle_status_add_ui.dart';
-import 'Vehicles/vehicle_view_ui.dart';
-import 'Vendor/vendor_view_ui.dart';
 
-class ManageCustomdataMenuUI extends StatefulWidget {
-  const ManageCustomdataMenuUI({super.key});
-
-  @override
-  State<ManageCustomdataMenuUI> createState() => _ManageCustomdataMenuUIState();
-}
-
-class _ManageCustomdataMenuUIState extends State<ManageCustomdataMenuUI> {
-  @override
-  void initState() {
-    super.initState();
-  }
+class ManageCustomDataMenuUI extends StatelessWidget {
+  const ManageCustomDataMenuUI({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100], // Light grey background
-      appBar: const PreferredSize(
-        preferredSize: Size.fromHeight(35.0),
-        child: HeaderView(),
+      backgroundColor: Colors.grey[100],
+      appBar: AppBar(
+        title: const Text("Manage CustomData Menu"),
+        titleTextStyle: context.textTheme.titleMedium?.copyWith(color: AppC.white),
+        automaticallyImplyLeading: false,
+        leadingWidth: 0,
+        backgroundColor: AppC.appColor,
+        foregroundColor: AppC.white,
+        actions: [
+          IconButton(onPressed: context.pop, icon: const Icon(Icons.close_rounded))
+        ],
       ),
       body: SafeArea(
+        minimum: 10.sp.padding,
         child: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
           children: [
-            Row(
+            /*Row(
               children: [
                 GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                    child: const Icon(
-                      Icons.arrow_back,
-                      size: 16,
-                    )),
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Icon(
+                    Icons.arrow_back,
+                    size: 16,
+                  ),
+                ),
                 const SizedBox(
                   width: 10,
                 ),
-                Utils.getText('Manage CustomData Menu',
-                    size: 16, weight: FontWeight.bold),
+                Utils.getText(
+                  'Manage CustomData Menu',
+                  size: 16,
+                  weight: FontWeight.bold,
+                ),
               ],
-            ),
-            const SizedBox(
-              height: 10,
+            ),*/
+            const SizedBox(height: 10),
+            _buildCard(
+              icon: Iconsax.calendar_1,
+              title: 'Attendance',
+              onTap: () => context.push(const AttendanceView(), fullscreenDialog: true),
             ),
             _buildCard(
-              icon: Icons.assignment,
+              icon: Iconsax.note_1,
               title: 'Task',
-              onTap: () async {
-                await Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => const TaskViewUI()));
-
-                ///TaskViewUI//CreateTaskUI
-              },
+              onTap:() => context.push(const TaskMainPage(),),
             ),
             _buildCard(
-              icon: Icons.directions_car_rounded,
+              icon: Iconsax.car,
               title: 'Vehicle',
-              onTap: () async {
-                await Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => const VehicleUIs()));
-
-                ///VehicleUI///VehicleUIs
-              },
+              onTap: () => context.push(const VehicleMainViewUi()),
             ),
             _buildCard(
-              icon: Icons.business,
+              icon: Iconsax.shop,
               title: 'Vendor',
-              onTap: () async {
-                await Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => const VendorViewUI()));
-              },
+              onTap: () => context.push(const VendorMainUI()),
             ),
-            // _buildCard(
-            //   icon: Icons.add_business,
-            //   title: 'Vendor Type',
-            //   onTap: () async {
-            //     await Navigator.of(context).push(MaterialPageRoute(
-            //         builder: (context) => const VendorTypeUI()));
-            //   },
-            // ),
             _buildCard(
-              icon: Icons.location_on,
+              icon: Iconsax.location,
               title: 'Location',
-              onTap: () async {
-                await Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => const LocationViewUI()));
-
-                ///LocationUI ///LocationViewUI
-              },
+              onTap: () => context.push(const LocationView())
             ),
             _buildCard(
-              icon: Icons.construction,
+              icon: Iconsax.magicpen,
               title: 'Parts',
-              onTap: () async {
-                await Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => const PartViewUI()));
-
-                ///PartsUI///PartViewUI
-              },
+              onTap:() => context.push(const PartsMainUI(),),
             ),
             _buildCard(
-              icon: Icons.shopping_cart,
+              icon: Iconsax.broom,
               title: 'Supplies',
-              onTap: () async {
-                await Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => const SuppliesViewUI()));
-
-                ///SupplyUI///SuppliesViewUI
-              },
+              onTap:() => context.push(const SuppliesMainUI(),),
             ),
             _buildCard(
-              icon: Icons.category,
+              icon: Iconsax.category,
               title: 'Category',
-              onTap: () async {
-                await Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => const CategoryViewUi()));
-
-                ///CategoryViewUi///CreateTaskUI
-              },
+              onTap: () => context.push(const CategoryMainUi(), fullscreenDialog: true),
             ),
             _buildCard(
-              icon: Icons.folder_open,
+              icon: Iconsax.tag_2,
               title: 'SubCategory',
+              onTap: () => context.push(const SubcategoryMainUi(), fullscreenDialog: true),
+            ),
+            if (kDebugMode)
+            _buildCard(
+              icon: Iconsax.status,
+              title: 'vehicle_status',
               onTap: () async {
                 await Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => const SubcategoryViewui()));
-
-                ///SubCategoryUI///SubcategoryViewui
+                  builder: (context) => const VehicleStatusAddUI(),
+                ));
               },
             ),
+            if (kDebugMode)
             _buildCard(
-              icon: Icons.car_crash_sharp,
-              title: 'Vehicle Status',
-              onTap: () async {
-                await Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => const VehicleStatusAddUI()));
-
-                ///VehicleStatusAddUI///CreateTaskUI
-              },
-            ),
-            _buildCard(
-              icon: Icons.group_rounded,
+              icon: Iconsax.people,
               title: 'Customers',
               onTap: () async {
                 await Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => const CustomerViewUi()));
-
-                ///CustomerViewUi
+                  builder: (context) => const CustomerViewUi(),
+                ));
               },
+            ),
+            _buildCard(
+              icon: Iconsax.people,
+              title: 'Private Rental Customers',
+              onTap: () => context.push(const PrivateRentalCustomers(), fullscreenDialog: true),
             ),
           ],
         ),
       ),
-      drawer: const DrawerView(),
     );
   }
 
@@ -177,35 +147,31 @@ class _ManageCustomdataMenuUIState extends State<ManageCustomdataMenuUI> {
     required String title,
     required VoidCallback onTap,
   }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 5.0),
-      child: InkWell(
-        onTap: onTap,
-        child: Card(
-          shadowColor: Colors.white, // Subtle shadow
-          surfaceTintColor: Colors.white,
-          color: Colors.white, // White card background
-          shape: RoundedRectangleBorder(
-            // side: BorderSide(color: Colors.grey[200]!, width: 1.0),
-            borderRadius: BorderRadius.circular(8), // Slightly rounded corners
+    return Card(
+      shadowColor: Colors.white, // Subtle shadow
+      surfaceTintColor: Colors.white,
+      color: Colors.white, // White card background
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(5.spMin), // Slightly rounded corners
+      ),
+      elevation: 2, // Slight elevation
+      child: Padding(
+        padding: 10.spMin.padding,
+        child: RowTile(
+          onTap: onTap,
+          spacing: 10.spMin,
+          expandTitle: true,
+          leading: Icon(
+            icon,
+            color: AppC.appColor,
           ),
-          elevation: 2, // Slight elevation
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10),
-            child: Row(
-              children: [
-                Icon(icon,
-                    color: AppC().base, size: 14), // Darker grey-blue for icons
-                const SizedBox(width: 18),
-                Expanded(
-                  child: Utils.getText(title,
-                      size: 12, weight: FontWeight.w400, color: Colors.black87),
-                ),
-                Icon(Icons.arrow_forward_ios,
-                    size: 12,
-                    color: Colors.grey[600]), // Lighter grey for arrow
-              ],
-            ),
+          title: CompactText(
+            title, color: Colors.black87,
+          ),
+          trailing: Icon(
+            Iconsax.arrow_right_3,
+            size: 13.spMin,
+            color: Colors.grey[600],
           ),
         ),
       ),

@@ -1,0 +1,201 @@
+import 'package:fairpytasker/Repository/api_repository.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Parts/Bloc/parts_event.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Parts/Bloc/parts_state.dart';
+import 'package:fairpytasker/Utilities/str.dart';
+import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
+import 'package:fairpytasker/core/app/helper/toaster.dart';
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
+import 'package:fbroadcast/fbroadcast.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+class PartsBloc extends Bloc<PartsEvent, PartsState>{
+
+  final APiRepository _apiRepository = APiRepository();
+  final FBroadcast _broadcast = FBroadcast.instance();
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
+  final TextEditingController searchController = TextEditingController();
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController notesController = TextEditingController();
+
+  AutovalidateMode? autoValidateMode;
+
+  List<Map<String, dynamic>> apiResponse = [];
+  List<Map<String, dynamic>> _unFilteredResponse = [];
+  List<Map<String, dynamic>> filteredResponse = [];
+
+  int selectedTab = 0;
+  int itemsPerPage = 10;
+  int currentIndex = 1;
+  int totalCount = 0;
+
+  bool isEdit = false;
+
+  dynamic selectedData;
+
+  PartsBloc() : super(PartsLoadingState()){
+    on<PartsInitialEvent>(_onPartsInitialEvent);
+    on<DeletePartsEvent>(_onDeleteTaskEvent);
+    on<SavePartsEvent>(_onSaveTaskEvent);
+    on<PartsPaginationEvent>(_onPartsPaginationEvent);
+    on<SearchPartsEvent>(_onSearchPartsEvent);
+    on<EditPartsEvent>(_onEditPartsEvent);
+    on<EditCloseEvent>(_onEditCloseEvent);
+  }
+
+  void _onEditCloseEvent(EditCloseEvent event, Emitter<PartsState> emit) async {
+    autoValidateMode = null;
+    isEdit = false;
+    selectedData = null;
+    nameController.clear();
+    notesController.clear();
+    emit(PartsCommonState());
+  }
+
+  void _onEditPartsEvent(EditPartsEvent event, Emitter<PartsState> emit) async {
+    isEdit = true;
+    selectedData = event.data;
+    nameController.text=event.data['name']??'';
+    notesController.text=event.data['note']??'';
+    emit(PartsCommonState());
+  }
+
+  void _onPartsPaginationEvent(PartsPaginationEvent event, Emitter<PartsState> emit) async {
+    currentIndex = event.page;
+    filteredResponse = paginateList(data: _unFilteredResponse, currentPage: currentIndex, itemsPerPage: itemsPerPage);
+    emit(PartsCommonState());
+  }
+
+  void _onDeleteTaskEvent(DeletePartsEvent event, Emitter<PartsState> emit) async {
+    try{
+      emit(PartsLoadingState());
+      var response = await _apiRepository.deletePartsData(event.data['id']);
+      await getIt<CommonService>().getPartsList(reset: true);
+      if(response?['message']!=null){
+        apiResponse.removeWhere((element) => element['id'] == event.data['id']);
+        totalCount = apiResponse.length;
+        _unFilteredResponse = apiResponse;
+        filteredResponse = paginateList(data: _unFilteredResponse, currentPage: currentIndex, itemsPerPage: itemsPerPage);
+        Toaster.showSuccess(response?['message']);
+        if(selectedData == event.data){
+          isEdit = false;
+          selectedData = null;
+          nameController.clear();
+          notesController.clear();
+        }
+        _search();
+        _broadcast.broadcast(Str.addToDoRefresh);
+        _broadcast.broadcast(Str.editToDoRefresh);
+        emit(PartsCommonState());
+      }
+    }catch(e){
+      Toaster.showError(e.toString());
+      emit(PartsCommonState());
+    }
+  }
+
+  void _onSaveTaskEvent(SavePartsEvent event, Emitter<PartsState> emit) async {
+    autoValidateMode = AutovalidateMode.onUserInteraction;
+    if(formKey.currentState?.validate() == false) return emit(PartsCommonState());
+    try{
+      autoValidateMode = null;
+      emit(PartsLoadingState());
+      var data = {
+        'name':nameController.text,
+        'notes':notesController.text,
+        "platform": "tasker-app",
+        "status": "1"
+      };
+      Console.of.log(data);
+      var response = await _apiRepository.partsAddOrUpdate(body: data,id: selectedData?['id']);
+      await getIt<CommonService>().getPartsList(reset: true);
+      if (response?["data"] != null) {
+        final newData = response!["data"];
+        nameController.clear();
+        notesController.clear();
+        if (selectedData != null) {
+          isEdit = false;
+          selectedData = null;
+          apiResponse.removeWhere((e) => e['id'] == newData['id']);
+          apiResponse.add(newData);
+        } else {
+          apiResponse.add(newData);
+        }
+        apiResponse.sort((a, b) => b['id'].compareTo(a['id']));
+        totalCount = apiResponse.length;
+        _unFilteredResponse = apiResponse;
+        filteredResponse = paginateList(
+          data: _unFilteredResponse,
+          currentPage: currentIndex,
+          itemsPerPage: itemsPerPage,
+        );
+        Toaster.showSuccess("Parts added successfully");
+        _search();
+        _broadcast.broadcast(Str.addToDoRefresh);
+        _broadcast.broadcast(Str.editToDoRefresh);
+        emit(PartsCommonState());
+      }
+      else{
+        Console.of.log(response,name: 'TESTCASE0');
+        Toaster.showError(response);
+        _search();
+        emit(PartsCommonState());
+      }
+    }catch(e){
+      Toaster.showError(e.toString());
+      Console.of.log(e.toString(),name: 'TESTCASE1');
+      _search();
+      emit(PartsCommonState());
+    }
+  }
+
+  void _onPartsInitialEvent(PartsInitialEvent event, Emitter<PartsState> emit) async {
+    try{
+      if(event.title?.trim().isNotNullOrEmpty ?? false){
+        nameController.text=event.title??'';
+      }
+      emit(PartsLoadingState());
+      var response = await getIt<CommonService>().getPartsList(reset: true);
+      apiResponse =List.from(response);
+      apiResponse.sort((a, b) => b['id'].compareTo(a['id']));
+      filteredResponse.clear();
+      _unFilteredResponse = apiResponse;
+      filteredResponse = paginateList(
+          data: _unFilteredResponse,
+          currentPage: currentIndex,
+          itemsPerPage: itemsPerPage);
+      totalCount = _unFilteredResponse.length;
+      emit(PartsCommonState());
+    }catch(e){
+      Toaster.showError(e.toString());
+      emit(PartsCommonState());
+    }
+  }
+
+  void _search(){
+    var query = searchController.text.toLowerCase();
+    List<Map<String, dynamic>> filteredData = [];
+    if (query.trim().isNotNullOrEmpty) {
+      filteredData = apiResponse.where((element) {
+        return [
+          element['name'],
+        ].any((value) => value?.toString().toLowerCase().contains(query) ?? false);
+      }).toList();
+    } else {
+      filteredData = apiResponse;
+    }
+    _unFilteredResponse = filteredData;
+    currentIndex=1;
+    totalCount = filteredData.length;
+    filteredResponse = paginateList(data: _unFilteredResponse, currentPage: currentIndex, itemsPerPage: itemsPerPage,);
+  }
+
+  void _onSearchPartsEvent(SearchPartsEvent event, Emitter<PartsState> emit) {
+    _search();
+     emit(PartsCommonState());
+  }
+
+}

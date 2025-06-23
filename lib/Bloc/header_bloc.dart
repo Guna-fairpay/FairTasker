@@ -1,0 +1,60 @@
+import 'dart:async';
+import 'package:fairpytasker/Event/header_events.dart';
+import 'package:fairpytasker/Repository/api_repository.dart';
+import 'package:fairpytasker/State/header_states.dart';
+import 'package:fairpytasker/Utilities/str.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
+import 'package:fbroadcast/fbroadcast.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+class HeaderBloc extends Bloc<HeaderEvent, HeaderState> {
+  final APiRepository _aPiRepository = APiRepository();
+  List<Map<String, dynamic>> _userPunchList = [];
+  var checkInCount = 0;
+  var checkOutCount = 0;
+  String? checkInOutCount;
+  final FBroadcast _broadcast = FBroadcast.instance();
+  HeaderBloc() : super(HeaderLoadingState()) {
+    getIt<CommonService>().branchUpdate(callback: () => add(HeaderInitialEvent()));
+    _broadcast.register(Str.userPunchListRefresh, (value, callback) => add(HeaderInitialEvent()));
+    _broadcast.register("check_in_out_count", (value, callback) => add(ManualCountUpdateEvent(value)));
+   // on<HeaderInitialEvent>(_onInitialEvent);
+   on<EmailRefreshEvent>(_onEmailRefreshEvent);
+   on<ManualCountUpdateEvent>(_onManualCountUpdateEvent);
+
+  }
+
+  Future<List<Map<String, dynamic>>?> _getUserPunchList() async => await _aPiRepository.getUserPunchList();
+
+  List<dynamic> get _currentBranchHrmIds => getIt<CommonService>().currentBranchHrmIds;
+
+  void _onInitialEvent(HeaderInitialEvent event, Emitter<HeaderState> emit) async {
+    try {
+      emit(HeaderLoadingState());
+      _userPunchList = (await _getUserPunchList()) ?? [];
+      _userPunchList = _userPunchList.where((element) => _currentBranchHrmIds.contains(element['employee']?['id'])).toList();
+      checkInCount = _userPunchList.where((element) => element['end_time'].toString().trim().isNullOrEmpty).length;
+      checkOutCount = _userPunchList.where((element) => element['end_time'].toString().trim().isNotNullOrEmpty).length;
+      emit(HeaderCommonState());
+    } catch (e) {
+      Console.of.error("Error", error: e);
+      emit(HeaderErrorState(e));
+    }
+  }
+
+  void _onEmailRefreshEvent(EmailRefreshEvent event, Emitter<HeaderState> emit) async {
+    try {
+     // emit(HeaderLoadingState());
+    }catch (e) {
+      Console.of.error("Error", error: e);
+      emit(HeaderErrorState(e));
+    }
+  }
+
+  void _onManualCountUpdateEvent(ManualCountUpdateEvent event, Emitter<HeaderState> emit) {
+    checkInOutCount = event.count;
+    emit(HeaderCommonState());
+  }
+}

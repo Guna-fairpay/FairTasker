@@ -1,0 +1,288 @@
+import 'package:fairpytasker/Component/readmore.dart';
+import 'package:fairpytasker/Utilities/Str.dart';
+import 'package:fairpytasker/Utilities/appC.dart';
+import 'package:fairpytasker/Utilities/num.dart';
+import 'package:fairpytasker/Utilities/prefs.dart';
+import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
+import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+class CustomVehicleHistoryCardView extends StatelessWidget {
+  final Map<String, dynamic>? model;
+  final VoidCallback? onTap;
+  final VoidCallback? onParts;
+  final VoidCallback? onSupplies;
+  final Function(int customId, String customLink)? onCustom;
+  final ValueChanged<List<dynamic>>? onUserTap;
+  final VoidCallback? onDelete;
+  final ConfirmDismissCallback? confirmDismiss;
+
+  const CustomVehicleHistoryCardView({
+    super.key,
+    required this.model,
+    this.onTap,
+    this.onParts,
+    this.onSupplies,
+    this.onCustom,
+    this.onUserTap,
+    this.onDelete,
+    this.confirmDismiss,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    List<
+        dynamic> users = model?['users'];
+    String? firstName =
+    (users.firstOrNull?['first_name'] ?? "");
+    String? lastName =
+    (users.firstOrNull?['last_name'] ?? "");
+    var firstLastChar = "${[firstName, lastName].toInitial}${users.length > 1 ? ".." : ""}";
+    var customId = ((model?['reference_id'].toString().isNotNullOrEmpty ?? false) && (model?['custom_link_id'] == null))
+        ? 2 : (model?['custom_link_id'] ?? 0);
+    var customText = switch(customId) {
+      1 => "Link",
+      2 => "TURO",
+      3 => "GETAROUND",
+      _ => ""
+    };
+    var time = model?['todo_time']
+        .toString()
+        .toDateTime(
+        inputFormat: "HH:mm:ss")
+        .toFormat(format: "hh:mm a");
+    var isCompleted =
+    (model?['status'] == 'Completed');
+    String customLink = model?['custom_link'] ?? (model?['reference_id'] ?? "");
+    String? userNameText = firstLastChar;
+    String? titleText = model?['title'] ?? "";
+    String? dateText = model?['todo_date'].toString().toDateTime().toFormat(format: "MM-dd-yy") ?? "";
+    bool hasParts = ((model?['parts'] as List?)?.isNotEmpty ?? false);
+    bool hasSupplies = ((model?['supplies'] as List?)?.isNotEmpty ?? false);
+    bool hasCustom = ((model?['custom_link'].toString().isNotNullOrEmpty ?? false) || (model?['reference_id'].toString().isNotNullOrEmpty ?? false) );
+    String? cleanCarText = model?['clean_required'] ?? "";
+    String? notesText = model?['notes'] ?? "";
+    String? locationText = model?['vendor_name'] ?? (model?['location'] ?? "");
+    String? timeText = time;
+    return Container(
+      padding: (hasCustom || hasSupplies || hasParts)
+          ? EdgeInsets.zero
+          : const EdgeInsets.only(top: 5),
+      child: Stack(
+        children: [
+          Dismissible(
+            key: UniqueKey(),
+            confirmDismiss: confirmDismiss,
+            dragStartBehavior: DragStartBehavior.start,
+            direction: DismissDirection.endToStart,
+            background: Container(
+              padding: 10.padding,
+              margin: EdgeInsets.only(
+                  top: (hasCustom || hasSupplies || hasParts) ? 20 : 0),
+              alignment: Alignment.centerRight,
+              decoration: BoxDecoration(
+                color: (isCompleted) ? AppC.redAccent : AppC.green,
+                borderRadius: BorderRadius.circular(Num.borderRadius),
+              ),
+              child: Text((isCompleted) ? "InProgress" : "Complete", textAlign: TextAlign.end, style: context.textTheme.titleMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
+            ),
+            child: InkWell(
+              // onTap: onTap,
+              child: Card.filled(
+                shape: ContinuousRectangleBorder(
+                    borderRadius: BorderRadius.circular(Num.borderRadiusLarge),
+                    side: const BorderSide(
+                        color: AppC.borderColor,
+                        width: Num.borderWidthThinField)),
+                color: Colors.white,
+                margin: EdgeInsets.only(
+                    top: (hasCustom || hasSupplies || hasParts) ? 20 : 0),
+                elevation: 0,
+                clipBehavior: Clip.antiAliasWithSaveLayer,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 10,
+                  children: [
+                    const SizedBox.shrink(),
+                    if (dateText.isNotNullOrEmpty)
+                    Padding(padding: 16.sp.topPadding, child: Text.rich(TextSpan(text: dateText), style: context.textTheme.labelLarge
+                        ?.copyWith(fontWeight: FontWeight.w600, color: (isCompleted) ? AppC.green : null))),
+                    Expanded(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ListTile(
+                            dense: true,
+                            contentPadding: 16.sp.topPadding,
+                            title: ((titleText?.isNullOrEmpty ?? false))
+                                ? null
+                                : Text.rich(
+                                    TextSpan(
+                                      children: [
+                                        TextSpan(text: "$titleText", recognizer: TapGestureRecognizer()..onTap = onTap)
+                                      ]
+                                    ),
+                                    style: context.textTheme.labelLarge
+                                        ?.copyWith(fontWeight: FontWeight.w600, color: (isCompleted) ? AppC.green : null),
+                                  ),
+                            subtitle: (((cleanCarText?.length ?? 0) != 0) && cleanCarText.isNotNullOrEmpty)
+                                ? Text("(\t$cleanCarText\t)")
+                                : null,
+                            subtitleTextStyle: context.textTheme.labelSmall
+                                ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: AppC.redAccent),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (timeText?.isNotEmpty ?? false)
+                                  Text("$timeText",
+                                      style: context.textTheme.labelMedium?.copyWith(
+                                        color: isCompleted ? AppC.green : AppC.appColor
+                                      )),
+                                if ((onDelete != null) && (Session.of.getString(Str.userIdPrefText).toNumeric == 3))
+                                    InkWell(onTap: onDelete, child: const Icon(Icons.delete_outline_rounded, color: Colors.red)),
+                              ],
+                            ),
+                            minVerticalPadding: 0,
+                            horizontalTitleGap: 0,
+                            minTileHeight: 0,
+                          ),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Expanded(
+                                  child: ReadMoreText(
+                                    (notesText?.isNotNullOrEmpty ?? false)
+                                        ? '($notesText)'
+                                        : '',
+                                    preDataText: locationText.isNotNullOrEmpty ? locationText : null,
+                                    preDataTextStyle: context.textTheme.labelLarge
+                                        ?.copyWith(color: isCompleted ? AppC.green : AppC.appColor),
+                                    trimLength: (((locationText?.length ?? 0) <= 10) || ((locationText?.length ?? 0) == 0)) ? 30 : 7,
+                                    titleTextStyle: context.textTheme.labelSmall
+                                        ?.copyWith(
+                                        color: AppC.appColor,
+                                        fontWeight: FontWeight.w500),
+                                    trimMode: TrimMode.Length,
+                                    trimCollapsedText: 'more',
+                                    trimExpandedText: ' less',
+                                    textAlign: TextAlign.start,
+                                    style: context.textTheme.labelSmall,
+                                    moreStyle: context.textTheme.labelLarge
+                                        ?.copyWith(color: AppC.redOpac),
+                                    lessStyle: context.textTheme.labelLarge
+                                        ?.copyWith(color: AppC.redAccent),
+                                  )),
+                              // TODO USER NAME
+                              if (userNameText.isNotNullOrEmpty)
+                              GestureDetector(
+                                onTapDown: (details) => onUserTap?.call(users),
+                                child: Text(userNameText,
+                                    style: context.textTheme.labelLarge?.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 13.sp,
+                                        color: (isCompleted) ? AppC.green :  AppC.appColor)),
+                              )
+                            ],
+                          ),
+                          10.height,
+                        ],
+                      ),
+                    ),
+                    const SizedBox.shrink(),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          if ((hasCustom || hasSupplies || hasParts))
+            Positioned(
+                top: 7,
+                right: 1,
+                left: (hasCustom && hasSupplies && hasParts) ? 1 : null,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    if (hasParts)
+                      InkWell(
+                        onTap: onParts,
+                        borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(6.0),
+                            bottomRight: Radius.circular(6.0)),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 15, vertical: 5),
+                          decoration: const BoxDecoration(
+                              borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(6.0),
+                                  bottomRight: Radius.circular(6.0)),
+                              color: AppC.grey),
+                          child: Text(
+                            "PARTS",
+                            style: context.textTheme.labelSmall?.copyWith(
+                                color: AppC.white,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
+                    if (hasSupplies)
+                      InkWell(
+                        onTap: onSupplies,
+                        borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(6.0),
+                            bottomRight: Radius.circular(6.0)),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 15, vertical: 5),
+                          decoration: const BoxDecoration(
+                              borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(6.0),
+                                  bottomRight: Radius.circular(6.0)),
+                              color: Colors.lightGreen),
+                          child: Text(
+                            "SUPPLIES",
+                            style: context.textTheme.labelSmall?.copyWith(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
+                    if (hasCustom && (customText.isNotEmpty))
+                      InkWell(
+                        onTap: () => onCustom?.call(customId, customLink),
+                        borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(6.0),
+                            bottomRight: Radius.circular(6.0)),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 15, vertical: 5),
+                          decoration: const BoxDecoration(
+                              borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(6.0),
+                                  bottomRight: Radius.circular(6.0)),
+                              color: Colors.black),
+                          child: Text(
+                            customText,
+                            style: context.textTheme.labelSmall?.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      )
+                  ],
+                ))
+        ],
+      ),
+    );
+  }
+}

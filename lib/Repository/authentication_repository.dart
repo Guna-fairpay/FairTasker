@@ -4,6 +4,8 @@ import 'dart:developer';
 import 'package:fairpytasker/Response/authentication_response.dart';
 import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
+import 'package:fairpytasker/core/app/extension/response_extension.dart';
+import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/data/api_client.dart';
 import 'package:http/http.dart' as http;
 
@@ -26,7 +28,9 @@ class AuthenticationRepo {
           AuthenticationResponse loginResponse =
               AuthenticationResponse.fromJson(json.decode(response.body));
           if (loginResponse.status != 200 && loginResponse.status != 201) {
-            Utils.showInvalidInputs();
+            Toaster.showError(loginResponse.message);
+            // Utils.showInvalidInputs();
+            return null;
           } else {
             loginResponse.user?.password = password;
             loginResponse.user?.email = email;
@@ -44,5 +48,35 @@ class AuthenticationRepo {
       return null;
     }
     return null;
+  }
+
+  Future<Map<String, dynamic>?> logout() async {
+    String apiUrl = "${Str.BASE_URL}logout";
+    try {
+      var response = await apiClient.callPostMethod(apiUrl);
+      if (response.isSuccess) {
+        return response.mapData;
+      } else {
+        return null;
+      }
+    } on Exception catch (e) {
+      log('logout.exception : ${e.toString()}');
+      return null;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getBearerToken() async {
+    String apiUrl = "${Str.BASE_URL}getBearerToken";
+    try {
+      var response = await apiClient.callPostMethod(apiUrl);
+      if (response.isSuccess) {
+        return response.mapData;
+      } else {
+        return null;
+      }
+    } on Exception catch (e) {
+      log('getBearerToken.exception : ${e.toString()}');
+      return null;
+    }
   }
 }

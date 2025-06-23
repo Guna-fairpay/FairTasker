@@ -63,6 +63,33 @@ class VehicleDataLoading extends VehicleDataState {
   List<Object?> get props => [];
 }
 
+class setVehicleDataLoading extends VehicleDataState {
+  bool pop = false;
+  setVehicleDataLoading({required this.pop});
+  @override
+  List<Object?> get props => [pop];
+}
+
+class setVehicleLoaded extends VehicleDataState {
+  final dynamic currentVehicle;
+  const setVehicleLoaded( {this.currentVehicle});
+  @override
+  List<Object?> get props => [ currentVehicle, Random().nextDouble()];
+}
+
+class setVehicleImageLoaded extends VehicleDataState {
+  final dynamic currentVehicle;
+  const setVehicleImageLoaded( {this.currentVehicle});
+  @override
+  List<Object?> get props => [ currentVehicle, Random().nextDouble()];
+}
+
+class setVehicleLoader extends VehicleDataState {
+  const setVehicleLoader();
+  @override
+  List<Object?> get props => [];
+}
+
 class DropdownVehicleDataLoaded extends VehicleDataState {
   final CreateExpenseFieldData? createExpenseFieldData;
   const DropdownVehicleDataLoaded({required this.createExpenseFieldData});
