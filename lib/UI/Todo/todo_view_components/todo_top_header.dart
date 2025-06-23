@@ -7,6 +7,8 @@ import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:iconsax/iconsax.dart';
+import 'package:remixicon/remixicon.dart';
 
 class TodoTopHeader extends StatelessWidget {
   final bool isFilterSelected, showCompleted, isUserSelected, isTimeSensitive;
@@ -132,8 +134,8 @@ class TodoTopHeader extends StatelessWidget {
                   children: [
                     Icon(
                       isUserSelected
-                          ? Icons.supervisor_account_rounded
-                          : Icons.person_outline_rounded,
+                          ? Remix.group_fill
+                          : Remix.user_line,
                       color: AppC().base,
                       size: 17.sp,
                     ),
@@ -146,8 +148,8 @@ class TodoTopHeader extends StatelessWidget {
                     children: [
                       Icon(
                         !isFilterSelected
-                            ? Icons.filter_alt_outlined
-                            : Icons.filter_alt_sharp,
+                            ? Remix.filter_line
+                            : Remix.filter_fill,
                         color: AppC.black,
                         size: 18.sp,
                       ),
