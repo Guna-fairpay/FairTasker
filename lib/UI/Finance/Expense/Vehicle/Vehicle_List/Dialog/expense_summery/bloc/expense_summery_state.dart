@@ -12,6 +12,18 @@ class CommonState extends ExpenseSummeryState{
   List<Object?> get props => [Random().nextDouble()];
 }
 
+class VehicleListingState extends ExpenseSummeryState{
+  final List<dynamic>data;
+  VehicleListingState(this.data);
+  @override
+  List<Object?> get props => [data, Random().nextDouble()];
+}
+
+class CohortAndCategoryState extends ExpenseSummeryState{
+  @override
+  List<Object?> get props => [ Random().nextDouble()];
+}
+
 class ErrorState extends ExpenseSummeryState{
   final dynamic message;
   ErrorState(this.message);
@@ -24,4 +36,11 @@ class SuccessState extends ExpenseSummeryState{
   SuccessState(this.message);
   @override
   List<Object?> get props => [message, Random().nextDouble()];
+}
+
+class ExpenseEditState extends ExpenseSummeryState{
+  final dynamic model;
+  ExpenseEditState(this.model);
+  @override
+  List<Object?> get props => [model, Random().nextDouble()];
 }

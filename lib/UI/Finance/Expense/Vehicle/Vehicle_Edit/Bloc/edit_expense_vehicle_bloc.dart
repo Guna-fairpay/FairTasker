@@ -7,11 +7,8 @@ import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_Edit/Bloc/edit_expense_vehicle_event.dart';
 import 'package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_Edit/Bloc/edit_expense_vehicle_state.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/add_todo_const.dart';
-import 'package:fairpytasker/Utilities/Str.dart';
-import 'package:fairpytasker/Utilities/Utils.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
-import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
@@ -264,20 +261,20 @@ class EditExpenseVehicleBloc extends Bloc<EditExpenseVehicleEvent, EditExpenseVe
           if (splitExpenses is List) {
             for (var expense in splitExpenses) {
               if (expense['parts_id'] != null) {
-                partsList.forEach((element) {
+                for (var element in partsList) {
                   if (element['id'] == expense['parts_id']) {
                     element['controller'].text = expense['amount'].toString();
                   }
-                });
+                }
                 _updateExpenseTotal();
               }
               if (expense['supplies_id'] != null) {
-                suppliesList.forEach((element) {
+                for (var element in suppliesList) {
                   if (element['id'] == expense['supplies_id']) {
                     element['controller'].text = expense['amount'].toString();
                   }
                   _updateExpenseTotal();
-                });
+                }
               }
             }
           }

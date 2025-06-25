@@ -132,3 +132,4 @@ class SaveSubcategory extends ExpenseEvent {
 }
 
 class RefreshEvent extends ExpenseEvent {}
+

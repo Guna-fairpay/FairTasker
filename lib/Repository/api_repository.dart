@@ -449,6 +449,8 @@ class APiRepository {
 
   String get _checkInOut => "checkInOut";
 
+  String get _revenueSummary => "revenueSummary";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -1207,7 +1209,7 @@ Future<Map<String, dynamic>?> getLocations() async {
     }
   }
 
-  Future<Map<String, dynamic>?> getTodoDetails({String? expenseId}) async {
+  Future<Map<String, dynamic>?> getTodoDetails({dynamic expenseId}) async {
     try {
       String apiUrl = "${Str.BASE_URL}$_getTodoDetails?expense_id=$expenseId";
       final http.Response? response = await _apiClient.callGetMethod(apiUrl);
@@ -4444,6 +4446,20 @@ Future<Map<String, dynamic>?> getLocations() async {
     try {
       String apiUrl = '${Str.BASE_URL}$_approveTodo';
       final http.Response? response = await _apiClient.callPostMethodWithBodyDynamic(apiUrl, body: body);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      }else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    }catch(error){
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getRevenueSummary({dynamic body}) async{
+    try {
+      String apiUrl = '${Str.BASE_URL}$_revenueSummary';
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl, params: body);
       if (response?.isSuccess == true) {
         return await response.mapData;
       }else {
