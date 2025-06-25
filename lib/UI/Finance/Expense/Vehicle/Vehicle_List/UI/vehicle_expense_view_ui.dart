@@ -1,5 +1,4 @@
 
-import "package:date_time/date_time.dart";
 import "package:fairpytasker/Component/custom_checkbox.dart";
 import "package:fairpytasker/UI/Finance/Expense/Component/date_range_selection.dart";
 import "package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_List/Bloc/expense_bloc.dart";
@@ -7,7 +6,7 @@ import "package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_List/Bloc/expens
 import "package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_List/Bloc/expense_state.dart";
 import "package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_List/Dialog/category_subcategory_dialog.dart";
 import "package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_List/Dialog/cohort_dialog.dart";
-import "package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_List/Dialog/expense_summery_dialog/ui/expense_summery_main_ui.dart";
+import "package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_List/Dialog/expense_summery/ui/expense_summery_main_ui.dart";
 import "package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_List/UI/expense_vehicle_list_item.dart";
 import "package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_Add/UI/vehicle_expense_add_ui.dart";
 import "package:fairpytasker/Utilities/Utils.dart";
@@ -83,7 +82,7 @@ class ExpenseVehicleViewUI extends StatelessWidget {
                             value: state.isExpenseApproved,
                             onChanged:  (value)=>context.read<ExpenseBloc>().add(ApprovedExpenseEvent(isApproved:value)),),
                           InkWell(
-                            onTap: () => ExpenseSummeryMainUI.show(context),
+                            onTap: () => ExpenseSummeryMainUI.show(context, expenseData: state.isExpenseApproved ? state.filteredResponse : []),
                             child: Row(
                               spacing: 35,
                               mainAxisAlignment: MainAxisAlignment.end,
