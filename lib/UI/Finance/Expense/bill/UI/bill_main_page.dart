@@ -5,6 +5,7 @@ import 'package:fairpytasker/UI/Finance/Expense/Bill/Bloc/bill_state.dart';
 import 'package:fairpytasker/UI/Finance/Expense/Bill/UI/bill_listing_page.dart';
 import 'package:fairpytasker/UI/Finance/Expense/Bill/UI/bill_text_form_page.dart';
 import 'package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_Add/UI/vehicle_expense_add_ui.dart';
+import 'package:fairpytasker/UI/Finance/Expense/vehicles/vehicle_add_edit/ui/vehicle_add_edit_main_ui.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
@@ -27,7 +28,7 @@ class BillMainPage extends StatelessWidget {
             else{
               if(EasyLoading.isShow)EasyLoading.dismiss();
               if(state is PassBillToExpenseState){
-                context.push(ExpenseVehicleAddUI(model: state.value,));
+                context.push(VehicleAddEditMainUI(addModel: state.value,));
               }
             }
       },

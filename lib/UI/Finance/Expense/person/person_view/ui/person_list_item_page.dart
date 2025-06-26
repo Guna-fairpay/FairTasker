@@ -161,7 +161,7 @@ class PersonListItemPage extends StatelessWidget {
                   InkWell(
                     onTap: () => onDetailsPage(model),
                     child: Utils.getText(
-                        "\$${model['approved_amount'].toString().toDoubleDigit}",
+                        "\$${model['approveAmount'].toString().toDoubleDigit}",
                         weight: FontWeight.bold,
                         overFlow: TextOverflow.ellipsis,
                         color: AppC.grey

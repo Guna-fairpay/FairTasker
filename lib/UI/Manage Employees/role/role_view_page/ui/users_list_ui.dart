@@ -50,6 +50,7 @@ class UsersListUI extends StatelessWidget {
                             backgroundColor: AppC.appColor,
                             onPressed: () =>context.read<RoleViewBloc>().add(AddEditEvent(data: e, isRoleEdit: false, isUserEdit: true)),
                           ),
+                          if(kDebugMode)
                           CompactIconButton(
                             iconSize: 16.spMin,
                             icon:Icons.delete_outline,
