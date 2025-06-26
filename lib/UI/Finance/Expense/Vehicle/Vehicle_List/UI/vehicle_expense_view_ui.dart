@@ -1,5 +1,4 @@
 
-import "package:date_time/date_time.dart";
 import "package:fairpytasker/Component/custom_checkbox.dart";
 import "package:fairpytasker/UI/Finance/Expense/Component/date_range_selection.dart";
 import "package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_List/Bloc/expense_bloc.dart";
@@ -7,10 +6,13 @@ import "package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_List/Bloc/expens
 import "package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_List/Bloc/expense_state.dart";
 import "package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_List/Dialog/category_subcategory_dialog.dart";
 import "package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_List/Dialog/cohort_dialog.dart";
+import "package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_List/Dialog/expense_summery/ui/expense_summery_main_ui.dart";
 import "package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_List/UI/expense_vehicle_list_item.dart";
 import "package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_Add/UI/vehicle_expense_add_ui.dart";
+import "package:fairpytasker/UI/Finance/Expense/vehicles/vehicle_add_edit/ui/vehicle_add_edit_main_ui.dart";
 import "package:fairpytasker/Utilities/Utils.dart";
 import "package:fairpytasker/Utilities/appC.dart";
+import "package:fairpytasker/core/app/extension/context_extension.dart";
 import "package:fairpytasker/core/app/extension/datetime_extension.dart";
 import "package:fairpytasker/core/app/extension/sized_extension.dart";
 import "package:flutter/material.dart";
@@ -54,9 +56,8 @@ class ExpenseVehicleViewUI extends StatelessWidget {
                         ),
                       ),
                       InkWell(
-                        onTap:()=> Navigator.push(context, MaterialPageRoute(
-                            builder: (context) => const ExpenseVehicleAddUI(),
-                            fullscreenDialog: true)),
+                        onTap:()=> context.push(const VehicleAddEditMainUI()),
+                       // onTap:()=> context.push(const ExpenseVehicleAddUI()),
                         child: Container(
                           height: 40,
                           width: 40,
@@ -81,18 +82,21 @@ class ExpenseVehicleViewUI extends StatelessWidget {
                             title: Utils.getText('Approved',size: 12.sp,color: AppC.grey,weight: FontWeight.bold),
                             value: state.isExpenseApproved,
                             onChanged:  (value)=>context.read<ExpenseBloc>().add(ApprovedExpenseEvent(isApproved:value)),),
-                          Row(
-                            spacing: 35,
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Utils.getText(
-                                  '\$ ${state.unApprovedAmount.toStringAsFixed(2)}',
-                                  color: AppC.redAccent,
-                                  weight: FontWeight.bold),
-                              Utils.getText('\$ ${state.approvedAmount.toStringAsFixed(2)}',
-                                  color: AppC.appColor,
-                                  weight: FontWeight.bold),
-                            ],
+                          InkWell(
+                            onTap: () => ExpenseSummeryMainUI.show(context, expenseData: state.isExpenseApproved ? state.filteredResponse : []),
+                            child: Row(
+                              spacing: 35,
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Utils.getText(
+                                    '\$ ${state.unApprovedAmount.toStringAsFixed(2)}',
+                                    color: AppC.redAccent,
+                                    weight: FontWeight.bold),
+                                Utils.getText('\$ ${state.approvedAmount.toStringAsFixed(2)}',
+                                    color: AppC.appColor,
+                                    weight: FontWeight.bold),
+                              ],
+                            ),
                           ),
                         ],
                       )

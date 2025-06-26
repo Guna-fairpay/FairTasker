@@ -9,7 +9,7 @@ abstract class EditExpenseVehicleEvent extends Equatable {
 }
 
 class GetVehicleExpenseEditData extends EditExpenseVehicleEvent {
-  final String? id;
+  final dynamic id;
   const GetVehicleExpenseEditData({required this.id});
   @override
   List<Object?> get props => [id];

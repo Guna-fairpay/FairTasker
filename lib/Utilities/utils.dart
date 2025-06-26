@@ -168,7 +168,7 @@ class Utils {
               key: ValueKey(selectedKey),
               initialSelection: initialSelection,
               hintText: hintText,
-              menuHeight: 250,
+              menuHeight: 250.spMin,
               selectedTrailingIcon: const Icon(Icons.keyboard_arrow_up_sharp,color: AppC.appColor,),
               trailingIcon: const Icon(Icons.keyboard_arrow_down_sharp,color: AppC.appColor,),
               textStyle: TextStyle(

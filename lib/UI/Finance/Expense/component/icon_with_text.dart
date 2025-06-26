@@ -23,6 +23,7 @@ class IconAndText extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 5.0),
       child: Row(
         spacing: 10,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(icon, color: AppC.text, size: 20),
           Expanded(child: InkWell(

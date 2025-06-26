@@ -2,13 +2,13 @@ import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
-import 'package:fairpytasker/Repository/api_repository.dart';
-import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
-import 'package:fairpytasker/core/app/extension/string_extension.dart';
-import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
+import 'package:fairpytasker/Repository/api_repository.dart';
 
 part 'person_view_event.dart';
 part 'person_view_state.dart';
@@ -24,7 +24,6 @@ class PersonViewBloc extends Bloc<PersonViewEvent, PersonViewState>{
   List<dynamic> personList = [];
 
   Future<Map<String, dynamic>?> _getPersonExpense({String? startDate, String? endDate}) async => await _apiRepository.personExpenses(minDate: startDate, maxDate: endDate);
-  Future<Map<String, dynamic>?> _getEmployeeList() async => await _apiRepository.getEmployeeList();
   Future<Map<String, dynamic>?> _approveExpense({dynamic id, dynamic approved}) async => await _apiRepository.approvePersonExpense(id: id, approved: approved);
 
 
@@ -83,15 +82,7 @@ class PersonViewBloc extends Bloc<PersonViewEvent, PersonViewState>{
       } else {
         emit(ErrorState(message));
       }
-
-      /*var response = await _apiRepository.deletePersonExpense(event.model?['id'] ?? 0);
-      if(response?['message'].contains('Expense deleted successfully.')) {
-        apiResponse.removeWhere((element) => element['id'].toString() == event.model?['id']);
-        monthResponse.removeWhere((element) => element['id'].toString() == event.model?['id']);
-        await reloadData();
-      }*/
-      emit(CommonState());
-    } catch (e) {
+     } catch (e) {
       _error(e, emit);
     }
   }
@@ -145,7 +136,6 @@ class PersonViewBloc extends Bloc<PersonViewEvent, PersonViewState>{
       startDate: selectedDateRange.start.toFormat(),
       endDate: selectedDateRange.end.toFormat(),
     );
-    Console.of.log(data);
     var oneMonthResponse = List.from(data?['monthlyData'] ?? []);
     var response = List.from(data?['requestData'] ?? []);
     monthResponse = oneMonthResponse;
