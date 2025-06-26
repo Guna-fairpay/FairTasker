@@ -141,34 +141,47 @@ class VehicleAddEditBloc extends Bloc<VehicleAddEditEvent, VehicleAddEditState> 
       vehicleList = vehicleResponse ?? [];
       categoryList = categoryResponse ?? [];
       paymentMethod = paymentResponse ?? [];
-      if(event.editModel != null){
+      if(event.editModel != null) {
         editModel = event.editModel;
         var response = await _getEditVehicleExpense(editModel?['id']);
         var todoDetails = await _getTodoDetails(editModel?['id']);
         editResponse = response?['expenses'];
-        attachmentList.addAll(List.from(editResponse?['attachments'] ?? []).map((e) => e['path'].toString().toStorageURL).toList());
-        selectedVehicle = vehicleList.firstWhereOrNull((e) => e['vin'].toString() == editResponse?['vin'].toString()) ?? {};
+        attachmentList.addAll(
+            List.from(editResponse?['attachments'] ?? []).map((e) =>
+            e['path']
+                .toString()
+                .toStorageURL).toList());
+        selectedVehicle = vehicleList.firstWhereOrNull((e) =>
+        e['vin'].toString() == editResponse?['vin'].toString()) ?? {};
         vehicleController.text = selectedVehicle['vehicle_name'] ?? '';
-        selectedCategory = categoryList.firstWhereOrNull((e) => e['id'].toString() == editResponse?['category_id'].toString());
+        selectedCategory = categoryList.firstWhereOrNull((e) =>
+        e['id'].toString() == editResponse?['category_id'].toString());
         categoryName = selectedCategory?['name'];
         subCategoryList = List.from(selectedCategory['subcategories'] ?? []);
-        selectedSubCategory = subCategoryList.firstWhereOrNull((e) => e['id'].toString() == editResponse?['subcategory_id'].toString());
+        selectedSubCategory = subCategoryList.firstWhereOrNull((e) =>
+        e['id'].toString() == editResponse?['subcategory_id'].toString());
         subCategoryName = selectedSubCategory?['name'];
-        selectedPaymentMethod = paymentMethod.firstWhereOrNull((e) => e['id'].toString() == editResponse?['payment_method_id'].toString());
+        selectedPaymentMethod = paymentMethod.firstWhereOrNull((e) =>
+        e['id'].toString() == editResponse?['payment_method_id'].toString());
         descriptionController.text = editResponse?['expense_description'] ?? '';
-        selectedExpenseTo = expenseTo.firstWhereOrNull((e) => e['id'].toString() == editResponse?['expense_to'].toString());
-        amountController.text = editResponse?['expense_amount'].toString() ?? '';
+        selectedExpenseTo = expenseTo.firstWhereOrNull((e) =>
+        e['id'].toString() == editResponse?['expense_to'].toString());
+        amountController.text =
+            editResponse?['expense_amount'].toString() ?? '';
         selectedDate = DateTime.parse(editResponse?['expense_date']);
-        splitExpense = List.from(response?['expenses']?['split_expenses'] ?? []);
+        splitExpense =
+            List.from(response?['expenses']?['split_expenses'] ?? []);
         partsCostController.addListener(_updateExpenseTotal);
         labourCostController.addListener(_updateExpenseTotal);
         saleTaxController.addListener(_updateExpenseTotal);
         shippingController.addListener(_updateExpenseTotal);
         percentageOrAmountController.addListener(_updateExpenseTotal);
         totalAmountController.addListener(_updateExpenseTotal);
-        saleTaxController.text = ((double.tryParse(partsCostController.text) ?? 0) + (double.tryParse(labourCostController.text) ?? 0)).toString();
+        saleTaxController.text =
+            ((double.tryParse(partsCostController.text) ?? 0) +
+                (double.tryParse(labourCostController.text) ?? 0)).toString();
 
-        if(todoDetails != null){
+        if (todoDetails != null) {
           todoItems = todoDetails;
           var userResponse = await _getUsers();
           var groupResponse = await _getGroupUsers();
@@ -178,70 +191,94 @@ class VehicleAddEditBloc extends Bloc<VehicleAddEditEvent, VehicleAddEditState> 
           groupPerson = groupResponse ?? [];
           partsList = partsResponse ?? [];
           suppliesList = suppliesResponse ?? [];
-        }
-        dynamic userId;
-
-        if (todoDetails?['user_id'] != null) {
-          userId = todoDetails?['user_id'];
-        }
-
-        if (todoDetails?['user_group_id'] != null) {
-          var user = groupPerson.where((element) => element['id'] == todoDetails?['user_group_id']).firstOrNull;
-          userId = user?['userId'];
-        }
-        userNameList = getUserInitials(userId, usersList);
-
-        if (todoDetails?['vin'] != null) {
-          vinList = [todoDetails?['vin']];
-        } else {
-          List<dynamic>? vehicles = todoDetails?['vehicles'];
-          if (vehicles is List && vehicles.isNotEmpty) {
-            vinList = vehicles.map((v) => v['vin']).where((vin) => vin != null).toList();
+          dynamic userId;
+          if (todoDetails['user_id'] != null) {
+            userId = todoDetails['user_id'];
           }
-        }
 
-        if (vinList.isNotEmpty) {
-          List<Map<String, dynamic>> vehicleNames = vehicleList.where((element) => vinList.contains(element['vin'].toString())).toList();
-          vehicleNameList = vehicleNames.map((vehicle) => vehicle["vehicle_name"].toString()).toList();
-        }
-        String laborAmount = (splitExpense).firstWhereOrNull((element) => element['labour'] == 1)?['amount']?.toString() ?? "";
-        labourCostController.text = laborAmount;
-        taxIsTapped = editResponse?['sales_tax_type'] == "\$" ? true : false;
-        percentageOrAmountController.text = taxIsTapped ? "${editResponse?['sales_tax'] ?? ''}" : "${editResponse?['sales_tax_percentage'] ?? ''}";
-        shippingController.text = "${editResponse?['shipping_and_handling'] ?? ''}";
+          if (todoDetails['user_group_id'] != null) {
+            var user = groupPerson
+                .where((element) =>
+            element['id'] == todoDetails['user_group_id'])
+                .firstOrNull;
+            userId = user?['userId'];
+          }
+          userNameList = getUserInitials(userId, usersList);
 
-        List<dynamic> partsIds = List.from(todoItems['parts']).where((e) => e["parts_id"] != null).map((e) => int.tryParse(e["parts_id"].toString())).toList();
-        List<dynamic> suppliesIds = List.from(todoItems['supplies']).where((e) => e["supplies_id"] != null).map((e) => int.tryParse(e["supplies_id"].toString())).toList();
-
-        if (partsIds.isNotEmpty) {
-          selectedParts = partsList.where((element) => partsIds.contains(element['id'])).toList();
-        }
-
-        if (suppliesIds.isNotEmpty) {
-          selectedSupplies = (suppliesList).where((element) => suppliesIds.contains(element['id'])).toList();
-        }
-
-        parts = selectedParts.map((e) => e..["controller"] = TextEditingController()).toList();
-        supplies = selectedSupplies.map((e) => e..["controller"] = TextEditingController()).toList();
-        Console.of.log(parts, name: "Parts");
-        Console.of.log(supplies, name: "Supplies");
-
-        if (splitExpense.isNotEmpty) {
-          for (var expense in splitExpense) {
-            if (expense['parts_id'] != null) {
-              for (var element in parts) {
-                if (element['id'].toString() == expense['parts_id'].toString()) {
-                  element['controller'].text = "${expense['amount'] ?? 0.00}";
-                }
-              }
-              _updateExpenseTotal();
+          if (todoDetails['vin'] != null) {
+            vinList = [todoDetails['vin']];
+          } else {
+            List<dynamic>? vehicles = todoDetails['vehicles'];
+            if (vehicles is List && vehicles.isNotEmpty) {
+              vinList = vehicles
+                  .map((v) => v['vin'])
+                  .where((vin) => vin != null)
+                  .toList();
             }
-            if (expense['supplies_id'] != null) {
-              for (var element in supplies) {
-                if (element['id'].toString() == expense['supplies_id'].toString()) {
-                  element['controller'].text = "${expense['amount'] ?? 0.00}";
+          }
+
+          if (vinList.isNotEmpty) {
+            List<Map<String, dynamic>> vehicleNames = vehicleList
+                .where((
+                element) => vinList.contains(element['vin'].toString()))
+                .toList();
+            vehicleNameList = vehicleNames.map((vehicle) =>
+                vehicle["vehicle_name"].toString()).toList();
+          }
+          String laborAmount = (splitExpense).firstWhereOrNull((
+              element) => element['labour'] == 1)?['amount']?.toString() ?? "";
+          labourCostController.text = laborAmount;
+          taxIsTapped = editResponse?['sales_tax_type'] == "\$" ? true : false;
+          percentageOrAmountController.text = taxIsTapped
+              ? "${editResponse?['sales_tax'] ?? ''}"
+              : "${editResponse?['sales_tax_percentage'] ?? ''}";
+          shippingController.text =
+          "${editResponse?['shipping_and_handling'] ?? ''}";
+
+          List<dynamic> partsIds = List.from(todoItems['parts']).where((
+              e) => e["parts_id"] != null).map((e) =>
+              int.tryParse(e["parts_id"].toString())).toList();
+          List<dynamic> suppliesIds = List.from(todoItems['supplies']).where((
+              e) => e["supplies_id"] != null).map((e) =>
+              int.tryParse(e["supplies_id"].toString())).toList();
+
+          if (partsIds.isNotEmpty) {
+            selectedParts = (partsList)
+                .where((element) => partsIds.contains(element['id']))
+                .toList();
+          }
+
+          if (suppliesIds.isNotEmpty) {
+            selectedSupplies = (suppliesList).where((element) =>
+                suppliesIds.contains(element['id'])).toList();
+          }
+
+          parts = selectedParts.map((
+              e) => e..["controller"] = TextEditingController()).toList();
+          supplies = selectedSupplies.map((
+              e) => e..["controller"] = TextEditingController()).toList();
+          Console.of.log(parts, name: "Parts");
+          Console.of.log(supplies, name: "Supplies");
+
+          if (splitExpense.isNotEmpty) {
+            for (var expense in splitExpense) {
+              if (expense['parts_id'] != null) {
+                for (var element in parts) {
+                  if (element['id'].toString() ==
+                      expense['parts_id'].toString()) {
+                    element['controller'].text = "${expense['amount'] ?? 0.00}";
+                  }
                 }
                 _updateExpenseTotal();
+              }
+              if (expense['supplies_id'] != null) {
+                for (var element in supplies) {
+                  if (element['id'].toString() ==
+                      expense['supplies_id'].toString()) {
+                    element['controller'].text = "${expense['amount'] ?? 0.00}";
+                  }
+                  _updateExpenseTotal();
+                }
               }
             }
           }
