@@ -4405,7 +4405,7 @@ Future<Map<String, dynamic>?> getLocations() async {
 
   Future<Map<String, dynamic>?> getRevenueSummary({dynamic body}) async{
     try {
-      String apiUrl = '${Str.BASE_URL}$_revenueSummary';
+      String apiUrl = '${Str.LIST_BASE_URL}$_revenueSummary';
       final http.Response? response = await _apiClient.callGetMethod(apiUrl, params: body);
       if (response?.isSuccess == true) {
         return await response.mapData;

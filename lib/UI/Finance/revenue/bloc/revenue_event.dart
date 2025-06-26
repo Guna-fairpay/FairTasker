@@ -15,8 +15,8 @@ class DateRangeEvent extends RevenueEvent{
 }
 
 class SearchEvent extends RevenueEvent{
-  final dynamic query;
-  SearchEvent({required this.query});
+  final String query;
+  SearchEvent(this.query);
   @override
   List<Object?> get props => [query];
 }
@@ -26,4 +26,12 @@ class DropDownPopupEvent extends RevenueEvent{
   DropDownPopupEvent({required this.value});
   @override
   List<Object?> get props => [value];
+}
+
+class CohortEvent extends RevenueEvent{
+  final dynamic cohort;
+  CohortEvent(this.cohort);
+  @override
+  List<Object?> get props => [cohort];
+
 }

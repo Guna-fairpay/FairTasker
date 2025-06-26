@@ -13,6 +13,7 @@ class CompactDropDown<T extends Object> extends StatelessWidget {
   final String? hintText;
   final String? helperText;
   final T? initialSelection;
+  final FocusNode? focusNode;
   final ValueChanged<T?>? onChanged;
   final ItemAsString<T>? itemAsString;
   final TextEditingController? controller;
@@ -27,6 +28,7 @@ class CompactDropDown<T extends Object> extends StatelessWidget {
       this.items,
       this.itemAsString,
       this.onChanged,
+        this.focusNode,
       this.helperText,
         this.autoValidateMode,
         this.validator
@@ -56,6 +58,7 @@ class CompactDropDown<T extends Object> extends StatelessWidget {
             children: [
               DropdownMenu<T>(
                 key: key,
+                focusNode: focusNode,
                 initialSelection: items?.firstWhereOrNull((element) => const DeepCollectionEquality().equals(initialSelection, element)),
                 hintText: hintText,
                 helperText: helperText,
@@ -75,8 +78,8 @@ class CompactDropDown<T extends Object> extends StatelessWidget {
                   backgroundColor: WidgetStateProperty.all<Color>(Colors.white),
                   visualDensity: const VisualDensity(vertical: VisualDensity.minimumDensity),
                 ),
+                requestFocusOnTap: true,
                 keyboardType: TextInputType.text,
-                requestFocusOnTap: (controller != null),
                 controller: controller,
                 searchCallback: (entries, query) => entries.indexWhere((element) => element.value.toString().toLowerCase().contains(query.toLowerCase())),
                 expandedInsets: 0.padding,
@@ -89,6 +92,7 @@ class CompactDropDown<T extends Object> extends StatelessWidget {
                 onSelected: (value) {
                   onChanged?.call(value);
                   field.didChange(value);
+                  focusNode?.unfocus();
                 },
               ),
               if (field.hasError)
@@ -116,24 +120,27 @@ class CompactDropDown<T extends Object> extends StatelessWidget {
           isCollapsed: true,
           border: border,
           isDense: true,
-          constraints: BoxConstraints(maxHeight: 35.sp)
+          constraints: BoxConstraints(maxHeight: 35.sp),
       ),
       menuStyle: MenuStyle(
         backgroundColor: WidgetStateProperty.all<Color>(Colors.white),
         visualDensity: const VisualDensity(vertical: VisualDensity.minimumDensity),
       ),
       keyboardType: TextInputType.text,
-      requestFocusOnTap: (controller != null),
       controller: controller,
       searchCallback: (entries, query) => entries.indexWhere((element) => element.value.toString().toLowerCase().contains(query.toLowerCase())),
       expandedInsets: 0.padding,
+      requestFocusOnTap: true,
       dropdownMenuEntries: items
           ?.map((item) => DropdownMenuEntry<T>(
           value: item,
           label: itemAsString?.call(item) ?? item.toString()))
           .toList() ??
           [],
-      onSelected: onChanged,
+      onSelected: (value) {
+        onChanged?.call(value);
+        focusNode?.unfocus();
+      },
     );
   }
 }
