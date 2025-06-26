@@ -1,3 +1,4 @@
+import 'package:fairpytasker/Component/custom_text/compact_text.dart';
 import 'package:fairpytasker/UI/Manage%20Employees/manage_employees.dart';
 import 'package:fairpytasker/UI/approve_task/ui/approve_task_main_ui.dart';
 import 'package:fairpytasker/UI/bouncie/bouncie_main_ui.dart';
@@ -5,6 +6,7 @@ import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/UI/import_task/import_task_main_ui.dart';
 import 'package:fairpytasker/UI/leave_management/leave_view/ui/leave_view_main_page.dart';
 import 'package:fairpytasker/UI/offshore_report/base_page/ui/offshore_report_base_page.dart';
+import 'package:fairpytasker/UI/release_notes/release_notes_viewer.dart';
 import 'package:fairpytasker/UI/voice_to_text/ui/voice_to_text_ui.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
@@ -20,6 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:package_info_plus/package_info_plus.dart' show PackageInfo;
 import 'package:r_icon_pro/r_icon_pro.dart';
+import 'package:remixicon/remixicon.dart';
 import '../UI/Manage Custom Data/reports/reports_view.dart';
 import '../UI/Settings/google_authenticator.dart';
 import '../UI/authentication/authentication_ui.dart';
@@ -100,7 +103,7 @@ class DrawerView extends StatelessWidget {
                 children: <Widget>[
                   _buildListTile(
                     context,
-                    icon: RIcon.Archive_Minimalistic,
+                    icon: Remix.honour_line,
                     title: "Manage Custom Data's",
                     onTap: () => context.push(const ManageCustomDataMenuUI(), fullscreenDialog: true),
                   ),
@@ -109,7 +112,7 @@ class DrawerView extends StatelessWidget {
                       _buildDivider(),
                       _buildListTile(
                         context,
-                        icon: RIcon.Users_Group_Rounded,
+                        icon: Remix.user_community_line,
                         title: "Manage Employees",
                         onTap: () => context.push(const ManageEmployees(), fullscreenDialog: true),
                       ),
@@ -201,10 +204,17 @@ class DrawerView extends StatelessWidget {
   Widget _buildFooter(BuildContext context) {
     return Column(
       children: [
-        Padding(padding: 10.sp.padding, child: FutureBuilder(future: PackageInfo.fromPlatform(), builder: (context, snapshot) => Utils.getText(
-          "Version: ${snapshot.data?.version} ${flavor.isDebug ? "Dev" : ""}",
-          color: Colors.grey.withValues(alpha: 0.99),
-        ),)),
+        Padding(padding: 10.sp.padding, child: FutureBuilder(future: PackageInfo.fromPlatform(), builder: (context, snapshot) => GestureDetector(
+          onTap: () async {
+            Scaffold.of(context).closeDrawer();
+            await Future.delayed(Durations.short4);
+            ReleaseNotesViewer.show(context, getIt<CommonService>().releaseNotes?['data']?['notes']);
+          },
+          child: CompactText(
+            "App Version: ${snapshot.data?.version} ${flavor.isDebug ? "Dev" : ""}",
+            color: Colors.grey.withValues(alpha: 0.99),
+          ),
+        ))),
         Container(
           decoration: const BoxDecoration(
             color: AppC.appColor,

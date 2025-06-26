@@ -11,14 +11,16 @@ class TableHeaderRow extends TableRow {
   final TextAlign? firstTextAlign;
   final Color? backgroundColor;
   final Decoration? tableDecoration;
-  const TableHeaderRow({super.key, required this.labels, this.tableDecoration, this.backgroundColor = AppC.lightGray, this.textAlign, this.firstTextAlign});
+  final BorderRadius? borderRadius;
+  final EdgeInsets? padding;
+  const TableHeaderRow({super.key, required this.labels, this.tableDecoration, this.backgroundColor = AppC.lightGray, this.textAlign, this.firstTextAlign, this.borderRadius, this.padding});
 
   @override
-  List<Widget> get children => labels.mapIndexed((i,e) => TableHeaderLabel(label: e, textAlign: (i == 0) ? (firstTextAlign ?? textAlign) : (textAlign))).toList();
+  List<Widget> get children => labels.mapIndexed((i,e) => TableHeaderLabel(padding: padding, label: e, textAlign: (i == 0) ? (firstTextAlign ?? textAlign) : (textAlign))).toList();
 
   @override
   Decoration? get decoration => tableDecoration ?? BoxDecoration(
-    borderRadius: BorderRadius.circular(5.sp),
+    borderRadius: borderRadius ?? BorderRadius.circular(5.sp),
     color: backgroundColor
   );
 }

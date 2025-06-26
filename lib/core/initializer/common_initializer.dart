@@ -7,6 +7,7 @@ import 'package:fairpytasker/Response/authentication_response.dart';
 import 'package:fairpytasker/core/initializer/receive_intent.dart';
 import 'package:fairpytasker/core/initializer/todo_supporter.dart';
 import 'package:flutter/foundation.dart' show ValueNotifier, kDebugMode;
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:collection/collection.dart';
@@ -73,8 +74,11 @@ class CommonService {
   Map<String, dynamic> employeesList = {};
   List<Map<String, dynamic>> taskCategoryGroupList = [];
   Map<String, dynamic>? _vehicleStatus;
+  Map<String, dynamic>? releaseNotes;
   List<Map<String, dynamic>> _leavelistType = [];
   List<Map<String, dynamic>> expensesCategory = [];
+
+  PackageInfo? packageInfo;
 
 
   final ValueNotifier<bool> updateBranch = ValueNotifier(false);
@@ -112,6 +116,11 @@ class CommonService {
     _broadcast.register(Str.branchChange, (value, _) => callback?.call());
   }
 
+  Future<PackageInfo?> getPackageInfo() async {
+    packageInfo ??= await PackageInfo.fromPlatform();
+    return packageInfo;
+  }
+
   List<dynamic> get currentBranchHrmIds {
     var userList = List.from(usersList);
     userList.removeWhere((element) => (element['deleted_at'].toString().isNotNullOrEmpty) || (element['hrm_id'].toString().isNullOrEmpty));
@@ -136,12 +145,24 @@ class CommonService {
   Future<void> initialFetch() async {
     await Future.wait([
       // getUsers(),
+      getPackageInfo(),
       getCohorts(),
       getBranches(),
       Authenticator.instance.getBearerToken(),
       // Authenticator.instance.getDepartmentId(),
-    ]);
+    ]).whenComplete(() async => await getReleaseNotes());
     Console.of.log("$timeNow", name: "TIME_NOW_IN_AMERICA");
+  }
+
+  Future<Map<String, dynamic>?> getReleaseNotes() async {
+    try {
+      var version = packageInfo?.version ?? "";
+      releaseNotes ??= await _apiRepository.fetchReleaseNotes(version);
+      Console.of.log(releaseNotes);
+      return releaseNotes;
+    } catch (e) {
+      return null;
+    }
   }
 
   Future<Map<String, dynamic>?> getCurrentLocation() async {

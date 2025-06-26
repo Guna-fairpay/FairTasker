@@ -27,7 +27,6 @@ class EditTodoUI extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Console.of.log("${model?['title']}", name: "EditTodoUI");
     return BlocProvider(
       create: (context) => EditToDoBloc()..add(GetEditTodoInitialEvent(todoId: "$todoId", model: model)),
       child: BlocListener<EditToDoBloc, EditTodoState>(

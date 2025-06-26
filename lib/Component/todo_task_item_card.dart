@@ -42,7 +42,7 @@ class TodoTaskItemCard extends StatelessWidget {
                     radius: 30,
                     backgroundColor: (model['display']?['hasCompleted'] ?? false) ? AppC.green : AppC.appColor,
                     child: CircleAvatar(
-                      radius: 28,
+                      radius: (model.isEmpty) ? 30 : 28,
                       backgroundColor: AppC.white,
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(28),
@@ -50,7 +50,7 @@ class TodoTaskItemCard extends StatelessWidget {
                         child: (model['display']?['vehicle_image'].toString().isNullOrEmpty ?? false)
                             ? Center(
                                 child: Utils.getText(
-                                    ((List.from(model['display']?['vins'])).length > 1)
+                                    ((List.from(model['display']?['vins'] ?? [])).length > 1)
                                     ? "MV"
                                     : "CT",
                                     size: 14.sp,
@@ -143,7 +143,7 @@ class TodoTaskItemCard extends StatelessWidget {
                     bottom: BorderSide(
                         color: Colors.grey.withValues(alpha: 0.4), width: 1.2),
                   ),
-                  color: (model['id'] == Session.of.getInt("scrollToIndex")) ? AppC.lightBlue : AppC.white,
+                  color: (model.isEmpty) ? AppC.trans : (model['id'] == Session.of.getInt("scrollToIndex")) ? AppC.lightBlue : AppC.white,
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -367,14 +367,14 @@ class TodoTaskItemCard extends StatelessWidget {
                         ),
                         if ((model['display']?['vendor_location'].toString().isNullOrEmpty ?? false) && (model['display']?['notes'].toString().isNullOrEmpty ?? false))
                           const Spacer(),
-                        if ((model['display']?['resource_name'].toString().isNotNullOrEmpty ?? false) || (List.from(model['display']?['resources']).isNotEmpty))
+                        if ((model['display']?['resource_name'].toString().isNotNullOrEmpty ?? false) || (List.from(model['display']?['resources'] ?? []).isNotEmpty))
                         Row(
                           spacing: (showCheckbox ?? false) ? 10 : 5,
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             GestureDetector(
                                 onTapDown: onResource,
-                                child: Utils.getText(model['display']?['resource_name'] ?? (List.from(model['display']?['resources']).length == 1) ? (List.from(model['display']?['resources']).map((e) => <String>[(e['first_name'] ?? ""), (e['last_name'] ?? "")].toInitial).firstOrNull ?? "") : "${List.from(model['display']?['resources']).map((e) => <String>[(e['first_name'] ?? ""), (e['last_name'] ?? "")].toInitial).firstOrNull ?? ""}...",
+                                child: Utils.getText(model['display']?['resource_name'] ?? (List.from(model['display']?['resources'] ?? []).length == 1) ? (List.from(model['display']?['resources'] ?? []).map((e) => <String>[(e['first_name'] ?? ""), (e['last_name'] ?? "")].toInitial).firstOrNull ?? "") : "${List.from(model['display']?['resources']).map((e) => <String>[(e['first_name'] ?? ""), (e['last_name'] ?? "")].toInitial).firstOrNull ?? ""}...",
                                     weight: FontWeight.w900,
                                     size: 13.sp,
                                     color: AppC().base)),

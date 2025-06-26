@@ -12,6 +12,7 @@ static const redAccent = Color(0xffd01601);
     Color base = const Color(0xFF374E8C);
   static const text = Color(0xff373737);
   static const subText = Color(0xd6373737);
+  static const lightDark = Color(0xFF495057);
   // Color base1 = selectedColor;
  
   static const white = Color(0xffffffff);
