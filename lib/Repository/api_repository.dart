@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'package:fairpytasker/Remote/dio_remote_client.dart';
 import 'package:fairpytasker/Response/assigned_to_response.dart';
 import 'package:fairpytasker/Response/cohorts_response.dart';
 import 'package:fairpytasker/Response/general_response.dart';
@@ -456,6 +457,14 @@ class APiRepository {
   String? get _userId => Session.of.getString(Str.userIdPrefText);
 
   int? get _hrmId => Session.of.getInt(Str.hrmIdPrefText);
+  
+  Future<Map<String, dynamic>?> fetchReleaseNotes(dynamic version) async {
+    try {
+      return await RemoteClient.instance.getRequest("${Str.BASE_URL}release_note", queryParameters: { "version" : version });
+    } catch (e) {
+      rethrow;
+    }
+  }
 
   Future<VehicleHistoryResponse?> getVehicleHistoryList(
       {String? vin, dynamic groupId, int? currentPage, int itemsPerPage = 5, String? search}) async {
@@ -543,6 +552,7 @@ class APiRepository {
     }
   }
 
+  @Deprecated("Use updateToDoApi instead")
   Future<Map<String, dynamic>?> getEmployeeTaskHistoryByDay(dynamic date, dynamic userId) async {
     try{
       String apiUrl = "${Str.BASE_URL}$_employeeTaskHistoryByDay${date}&user_id=${userId}";

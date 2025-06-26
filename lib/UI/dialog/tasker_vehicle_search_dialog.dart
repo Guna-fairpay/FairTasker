@@ -1,7 +1,7 @@
-import 'package:fairpytasker/Component/custom_auto_search_field.dart';
-import 'package:fairpytasker/Component/custom_dropdown.dart';
 import 'package:fairpytasker/Component/custom_searcher_view.dart';
 import 'package:fairpytasker/Component/custom_tab_button.dart';
+import 'package:fairpytasker/Component/page_keep_aliver.dart';
+import 'package:fairpytasker/UI/Finance/cost/cost_list_view.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleEdit/ExpensesDetails/UI/vehicle_expense_ui.dart';
 import 'package:fairpytasker/UI/Vehicle/details/vehicle_details_ui.dart';
 import 'package:fairpytasker/UI/Vehicle/vehicle_history/vehicle_history_view_ui.dart';
@@ -17,12 +17,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:remixicon/remixicon.dart';
 
 class TaskerVehicleSearchDialog {
   TaskerVehicleSearchDialog._();
 
   static void show(BuildContext context) async {
-    // context.push(const _TaskerVehicleSearchDialogView(), fullscreenDialog: true);
     await showDialog(
         context: context,
         builder: (context) => const _TaskerVehicleSearchDialog(),
@@ -70,61 +70,6 @@ class _TaskerVehicleSearchDialog extends StatelessWidget {
       ),
     );
   }
-}
-
-class _TaskerVehicleSearchDialogView extends StatelessWidget {
-  const _TaskerVehicleSearchDialogView({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => TVSBloc()..add(TVSInitialEvent()),
-      child: BlocListener<TVSBloc, TVSStates>(
-        listener: (context, state) {
-          if (state is TVSLoadingState) {
-            EasyLoading.show();
-          } else {
-            if (EasyLoading.isShow) EasyLoading.dismiss();
-          }
-        },
-        child: Scaffold(
-          appBar: AppBar(
-            title: const Text("Search vehicle"),
-          ),
-          body: Column(
-            spacing: 10,
-            mainAxisSize: MainAxisSize.min,
-            children: [_TaskerVehicleSearchBodyView(), const SizedBox.shrink()],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-Widget _widget(BuildContext context) {
-  return AlertDialog.adaptive(
-    alignment: Alignment.topCenter,
-    titlePadding: EdgeInsets.zero,
-    contentPadding: EdgeInsets.zero,
-    shape: ContinuousRectangleBorder(
-        borderRadius: BorderRadius.circular(Num.borderRadiusLarge)),
-    insetPadding: EdgeInsets.symmetric(horizontal: 16.sp)
-        .copyWith(top: 70.sp, bottom: 16.sp),
-    clipBehavior: Clip.antiAliasWithSaveLayer,
-    elevation: 5,
-    title: ListTile(
-      trailing: GestureDetector(
-        child: Icon(Icons.close, color: context.theme.colorScheme.primary),
-        onTap: () => Navigator.pop(context),
-      ),
-    ),
-    content: Column(
-      spacing: 10,
-      mainAxisSize: MainAxisSize.min,
-      children: [_TaskerVehicleSearchBodyView(), const SizedBox.shrink()],
-    ),
-  );
 }
 
 class _TaskerVehicleSearchBodyView extends StatelessWidget {
@@ -206,35 +151,37 @@ class _TaskerVehicleSearchBodyView extends StatelessWidget {
                                           (context.watch<TVSBloc>().pageIndex == 2)
                                               ? Icons.info_rounded
                                               : Icons.info_outlined),
+                                  CustomTabButton(
+                                      buttonText: "Cost",
+                                      value: 3,
+                                      onPressed: (value) => context
+                                          .read<TVSBloc>()
+                                          .add(TVSSelectPageEvent(page: value)),
+                                      selectedValue:
+                                          context.watch<TVSBloc>().pageIndex,
+                                      icon:
+                                          (context.watch<TVSBloc>().pageIndex == 3)
+                                              ? Remix.money_dollar_circle_fill
+                                              : Remix.money_dollar_circle_line),
                                 ],
                               ),
                             ),
                           ),
                         ),
-                      if ((context.watch<TVSBloc>().selectedModel?.isNotEmpty ??
-                              false) &&
-                          (context.watch<TVSBloc>().pageIndex < 3))
-                        SizedBox(
-                          width: double.maxFinite,
-                          height: context.height * 0.65,
-                          child: (context.watch<TVSBloc>().pageIndex == 0)
-                              ? VehicleHistoryViewUI(
-                                  vin: context
-                                      .watch<TVSBloc>()
-                                      .selectedModel?['vin'],
-                                  vehicleName: context
-                                      .watch<TVSBloc>()
-                                      .selectedModel?['vehicle_name'],
-                                  showHeader: false)
-                              : (context.watch<TVSBloc>().pageIndex == 1)
-                                  ? EditVehicleExpenseDetailsUI(
-                            withInExpand: true,
-                                      vin: context
-                                          .watch<TVSBloc>()
-                                          .selectedModel?['vin'])
-                                  : VehicleDetailsUi(
-                                      model:
-                                          context.watch<TVSBloc>().selectedModel),
+                      if ((context.watch<TVSBloc>().selectedModel?.isNotEmpty ?? false) && (context.watch<TVSBloc>().pageIndex <= 3))
+                        PageKeepAliver(
+                          key: const PageStorageKey("tasker_vehicle_search_dialog_page_keep_alive"),
+                          child: SizedBox(
+                            width: double.maxFinite,
+                            height: context.height * 0.75,
+                            child: switch(context.watch<TVSBloc>().pageIndex) {
+                              0 => VehicleHistoryViewUI(vin: context.watch<TVSBloc>().selectedModel?['vin'], vehicleName: context.watch<TVSBloc>().selectedModel?['vehicle_name'], showHeader: false),
+                              1 => EditVehicleExpenseDetailsUI(withInExpand: true, vin: context.watch<TVSBloc>().selectedModel?['vin']),
+                              2 => VehicleDetailsUi(model: context.watch<TVSBloc>().selectedModel),
+                              3 => CostListView(model: context.watch<TVSBloc>().selectedModel),
+                              _ => const SizedBox.shrink()
+                            }
+                          ),
                         ),
                     ],
                   ),
