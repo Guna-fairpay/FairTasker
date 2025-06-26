@@ -44,7 +44,7 @@ class VehicleAddEditFormFieldUI extends StatelessWidget {
                       foregroundColor: AppC.blue,
                       backgroundColor: AppC.trans,
                       isOutline: true,
-                      onPressed: () => context.read<VehicleAddEditBloc>().add(CaptureImageEvent()),
+                      onPressed: () => context.read<VehicleAddEditBloc>().add(InvoiceEvent()),
                     ),
                   ),
                 ],

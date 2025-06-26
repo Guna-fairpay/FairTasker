@@ -24,6 +24,8 @@ class PickImageEvent extends VehicleAddEditEvent {}
 
 class CaptureImageEvent extends VehicleAddEditEvent {}
 
+class InvoiceEvent extends VehicleAddEditEvent {}
+
 class RemoveImageEvent extends VehicleAddEditEvent {
   final dynamic data;
   RemoveImageEvent({required this.data});
@@ -75,3 +77,5 @@ class DeleteEvent extends VehicleAddEditEvent {}
 class TaxIconEvent extends VehicleAddEditEvent {}
 
 class GetOdometerEvent extends VehicleAddEditEvent {}
+
+class GenerateInvoiceEvent extends VehicleAddEditEvent {}

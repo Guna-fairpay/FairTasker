@@ -693,7 +693,6 @@ class APiRepository {
       if (response != null) {
         if (response.isSuccess) {
           var path = await FileSaver.instance.saveFile(response);
-          Toaster.showSuccess("Invoice Generated Successfully");
           return {'message': path};
         } else {
           Utils.showSomethingWentWrong();

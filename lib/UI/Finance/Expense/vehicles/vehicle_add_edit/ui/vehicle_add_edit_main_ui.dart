@@ -5,6 +5,7 @@ import 'package:fairpytasker/Component/custom_single_selection_field.dart';
 import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/UI/Finance/Expense/Component/icon_with_text.dart';
 import 'package:fairpytasker/UI/Finance/Expense/vehicles/vehicle_add_edit/bloc/vehicle_add_edit_bloc.dart';
+import 'package:fairpytasker/UI/Finance/Expense/vehicles/vehicle_add_edit/dialog/invoice_dialog/invoice_dialog_main_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/Components/image_upload_selection.dart';
 import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
@@ -43,6 +44,7 @@ class VehicleAddEditMainUI extends StatelessWidget {
             if (state is! SuccessState) if (EasyLoading.isShow) EasyLoading.dismiss();
             switch(state){
               case TodoTaskViewSate(): context.push(TodoTaskViewUI(todoDetails: state.model,)); break;
+              case InvoiceState(): InvoiceDialogMainUI.show(context); break;
               case ErrorState(): Toaster.showError(state.message); break;
               case SuccessState():{
                 Toaster.showSuccess(state.message);

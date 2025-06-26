@@ -3,17 +3,20 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:collection/collection.dart';
+import 'package:date_time/date_time.dart';
 import 'package:equatable/equatable.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
+import 'package:fairpytasker/core/app/helper/device_info_helper.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 part 'vehicle_add_edit_event.dart';
 part 'vehicle_add_edit_state.dart';
@@ -78,6 +81,7 @@ class VehicleAddEditBloc extends Bloc<VehicleAddEditEvent, VehicleAddEditState> 
   dynamic categoryName;
   dynamic subCategoryName;
   dynamic addModel;
+  dynamic invoiceData;
 
   bool isEdit = false;
   bool taxIsTapped = false;
@@ -89,6 +93,7 @@ class VehicleAddEditBloc extends Bloc<VehicleAddEditEvent, VehicleAddEditState> 
   Future<List<Map<String, dynamic>>?> _getGroupUsers() async => await getIt<CommonService>().getGroupPersons();
   Future<List<Map<String, dynamic>>?> _partsList() async => await getIt<CommonService>().getPartsList();
   Future<List<Map<String, dynamic>>?> _suppliesList() async => await getIt<CommonService>().getSuppliesList();
+  Future<List<Map<String, dynamic>>> _getVendor() async => await getIt<CommonService>().getVendorsList();
   Future<Map<String, dynamic>?> _getTodoDetails(dynamic id) async => await _apiRepository.getTodoDetails(expenseId: id);
   Future<Map<String, dynamic>?> _getEditVehicleExpense(dynamic id) async => await _apiRepository.getEditVehicleExpense(id: id);
   Future<Map<String, dynamic>?> _saveVehicleExpense({dynamic body, dynamic id, List<File>? images}) async => await _apiRepository.expenseAddOrUpdateApi(body: body, expenseId: id, images: images);
@@ -96,6 +101,8 @@ class VehicleAddEditBloc extends Bloc<VehicleAddEditEvent, VehicleAddEditState> 
   Future<Map<String, dynamic>?> _deleteExpenseTodo({dynamic id}) async => await _apiRepository.deleteExpenseTodo(id);
   Future<Map<String, dynamic>?> _deleteVehicleExpense({dynamic id}) async => await _apiRepository.deleteVehicleExpense(id);
   Future<Map<String, dynamic>?> _getEditBillData({dynamic id}) async => await _apiRepository.getEditBillData(id: id);
+  Future<Map<String, dynamic>?> _getOdometerValue({dynamic vin}) async => await _apiRepository.getOdometerValue(vin: vin);
+  Future<Map<String, dynamic>?> _generateInvoice({dynamic body}) async => await _apiRepository.generateInvoice(body: body);
 
   VehicleAddEditBloc() : super(LoadingState()){
     on<InitialEvent>(_onInitialEvent);
@@ -113,6 +120,8 @@ class VehicleAddEditBloc extends Bloc<VehicleAddEditEvent, VehicleAddEditState> 
     on<TaxIconEvent>(_onTaxTappedEvent);
     on<DeleteEvent>(_onDeleteEvent);
     on<GetOdometerEvent>(_onOdometerEvent);
+    on<InvoiceEvent>(_onInvoiceEvent);
+    on<GenerateInvoiceEvent>(_onGenerateInvoiceEvent);
   }
   
   Future<void> _onInitialEvent(InitialEvent event, Emitter<VehicleAddEditState> emit) async {
@@ -120,7 +129,7 @@ class VehicleAddEditBloc extends Bloc<VehicleAddEditEvent, VehicleAddEditState> 
       isEdit = event.editModel != null;
       emit(LoadingState());
       if(event.addModel != null){
-        var response = await _apiRepository.getEditBillData(id: event.addModel['id']);
+        var response = await _getEditBillData(id: event.addModel['id']);
         addModel = response?['data'];
         attachmentList = List.from(addModel?['billimages'] ?? []).map((e) => e['path'].toString().toAttachmentURL).toList();
         amountController.text = addModel?['amount'] ?? '';
@@ -195,42 +204,42 @@ class VehicleAddEditBloc extends Bloc<VehicleAddEditEvent, VehicleAddEditState> 
           List<Map<String, dynamic>> vehicleNames = vehicleList.where((element) => vinList.contains(element['vin'].toString())).toList();
           vehicleNameList = vehicleNames.map((vehicle) => vehicle["vehicle_name"].toString()).toList();
         }
-        String laborAmount = (splitExpense).firstWhereOrNull((element) => element['labour'] == 1)?['amount']?.toString() ?? "0";
+        String laborAmount = (splitExpense).firstWhereOrNull((element) => element['labour'] == 1)?['amount']?.toString() ?? "";
         labourCostController.text = laborAmount;
         taxIsTapped = editResponse?['sales_tax_type'] == "\$" ? true : false;
         percentageOrAmountController.text = taxIsTapped ? "${editResponse?['sales_tax'] ?? ''}" : "${editResponse?['sales_tax_percentage'] ?? ''}";
         shippingController.text = "${editResponse?['shipping_and_handling'] ?? ''}";
 
-        List<dynamic> partsIds = splitExpense.where((e) => e["parts_id"] != null).map((e) => e["parts_id"] as int).toList();
-        List<dynamic> suppliesIds = splitExpense.where((e) => e["supplies_id"] != null).map((e) => e["supplies_id"] as int).toList();
+        List<dynamic> partsIds = List.from(todoItems['parts']).where((e) => e["parts_id"] != null).map((e) => int.tryParse(e["parts_id"].toString())).toList();
+        List<dynamic> suppliesIds = List.from(todoItems['supplies']).where((e) => e["supplies_id"] != null).map((e) => int.tryParse(e["supplies_id"].toString())).toList();
 
         if (partsIds.isNotEmpty) {
           selectedParts = partsList.where((element) => partsIds.contains(element['id'])).toList();
         }
 
         if (suppliesIds.isNotEmpty) {
-          selectedSupplies = (suppliesList)
-              .where((element) => suppliesIds.contains(element['id']))
-              .toList();
+          selectedSupplies = (suppliesList).where((element) => suppliesIds.contains(element['id'])).toList();
         }
 
         parts = selectedParts.map((e) => e..["controller"] = TextEditingController()).toList();
         supplies = selectedSupplies.map((e) => e..["controller"] = TextEditingController()).toList();
+        Console.of.log(parts, name: "Parts");
+        Console.of.log(supplies, name: "Supplies");
 
         if (splitExpense.isNotEmpty) {
           for (var expense in splitExpense) {
             if (expense['parts_id'] != null) {
               for (var element in parts) {
-                if (element['id'] == expense['parts_id']) {
-                  element['controller'].text = expense['amount'].toString();
+                if (element['id'].toString() == expense['parts_id'].toString()) {
+                  element['controller'].text = "${expense['amount'] ?? 0.00}";
                 }
               }
               _updateExpenseTotal();
             }
             if (expense['supplies_id'] != null) {
               for (var element in supplies) {
-                if (element['id'] == expense['supplies_id']) {
-                  element['controller'].text = expense['amount'].toString();
+                if (element['id'].toString() == expense['supplies_id'].toString()) {
+                  element['controller'].text = "${expense['amount'] ?? 0.00}";
                 }
                 _updateExpenseTotal();
               }
@@ -332,8 +341,6 @@ class VehicleAddEditBloc extends Bloc<VehicleAddEditEvent, VehicleAddEditState> 
   
   void _onSelectCategoryEvent(SelectCategoryEvent event, Emitter<VehicleAddEditState> emit) {
      try {
-       Console.of.log(jsonEncode(event.data));
-       Console.of.log(jsonEncode(selectedCategory));
        if(selectedCategory != event.data){
          selectedCategory = event.data;
          subCategoryList = List.from(selectedCategory['subcategories'] ?? []);
@@ -425,6 +432,7 @@ class VehicleAddEditBloc extends Bloc<VehicleAddEditEvent, VehicleAddEditState> 
      try {
        var editModel = {
          'title' : todoItems?['title'],
+         'status' : todoItems?['status'],
          'date_time' : "${todoItems?['todo_date'].toString().toDateTime()?.toFormat(format: "MM-dd-yyyy") ?? ''}"
                         " ${todoItems['todo_time'].toString().toFormat(inputFormat: 'HH:mm:ss', format: 'hh:mm a') ?? ''}",
          'user' : (userNameList ?? []).join(', '),
@@ -440,7 +448,6 @@ class VehicleAddEditBloc extends Bloc<VehicleAddEditEvent, VehicleAddEditState> 
          'sub_category' : subCategoryName,
          'attachment' : List.from(editResponse?['attachments'] ?? []).map((e) => e['path'].toString().toStorageURL).toList(),
        };
-       Console.of.log(jsonEncode(editModel));
       emit(TodoTaskViewSate(editModel));
     }catch (e) {
       _onError(e, emit);
@@ -452,13 +459,96 @@ class VehicleAddEditBloc extends Bloc<VehicleAddEditEvent, VehicleAddEditState> 
        bouncieMessage = null;
        if (selectedVehicle.isEmpty) return;
        emit(LoadingState());
-       var response = await _apiRepository.getOdometerValue(vin: selectedVehicle['vin']);
+       var response = await _getOdometerValue(vin: selectedVehicle['vin']);
        odometerController.text = response?['data']?['stats']?['odometer'].toString() ?? '';
        if(response?['status'] == 400){
          bouncieMessage = response?['message'];
        }
        emit(CommonState());
      }catch (e){
+       _onError(e, emit);
+     }
+  }
+
+  Future<void> _onInvoiceEvent(InvoiceEvent event, Emitter<VehicleAddEditState> emit) async {
+     try {
+       emit(LoadingState());
+       var response = await _getVendor();
+       var vendorList = response.firstWhereOrNull((element) => element['id'].toString() == todoItems?['vendor_id'].toString());
+       var total = totalAmountController.text;
+       var subTotal = subTotalController.text;
+       if (parts.isEmpty && supplies.isEmpty) {
+         total = amountController.text;
+         subTotal = amountController.text;
+       }
+       invoiceData = {
+         'amount': totalAmountController.text,
+         'description': descriptionController.text,
+         'odometer': odometerController.text,
+         'tax': saleTaxController.text,
+         'total': total,
+         'sub_total': subTotal,
+         'shipping': shippingController.text,
+         'title': vendorList?['name'] ?? '',
+         'phone':vendorList?['phone'] ?? '',
+         'address': vendorList?['address'] ?? '',
+         'invoiceId': "INV${todoItems?['id'] ?? ''}",
+         'date': DateTime.now().format('MM-dd-yyyy').toString(),
+         'plateNo': vehicleList.firstWhereOrNull((e) => e['vin'].toString() == editResponse?['vin'].toString())?['vehicle_number'],
+         'vehicleName': vehicleList.firstWhereOrNull((e) => e['vin'].toString() == editResponse?['vin'].toString())?['vehicle_name'],
+         'sales_tax_percentage': percentageOrAmountController.text,
+         'itemList': [
+           ...cleanList(parts),
+           ...cleanList(supplies),
+           if (labourCostController.text.isNotEmpty)
+             {
+               ...{
+                 "id": "1",
+                 "quantity": "1",
+                 "name": "Labour",
+                 "rate": labourCostController.text,
+                 "total": labourCostController.text,
+               }
+             },
+           if (parts.isEmpty && supplies.isEmpty)
+             {
+               ...{
+                 "id": "1",
+                 "quantity": "1",
+                 "name": descriptionController.text.isEmpty
+                     ? 'No description'
+                     : descriptionController.text,
+                 "rate": amountController.text,
+                 "total": amountController.text,
+               }
+             }
+         ],
+       };
+       Console.of.log(jsonEncode(invoiceData));
+       emit(InvoiceState());
+     }catch(e){
+       _onError(e, emit);
+     }
+  }
+
+  Future<void> _onGenerateInvoiceEvent(GenerateInvoiceEvent event, Emitter<VehicleAddEditState> emit) async {
+     try {
+       emit(LoadingState());
+       var status = (await DeviceInfoHelper.of.isBelow13)
+           ? await Permission.storage.request()
+           : await Permission.manageExternalStorage.request();
+       if (status.isGranted) {
+         var response = await _generateInvoice(body: _invoiceData());
+         if ((response != null) && (response['message'] != null)) {
+           attachmentList.add(File(response['message']));
+           emit(SuccessState("Invoice Generated Successfully"));
+         }
+       } else if (status.isDenied) {
+         await Permission.manageExternalStorage.request();
+         emit(ErrorState("Permission Denied"));
+       }
+       emit(CommonState());
+     }catch(e) {
        _onError(e, emit);
      }
   }
@@ -610,6 +700,52 @@ class VehicleAddEditBloc extends Bloc<VehicleAddEditEvent, VehicleAddEditState> 
   void _onError(dynamic error , Emitter<VehicleAddEditState> emit){
     Console.of.error(error);
     emit(ErrorState(error));
-  }  
+  }
+
+  List<Map<String, dynamic>> cleanList(List<dynamic> inputList) {
+    return inputList.map((e) {
+      final item = Map<String, dynamic>.from(e);
+      final text = (item['controller'] as TextEditingController).text.trim();
+      item.remove('controller');
+      if (text.isNotEmpty) {
+        item['rate'] = text;
+      } else {
+        item['rate'] = "0";
+      }
+      return item;
+    }).toList();
+  }
+
+  Map<String, dynamic> _invoiceData() {
+    Map<String, dynamic> baseBody = {};
+    baseBody['car_plate'] = invoiceData?['plateNo'] ?? '';
+    baseBody['company_address'] = "${invoiceData?['address'] ?? ''}";
+    baseBody['company_name'] = invoiceData?['title'] ?? '';
+    baseBody['company_phone'] = invoiceData?['phone'] ?? '';
+    baseBody['expense_amount'] =
+        invoiceData?['total'] ?? invoiceData?['amount'] ?? '';
+    baseBody['invoice_date'] = invoiceData?['date'] ?? '';
+    baseBody['invoice_no'] = invoiceData?['invoiceId'] ?? '';
+    baseBody['sales_tax'] = invoiceData?['tax'] ?? '';
+    baseBody['sales_tax_percentage'] =
+        invoiceData?['sales_tax_percentage'] ?? '';
+    baseBody['sales_tax_type'] = taxIsTapped ? '\$' : '%';
+    baseBody['shipping_and_handling'] = invoiceData?['shipping'] ?? '';
+    baseBody['to_address'] =
+    "Hasanath Mohammed,\n FairPY INC, \n 4443 Zahir Ct, \n Irving TX, 75061";
+    baseBody['to_phone'] = "5025921994";
+    baseBody['items'] = invoiceData?['itemList']?.isEmpty ?? true
+        ? []
+        : invoiceData?['itemList']
+        ?.map((e) => <String, dynamic>{
+      "quantity": 1,
+      "description": e['name'] ?? "No description",
+      "rate": e['rate'] ?? 0,
+      "total": e['rate'] ?? 0,
+    })
+        .toList();
+    Console.of.log(jsonEncode(baseBody), name: "Invoice_body");
+    return baseBody;
+  }
   
 }
