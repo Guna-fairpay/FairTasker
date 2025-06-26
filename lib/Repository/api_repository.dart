@@ -749,69 +749,6 @@ class APiRepository {
     }
   }
 
-  Future<Map<String, dynamic>?> deleteVehicleExpense(
-    dynamic vehicleExpenseId,
-  ) async {
-    try {
-      String apiUrl = "${Str.LIST_BASE_URL}$_expenses/$vehicleExpenseId";
-      final http.Response? response = await _apiClient.callDelete(apiUrl);
-      var mapData = await response.mapData;
-      return mapData;
-    } catch (error) {
-      rethrow;
-    }
-  }
-
-  Future<GeneralResponse?> deleteExpenseTodo(
-    dynamic todoVehicleId,
-  ) async {
-    try {
-      String apiUrl = "${Str.BASE_URL}$_deleteExpenseTodo";
-      final http.Response? response = await _apiClient.callPostMethod(apiUrl,
-          body: jsonEncode({
-            'todo_id': '$todoVehicleId',
-          }));
-      var mapData = await response.mapData;
-      return GeneralResponse.fromJson(mapData);
-    } catch (error) {
-      rethrow;
-    }
-  }
-
-
-
-  Future<Map<String, dynamic>?> updateVehicleExpenseHistory(
-      {Map<String, dynamic>? body,
-      List<File>? images,
-      String? expenseId}) async {
-    try {
-      String apiUrl = "${Str.LIST_BASE_URL}$_updateExpense/$expenseId";
-      log("${images?.length}", name: "updateVehicleExpenseHistory");
-      final http.Response? response = await _apiClient.callPostMethodWithBody(
-          apiUrl,
-          body: body,
-          autoIncrement: true,
-          fieldName: "files",
-          files: images?.map((e) => e.path).toList());
-      if (response != null) {
-        if (response.isSuccess) {
-          var mapData = await response.mapData;
-          Toaster.showSuccess(
-              mapData?['message'] ?? "Todo Updated Successfully");
-          return mapData;
-        } else {
-          Utils.showSomethingWentWrong();
-          return null;
-        }
-      } else {
-        return null;
-      }
-    } catch (error) {
-      log('callLoginAPI.exception2 : ${error.toString()}');
-      return null;
-    }
-  }
-
   Future<Map<String,dynamic>?> deleteTodo({dynamic id, dynamic reason}) async {
     try {
       String apiUrl = "${Str.BASE_URL}$_deleteToDoApi/$id";
@@ -1223,7 +1160,7 @@ Future<Map<String, dynamic>?> getLocations() async {
   Future<Map<String, dynamic>?> expenseAddOrUpdateApi(
       {Map<String, dynamic>? body,
         List<File>? images,
-        String? expenseId}) async {
+        dynamic expenseId}) async {
     try {
       String apiUrl = '';
       if (expenseId != null) {
@@ -4469,5 +4406,55 @@ Future<Map<String, dynamic>?> getLocations() async {
       rethrow;
     }
   }
+
+  Future<Map<String, dynamic>?> deleteExpenseTodo(dynamic todoVehicleId,) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_deleteExpenseTodo";
+      final http.Response? response = await _apiClient.callPostMethod(apiUrl, body: jsonEncode({'todo_id': '$todoVehicleId',}));
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      }else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> deleteVehicleExpense(dynamic vehicleExpenseId,) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_expenses/$vehicleExpenseId";
+      final http.Response? response = await _apiClient.callDelete(apiUrl);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      }else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> updateVehicleExpenseHistory({Map<String, dynamic>? body, List<File>? images, dynamic expenseId}) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_updateExpense/$expenseId";
+      log("${images?.length}", name: "updateVehicleExpenseHistory");
+      final http.Response? response = await _apiClient.callPostMethodWithBody(
+          apiUrl,
+          body: body,
+          autoIncrement: true,
+          fieldName: "files",
+          files: images?.map((e) => e.path).toList());
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      }else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    } catch (error) {
+      log('callLoginAPI.exception2 : ${error.toString()}');
+      return null;
+    }
+  }
+
 
 }

@@ -1,6 +1,8 @@
 
+import 'package:fairpytasker/UI/Finance/Expense/vehicles/vehicle_add_edit/ui/vehicle_add_edit_main_ui.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
+import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
@@ -113,14 +115,8 @@ class ExpenseVehicleListItem extends StatelessWidget {
                       ),
                       Expanded(
                         child: InkWell(
-                          onTap: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                fullscreenDialog: true,
-                                builder: (context) =>
-                                     ExpenseVehicleEditUI(expenseId: "${expense['id']}",
-                                     vehicleName: expense['vehicle']?['vehicle_name'],),
-                              )),
+                          onTap:()=> context.push(VehicleAddEditMainUI(editModel: expense)),
+                         // onTap:()=> context.push(ExpenseVehicleEditUI(expenseId: "${expense['id']}", vehicleName: expense['vehicle']?['vehicle_name'],),),
                           child: Utils.getText(
                               expense['vehicle']?['vehicle_name'] ?? '',
                               overFlow: TextOverflow.ellipsis,
