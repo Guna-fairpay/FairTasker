@@ -9,8 +9,10 @@ import "package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_List/Dialog/coho
 import "package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_List/Dialog/expense_summery/ui/expense_summery_main_ui.dart";
 import "package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_List/UI/expense_vehicle_list_item.dart";
 import "package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_Add/UI/vehicle_expense_add_ui.dart";
+import "package:fairpytasker/UI/Finance/Expense/vehicles/vehicle_add_edit/ui/vehicle_add_edit_main_ui.dart";
 import "package:fairpytasker/Utilities/Utils.dart";
 import "package:fairpytasker/Utilities/appC.dart";
+import "package:fairpytasker/core/app/extension/context_extension.dart";
 import "package:fairpytasker/core/app/extension/datetime_extension.dart";
 import "package:fairpytasker/core/app/extension/sized_extension.dart";
 import "package:flutter/material.dart";
@@ -54,9 +56,8 @@ class ExpenseVehicleViewUI extends StatelessWidget {
                         ),
                       ),
                       InkWell(
-                        onTap:()=> Navigator.push(context, MaterialPageRoute(
-                            builder: (context) => const ExpenseVehicleAddUI(),
-                            fullscreenDialog: true)),
+                        onTap:()=> context.push(const VehicleAddEditMainUI()),
+                       // onTap:()=> context.push(const ExpenseVehicleAddUI()),
                         child: Container(
                           height: 40,
                           width: 40,
