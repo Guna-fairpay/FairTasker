@@ -53,6 +53,11 @@ class RevenueHeader extends StatelessWidget {
                   controller: context.read<RevenueBloc>().searchController,
                   onChanged: (value) => context.read<RevenueBloc>().add(SearchEvent(value)),
                 ),
+                if (context.watch<RevenueBloc>().filteredApiResponse.isNotEmpty && (state is! LoadingState))
+                Align(
+                  alignment: AlignmentDirectional.centerEnd,
+                  child: CompactText(" Total Revenue: \$${context.watch<RevenueBloc>().totalAmount}", fontWeight: FontWeight.bold, color: AppC.appColor),
+                ),
                 const Divider(
                     thickness: Num.borderWidthButton, color: AppC.borderColor)
               ],

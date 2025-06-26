@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
@@ -31,6 +32,8 @@ class RevenueBloc extends Bloc<RevenueEvent, RevenueState> {
     on<SearchEvent>(_onSearchEvent);
     on<CohortEvent>(_onCohortEvent);
   }
+
+  num? get totalAmount => _apiResponse.map((e) => e['totalEarnings'].toString().toNumeric).sum;
 
   Future<void> _onInitialEvent(InitialEvent event, Emitter<RevenueState> emit) async {
     try{
