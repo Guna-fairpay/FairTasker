@@ -1,6 +1,6 @@
 import 'package:fairpytasker/Component/table_header_row.dart';
-import 'package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_Edit/UI/vehicle_expense_edit_ui.dart';
 import 'package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_List/Dialog/expense_summery/bloc/expense_summery_bloc.dart';
+import 'package:fairpytasker/UI/Finance/Expense/vehicles/vehicle_add_edit/ui/vehicle_add_edit_main_ui.dart';
 import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
@@ -54,7 +54,7 @@ class _ExpenseSummeryMainUI extends StatelessWidget {
              case CohortAndCategoryState(): CohortAndCategoryMainUI.show(context); break;
              case ErrorState(): Toaster.showError(state.message); break;
              case SuccessState(): Toaster.showSuccess(state.message); break;
-             case ExpenseEditState(): context.push(ExpenseVehicleEditUI(expenseId: state.model?['id'], vehicleName: state.model?['vehicle']?['vehicle_name'],)); break;
+             case ExpenseEditState(): context.push(VehicleAddEditMainUI(editModel: state.model)); break;
              default: break;
            }
          }
