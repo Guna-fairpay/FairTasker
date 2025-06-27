@@ -13,16 +13,24 @@ class LeadsTextFormFieldUI extends StatelessWidget {
               spacing: 10,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Utils.getTextFormField('Customer Name', context.read<LeadsBloc>().customerNameController),
+                0.spMin.height,
+                Utils.getTextFormField(
+                    'Customer Name', context.read<LeadsBloc>().customerNameController,
+                    autoValidate: context.watch<LeadsBloc>().autoValidateMode,
+                    validator: (value) => ((value ?? '').isNotEmpty) ? null : 'Enter Customer Name'
+                ),
                 Utils.getTextFormField(
                     'Email',
                     context.read<LeadsBloc>().emailController,
                     autoValidate: context.watch<LeadsBloc>().autoValidateMode,
-                    validator: (value) => ((value ?? '').isNotEmpty && (value ?? '').isValidEmail()) ? null : 'Invalid Email'
-                ),
+                    textType: TextInputType.emailAddress,
+                    validator: (value) {
+                      if ((value ?? '').isEmpty) return null;
+                      return (value!.isValidEmail()) ? null : 'Invalid email';
+                    }                ),
                 Utils.getTextFormField('Contact Number', context.read<LeadsBloc>().contactNumberController),
                 Utils.getTextFormField('Notes', context.read<LeadsBloc>().notesController, maxLines: 3, minLines: 3),
-               if(context.watch<LeadsBloc>().showMore)...[
+                if(context.watch<LeadsBloc>().showMore)...[
                  Utils.getTextFormField('Car Name', context.read<LeadsBloc>().carNameController),
                  Utils.getTextFormField('Plate No', context.read<LeadsBloc>().plateNoController),
                  Utils.getTextFormField('Part Time/Full Time', context.read<LeadsBloc>().partOrFullTimeController),
@@ -36,20 +44,35 @@ class LeadsTextFormFieldUI extends StatelessWidget {
                  Utils.getTextFormField('Rating', context.read<LeadsBloc>().ratingController),
                  Utils.getTextFormField('Total Trips', context.read<LeadsBloc>().totalTripsController),
                  Utils.getTextFormField('Uber Pro', context.read<LeadsBloc>().uberProController),
-                 Utils.getTextFormField('Applied At', context.read<LeadsBloc>().appliedAtController),
+                 Utils.getTextFormField(
+                   'Applied At',
+                   context.read<LeadsBloc>().appliedAtController,
+                   suffixIcon: InkWell(
+                     onTap: () async =>
+                       Utils.datePicker(context, '',).then((value){
+                       context.read<LeadsBloc>().add(AppliedAtEvent(value));
+                       Utils.dismissKeyboard(context);
+                     }),
+                     child: Padding(
+                       padding: 10.horizontalPadding,
+                       child: const Icon(RemixIcons.calendar_line),
+                     ),
+                   ),
+                 ),
                  Utils.getTextFormField('Day', context.read<LeadsBloc>().dayController),
                  Utils.getTextFormField('Location', context.read<LeadsBloc>().locationController),
                  Utils.getTextFormField('Rental Model', context.read<LeadsBloc>().rentalModelController),
-                 Utils.getTextFormField('Invite State', context.read<LeadsBloc>().inviteStatusController),
+                 Utils.getTextFormField('Invite State', context.read<LeadsBloc>().inviteStatusController, inputAction: TextInputAction.done),
                  Utils.dropdownBox(
                      'Select Active Status',
                      context.read<LeadsBloc>().activeStatus,
                      (value)=> context.read<LeadsBloc>().add(ActiveStatesEvent(value)),
                      labelKey: 'name',
+                   initialSelection: context.watch<LeadsBloc>().selectedStatus,
                  ),
                  Utils.getTextFormField('Background Check', context.read<LeadsBloc>().backgroundCheckController),
                  Utils.getTextFormField("Driver's License", context.read<LeadsBloc>().driverLicenseController),
-                 Utils.getTextFormField('Profile Picture', context.read<LeadsBloc>().profilePictureController),
+                 Utils.getTextFormField('Profile Picture', context.read<LeadsBloc>().profilePictureController, inputAction: TextInputAction.done),
                ],
                 GestureDetector(
                     onTap: ()=> context.read<LeadsBloc>().add(ShowMoreEvent()),
@@ -85,7 +108,7 @@ class LeadsTextFormFieldUI extends StatelessWidget {
                       flex: 3,
                       child: CompactSearchView(
                         controller: context.read<LeadsBloc>().searchController,
-                        onChanged: (value) => context.read<LeadsBloc>().add(SearchEvent(value)),
+                        onChanged: (value) => context.read<LeadsBloc>().debounce(value),
                       ),
                     )
                   ],

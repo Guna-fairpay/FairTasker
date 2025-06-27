@@ -1,7 +1,12 @@
+import 'dart:async' show Timer;
 import 'dart:math';
 
+import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
+import 'package:fairpytasker/Remote/downloader.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
+import 'package:fairpytasker/Repository/report_repository.dart';
+import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter/material.dart';
@@ -63,8 +68,13 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState>{
   int currentIndex = 1;
   int totalCount = 0;
 
+  Timer? _debouncer;
+
   Future<Map<String, dynamic>?> _getLeads({dynamic page, dynamic search, dynamic type}) async => await apiRepository.getLeads(page: page, search: search, type: type);
   Future<Map<String, dynamic>?> _addEditLeads({dynamic body, dynamic id}) async => await apiRepository.addEditLeads(body: body, id: id);
+  Future<Map<String, dynamic>?> _getEditLeads({dynamic id}) async => await apiRepository.getEditLeads(id: id);
+  Future<Map<String, dynamic>?> _deleteLeads({dynamic id}) async => await apiRepository.deleteLeads(id: id);
+  Future<Map<String, dynamic>?> _exportLeads({dynamic body}) async => await apiRepository.exportLeads(body: body);
 
   LeadsBloc() : super(LoadingState()){
    on<InitialEvent>(_onInitialEvent);
@@ -77,6 +87,8 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState>{
    on<PaginationEvent>(_onPaginationEvent);
    on<DateRangeEvent>(_onDateRangeEvent);
    on<EditEvent>(_onEditEvent);
+   on<AppliedAtEvent>(_onAppliedAtEvent);
+   on<ExportEvent>(_onExportEvent);
   }
 
   Future<void> _onInitialEvent(InitialEvent event, Emitter<LeadsState> emit) async {
@@ -107,10 +119,32 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState>{
     }
   }
 
+  void debounce(String query) {
+    _debouncer?.cancel();
+    _debouncer = Timer(const Duration(seconds: 1), () => add(SearchEvent(query)));
+  }
+
+
+  @override
+  Future<void> close() {
+    _debouncer?.cancel();
+    _debouncer = null;
+    return super.close();
+  }
+
   Future<void> _onSearchEvent(SearchEvent event, Emitter<LeadsState> emit) async {
     try{
       emit(LoadingState());
-
+      var query = event.query;
+      var response = await _getLeads(page: 1, search: query, type: '');
+      if(response?['status'] == true){
+        apiResponse = List.from(response?['data']?['data'] ?? []);
+        totalCount = response?['data']?['total'] ?? 0;
+        _unFilteredResponse = List.from(apiResponse);
+        paginateList(data: _unFilteredResponse, currentPage: 1, itemsPerPage: itemsPerPage);
+      }else{
+        emit(ErrorState(response?['message']));
+      }
       emit(CommonState());
     }catch (e){
       _onError(e, emit);
@@ -118,7 +152,10 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState>{
   }
 
   Future<void> _onSaveEvent(SaveEvent event, Emitter<LeadsState> emit) async {
+    autoValidateMode = AutovalidateMode.onUserInteraction;
+    if(formKey.currentState?.validate() == false) return emit(CommonState());
     try{
+      autoValidateMode = null;
       emit(LoadingState());
       var response = await _addEditLeads(body: _saveData(), id: editModel?['id']);
       if(response?['status'] == true){
@@ -145,7 +182,13 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState>{
   Future<void> _onDeleteEvent(DeleteEvent event, Emitter<LeadsState> emit) async {
     try{
       emit(LoadingState());
-      emit(CommonState());
+      var response = await _deleteLeads(id: event.data?['id']);
+      if(response?['status'] == true){
+        await fetchData();
+        emit(SuccessState(response?['message']));
+      }else{
+        emit(ErrorState(response?['message']));
+      }
     }catch (e){
       _onError(e, emit);
     }
@@ -172,6 +215,38 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState>{
     }
   }
 
+  void _onAppliedAtEvent(AppliedAtEvent event, Emitter<LeadsState> emit) async {
+    try{
+      emit(LoadingState());
+      if(event.data != null) {
+        appliedAtController.text = "${event.data?.toFormat(format: 'MM-dd-yyyy')}";
+      }
+      emit(CommonState());
+    }catch (e){
+      _onError(e, emit);
+    }
+  }
+
+  Future<void> _onExportEvent(ExportEvent event, Emitter<LeadsState> emit) async {
+    if(selectedDateRange == null) return emit(ErrorState('Please select date range'));
+    try{
+      emit(LoadingState());
+      var response = await _exportLeads(body: {
+        'from': selectedDateRange?.start.toFormat(),
+        'to': selectedDateRange?.end.toFormat(),
+      });
+      if(response?['url'] != null){
+        await Downloader.instance.start(response?['url']);
+        //ReportRepository().customDownload(response?['url']);
+        emit(SuccessState(response?['message']));
+      }else{
+        emit(ErrorState(response?['message']));
+      }
+    }catch (e){
+      _onError(e, emit);
+    }
+  }
+
   Future<void> fetchData() async {
     var response = await _getLeads(page: currentIndex, search: '', type: '');
     apiResponse = List.from(response?['data']?['data'] ?? []);
@@ -183,10 +258,15 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState>{
   void _onEditEvent(EditEvent event, Emitter<LeadsState> emit) async {
     try{
       emit(LoadingState());
-      editModel = event.data;
-      isEdit = true;
-      loadAllData();
-      emit(CommonState());
+      var response = await _getEditLeads(id: event.data?['id']);
+      if(response?['status'] == true){
+        isEdit = true;
+        editModel = response?['data'];
+        loadAllData();
+        emit(CommonState());
+      }else{
+        emit(ErrorState(response?['message']));
+      }
     }catch (e){
       _onError(e, emit);
     }
@@ -231,6 +311,8 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState>{
   void clearAll(){
     isEdit = false;
     editModel = null;
+    showMore = false;
+    autoValidateMode = null;
     customerNameController.clear();
     emailController.clear();
     contactNumberController.clear();
@@ -285,7 +367,7 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState>{
     backgroundCheckController.text = editModel?['background_check'] ?? '';
     driverLicenseController.text = editModel?['driver_license'] ?? '';
     profilePictureController.text = editModel?['profile_picture'] ?? '';
-    //selectedStatus = activeStatus.firstWhereOrNull((element) => element?['id'].toString() == editModel?['active'].toString());
+    selectedStatus = activeStatus.firstWhereOrNull((element) => element?['id'].toString() == editModel?['active'].toString());
   }
 
 }

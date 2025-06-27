@@ -25,7 +25,7 @@ class LeadsListingUI extends StatelessWidget {
                   child: SuccessButton(
                     text: 'Export',
                     backgroundColor: AppC.appColor,
-                    onPressed: (){},
+                    onPressed: ()=> context.read<LeadsBloc>().add(ExportEvent()),
                   ),
                 )
               ],
@@ -56,7 +56,14 @@ class LeadsListingUI extends StatelessWidget {
                       ),
                     ),
                     TableRowInkWell(
-                      onTap: (){},
+                      onTap: ()=> AskPermissionDialog.show(context,
+                        title: "Are you sure?",
+                        description:
+                        "Do you want to delete this lead?",
+                        positiveText: "Yes",
+                        negativeText: "Cancel",
+                        isReasonRequired: false,
+                        onPositivePressed: ()=>context.read<LeadsBloc>().add(DeleteEvent(e)),),
                       child:Padding(
                         padding: 10.horizontalPadding,
                         child:  Icon(RemixIcons.delete_bin_line, color: AppC.redAccent, size: 22.spMin),

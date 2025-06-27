@@ -27,7 +27,12 @@ class SaveEvent extends LeadsEvent{}
 
 class CloseEvent extends LeadsEvent{}
 
-class DeleteEvent extends LeadsEvent{}
+class DeleteEvent extends LeadsEvent{
+  final dynamic data;
+  DeleteEvent(this.data);
+  @override
+  List<Object?> get props => [data];
+}
 
 class PaginationEvent extends LeadsEvent{
   final int page;
@@ -49,4 +54,13 @@ class EditEvent extends LeadsEvent{
   @override
   List<Object?> get props => [data];
 }
+
+class AppliedAtEvent extends LeadsEvent{
+  final DateTime? data;
+  AppliedAtEvent(this.data);
+  @override
+  List<Object?> get props => [data];
+}
+
+class ExportEvent extends LeadsEvent{}
 
