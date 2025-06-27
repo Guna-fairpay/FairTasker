@@ -33,4 +33,11 @@ class TodoTaskViewSate extends VehicleAddEditState {
   List<Object?> get props => [model, Random().nextDouble()];
 }
 
+class InvoiceState extends VehicleAddEditState {
+  final dynamic model;
+  InvoiceState({this.model});
+  @override
+  List<Object?> get props => [model, Random().nextDouble()];
+}
+
 class SaveState extends VehicleAddEditState {}

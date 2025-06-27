@@ -939,12 +939,11 @@ class Utils {
     if (existingDate.isNotEmpty) {
       currentDate = convertStringToDateTime(existingDate);
     }
-    var lastDate = last ??
-        DateTime(currentDate.year + 10, currentDate.month, currentDate.day);
+    var lastDate = last ?? DateTime(currentDate.year + 100, currentDate.month, currentDate.day);
 
     Widget dialog = DatePickerDialog(
       initialDate: initialDate,
-      firstDate:DateTime(1900, 1, 1),
+      firstDate:DateTime(1990, 1, 1),
       lastDate: lastDate,
       currentDate: currentDate,
       initialEntryMode: DatePickerEntryMode.calendarOnly,

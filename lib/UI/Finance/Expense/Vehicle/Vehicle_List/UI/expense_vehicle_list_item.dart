@@ -1,17 +1,16 @@
 
 import 'package:fairpytasker/UI/Finance/Expense/vehicles/vehicle_add_edit/ui/vehicle_add_edit_main_ui.dart';
+import 'package:fairpytasker/UI/Vehicle/vehicle_expense_history/ui/vehicle_expense_history_ui.dart';
+import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
+import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
-import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter/material.dart';
-import '../../../../../Vehicle/vehicle_expense_history/ui/vehicle_expense_history_ui.dart';
-import '../../../../../dialog/ask_permission_dialog.dart';
-import '../../../../../dialog/show_attachments_dialog.dart';
-import '../../Vehicle_Edit/UI/vehicle_expense_edit_ui.dart';
+
 
 class ExpenseVehicleListItem extends StatelessWidget {
   final Map<String, dynamic> expense;
@@ -232,14 +231,9 @@ class ExpenseVehicleListItem extends StatelessWidget {
                               context,
                               MaterialPageRoute(
                                   builder: (context) => VehicleExpenseHistoryUI(
-
                                         vin: expense['vehicle']['vin'] ?? '',
-                                        vehicleName: expense['vehicle']
-                                                ['vehicle_name'] ??
-                                            '',
-                                        currentExpenseAmount: expense['approved']==0? double.tryParse(
-                                            expense['expense_amount']
-                                                .toString()):0.0,
+                                        vehicleName: expense['vehicle']['vehicle_name'] ?? '',
+                                        currentExpenseAmount: expense['approved']==0? double.tryParse(expense['expense_amount'].toString()):0.0,
                                         showTotalAmount: true,
                                       )));
                         },

@@ -48,12 +48,17 @@ class DateRangePicker extends StatelessWidget {
           children: [
             Expanded(
               child: Text(
-                ((selectedDateRange?.start) == (selectedDateRange?.end)) ? selectedDateRange?.start.toFormat() ?? "" : "${selectedDateRange?.start.toFormat() ?? ""} $splitter ${selectedDateRange?.end.toFormat() ?? ""}",
+               ((selectedDateRange?.start == null) && (selectedDateRange?.end == null))
+                   ? "Select Date Range"
+                   : ((selectedDateRange?.start) == (selectedDateRange?.end))
+                   ? selectedDateRange?.start.toFormat() ?? ""
+                   : "${selectedDateRange?.start.toFormat() ?? ""} $splitter ${selectedDateRange?.end.toFormat() ?? ""}",
                 overflow: TextOverflow.ellipsis,
-                style: context.textTheme.labelLarge,
+                style: context.textTheme.labelLarge?.copyWith(color: ((selectedDateRange?.start == null) && (selectedDateRange?.end == null))? AppC.grey : AppC.text),
+
               ),
             ),
-            Icon(Icons.calendar_month_rounded, size: 13.sp, color: AppC.subText,)
+            Icon(Icons.calendar_month_rounded, size: 13.spMin, color: AppC.subText,)
           ],
         ),
       ),

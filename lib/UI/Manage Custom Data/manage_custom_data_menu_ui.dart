@@ -8,6 +8,7 @@ import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/Task/UI/task_main_pa
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Sub%20Category/subcategory_page/subcategory_main_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/UI/vehicle_main_view_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/attendance/attendance_view.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/leads/ui/leads_main_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/private_rental_customers/private_rental_customers.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/vendors/ui/vendor_main_ui.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
@@ -18,6 +19,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:remixicon/remixicon.dart';
 import 'Customers/customer_view_ui.dart';
 import 'Location/View/location_view.dart';
 import 'Vehicle Status/vehicle_status_add_ui.dart';
@@ -85,6 +87,11 @@ class ManageCustomDataMenuUI extends StatelessWidget {
               icon: Iconsax.shop,
               title: 'Vendor',
               onTap: () => context.push(const VendorMainUI()),
+            ),
+            _buildCard(
+              icon: Remix.admin_line,
+              title: 'Leads',
+              onTap: () => context.push(const LeadsMainUI()),
             ),
             _buildCard(
               icon: Iconsax.location,
