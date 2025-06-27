@@ -183,8 +183,8 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
   void _onInitialEvent(ToDoTaskerInitialEvent event, Emitter<ToDoTaskerState> emit) async {
     try {
       toDos.clear();
+      await CommonHelper.instance.waitForPostFrameCallback(withDelay: true);
       emit(ToDoTaskerLoadingState());
-      // await CommonHelper.instance.waitForPostFrameCallback();
       // getIt<CommonService>().getCurrentLocation();
       if (!isAdmin) {
         if ((currentUser != null) && (currentUser?.isNotEmpty ?? false)) selectedUsers?.add(currentUser ?? {});

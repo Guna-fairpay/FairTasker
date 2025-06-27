@@ -25,6 +25,7 @@ class Str{
   static const String accessTokenPrefText = 'AccessTokenPref';
   static const String departmentIdPrefText = 'departmentIdPref';
   static const String userPrefText = 'userDataPref';
+  static const String availBioMetrics = 'availBioMetricsPref';
 
   static const String userPunchListRefresh = 'refresh_user_punch_list';
 

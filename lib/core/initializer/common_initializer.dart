@@ -8,6 +8,7 @@ import 'package:fairpytasker/core/app/helper/work_manager_helper.dart';
 import 'package:fairpytasker/core/initializer/receive_intent.dart';
 import 'package:fairpytasker/core/initializer/todo_supporter.dart';
 import 'package:flutter/foundation.dart' show ValueNotifier, kDebugMode;
+import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
@@ -38,9 +39,10 @@ class Initializer {
 
   void init() async {
     tz.initializeTimeZones();
-    getIt.registerSingleton<CommonService>(CommonService())..listeners();
-    getIt.registerSingleton<ToDoSupport>(ToDoSupport());
-    getIt.registerSingleton<ReceiveIntent>(ReceiveIntent());
+    getIt
+    ..registerSingleton<CommonService>(CommonService())
+    ..registerSingleton<ToDoSupport>(ToDoSupport())
+    ..registerSingleton<ReceiveIntent>(ReceiveIntent());
   }
 }
 
@@ -145,14 +147,14 @@ class CommonService {
     return now;
   }
 
-  void listeners() {
-    Console.of.debug("Listening...", name: "CommonService");
-    FBroadcast.instance().register(Str.valueChange, (value, _) => _valueProcessor(value));
-  }
+  // void listeners() {
+  //   Console.of.debug("Listening...", name: "CommonService");
+  //   FBroadcast.instance().register(Str.valueChange, (value, _) => _valueProcessor(value));
+  // }
 
-  void _valueProcessor(dynamic value) {
+  void initializeTasker(dynamic value) {
     Console.of.log("Value is ${value.runtimeType}", name: "CommonService");
-    var response = jsonDecode(value);
+    var response = (value is String) ? jsonDecode(value) : value;
     if (response is Map<String, dynamic>) {
       Console.of.debug("Response is ${response.runtimeType} and setting values", name: "CommonService");
       if (response.containsKey("vehicles") == false) return;
@@ -173,22 +175,33 @@ class CommonService {
   }
 
   Future<void> initialFetch() async {
-    Map<String, dynamic> mapData = {
-      "url" :  "${Str.BASE_URL}todo-data-mod",
-      "queryParameters" : {"showOther": true},
-      "method" : "get",
-      "headers" : Utils.getHeadersWithToken(url: "${Str.BASE_URL}todo-data-mod"),
-    };
-    triggerWM(mapData);
-    await Future.wait([
+    await Future.delayed(Durations.short1);
+    triggerBearerToken;
+    triggerTasker;
+    triggerBranch;
+    triggerCohort;
+    // await Future.microtask(getPackageInfo);
+    // await Future.microtask(getReleaseNotes);
+    /*await Future.wait([
       // getUsers(),
       getPackageInfo(),
       getCohorts(),
       getBranches(),
       Authenticator.instance.getBearerToken(),
       // Authenticator.instance.getDepartmentId(),
-    ]).whenComplete(() async => await getReleaseNotes());
+    ]).whenComplete(() async => await getReleaseNotes());*/
     Console.of.log("$timeNow", name: "TIME_NOW_IN_AMERICA");
+  }
+
+  void initializeCohort(Map<String, dynamic>? response) {
+    cohortsList = List<Map<String, dynamic>>.from(response?['cohortsData'] ?? []);
+    expenseCategoriesList = List<Map<String, dynamic>>.from(response?['expenseCategories'] ?? []);
+    Console.of.debug("🛠️ Initialized cohorts", name: "CommonService");
+  }
+
+  void initializeBranch(Map<String, dynamic>? response) {
+    branchList = List<Map<String, dynamic>>.from(response?['data'] ?? []);
+    Console.of.debug("📥️ Initialized Branch", name: "CommonService");
   }
 
   Future<Map<String, dynamic>?> getReleaseNotes() async {
