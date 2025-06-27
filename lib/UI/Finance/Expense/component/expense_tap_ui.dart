@@ -26,7 +26,7 @@ class ExpenseTab extends StatelessWidget {
         child: BlocBuilder<ExpenseBloc, ExpenseState>(
           builder: (context, state) {
             return SafeArea(
-              minimum: 15.padding,
+              minimum: 10.verticalPadding,
               child: Column(
                 children: [
                   Container(
