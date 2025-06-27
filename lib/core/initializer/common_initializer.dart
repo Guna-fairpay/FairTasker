@@ -101,6 +101,7 @@ class CommonService {
   List<String>? get userPermissions => Session.of.getStringList(Str.userPermissionPrefText);
 
   bool get hasReport => userPermissions?.map((e) => e.toLowerCase()).contains("report") ?? false;
+  bool get hasFinance => userPermissions?.map((e) => e.toLowerCase()).contains("finance") ?? false;
   bool get hasFairTechEOD => (userPermissions?.map((e) => e.toLowerCase()).contains("fairtech-eod") ?? false) || (kDebugMode);
 
   List<dynamic> get freelancerHrmIds {
