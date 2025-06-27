@@ -5,6 +5,7 @@ import 'package:fairpytasker/Component/compact_scroll_wrapper.dart';
 import 'package:fairpytasker/UI/tasker/bloc/tasker_todo_bloc.dart';
 import 'package:fairpytasker/Component/todo_task_item_card.dart';
 import 'package:fairpytasker/UI/dialog/show_notes_dialog.dart';
+import 'package:fairpytasker/core/app/helper/dummy_data_provider.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/Component/custom_loader.dart';
@@ -28,7 +29,7 @@ class TaskerListingUi extends StatelessWidget {
                 enabled: state is ToDoTaskerLoadingState,
                 enableSwitchAnimation: true,
                 justifyMultiLineText: true,
-                child: (context.watch<ToDoTaskerBloc>().toDos.isEmpty) ? ListView.builder(itemBuilder: (context, index) =>  const TodoTaskItemCard(model: {}), itemCount: 10, shrinkWrap: true) :  CompactScrollWrapper(child: ReorderableListView.builder(
+                child: (state is ToDoTaskerLoadingState) ? ListView.builder(itemBuilder: (context, index) =>  TodoTaskItemCard(model: DummyData.tasker), itemCount: 10, shrinkWrap: true) :  CompactScrollWrapper(child: ReorderableListView.builder(
                     scrollController: context.read<ToDoTaskerBloc>().scrollController,
                     physics: const BouncingScrollPhysics(),
                     itemCount: context.watch<ToDoTaskerBloc>().toDos.length,

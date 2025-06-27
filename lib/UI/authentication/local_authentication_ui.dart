@@ -1,7 +1,5 @@
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
-import 'package:fairpytasker/Event/local_authentication_event.dart';
-import 'package:fairpytasker/State/local_authentication_state.dart';
 import 'package:fairpytasker/Bloc/local_authentication_bloc.dart';
 import 'package:fairpytasker/Component/bottom_nav_for_task.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
@@ -10,6 +8,7 @@ import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 
@@ -18,17 +17,23 @@ class LocalAuthenticationUI extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setEnabledSystemUIMode(
+      SystemUiMode.manual,
+      overlays: [
+        SystemUiOverlay.top, // Shows Status bar and hides Navigation bar
+      ],
+    );
     return Scaffold(
         body: BlocProvider(
       create: (context) => LocalAuthenticationBloc()..add(LocalAuthenticationInitialEvent()),
       child: BlocListener<LocalAuthenticationBloc, LocalAuthenticationState>(
           listener: (context, state) {
             switch(state) {
-              case LocalAuthenticationSuccessState(): context.pushReplacement(const BottomNavigationForTaskView(selectedIndex: 0)); break;
-              case LocalAuthenticationFailureState(): if (state.message.toString().isNotNullOrEmpty) { Toaster.showError(state.message); } break;
+              case SuccessState(): context.pushReplacement(const BottomNavigationForTaskView(selectedIndex: 0)); break;
+              case FailureState(): if (state.message.toString().isNotNullOrEmpty) { Toaster.showError(state.message); } break;
             }
           },
-          child: BlocBuilder<LocalAuthenticationBloc, LocalAuthenticationState>(builder: (context, state) => SafeArea(child: Container(
+          child: BlocBuilder<LocalAuthenticationBloc, LocalAuthenticationState>(builder: (context, state) => Container(
               decoration: const BoxDecoration(
                   image: DecorationImage(
                       repeat: ImageRepeat.repeat,
@@ -105,7 +110,7 @@ class LocalAuthenticationUI extends StatelessWidget {
                   ),
                 ],
               ),
-            )))),
+            ))),
     ));
   }
 }

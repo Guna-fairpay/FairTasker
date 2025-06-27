@@ -1,4 +1,4 @@
-import 'package:equatable/equatable.dart';
+part of '../Bloc/local_authentication_bloc.dart';
 
 abstract class LocalAuthenticationEvent extends Equatable {
   @override

@@ -78,7 +78,7 @@ class CompactDropDown<T extends Object> extends StatelessWidget {
                   backgroundColor: WidgetStateProperty.all<Color>(Colors.white),
                   visualDensity: const VisualDensity(vertical: VisualDensity.minimumDensity),
                 ),
-                requestFocusOnTap: true,
+                requestFocusOnTap: (controller != null),
                 keyboardType: TextInputType.text,
                 controller: controller,
                 searchCallback: (entries, query) => entries.indexWhere((element) => element.value.toString().toLowerCase().contains(query.toLowerCase())),
@@ -130,7 +130,7 @@ class CompactDropDown<T extends Object> extends StatelessWidget {
       controller: controller,
       searchCallback: (entries, query) => entries.indexWhere((element) => element.value.toString().toLowerCase().contains(query.toLowerCase())),
       expandedInsets: 0.padding,
-      requestFocusOnTap: true,
+      requestFocusOnTap: (controller != null),
       dropdownMenuEntries: items
           ?.map((item) => DropdownMenuEntry<T>(
           value: item,

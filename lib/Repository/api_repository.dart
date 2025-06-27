@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:fairpytasker/Remote/dio_remote_client.dart';
+import 'package:fairpytasker/Remote/downloader.dart';
 import 'package:fairpytasker/Response/assigned_to_response.dart';
 import 'package:fairpytasker/Response/cohorts_response.dart';
 import 'package:fairpytasker/Response/general_response.dart';
@@ -451,6 +452,8 @@ class APiRepository {
   String get _checkInOut => "checkInOut";
 
   String get _revenueSummary => "revenueSummary";
+
+  String get _taskExport => "task-export";
 
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
@@ -3751,12 +3754,13 @@ Future<Map<String, dynamic>?> getLocations() async {
       if (showOther) params["showOther"] = showOther;
       if (status != null) params["status"] = status ? "Completed" : "In Progress";
       Console.of.log(params);
-      final http.Response? response = await _apiClient.callGetMethod(apiUrl, params: params);
+      return await RemoteClient.instance.getRequest(apiUrl, queryParameters: params);
+      /*final http.Response? response = await _apiClient.callGetMethod(apiUrl, params: params);
       if (response?.isSuccess == true) {
         return await response.mapData;
       } else {
         throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
-      }
+      }*/
     } catch (e) {
       rethrow;
     }
@@ -4406,12 +4410,13 @@ Future<Map<String, dynamic>?> getLocations() async {
   Future<Map<String, dynamic>?> getRevenueSummary({dynamic body}) async{
     try {
       String apiUrl = '${Str.LIST_BASE_URL}$_revenueSummary';
-      final http.Response? response = await _apiClient.callGetMethod(apiUrl, params: body);
+      return await RemoteClient.instance.getRequest(apiUrl, queryParameters: body);
+      /*final http.Response? response = await _apiClient.callGetMethod(apiUrl, params: body);
       if (response?.isSuccess == true) {
         return await response.mapData;
       }else {
         throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
-      }
+      }*/
     }catch(error){
       rethrow;
     }
@@ -4464,6 +4469,25 @@ Future<Map<String, dynamic>?> getLocations() async {
       log('callLoginAPI.exception2 : ${error.toString()}');
       return null;
     }
+  }
+
+  Future<Map<String, dynamic>?> taskExport({DateTime? fromDate, DateTime? toDate}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_taskExport";
+      Map<String, dynamic> params = {
+        "from" : fromDate?.toFormat(),
+        "to" : toDate?.toFormat()
+      };
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: params);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      }else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    } catch (error) {
+      return null;
+    }
+    return null;
   }
 
 

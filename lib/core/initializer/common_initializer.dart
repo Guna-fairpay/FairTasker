@@ -4,9 +4,11 @@ import 'dart:io';
 import 'dart:ui' show VoidCallback;
 import 'package:date_time/date_time.dart';
 import 'package:fairpytasker/Response/authentication_response.dart';
+import 'package:fairpytasker/core/app/helper/work_manager_helper.dart';
 import 'package:fairpytasker/core/initializer/receive_intent.dart';
 import 'package:fairpytasker/core/initializer/todo_supporter.dart';
 import 'package:flutter/foundation.dart' show ValueNotifier, kDebugMode;
+import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
@@ -25,6 +27,7 @@ import 'package:flutter/foundation.dart' show ValueNotifier;
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
+import 'package:workmanager/workmanager.dart';
 
 final getIt = GetIt.instance;
 
@@ -36,9 +39,10 @@ class Initializer {
 
   void init() async {
     tz.initializeTimeZones();
-    getIt.registerSingleton<CommonService>(CommonService());
-    getIt.registerSingleton<ToDoSupport>(ToDoSupport());
-    getIt.registerSingleton<ReceiveIntent>(ReceiveIntent());
+    getIt
+    ..registerSingleton<CommonService>(CommonService())
+    ..registerSingleton<ToDoSupport>(ToDoSupport())
+    ..registerSingleton<ReceiveIntent>(ReceiveIntent());
   }
 }
 
@@ -99,6 +103,7 @@ class CommonService {
   List<String>? get userPermissions => Session.of.getStringList(Str.userPermissionPrefText);
 
   bool get hasReport => userPermissions?.map((e) => e.toLowerCase()).contains("report") ?? false;
+  bool get hasFinance => userPermissions?.map((e) => e.toLowerCase()).contains("finance") ?? false;
   bool get hasFairTechEOD => (userPermissions?.map((e) => e.toLowerCase()).contains("fairtech-eod") ?? false) || (kDebugMode);
 
   List<dynamic> get freelancerHrmIds {
@@ -142,16 +147,62 @@ class CommonService {
     return now;
   }
 
+  // void listeners() {
+  //   Console.of.debug("Listening...", name: "CommonService");
+  //   FBroadcast.instance().register(Str.valueChange, (value, _) => _valueProcessor(value));
+  // }
+
+  void initializeTasker(dynamic value) {
+    Console.of.log("Value is ${value.runtimeType}", name: "CommonService");
+    var response = (value is String) ? jsonDecode(value) : value;
+    if (response is Map<String, dynamic>) {
+      Console.of.debug("Response is ${response.runtimeType} and setting values", name: "CommonService");
+      if (response.containsKey("vehicles") == false) return;
+      List<Map<String, dynamic>>? users = List.from(response['users'] ?? []);
+      List<Map<String, dynamic>>? userGroup = List.from(response['userGroup'] ?? []);
+      List<Map<String, dynamic>>? taskExpenseData = List.from(response['taskExpenseData'] ?? []);
+      List<Map<String, dynamic>>? locations = List.from(response['locations'] ?? []);
+      List<Map<String, dynamic>>? vendors = List.from(response['vendors'] ?? []);
+      List<Map<String, dynamic>>? vehicleStatusCategories = List.from(response['vehicleStatusCategories'] ?? []);
+      List<Map<String, dynamic>>? vehicles = List.from(response['vehicles'] ?? []);
+      List<Map<String, dynamic>>? vehicleGroups = List.from(response['vehicleGroups'] ?? []);
+      List<Map<String, dynamic>>? resources = List.from(response['resources'] ?? []);
+      List<Map<String, dynamic>>? parts = List.from(response['parts'] ?? []);
+      List<Map<String, dynamic>>? supplies = List.from(response['supplies'] ?? []);
+      updateValues(userList: users, groupPersonList: userGroup, taskExpenseDataList: taskExpenseData, locationsList: locations, vendorsList: vendors, groupVehicleList: vehicleGroups, activeVehicleList: vehicles, resourcesList: resources, partsList: parts, suppliesList: supplies);
+      Console.of.debug("⌛Response is settled", name: "CommonService");
+    }
+  }
+
   Future<void> initialFetch() async {
-    await Future.wait([
+    await Future.delayed(Durations.short1);
+    triggerAll;
+    // triggerBearerToken;
+    // triggerTasker;
+    // triggerBranch;
+    // triggerCohort;
+    await Future.microtask(getPackageInfo);
+    await Future.microtask(getReleaseNotes);
+    /*await Future.wait([
       // getUsers(),
       getPackageInfo(),
       getCohorts(),
       getBranches(),
       Authenticator.instance.getBearerToken(),
       // Authenticator.instance.getDepartmentId(),
-    ]).whenComplete(() async => await getReleaseNotes());
+    ]).whenComplete(() async => await getReleaseNotes());*/
     Console.of.log("$timeNow", name: "TIME_NOW_IN_AMERICA");
+  }
+
+  void initializeCohort(Map<String, dynamic>? response) {
+    cohortsList = List<Map<String, dynamic>>.from(response?['cohortsData'] ?? []);
+    expenseCategoriesList = List<Map<String, dynamic>>.from(response?['expenseCategories'] ?? []);
+    Console.of.debug("🛠️ Initialized cohorts", name: "CommonService");
+  }
+
+  void initializeBranch(Map<String, dynamic>? response) {
+    branchList = List<Map<String, dynamic>>.from(response?['data'] ?? []);
+    Console.of.debug("📥️ Initialized Branch", name: "CommonService");
   }
 
   Future<Map<String, dynamic>?> getReleaseNotes() async {
