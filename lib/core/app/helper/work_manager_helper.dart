@@ -14,7 +14,6 @@ void callbackDispatcher() {
     log("🚀 Running task: $task with data: $inputData ${Str.BASE_URL} CHECKING" , name: "WorkManager");
     var dio = Dio();
     Map<String, dynamic> data = jsonDecode(inputData?['data'] ?? {});
-    print("KEY ${jsonEncode(data)}");
     var response = await switch (task) {
       "fetchAllApi" => Future.wait(
         data.entries.map((e) async => {e.key.toString(): jsonEncode(await _get(dio, e.value) ?? {})}),
@@ -22,8 +21,6 @@ void callbackDispatcher() {
 
       _ => _get(dio, data),
     };
-    print(response);
-    // var response = await _get(dio, jsonDecode(inputData?['data'] ?? ""));
     log("🚀 Response Triggering" , name: "WorkManager");
     final SendPort? sendPort = IsolateNameServer.lookupPortByName('workmanager_send_port');
 
