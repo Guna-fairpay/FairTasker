@@ -24,10 +24,10 @@ class SplashBloc extends Bloc<SplashEvent, SplashState> {
   void _onInitialEvent(InitialEvent event, Emitter<SplashState> emit) async {
     await CommonHelper.instance.waitForPostFrameCallback();
     emit(LoadingState());
+    await getIt<CommonService>().initialFetch();
     var hasBiometrics = await _auth.getAvailableBiometrics();
     Console.of.warning("HasBio $hasBiometrics");
     Session.of.set(Str.availBioMetrics, hasBiometrics.isNotEmpty);
-    await getIt<CommonService>().initialFetch();
     await Future.delayed(const Duration(seconds: 8));
     emit(CommonState());
     await Future.delayed(Durations.short4);
