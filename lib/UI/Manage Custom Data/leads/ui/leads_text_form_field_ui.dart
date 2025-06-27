@@ -1,7 +1,7 @@
 part of 'leads_main_ui.dart';
 
-class LeadsTextFormFieldFirstPart extends StatelessWidget {
-  const LeadsTextFormFieldFirstPart({super.key});
+class LeadsTextFormFieldUI extends StatelessWidget {
+  const LeadsTextFormFieldUI({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +42,7 @@ class LeadsTextFormFieldFirstPart extends StatelessWidget {
                  Utils.getTextFormField('Rental Model', context.read<LeadsBloc>().rentalModelController),
                  Utils.getTextFormField('Invite State', context.read<LeadsBloc>().inviteStatusController),
                  Utils.dropdownBox(
-                     'Select Status',
+                     'Select Active Status',
                      context.read<LeadsBloc>().activeStatus,
                      (value)=> context.read<LeadsBloc>().add(ActiveStatesEvent(value)),
                      labelKey: 'name',
@@ -55,9 +55,42 @@ class LeadsTextFormFieldFirstPart extends StatelessWidget {
                     onTap: ()=> context.read<LeadsBloc>().add(ShowMoreEvent()),
                     child: Text(context.watch<LeadsBloc>().showMore ? 'Less ...' : 'More ...')
                 ),
-                SuccessButton(),
+                Row(
+                  spacing: 10,
+                  children: [
+                    if(!context.watch<LeadsBloc>().isEdit)...[
+                      SuccessButton(
+                        text: 'Save',
+                        onPressed: () => context.read<LeadsBloc>().add(SaveEvent()),
+                      ),
+                      20.spMin.width
+                    ],
+                    if(context.watch<LeadsBloc>().isEdit)...[
+                      CompactIconButton(
+                        icon: RemixIcons.save_2_line,
+                        iconSize: 18.spMin,
+                        backgroundColor: AppC.green,
+                        onPressed: () => context.read<LeadsBloc>().add(SaveEvent()),
+                        shape: WidgetStatePropertyAll<OutlinedBorder>(RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))),
+                      ),
+                      CompactIconButton(
+                        icon: RemixIcons.close_line,
+                        iconSize: 18.spMin,
+                        backgroundColor: AppC.redAccent,
+                        onPressed: () => context.read<LeadsBloc>().add(CloseEvent()),
+                        shape: WidgetStatePropertyAll<OutlinedBorder>(RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))),
+                      ),
+                    ],
+                    Expanded(
+                      flex: 3,
+                      child: CompactSearchView(
+                        controller: context.read<LeadsBloc>().searchController,
+                        onChanged: (value) => context.read<LeadsBloc>().add(SearchEvent(value)),
+                      ),
+                    )
+                  ],
+                ),
               ],
-
             ),
           );
         }

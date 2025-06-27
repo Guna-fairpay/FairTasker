@@ -1,18 +1,25 @@
 import 'dart:math';
 
 import 'package:equatable/equatable.dart';
+import 'package:fairpytasker/Repository/api_repository.dart';
+import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
 
 part 'leads_event.dart';
 part 'leads_state.dart';
 
 class LeadsBloc extends Bloc<LeadsEvent, LeadsState>{
 
+  APiRepository apiRepository = APiRepository();
+
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   AutovalidateMode? autoValidateMode;
+  DateRange? selectedDateRange;
 
+  TextEditingController searchController = TextEditingController();
   TextEditingController customerNameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController contactNumberController = TextEditingController();
@@ -40,10 +47,24 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState>{
   TextEditingController profilePictureController = TextEditingController();
 
   bool showMore = false;
+  bool isEdit = false;
 
   List<dynamic> activeStatus =[{'id': 1, 'name': 'Active'}, {'id': 2, 'name': 'Inactive'}];
 
+  List<dynamic> apiResponse = [];
+  List<dynamic> filteredResponse = [];
+  List<dynamic> _unFilteredResponse = [];
+
   dynamic selectedStatus;
+  dynamic editModel;
+
+  int selectedTab = 0;
+  int itemsPerPage = 10;
+  int currentIndex = 1;
+  int totalCount = 0;
+
+  Future<Map<String, dynamic>?> _getLeads({dynamic page, dynamic search, dynamic type}) async => await apiRepository.getLeads(page: page, search: search, type: type);
+  Future<Map<String, dynamic>?> _addEditLeads({dynamic body, dynamic id}) async => await apiRepository.addEditLeads(body: body, id: id);
 
   LeadsBloc() : super(LoadingState()){
    on<InitialEvent>(_onInitialEvent);
@@ -54,11 +75,14 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState>{
    on<CloseEvent>(_onCloseEvent);
    on<DeleteEvent>(_onDeleteEvent);
    on<PaginationEvent>(_onPaginationEvent);
+   on<DateRangeEvent>(_onDateRangeEvent);
+   on<EditEvent>(_onEditEvent);
   }
 
   Future<void> _onInitialEvent(InitialEvent event, Emitter<LeadsState> emit) async {
     try{
       emit(LoadingState());
+      await fetchData();
       emit(CommonState());
     }catch(e){
       _onError(e, emit);
@@ -96,7 +120,14 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState>{
   Future<void> _onSaveEvent(SaveEvent event, Emitter<LeadsState> emit) async {
     try{
       emit(LoadingState());
-      emit(CommonState());
+      var response = await _addEditLeads(body: _saveData(), id: editModel?['id']);
+      if(response?['status'] == true){
+        await fetchData();
+        clearAll();
+        emit(SuccessState(response?['message']));
+      }else{
+        emit(ErrorState(response?['message']));
+      }
     }catch (e){
       _onError(e, emit);
     }
@@ -104,6 +135,7 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState>{
 
   void _onCloseEvent(CloseEvent event, Emitter<LeadsState> emit) async {
     try{
+      clearAll();
       emit(CommonState());
     }catch (e){
       _onError(e, emit);
@@ -122,6 +154,38 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState>{
   Future<void> _onPaginationEvent(PaginationEvent event, Emitter<LeadsState> emit) async {
     try{
       emit(LoadingState());
+      currentIndex = event.page;
+      await fetchData();
+      emit(CommonState());
+    }catch (e){
+      _onError(e, emit);
+    }
+  }
+
+  void _onDateRangeEvent(DateRangeEvent event, Emitter<LeadsState> emit) async {
+    try{
+      emit(LoadingState());
+      selectedDateRange = event.range;
+      emit(CommonState());
+    }catch (e){
+      _onError(e, emit);
+    }
+  }
+
+  Future<void> fetchData() async {
+    var response = await _getLeads(page: currentIndex, search: '', type: '');
+    apiResponse = List.from(response?['data']?['data'] ?? []);
+    totalCount = response?['data']?['total'] ?? 0;
+    _unFilteredResponse = List.from(apiResponse);
+    paginateList(data: _unFilteredResponse, currentPage: currentIndex, itemsPerPage: itemsPerPage);
+  }
+
+  void _onEditEvent(EditEvent event, Emitter<LeadsState> emit) async {
+    try{
+      emit(LoadingState());
+      editModel = event.data;
+      isEdit = true;
+      loadAllData();
       emit(CommonState());
     }catch (e){
       _onError(e, emit);
@@ -131,6 +195,97 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState>{
   void _onError(dynamic error, Emitter<LeadsState> emit){
     Console.of.error(error);
     emit(ErrorState(error));
+  }
+
+  Map<String, dynamic> _saveData(){
+    Map<String, dynamic> data = {};
+    data['acceptance_rate'] = acceptanceRateController.text;
+    data['active'] = selectedStatus?['id'];
+    data['applied_at'] = appliedAtController.text;
+    data['available_days'] = availableDaysController.text;
+    data['background_check'] = backgroundCheckController.text;
+    data['cancellation_rate'] = cancellationRateController.text;
+    data['car_brand_name'] = carNameController.text;
+    data['contact_number'] = contactNumberController.text;
+    data['contract_type'] = partOrFullTimeController.text;
+    data['customer_name'] = customerNameController.text;
+    data['day'] = dayController.text;
+    data['driver_license'] = driverLicenseController.text;
+    data['driver_rating'] = driverRatingController.text;
+    data['email'] = emailController.text;
+    data['invite_status'] = inviteStatusController.text;
+    data['location'] = locationController.text;
+    data['notes'] = notesController.text;
+    data['plate_no'] = plateNoController.text;
+    data['profile_picture'] = profilePictureController.text;
+    data['rating'] = ratingController.text;
+    data['rental_model'] = rentalModelController.text;
+    data['satisfaction_rate'] = satisfactionRateController.text;
+    data['shift'] = shiftController.text;
+    data['tenure'] = tenureController.text;
+    data['total_trips'] = totalTripsController.text;
+    data['uber_pro'] = uberProController.text;
+    return data;
+  }
+
+  void clearAll(){
+    isEdit = false;
+    editModel = null;
+    customerNameController.clear();
+    emailController.clear();
+    contactNumberController.clear();
+    notesController.clear();
+    carNameController.clear();
+    plateNoController.clear();
+    partOrFullTimeController.clear();
+    availableDaysController.clear();
+    shiftController.clear();
+    driverRatingController.clear();
+    satisfactionRateController.clear();
+    acceptanceRateController.clear();
+    cancellationRateController.clear();
+    tenureController.clear();
+    ratingController.clear();
+    totalTripsController.clear();
+    uberProController.clear();
+    appliedAtController.clear();
+    dayController.clear();
+    locationController.clear();
+    rentalModelController.clear();
+    inviteStatusController.clear();
+    backgroundCheckController.clear();
+    driverLicenseController.clear();
+    profilePictureController.clear();
+    selectedStatus = null;
+  }
+
+  Future<void> loadAllData()async{
+    customerNameController.text = editModel?['customer_name'] ?? '';
+    emailController.text = editModel?['email'] ?? '';
+    contactNumberController.text = editModel?['contact_number'] ?? '';
+    notesController.text = editModel?['notes'] ?? '';
+    carNameController.text = editModel?['car_brand_name'] ?? '';
+    plateNoController.text = editModel?['plate_no'] ?? '';
+    partOrFullTimeController.text = editModel?['contract_type'] ?? '';
+    availableDaysController.text = editModel?['available_days'] ?? '';
+    shiftController.text = editModel?['shift'] ?? '';
+    driverRatingController.text = editModel?['driver_rating'] ?? '';
+    satisfactionRateController.text = editModel?['satisfaction_rate'] ?? '';
+    acceptanceRateController.text = editModel?['acceptance_rate'] ?? '';
+    cancellationRateController.text = editModel?['cancellation_rate'] ?? '';
+    tenureController.text = editModel?['tenure'] ?? '';
+    ratingController.text = editModel?['rating'] ?? '';
+    totalTripsController.text = editModel?['total_trips'] ?? '';
+    uberProController.text = editModel?['uber_pro'] ?? '';
+    appliedAtController.text = editModel?['applied_at'] ?? '';
+    dayController.text = editModel?['day'] ?? '';
+    locationController.text = editModel?['location'] ?? '';
+    rentalModelController.text = editModel?['rental_model'] ?? '';
+    inviteStatusController.text = editModel?['invite_status'] ?? '';
+    backgroundCheckController.text = editModel?['background_check'] ?? '';
+    driverLicenseController.text = editModel?['driver_license'] ?? '';
+    profilePictureController.text = editModel?['profile_picture'] ?? '';
+    //selectedStatus = activeStatus.firstWhereOrNull((element) => element?['id'].toString() == editModel?['active'].toString());
   }
 
 }

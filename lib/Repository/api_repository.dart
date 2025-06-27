@@ -452,6 +452,8 @@ class APiRepository {
 
   String get _revenueSummary => "revenueSummary";
 
+  String get _leads => "leads";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -4447,7 +4449,6 @@ Future<Map<String, dynamic>?> getLocations() async {
   Future<Map<String, dynamic>?> updateVehicleExpenseHistory({Map<String, dynamic>? body, List<File>? images, dynamic expenseId}) async {
     try {
       String apiUrl = "${Str.LIST_BASE_URL}$_updateExpense/$expenseId";
-      log("${images?.length}", name: "updateVehicleExpenseHistory");
       final http.Response? response = await _apiClient.callPostMethodWithBody(
           apiUrl,
           body: body,
@@ -4460,10 +4461,44 @@ Future<Map<String, dynamic>?> getLocations() async {
         throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
       }
     } catch (error) {
-      log('callLoginAPI.exception2 : ${error.toString()}');
       return null;
     }
   }
 
+  Future<Map<String, dynamic>?> getLeads({dynamic page, dynamic search,dynamic type}) async {
+    try{
+      String apiUrl = "${Str.BASE_URL}$_leads";
+      var parms = {'page' : page, 'search' : search, 'type' : type,};
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl, params: parms);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      }else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    }catch (e){
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> addEditLeads({dynamic body, dynamic id}) async {
+    try{
+      String apiUrl = '';
+      final http.Response? response;
+      if(id != null){
+        apiUrl = "${Str.BASE_URL}$_leads/$id";
+        response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body,  method: 'PUT');
+      }else{
+        apiUrl = "${Str.BASE_URL}$_leads";
+        response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body,);
+      }
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      }else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    }catch (e){
+      rethrow;
+    }
+  }
 
 }
