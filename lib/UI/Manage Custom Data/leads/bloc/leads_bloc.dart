@@ -185,6 +185,9 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState>{
       var response = await _deleteLeads(id: event.data?['id']);
       if(response?['status'] == true){
         await fetchData();
+        if(event.data?['id'] == editModel?['id']){
+          clearAll();
+        }
         emit(SuccessState(response?['message']));
       }else{
         emit(ErrorState(response?['message']));
