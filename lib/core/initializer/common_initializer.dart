@@ -181,8 +181,8 @@ class CommonService {
     // triggerTasker;
     // triggerBranch;
     // triggerCohort;
-    // await Future.microtask(getPackageInfo);
-    // await Future.microtask(getReleaseNotes);
+    await Future.microtask(getPackageInfo);
+    await Future.microtask(getReleaseNotes);
     /*await Future.wait([
       // getUsers(),
       getPackageInfo(),

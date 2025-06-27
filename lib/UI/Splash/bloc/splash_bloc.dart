@@ -28,7 +28,7 @@ class SplashBloc extends Bloc<SplashEvent, SplashState> {
     Console.of.warning("HasBio $hasBiometrics");
     Session.of.set(Str.availBioMetrics, hasBiometrics.isNotEmpty);
     await getIt<CommonService>().initialFetch();
-    // await Future.delayed(const Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 8));
     emit(CommonState());
     await Future.delayed(Durations.short4);
     emit(isLoggedIn ? NavigateHomeState() : NavigateLoginState());
