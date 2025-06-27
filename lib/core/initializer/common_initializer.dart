@@ -176,10 +176,11 @@ class CommonService {
 
   Future<void> initialFetch() async {
     await Future.delayed(Durations.short1);
-    triggerBearerToken;
-    triggerTasker;
-    triggerBranch;
-    triggerCohort;
+    triggerAll;
+    // triggerBearerToken;
+    // triggerTasker;
+    // triggerBranch;
+    // triggerCohort;
     // await Future.microtask(getPackageInfo);
     // await Future.microtask(getReleaseNotes);
     /*await Future.wait([
