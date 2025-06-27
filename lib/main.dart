@@ -1,3 +1,5 @@
+import 'package:fairpytasker/core/app/helper/work_manager_helper.dart';
+import 'package:fairpytasker/core/initializer/main_initializer.dart';
 import 'package:flutter/services.dart' show DeviceOrientation, SystemChrome;
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fairpytasker/core/app/config/easy_loading_config.dart';
@@ -10,6 +12,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
+import 'package:workmanager/workmanager.dart';
+
 final Flavor flavor = Flavor.debug; // SHOULD NOT CHANGE UNTIL GET PROPER PERMISSION FROM THE LEAD
 
 void main() {
@@ -18,6 +22,8 @@ void main() {
     await Firebase.initializeApp();
     await Session.of.init();
     Initializer.of.init(); // GET_IT INITIALIZATION
+    WorkManagerBridge.setupMainIsolatePort();
+    await Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
     FlutterError.onError = (error) {
       FlutterError.presentError(error);
       FirebaseCrashlytics.instance.recordFlutterFatalError(error);

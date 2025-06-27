@@ -25,7 +25,7 @@ class DioTimeInterceptor extends InterceptorsWrapper {
     final start = response.requestOptions.extra['startTime'] as DateTime?;
     if (start != null) {
       final duration = DateTime.now().difference(start);
-      log('🔁 [${response.requestOptions.uri}] took ${duration.inMilliseconds} ms');
+      log('🔁 [${response.requestOptions.path}] took ${duration.inMilliseconds} ms');
     }
     return handler.next(response);
   }

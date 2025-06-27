@@ -18,7 +18,7 @@ class RemoteClient<T> extends DioClient {
         "url" : url,
         "queryParameters" : queryParameters,
         "method" : "get",
-        "headers" : headers(url: url)..["Authorization"] = "Bearer 7997|LZpc2l2Z3KqKSFZDLZLgqPczMAsJ0NU3Sag3Xomya95a76a6",
+        "headers" : headers(url: url),
       });
       return response.data;
     } catch (e) {

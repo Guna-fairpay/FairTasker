@@ -18,6 +18,7 @@ import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_easyloading/flutter_easyloading.dart";
 import "package:flutter_screenutil/flutter_screenutil.dart";
+import "package:skeletonizer/skeletonizer.dart";
 
 class ExpenseVehicleViewUI extends StatelessWidget {
   const ExpenseVehicleViewUI({super.key});
@@ -29,7 +30,7 @@ class ExpenseVehicleViewUI extends StatelessWidget {
           ..add(const GetVehicleExpenseData()),
         child: BlocListener<ExpenseBloc, ExpenseState>(
           listener: (context, state) {
-            state.isLoading ? EasyLoading.show() : EasyLoading.dismiss();
+            // state.isLoading ? EasyLoading.show() : EasyLoading.dismiss();
           },
           child:
               BlocBuilder<ExpenseBloc, ExpenseState>(builder: (context, state) {
@@ -103,11 +104,46 @@ class ExpenseVehicleViewUI extends StatelessWidget {
                   ),
                 ),
                 Expanded(
+                  child: Skeletonizer(
+                    ignorePointers: true,
+                    ignoreContainers: true,
+                    enabled: (state.isLoading),
+                      child: ListView.separated(
+                    physics:const BouncingScrollPhysics(),
+                    shrinkWrap: true,
+                    separatorBuilder: (context, index) => const Divider(height: 0.5),
+                    itemCount: state.filteredResponse.length,
+                    itemBuilder: (context, index) => ExpenseVehicleListItem(
+                      expense: state.filteredResponse[index],
+                      onCategoryTapEvent: () {
+                        CategorySubcategoryDialog.show(
+                          context,
+                          expense: state.filteredResponse[index],
+                          onCompleted: () => context.read<ExpenseBloc>().add(RefreshEvent()),
+                        );
+                      },
+                      onCohortTapEvent: () {
+                        context.read<ExpenseBloc>().add(CohortDialogEvent(
+                            data: state.filteredResponse[index]));
+                        CohortDialog.show(
+                          context,
+                          expense: state.filteredResponse[index],
+                        );
+                      },
+                      onChanged: (value) => context.read<ExpenseBloc>()
+                          .add(ApproveEvent(
+                          model: state.filteredResponse[index],
+                          approved: "${value == true ? 1 : 0}")),
+                      onDelete: (id) => context.read<ExpenseBloc>()
+                          .add(DeleteExpenseEvent(id: id)),
+                    ),
+                  )),
+                ),
+                /*Expanded(
                   child: ListView.separated(
                     physics:const BouncingScrollPhysics(),
                       shrinkWrap: true,
-                      separatorBuilder: (context, index) =>
-                          const Divider(height: 0.5),
+                      separatorBuilder: (context, index) => const Divider(height: 0.5),
                       itemCount: state.filteredResponse.length,
                       itemBuilder: (context, index) => ExpenseVehicleListItem(
                             expense: state.filteredResponse[index],
@@ -134,7 +170,7 @@ class ExpenseVehicleViewUI extends StatelessWidget {
                                 .add(DeleteExpenseEvent(id: id)),
                           ),
                   ),
-                ),
+                ),*/
               ],
             );
           }),

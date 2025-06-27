@@ -75,9 +75,6 @@ class _BottomNavigationForTaskViewState
       2 => const VehicleStatusListUi(),
       3 => const FeedBackUI(),
       4 => const ExpenseMainUI(),
-      5 => const InvoiceViewUI(),
-      6 => const RevenueTab(),
-      7 => const ProfitAndLossUI(),
       _ => const TaskerMainUi(),
       },
     );
