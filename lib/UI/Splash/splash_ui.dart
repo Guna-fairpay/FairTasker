@@ -7,6 +7,7 @@ import 'package:fairpytasker/Utilities/assets.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
@@ -31,12 +32,11 @@ class SplashScreen extends StatelessWidget {
                 },
                 child: SafeArea(
                   child: Container(
-                    width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.height,
+                    width: double.maxFinite,
+                    height: double.maxFinite,
                     padding: EdgeInsets.only(
-                        left: MediaQuery.of(context).size.width / 5,
-                        right: MediaQuery.of(context).size.width / 5,
-                        bottom: 15),
+                        left: (MediaQuery.of(context).size.width / 6).ceilToDouble().spMin,
+                        right: (MediaQuery.of(context).size.width / 6).ceilToDouble().spMin),
                     decoration: const BoxDecoration(
                         image: DecorationImage(
                             repeat: ImageRepeat.repeat,
@@ -44,7 +44,7 @@ class SplashScreen extends StatelessWidget {
                             image: AssetImage(Assets.splashBg),
                             fit: BoxFit.contain)),
                     child: Image.asset(
-                      Assets.logoWithoutWatermarkBg,
+                      Assets.taskManagerLogo,
                       fit: BoxFit.scaleDown,
                     ),
                   ),

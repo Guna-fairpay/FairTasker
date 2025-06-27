@@ -30,6 +30,7 @@ class Str{
 
     static const String branchNamePrefText = 'BranchNamePref';
   static const String branchChange = 'branch_has_been_changed';
+  static const String valueChange = 'api_value_has_been_changed';
 
   static const String appName = "FairPYTasker";
   // static const String addExpense = "Add Expenses";

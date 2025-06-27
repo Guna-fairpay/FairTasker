@@ -62,7 +62,7 @@ class ExpenseVehicleListItem extends StatelessWidget {
         ? const Color(0xFF13b3b3)
         : AppC.grey;
 
-    List<dynamic> images = expense['attachments'];
+    List<dynamic> images = List.from(expense['attachments'] ?? []);
 
     List<dynamic> expenseImages =
         images.map((e) => e['path'].toString().toStorageURL).toList();
@@ -130,7 +130,7 @@ class ExpenseVehicleListItem extends StatelessWidget {
                 10.width,
                 Expanded(
                   child: Visibility(
-                    visible: expense['attachments'].isNotEmpty,
+                    visible: (expense['attachments'] ?? []).isNotEmpty,
                     child: InkWell(
                         onTap: () => ShowAttachmentsDialog.of.show(context,
                             attachments: expenseImages, title: 'Expense Image'),

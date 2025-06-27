@@ -3751,12 +3751,13 @@ Future<Map<String, dynamic>?> getLocations() async {
       if (showOther) params["showOther"] = showOther;
       if (status != null) params["status"] = status ? "Completed" : "In Progress";
       Console.of.log(params);
-      final http.Response? response = await _apiClient.callGetMethod(apiUrl, params: params);
+      return await RemoteClient.instance.getRequest(apiUrl, queryParameters: params);
+      /*final http.Response? response = await _apiClient.callGetMethod(apiUrl, params: params);
       if (response?.isSuccess == true) {
         return await response.mapData;
       } else {
         throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
-      }
+      }*/
     } catch (e) {
       rethrow;
     }
@@ -4406,12 +4407,13 @@ Future<Map<String, dynamic>?> getLocations() async {
   Future<Map<String, dynamic>?> getRevenueSummary({dynamic body}) async{
     try {
       String apiUrl = '${Str.LIST_BASE_URL}$_revenueSummary';
-      final http.Response? response = await _apiClient.callGetMethod(apiUrl, params: body);
+      return await RemoteClient.instance.getRequest(apiUrl, queryParameters: body);
+      /*final http.Response? response = await _apiClient.callGetMethod(apiUrl, params: body);
       if (response?.isSuccess == true) {
         return await response.mapData;
       }else {
         throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
-      }
+      }*/
     }catch(error){
       rethrow;
     }

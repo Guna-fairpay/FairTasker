@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:ui' show VoidCallback;
 import 'package:date_time/date_time.dart';
 import 'package:fairpytasker/Response/authentication_response.dart';
+import 'package:fairpytasker/core/app/helper/work_manager_helper.dart';
 import 'package:fairpytasker/core/initializer/receive_intent.dart';
 import 'package:fairpytasker/core/initializer/todo_supporter.dart';
 import 'package:flutter/foundation.dart' show ValueNotifier, kDebugMode;
@@ -25,6 +26,7 @@ import 'package:flutter/foundation.dart' show ValueNotifier;
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
+import 'package:workmanager/workmanager.dart';
 
 final getIt = GetIt.instance;
 
@@ -36,7 +38,7 @@ class Initializer {
 
   void init() async {
     tz.initializeTimeZones();
-    getIt.registerSingleton<CommonService>(CommonService());
+    getIt.registerSingleton<CommonService>(CommonService())..listeners();
     getIt.registerSingleton<ToDoSupport>(ToDoSupport());
     getIt.registerSingleton<ReceiveIntent>(ReceiveIntent());
   }
@@ -142,7 +144,41 @@ class CommonService {
     return now;
   }
 
+  void listeners() {
+    Console.of.debug("Listening...", name: "CommonService");
+    FBroadcast.instance().register(Str.valueChange, (value, _) => _valueProcessor(value));
+  }
+
+  void _valueProcessor(dynamic value) {
+    Console.of.log("Value is ${value.runtimeType}", name: "CommonService");
+    var response = jsonDecode(value);
+    if (response is Map<String, dynamic>) {
+      Console.of.debug("Response is ${response.runtimeType} and setting values", name: "CommonService");
+      if (response.containsKey("vehicles") == false) return;
+      List<Map<String, dynamic>>? users = List.from(response['users'] ?? []);
+      List<Map<String, dynamic>>? userGroup = List.from(response['userGroup'] ?? []);
+      List<Map<String, dynamic>>? taskExpenseData = List.from(response['taskExpenseData'] ?? []);
+      List<Map<String, dynamic>>? locations = List.from(response['locations'] ?? []);
+      List<Map<String, dynamic>>? vendors = List.from(response['vendors'] ?? []);
+      List<Map<String, dynamic>>? vehicleStatusCategories = List.from(response['vehicleStatusCategories'] ?? []);
+      List<Map<String, dynamic>>? vehicles = List.from(response['vehicles'] ?? []);
+      List<Map<String, dynamic>>? vehicleGroups = List.from(response['vehicleGroups'] ?? []);
+      List<Map<String, dynamic>>? resources = List.from(response['resources'] ?? []);
+      List<Map<String, dynamic>>? parts = List.from(response['parts'] ?? []);
+      List<Map<String, dynamic>>? supplies = List.from(response['supplies'] ?? []);
+      updateValues(userList: users, groupPersonList: userGroup, taskExpenseDataList: taskExpenseData, locationsList: locations, vendorsList: vendors, groupVehicleList: vehicleGroups, activeVehicleList: vehicles, resourcesList: resources, partsList: parts, suppliesList: supplies);
+      Console.of.debug("⌛Response is settled", name: "CommonService");
+    }
+  }
+
   Future<void> initialFetch() async {
+    Map<String, dynamic> mapData = {
+      "url" :  "${Str.BASE_URL}todo-data-mod",
+      "queryParameters" : {"showOther": true},
+      "method" : "get",
+      "headers" : Utils.getHeadersWithToken(url: "${Str.BASE_URL}todo-data-mod"),
+    };
+    triggerWM(mapData);
     await Future.wait([
       // getUsers(),
       getPackageInfo(),

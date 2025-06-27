@@ -12,8 +12,10 @@ import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/extension/timeday_extension.dart';
 import 'package:fairpytasker/core/app/helper/debouncer.dart';
+import 'package:fairpytasker/core/app/helper/dummy_data_provider.dart';
 import 'package:fairpytasker/core/app/helper/tasker_hours_processor.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
+import 'package:fairpytasker/core/app/helper/work_manager_helper.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter/cupertino.dart';
@@ -62,6 +64,11 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
   int get _userId => getIt<CommonService>().userId;
   int? get _hrmId => getIt<CommonService>().hrmId;
   int? get _branchId => getIt<CommonService>().branchId;
+
+  List<Map<String, dynamic>> get taskerResult {
+    if (toDos.isEmpty) return List.generate(10, (index) => DummyData.tasker);
+    return toDos;
+  }
 
   ToDoTaskerBloc() : super(ToDoTaskerLoadingState()) {
     _listenBroadCast();
@@ -140,7 +147,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
 
   /* BEGIN: API CALLS */
   // Future<List<Map<String, dynamic>>?> _fetchToDoList() async => await _toDoProcessor.getToDoList(selectedDate, isCompleted, resourceId: _selectedUserIds);
-  Future<Map<String, dynamic>?> _fetchToDoList({bool showOther = false}) async => await _aPiRepository.getToDoModList(selectedDate: selectedDate.toFormat(), status: isCompleted, resourceId: _selectedUserIds, showOther: showOther);
+  Future<Map<String, dynamic>?> _fetchToDoList({bool showOther = false}) async => await _aPiRepository.getToDoModList(selectedDate: selectedDate.toFormat(), status: isCompleted, resourceId: _selectedUserIds, showOther: false);
   Future<Map<String, dynamic>?> _changeToMorrow({required List<String> todoIds, dynamic groupId, required String groupName, DateTime? date, TimeOfDay? time}) async => await _aPiRepository.changeToDoByGroup(todoList: todoIds, groupId: groupId, groupName: groupName, date: date, time: time);
   Future<Map<String, dynamic>?> _updateToDo({required Map<String, dynamic> body, required dynamic todoId}) async => await _aPiRepository.updateToDo(body: body, toDoId: todoId);
   Future<Map<String, dynamic>?> _swapToDo({required dynamic fromId, required dynamic toId}) async => await _aPiRepository.swapToDo(fromId: fromId, toId: toId);
@@ -178,7 +185,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       toDos.clear();
       emit(ToDoTaskerLoadingState());
       // await CommonHelper.instance.waitForPostFrameCallback();
-      getIt<CommonService>().getCurrentLocation();
+      // getIt<CommonService>().getCurrentLocation();
       if (!isAdmin) {
         if ((currentUser != null) && (currentUser?.isNotEmpty ?? false)) selectedUsers?.add(currentUser ?? {});
       }
@@ -186,7 +193,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       if (response != null) _setOtherValues(response);
       unfiltered = _processTodo(List.from(response?['todos'] ?? []));
       toDos = unfiltered;
-      _generateKeys();
+      // _generateKeys();
       isUserSelected = (selectedUsers?.isNotEmpty ?? false);
       Console.of.log("TASKER_ALL_API_LOADED", name: "TASKER_TODO_BLOC");
       emit(ToDoTaskerCommonState());
@@ -254,9 +261,9 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       if ( (!showLoading) &&  (!isClosed)) emit(ToDoTaskerCommonState());
       Console.of.debug("SHOW_LOADING $showLoading");
       if ( showLoading && (!isClosed)) emit(ToDoTaskerLoadingState());
-      // if (refresh) await _toDoProcessor.refresh();
+      if (refresh) triggerTasker; // TRIGGER WORK MANAGER TO FETCH ALL THE VALUES BACKGROUND
       var response = await _fetchToDoList(showOther: refresh);
-      if ((response != null) && (refresh)) _setOtherValues(response);
+      // if ((response != null) && (refresh)) _setOtherValues(response); // COMMENTED DUE TO HANDLED IN WM (Work Manager)
       unfiltered = _processTodo(List.from(response?['todos'] ?? []));
       toDos = unfiltered;
       _searchTasks();
