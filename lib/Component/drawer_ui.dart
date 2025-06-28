@@ -186,7 +186,7 @@ class DrawerView extends StatelessWidget {
                 ],
               ),
             ),
-            _buildFooter(context),
+            SafeArea(child: _buildFooter(context)),
           ],
         ),
       ),
@@ -284,7 +284,7 @@ class DrawerView extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 15),
+          padding: 7.spMin.padding,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
