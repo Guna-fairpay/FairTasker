@@ -86,21 +86,18 @@ class PersonListItemPage extends StatelessWidget {
                     children: [
                       Utils.getText(
                         '${model['category']?['name'] ?? ''} ',
-                        // color: model['approved'] == 1 ? AppC.grey : AppC.red,
                         color:  AppC.grey,
                         overFlow: TextOverflow.ellipsis,
                       ),
                       Utils.getText(
                         " | ",
                         weight: FontWeight.w900,
-                        //color: model['approved'] == 1 ? AppC.grey : AppC.red,
                         color:  AppC.grey,
                       ),
                       Expanded(
                         child: Utils.getText(
                           '${model['subcategory']?['name'] ?? ''}',
                           color:  AppC.grey,
-                          //color: model['approved'] == 1 ? AppC.grey : AppC.red,
                           overFlow: TextOverflow.ellipsis,
                         ),
                       ),
