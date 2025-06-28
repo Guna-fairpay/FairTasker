@@ -470,6 +470,7 @@ class VehicleAddEditBloc extends Bloc<VehicleAddEditEvent, VehicleAddEditState> 
        var editModel = {
          'title' : todoItems?['title'],
          'status' : todoItems?['status'],
+         'reference_id' : todoItems?['reference_id'],
          'date_time' : "${todoItems?['todo_date'].toString().toDateTime()?.toFormat(format: "MM-dd-yyyy") ?? ''}"
                         " ${todoItems['todo_time'].toString().toFormat(inputFormat: 'HH:mm:ss', format: 'hh:mm a') ?? ''}",
          'user' : (userNameList ?? []).join(', '),

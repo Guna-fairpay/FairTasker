@@ -79,6 +79,10 @@ class TodoTaskViewUI extends StatelessWidget {
                   icon: Icons.speed,
                   label: "${todoDetails?['odometer'] ?? "No Odometer"}",
                 ),
+                if (todoDetails?['reference_id'] != null)
+                InkWell(
+                  onTap:()=> Utils.openURL(todoDetails['reference_id'].toString().toTuroReserveUrl),
+                    child: Utils.getText('Reservation No - ${todoDetails['reference_id'] ?? ''}', color: AppC.redAccent)),
 
                 Utils.getText(
                   "Expense",
