@@ -84,107 +84,103 @@ class _TaskerVehicleSearchBodyView extends StatelessWidget {
                   color: context.theme.cardColor,
                 ),
                 padding: 10.horizontalPadding,
-                child: SingleChildScrollView(
-                  child: Column(
-                    spacing: 10,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const SizedBox.shrink(),
-                      SearchViewField<Map<String, dynamic>>(
-                        controller: context.read<TVSBloc>().searchController,
-                        suggestions: context.watch<TVSBloc>().vehicleList,
-                        itemAsString: (item) => item['vehicle_name'].toString(),
-                        selectedItem: context.watch<TVSBloc>().selectedModel,
-                        onSelected: (value) {
-                          context
-                              .read<TVSBloc>()
-                              .add(TVSSelectedEvent(model: value));
-                          Utils.dismissKeyboard(context);
-                        },
-                        showEmpty: false,
-                      ),
-                      if (context.watch<TVSBloc>().selectedModel?.isNotEmpty ??
-                          false)
-                        IntrinsicWidth(
-                          child: Container(
-                            decoration: const BoxDecoration(
-                                border: BorderDirectional(
-                                    bottom: BorderSide(
-                                        width: Num.borderWidthThinField, color: AppC.borderColor))),
-                            child: FittedBox(
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  CustomTabButton(
-                                      buttonText: "Vehicle History",
-                                      value: 0,
-                                      onPressed: (value) => context
-                                          .read<TVSBloc>()
-                                          .add(TVSSelectPageEvent(page: value)),
-                                      selectedValue:
-                                          context.watch<TVSBloc>().pageIndex,
-                                      icon: (context.watch<TVSBloc>().pageIndex ==
-                                              0)
-                                          ? Icons.directions_car_filled_rounded
-                                          : Icons.directions_car_filled_outlined),
-                                  CustomTabButton(
-                                      buttonText: "Expenses",
-                                      value: 1,
-                                      onPressed: (value) => context
-                                          .read<TVSBloc>()
-                                          .add(TVSSelectPageEvent(page: value)),
-                                      selectedValue:
-                                          context.watch<TVSBloc>().pageIndex,
-                                      icon:
-                                          (context.watch<TVSBloc>().pageIndex == 1)
-                                              ? Icons.monetization_on_rounded
-                                              : Icons.monetization_on_outlined),
-                                  CustomTabButton(
-                                      buttonText: "Details",
-                                      value: 2,
-                                      onPressed: (value) => context
-                                          .read<TVSBloc>()
-                                          .add(TVSSelectPageEvent(page: value)),
-                                      selectedValue:
-                                          context.watch<TVSBloc>().pageIndex,
-                                      icon:
-                                          (context.watch<TVSBloc>().pageIndex == 2)
-                                              ? Icons.info_rounded
-                                              : Icons.info_outlined),
-                                  CustomTabButton(
-                                      buttonText: "Cost",
-                                      value: 3,
-                                      onPressed: (value) => context
-                                          .read<TVSBloc>()
-                                          .add(TVSSelectPageEvent(page: value)),
-                                      selectedValue:
-                                          context.watch<TVSBloc>().pageIndex,
-                                      icon:
-                                          (context.watch<TVSBloc>().pageIndex == 3)
-                                              ? Remix.money_dollar_circle_fill
-                                              : Remix.money_dollar_circle_line),
-                                ],
-                              ),
+                child: Column(
+                  spacing: 10,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox.shrink(),
+                    SearchViewField<Map<String, dynamic>>(
+                      controller: context.read<TVSBloc>().searchController,
+                      suggestions: context.watch<TVSBloc>().vehicleList,
+                      itemAsString: (item) => item['vehicle_name'].toString(),
+                      selectedItem: context.watch<TVSBloc>().selectedModel,
+                      onSelected: (value) {
+                        context
+                            .read<TVSBloc>()
+                            .add(TVSSelectedEvent(model: value));
+                        Utils.dismissKeyboard(context);
+                      },
+                      showEmpty: false,
+                    ),
+                    if (context.watch<TVSBloc>().selectedModel?.isNotEmpty ??
+                        false)
+                      IntrinsicWidth(
+                        child: Container(
+                          decoration: const BoxDecoration(
+                              border: BorderDirectional(
+                                  bottom: BorderSide(
+                                      width: Num.borderWidthThinField, color: AppC.borderColor))),
+                          child: FittedBox(
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                CustomTabButton(
+                                    buttonText: "Vehicle History",
+                                    value: 0,
+                                    onPressed: (value) => context
+                                        .read<TVSBloc>()
+                                        .add(TVSSelectPageEvent(page: value)),
+                                    selectedValue:
+                                        context.watch<TVSBloc>().pageIndex,
+                                    icon: (context.watch<TVSBloc>().pageIndex ==
+                                            0)
+                                        ? Icons.directions_car_filled_rounded
+                                        : Icons.directions_car_filled_outlined),
+                                CustomTabButton(
+                                    buttonText: "Expenses",
+                                    value: 1,
+                                    onPressed: (value) => context
+                                        .read<TVSBloc>()
+                                        .add(TVSSelectPageEvent(page: value)),
+                                    selectedValue:
+                                        context.watch<TVSBloc>().pageIndex,
+                                    icon:
+                                        (context.watch<TVSBloc>().pageIndex == 1)
+                                            ? Icons.monetization_on_rounded
+                                            : Icons.monetization_on_outlined),
+                                CustomTabButton(
+                                    buttonText: "Details",
+                                    value: 2,
+                                    onPressed: (value) => context
+                                        .read<TVSBloc>()
+                                        .add(TVSSelectPageEvent(page: value)),
+                                    selectedValue:
+                                        context.watch<TVSBloc>().pageIndex,
+                                    icon:
+                                        (context.watch<TVSBloc>().pageIndex == 2)
+                                            ? Icons.info_rounded
+                                            : Icons.info_outlined),
+                                CustomTabButton(
+                                    buttonText: "Cost",
+                                    value: 3,
+                                    onPressed: (value) => context
+                                        .read<TVSBloc>()
+                                        .add(TVSSelectPageEvent(page: value)),
+                                    selectedValue:
+                                        context.watch<TVSBloc>().pageIndex,
+                                    icon:
+                                        (context.watch<TVSBloc>().pageIndex == 3)
+                                            ? Remix.money_dollar_circle_fill
+                                            : Remix.money_dollar_circle_line),
+                              ],
                             ),
                           ),
                         ),
-                      if ((context.watch<TVSBloc>().selectedModel?.isNotEmpty ?? false) && (context.watch<TVSBloc>().pageIndex <= 3))
-                        PageKeepAliver(
-                          key: const PageStorageKey("tasker_vehicle_search_dialog_page_keep_alive"),
-                          child: SizedBox(
-                            width: double.maxFinite,
-                            height: context.height * 0.75,
-                            child: switch(context.watch<TVSBloc>().pageIndex) {
-                              0 => VehicleHistoryViewUI(vin: context.watch<TVSBloc>().selectedModel?['vin'], vehicleName: context.watch<TVSBloc>().selectedModel?['vehicle_name'], showHeader: false),
-                              1 => EditVehicleExpenseDetailsUI(withInExpand: true, vin: context.watch<TVSBloc>().selectedModel?['vin']),
-                              2 => VehicleDetailsUi(model: context.watch<TVSBloc>().selectedModel),
-                              3 => CostListView(model: context.watch<TVSBloc>().selectedModel),
-                              _ => const SizedBox.shrink()
-                            }
-                          ),
+                      ),
+                    if ((context.watch<TVSBloc>().selectedModel?.isNotEmpty ?? false) && (context.watch<TVSBloc>().pageIndex <= 3))
+                      Flexible(
+                        child: SizedBox(
+                          width: double.maxFinite,
+                          child: switch(context.watch<TVSBloc>().pageIndex) {
+                            0 => SizedBox(height: context.height * 0.75, child: VehicleHistoryViewUI(vin: context.watch<TVSBloc>().selectedModel?['vin'], vehicleName: context.watch<TVSBloc>().selectedModel?['vehicle_name'], showHeader: false, )),
+                            1 => SizedBox(height: context.height * 0.75, child: EditVehicleExpenseDetailsUI(withInExpand: true, vin: context.watch<TVSBloc>().selectedModel?['vin'])),
+                            2 => VehicleDetailsUi(model: context.watch<TVSBloc>().selectedModel),
+                            3 => CostListView(model: context.watch<TVSBloc>().selectedModel),
+                            _ => const SizedBox.shrink()
+                          }
                         ),
-                    ],
-                  ),
+                      ),
+                  ],
                 ),
               ),
             ));

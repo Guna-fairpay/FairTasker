@@ -32,7 +32,7 @@ class CostListView extends StatelessWidget {
                 expandTitle: true,
                 title: CompactText("Total: \$${context.watch<CostBloc>().totalAmount}", textAlign: TextAlign.end, fontWeight: FontWeight.w900, color: AppC.lightDark, styleType: TextStyleType.titleMedium),
               ),
-              Expanded(child: Table(
+              Flexible(child: Table(
                 defaultVerticalAlignment: TableCellVerticalAlignment.middle,
                 columnWidths: const {
                   0 : IntrinsicColumnWidth(),
