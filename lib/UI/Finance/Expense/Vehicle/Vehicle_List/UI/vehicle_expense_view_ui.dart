@@ -14,6 +14,7 @@ import "package:fairpytasker/Utilities/appC.dart";
 import "package:fairpytasker/core/app/extension/context_extension.dart";
 import "package:fairpytasker/core/app/extension/datetime_extension.dart";
 import "package:fairpytasker/core/app/extension/sized_extension.dart";
+import "package:fairpytasker/core/app/helper/dummy_data_provider.dart";
 import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_easyloading/flutter_easyloading.dart";
@@ -30,7 +31,7 @@ class ExpenseVehicleViewUI extends StatelessWidget {
           ..add(const GetVehicleExpenseData()),
         child: BlocListener<ExpenseBloc, ExpenseState>(
           listener: (context, state) {
-            // state.isLoading ? EasyLoading.show() : EasyLoading.dismiss();
+            state.isLoading ? EasyLoading.show() : EasyLoading.dismiss();
           },
           child:
               BlocBuilder<ExpenseBloc, ExpenseState>(builder: (context, state) {
@@ -70,36 +71,40 @@ class ExpenseVehicleViewUI extends StatelessWidget {
                           ),
                         ),
                       ),
-                      Column(
-                        spacing: 2,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          CustomCheckboxListTile(
-                            padding: 0.padding,
-                            borderColor: AppC.appColor,
-                            radius: 8,
-                            useExpand: false,
-                            title: Utils.getText('Approved',size: 12.sp,color: AppC.grey,weight: FontWeight.bold),
-                            value: state.isExpenseApproved,
-                            onChanged:  (value)=>context.read<ExpenseBloc>().add(ApprovedExpenseEvent(isApproved:value)),),
-                          InkWell(
-                            onTap: () => ExpenseSummeryMainUI.show(context, expenseData: state.isExpenseApproved ? state.filteredResponse : []),
-                            child: Row(
-                              spacing: 35,
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Utils.getText(
-                                    '\$ ${state.unApprovedAmount.toStringAsFixed(2)}',
-                                    color: AppC.redAccent,
-                                    weight: FontWeight.bold),
-                                Utils.getText('\$ ${state.approvedAmount.toStringAsFixed(2)}',
-                                    color: AppC.appColor,
-                                    weight: FontWeight.bold),
-                              ],
-                            ),
-                          ),
-                        ],
-                      )
+                      Skeletonizer(
+                          ignorePointers: true,
+                          ignoreContainers: true,
+                          enabled: (state.isLoading),
+                          child: Column(
+                            spacing: 2,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              CustomCheckboxListTile(
+                                padding: 0.padding,
+                                borderColor: AppC.appColor,
+                                radius: 8,
+                                useExpand: false,
+                                title: Utils.getText('Approved',size: 12.sp,color: AppC.grey,weight: FontWeight.bold),
+                                value: state.isExpenseApproved,
+                                onChanged:  (value)=>context.read<ExpenseBloc>().add(ApprovedExpenseEvent(isApproved:value)),),
+                              InkWell(
+                                onTap: () => ExpenseSummeryMainUI.show(context, expenseData: state.isExpenseApproved ? state.filteredResponse : []),
+                                child: Row(
+                                  spacing: 35,
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    Utils.getText(
+                                        '\$ ${state.unApprovedAmount.toStringAsFixed(2)}',
+                                        color: AppC.redAccent,
+                                        weight: FontWeight.bold),
+                                    Utils.getText('\$ ${state.approvedAmount.toStringAsFixed(2)}',
+                                        color: AppC.appColor,
+                                        weight: FontWeight.bold),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          )),
                     ],
                   ),
                 ),
@@ -112,9 +117,9 @@ class ExpenseVehicleViewUI extends StatelessWidget {
                     physics:const BouncingScrollPhysics(),
                     shrinkWrap: true,
                     separatorBuilder: (context, index) => const Divider(height: 0.5),
-                    itemCount: state.filteredResponse.length,
+                    itemCount: (state.isLoading) ? 10 : state.filteredResponse.length,
                     itemBuilder: (context, index) => ExpenseVehicleListItem(
-                      expense: state.filteredResponse[index],
+                      expense: (state.isLoading) ? DummyData.vExpense : state.filteredResponse[index],
                       onCategoryTapEvent: () {
                         CategorySubcategoryDialog.show(
                           context,

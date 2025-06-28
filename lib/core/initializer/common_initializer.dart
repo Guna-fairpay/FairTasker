@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
-import 'dart:ui' show VoidCallback;
 import 'package:date_time/date_time.dart';
 import 'package:fairpytasker/Response/authentication_response.dart';
 import 'package:fairpytasker/core/app/helper/work_manager_helper.dart';
@@ -18,16 +17,13 @@ import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
-import 'package:fairpytasker/core/app/helper/authenticator.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/utilities/utils.dart';
 import 'package:fbroadcast/fbroadcast.dart';
-import 'package:flutter/foundation.dart' show ValueNotifier;
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
-import 'package:workmanager/workmanager.dart';
 
 final getIt = GetIt.instance;
 
@@ -74,6 +70,7 @@ class CommonService {
   List<Map<String, dynamic>> _privateRentalCustomersList = [];
   List<Map<String, dynamic>> _maintenanceCheckList = [];
   List<Map<String, dynamic>> _checkList = [];
+  List<Map<String, dynamic>> _vehicleCategories = [];
   List<Map<String, dynamic>> FairTechProjects = [];
   Map<String, dynamic> employeesList = {};
   List<Map<String, dynamic>> taskCategoryGroupList = [];
@@ -147,11 +144,6 @@ class CommonService {
     return now;
   }
 
-  // void listeners() {
-  //   Console.of.debug("Listening...", name: "CommonService");
-  //   FBroadcast.instance().register(Str.valueChange, (value, _) => _valueProcessor(value));
-  // }
-
   void initializeTasker(dynamic value) {
     Console.of.log("Value is ${value.runtimeType}", name: "CommonService");
     var response = (value is String) ? jsonDecode(value) : value;
@@ -169,28 +161,16 @@ class CommonService {
       List<Map<String, dynamic>>? resources = List.from(response['resources'] ?? []);
       List<Map<String, dynamic>>? parts = List.from(response['parts'] ?? []);
       List<Map<String, dynamic>>? supplies = List.from(response['supplies'] ?? []);
-      updateValues(userList: users, groupPersonList: userGroup, taskExpenseDataList: taskExpenseData, locationsList: locations, vendorsList: vendors, groupVehicleList: vehicleGroups, activeVehicleList: vehicles, resourcesList: resources, partsList: parts, suppliesList: supplies);
+      updateValues(userList: users, groupPersonList: userGroup, taskExpenseDataList: taskExpenseData, locationsList: locations, vendorsList: vendors, groupVehicleList: vehicleGroups, activeVehicleList: vehicles, resourcesList: resources, partsList: parts, suppliesList: supplies, vehicleCategories: vehicleStatusCategories);
       Console.of.debug("⌛Response is settled", name: "CommonService");
     }
   }
 
   Future<void> initialFetch() async {
     await Future.delayed(Durations.short1);
-    triggerAll;
-    // triggerBearerToken;
-    // triggerTasker;
-    // triggerBranch;
-    // triggerCohort;
+    if (Session.of.getBool(Str.loginPrefText) ?? false) triggerAll;
     await Future.microtask(getPackageInfo);
     await Future.microtask(getReleaseNotes);
-    /*await Future.wait([
-      // getUsers(),
-      getPackageInfo(),
-      getCohorts(),
-      getBranches(),
-      Authenticator.instance.getBearerToken(),
-      // Authenticator.instance.getDepartmentId(),
-    ]).whenComplete(() async => await getReleaseNotes());*/
     Console.of.log("$timeNow", name: "TIME_NOW_IN_AMERICA");
   }
 
@@ -460,7 +440,7 @@ class CommonService {
     try {
       final response = await _apiRepository.getVendorType();
 
-      if (response != null && response is List) {
+      if (response != null) {
         vendorsTypeList = List<Map<String, dynamic>>.from(
           response.whereType<Map<String, dynamic>>(),
         );
@@ -471,7 +451,7 @@ class CommonService {
       return vendorsTypeList;
     } catch (e) {
       Toaster.showError(e.toString());
-      log("${e.toString()}", name: "getVendorTypeList");
+      log(e.toString(), name: "getVendorTypeList");
       return [];
     }
   }
@@ -569,7 +549,7 @@ class CommonService {
     }
   }
 
-  /// CURRENT DATE TODO LIST
+  /// CURRENT DATE TODO_LIST
   Future<List<Map<String, dynamic>>> getToDos({bool reset = false}) async {
     if (reset) _toDoList.clear();
     if (_toDoList.isNotEmpty) return _toDoList;
@@ -693,7 +673,7 @@ class CommonService {
     }
   }
 
-  void updateValues({List<Map<String, dynamic>>? userList, List<Map<String, dynamic>>? cohortsList, List<Map<String, dynamic>>? vendorsList, List<Map<String, dynamic>>? locationsList, List<Map<String, dynamic>>? partsList, List<Map<String, dynamic>>? suppliesList, List<Map<String, dynamic>>? groupVehicleList, List<Map<String, dynamic>>? activeVehicleList, List<Map<String, dynamic>>? activeVehicleCountList, List<Map<String, dynamic>>? bouncieVehicles, List<Map<String, dynamic>>? groupPersonList, List<Map<String, dynamic>>? taskExpenseDataList, List<Map<String, dynamic>>? expenseCategoriesList, List<Map<String, dynamic>>? paymentTypesList, List<Map<String, dynamic>>? resourcesList, List<Map<String, dynamic>>? branchList, List<Map<String, dynamic>>? toDoList, List<Map<String, dynamic>>? maintenanceCheckList, List<Map<String, dynamic>>? checkList, Map<String, dynamic>? vehicleStatus}) {
+  void updateValues({List<Map<String, dynamic>>? userList, List<Map<String, dynamic>>? cohortsList, List<Map<String, dynamic>>? vendorsList, List<Map<String, dynamic>>? locationsList, List<Map<String, dynamic>>? partsList, List<Map<String, dynamic>>? suppliesList, List<Map<String, dynamic>>? groupVehicleList, List<Map<String, dynamic>>? activeVehicleList, List<Map<String, dynamic>>? activeVehicleCountList, List<Map<String, dynamic>>? bouncieVehicles, List<Map<String, dynamic>>? groupPersonList, List<Map<String, dynamic>>? taskExpenseDataList, List<Map<String, dynamic>>? expenseCategoriesList, List<Map<String, dynamic>>? paymentTypesList, List<Map<String, dynamic>>? resourcesList, List<Map<String, dynamic>>? branchList, List<Map<String, dynamic>>? toDoList, List<Map<String, dynamic>>? maintenanceCheckList, List<Map<String, dynamic>>? checkList, Map<String, dynamic>? vehicleStatus, List<Map<String, dynamic>>? vehicleCategories}) {
     this.usersList = userList ?? usersList;
     this.cohortsList = cohortsList ?? this.cohortsList;
     this.vendorsList = vendorsList ?? this.vendorsList;
@@ -711,6 +691,7 @@ class CommonService {
     this.resourcesList = resourcesList ?? this.resourcesList;
     this._vehicleStatus = vehicleStatus ?? _vehicleStatus;
     this.branchList = branchList ?? this.branchList;
+    _vehicleCategories = vehicleCategories ?? _vehicleCategories;
     _toDoList = toDoList ?? _toDoList;
     _maintenanceCheckList = maintenanceCheckList ?? _maintenanceCheckList;
     Console.of.log("Value resetted", name: "CommonInitializer");
@@ -737,6 +718,7 @@ class CommonService {
     _toDoList.clear();
     _maintenanceCheckList.clear();
     _checkList.clear();
+    _vehicleCategories.clear();
     Console.of.debug("Cleared all records", name: "CommonInitializer");
   }
 

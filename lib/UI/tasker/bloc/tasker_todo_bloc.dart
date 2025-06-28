@@ -3,7 +3,6 @@ import 'dart:convert' show jsonEncode;
 import 'dart:io' show File;
 import 'package:collection/collection.dart';
 import 'package:date_time/date_time.dart' show DateTimeExtensions, Time;
-import 'package:fairpytasker/UI/dialog/transport_car_dialog/UI/transportcar_pop.dart';
 import 'package:fairpytasker/Response/general_response.dart';
 import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
@@ -26,7 +25,6 @@ import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/UI/tasker/bloc/tasker_todo_events.dart';
 import 'package:fairpytasker/UI/tasker/bloc/tasker_todo_states.dart';
-import 'package:fairpytasker/core/app/helper/tasker_todo_data_processor.dart';
 
 class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
   bool isFilterSelected = false;
@@ -175,7 +173,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     List<Map<String, dynamic>>? resources = List.from(model?['resources'] ?? []);
     List<Map<String, dynamic>>? parts = List.from(model?['parts'] ?? []);
     List<Map<String, dynamic>>? supplies = List.from(model?['supplies'] ?? []);
-    getIt<CommonService>().updateValues(userList: users, groupPersonList: userGroup, taskExpenseDataList: taskExpenseData, locationsList: locations, vendorsList: vendors, groupVehicleList: vehicleGroups, activeVehicleList: vehicles, resourcesList: resources, partsList: parts, suppliesList: supplies);
+    getIt<CommonService>().updateValues(userList: users, groupPersonList: userGroup, taskExpenseDataList: taskExpenseData, locationsList: locations, vendorsList: vendors, groupVehicleList: vehicleGroups, activeVehicleList: vehicles, resourcesList: resources, partsList: parts, suppliesList: supplies, vehicleCategories: vehicleStatusCategories);
   }
 
   // INITIAL EVENT PROCESSOR
@@ -263,7 +261,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       if ( showLoading && (!isClosed)) emit(ToDoTaskerLoadingState());
       if (refresh) triggerTasker; // TRIGGER WORK MANAGER TO FETCH ALL THE VALUES BACKGROUND
       var response = await _fetchToDoList(showOther: refresh);
-      // if ((response != null) && (refresh)) _setOtherValues(response); // COMMENTED DUE TO HANDLED IN WM (Work Manager)
+      if ((response != null) && (refresh)) _setOtherValues(response); // COMMENTED DUE TO HANDLED IN WM (Work Manager)
       unfiltered = _processTodo(List.from(response?['todos'] ?? []));
       toDos = unfiltered;
       _searchTasks();
