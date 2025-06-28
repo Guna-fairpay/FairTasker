@@ -22,9 +22,8 @@ class CustomQuillEditor extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          QuillToolbar.simple(
-            controller: controller,
-            configurations: QuillSimpleToolbarConfigurations(
+          QuillSimpleToolbar(controller: controller ?? QuillController.basic(),
+            config: QuillSimpleToolbarConfig(
               showSmallButton: false,
               showSearchButton: false,
               showClipboardCopy: false,
@@ -70,10 +69,10 @@ class CustomQuillEditor extends StatelessWidget {
                 border: Border.all(width: 0, color: Colors.transparent),
                 color: context.theme.colorScheme.surface),
             child: QuillEditor(
-              controller: controller,
+              controller: controller ?? QuillController.basic(),
               scrollController: ScrollController(),
               focusNode: FocusNode(),
-              configurations: QuillEditorConfigurations(
+              config: QuillEditorConfig(
                 enableSelectionToolbar: false,
                 placeholder: hintText,
                 padding: const EdgeInsets.all(10),

@@ -5,6 +5,7 @@ class RevenueHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var border = const OutlineInputBorder(borderSide: BorderSide(color: AppC.borderColor, width: Num.borderWidthButton));
     return BlocBuilder<RevenueBloc, RevenueState>(
         builder: (context, state) => Column(
               spacing: 10.spMin,
@@ -16,39 +17,29 @@ class RevenueHeader extends StatelessWidget {
                     selectedDateRange:
                         context.watch<RevenueBloc>().selectedDateRange,
                     splitter: "to"),
-                DropdownSearch<Map<String, dynamic>>.multiSelection(
-                  items: getIt<CommonService>().cohortsList,
-                  itemAsString: (item) => item['cohort'] ?? "",
-                  onChanged: (value) => context.read<RevenueBloc>().add(CohortEvent(value)),
-                  selectedItems: context.watch<RevenueBloc>().selectedCohorts,
-                  dropdownBuilder: (context, selectedItems) => CompactText(
-                    selectedItems.length == 1 ? (selectedItems.firstOrNull?['cohort'] ?? "") : "${selectedItems.length} Selected",
-                  ),
-                  popupProps: const PopupPropsMultiSelection.menu(
-                    showSearchBox: true,
-                    listViewProps: ListViewProps(
-                      shrinkWrap: true,
-                    ),
-                    menuProps: MenuProps(
-
-                    ),
-                    searchFieldProps: TextFieldProps(
-                      maxLines: 1,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        enabledBorder: OutlineInputBorder()
-                      )
-                    )
-                  ),
-                  dropdownDecoratorProps: const DropDownDecoratorProps(
-                    dropdownSearchDecoration: InputDecoration(
+                MultiSelectDropdown(list: getIt<CommonService>().cohortsList,
+                    initiallySelected: context.watch<RevenueBloc>().selectedCohorts,
+                    includeSelectAll: true,
+                    includeSearch: true,
+                    padding: EdgeInsets.symmetric(horizontal: 10.spMin, vertical: 5.spMin),
+                    inputDecoration: InputDecoration(
                       isDense: true,
-                      constraints: BoxConstraints(),
-                      border: OutlineInputBorder(),
-                      enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: AppC.borderColor, width: Num.borderWidthButton))
-                    )
-                  ),
-                ),
+                      contentPadding: 10.spMin.padding,
+                      enabledBorder: border,
+                      border: border,
+                      hintStyle: context.textTheme.labelMedium?.copyWith(color: Colors.black87),
+                      hintText: "Search..."
+                    ),
+                    checkColor: Colors.white,
+                    fillColor: WidgetStateColor.resolveWith((states) => (states.contains(WidgetState.selected)) ? AppC.appColor : AppC.trans),
+                    boxDecoration: BoxDecoration(
+                      border: Border.all(color: AppC.borderColor, width: Num.borderWidthButton),
+                      borderRadius: BorderRadius.circular(5.spMin)),
+                    isLarge: true,
+                    checkboxFillColor: AppC.appColor,
+                    splashColor: AppC.trans,
+                    itemAsString: (item) => item?['cohort'] ?? "",
+                    onChange: (value) => context.read<RevenueBloc>().add(CohortEvent(value))),
                 CompactSearchView(
                   controller: context.read<RevenueBloc>().searchController,
                   onChanged: (value) => context.read<RevenueBloc>().add(SearchEvent(value)),
