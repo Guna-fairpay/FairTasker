@@ -567,8 +567,8 @@ class _CommentsUIState extends State<CommentsUI> {
                                 ),
                                 scrollController: ScrollController(),
                                 focusNode: FocusNode(),
-                                configurations:
-                                    const quill.QuillEditorConfigurations(
+                                config:
+                                    const quill.QuillEditorConfig(
                                   scrollable: false,
                                   autoFocus: false,
                                   expands: false,
