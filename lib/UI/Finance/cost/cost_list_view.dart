@@ -32,19 +32,21 @@ class CostListView extends StatelessWidget {
                 expandTitle: true,
                 title: CompactText("Total: \$${context.watch<CostBloc>().totalAmount}", textAlign: TextAlign.end, fontWeight: FontWeight.w900, color: AppC.lightDark, styleType: TextStyleType.titleMedium),
               ),
-              Flexible(child: Table(
-                defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                columnWidths: const {
-                  0 : IntrinsicColumnWidth(),
-                  1 : FlexColumnWidth(2),
-                  2: IntrinsicColumnWidth(),
-                },
-                border: const TableBorder(horizontalInside: BorderSide(color: AppC.borderColor, width: Num.borderWidthButton)),
-                children: [
-                  TableHeaderRow(labels: const ["Date", "Category", "Amount"], backgroundColor: AppC.appbgColor, borderRadius: BorderRadius.vertical(top: Radius.circular(5.sp)), padding: 7.spMin.padding),
-                  ...List.generate((state is LoadingState) ? 10 : 0, (index) => <String, dynamic>{}).map((e) => CostTableRow(context, e)).toList() ?? [],
-                  ...context.watch<CostBloc>().filteredData?.map((e) => CostTableRow(context, e)).toList() ?? [],
-                ],
+              Flexible(child: SingleChildScrollView(
+                child: Table(
+                  defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                  columnWidths: const {
+                    0 : IntrinsicColumnWidth(),
+                    1 : FlexColumnWidth(2),
+                    2: IntrinsicColumnWidth(),
+                  },
+                  border: const TableBorder(horizontalInside: BorderSide(color: AppC.borderColor, width: Num.borderWidthButton)),
+                  children: [
+                    TableHeaderRow(labels: const ["Date", "Category", "Amount"], backgroundColor: AppC.appbgColor, borderRadius: BorderRadius.vertical(top: Radius.circular(5.sp)), padding: 7.spMin.padding),
+                    ...List.generate((state is LoadingState) ? 10 : 0, (index) => <String, dynamic>{}).map((e) => CostTableRow(context, e)).toList() ?? [],
+                    ...context.watch<CostBloc>().filteredData?.map((e) => CostTableRow(context, e)).toList() ?? [],
+                  ],
+                ),
               )),
               CompactPagination(totalPages: context.watch<CostBloc>().totalPages, currentPage: context.watch<CostBloc>().currentPage, onPageChanged: (value) => context.read<CostBloc>().add(PaginationEvent(value))),
             ],

@@ -1,10 +1,6 @@
 import 'package:fairpytasker/Component/compact_bottom_bar_item.dart';
 import 'package:fairpytasker/Component/drawer_ui.dart';
-import 'package:fairpytasker/UI/Finance/Expense/Component/expense_tap_ui.dart';
-import 'package:fairpytasker/UI/Finance/Finance/profit&loss_ui.dart';
-import 'package:fairpytasker/UI/Finance/Invoice/invoice_view_ui.dart';
 import 'package:fairpytasker/UI/Finance/expense_main/expense_main_screen.dart';
-import 'package:fairpytasker/UI/Finance/revenue/ui/revenue_main_ui.dart';
 import 'package:fairpytasker/UI/vehicle_status/vehicle_status_list/vehicle_status_list_ui.dart';
 import 'package:fairpytasker/UI/notes/notes_main_ui.dart';
 import 'package:fairpytasker/UI/tasker/tasker_main_ui.dart';

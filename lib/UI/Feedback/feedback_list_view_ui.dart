@@ -328,7 +328,7 @@ class _FeedbackListViewUIState extends State<FeedbackListViewUI> {
                                 ),
                                 scrollController: ScrollController(),
                                 focusNode: FocusNode(),
-                                configurations: const quill.QuillEditorConfigurations(
+                                config: const quill.QuillEditorConfig(
                                   floatingCursorDisabled: false,
                                   showCursor: false,
                                 ),

@@ -8,6 +8,8 @@ import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_quill/quill_delta.dart';
+import 'package:flutter_quill_delta_from_html/parser/html_to_delta.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'package:flutter/material.dart';
@@ -118,7 +120,8 @@ class _FeedbackEditViewUIState extends State<FeedbackEditViewUi> {
 
     titleController = TextEditingController(text: widget.feedbacks['title']);
     descriptionController = quill.QuillController(
-      document: quill.Document.fromHtml("${widget.feedbacks['description']}"),
+      // document: quill.Document.fromHtml("${widget.feedbacks['description']}"),
+      document: quill.Document.fromDelta(HtmlToDelta().convert("${widget.feedbacks['description']}")),
       selection: const TextSelection.collapsed(offset: 0),
     );
     imagePaths =
@@ -354,10 +357,10 @@ class _FeedbackEditViewUIState extends State<FeedbackEditViewUi> {
                       scrollDirection: Axis.horizontal,
                       child: SizedBox(
                         height: 50,
-                        child: quill.QuillToolbar.simple(
+                        child: quill.QuillSimpleToolbar(
                           controller: descriptionController,
-                          configurations:
-                              quill.QuillSimpleToolbarConfigurations(
+                          config:
+                              quill.QuillSimpleToolbarConfig(
                             showSmallButton: false,
                             showSearchButton: false,
                             showClipboardCopy: false,
@@ -383,7 +386,7 @@ class _FeedbackEditViewUIState extends State<FeedbackEditViewUi> {
                         controller: descriptionController,
                         scrollController: ScrollController(),
                         focusNode: FocusNode(),
-                        configurations: const quill.QuillEditorConfigurations(
+                        config: const quill.QuillEditorConfig(
                           placeholder: 'Add a comment...',
                           floatingCursorDisabled: false,
                         ),

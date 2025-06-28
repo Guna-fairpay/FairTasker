@@ -345,9 +345,9 @@ class _FeedbackAddUIState extends State<FeedbackAddUIState> {
                 scrollDirection: Axis.horizontal,
                 child: SizedBox(
                   height: 50,
-                  child: quill.QuillToolbar.simple(
+                  child: quill.QuillSimpleToolbar(
                     controller: descriptionController,
-                    configurations: quill.QuillSimpleToolbarConfigurations(
+                    config: quill.QuillSimpleToolbarConfig(
                       showSmallButton: false,
                       showSearchButton: false,
                       showClipboardCopy: false,
@@ -373,7 +373,7 @@ class _FeedbackAddUIState extends State<FeedbackAddUIState> {
                   controller: descriptionController,
                   scrollController: ScrollController(),
                   focusNode: FocusNode(),
-                  configurations: const quill.QuillEditorConfigurations(
+                  config: const quill.QuillEditorConfig(
                     placeholder: 'Add a comment...',
                     floatingCursorDisabled: false,
                   ),

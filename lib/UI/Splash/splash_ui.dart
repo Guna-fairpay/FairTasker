@@ -105,11 +105,11 @@ class SplashScreen extends StatelessWidget {
                       alignment: Alignment.bottomCenter,
                       child: Padding(
                         padding: EdgeInsetsGeometry.only(bottom: 30.spMin),
-                        child: AnimatedCrossFade(
+                        child: FutureBuilder(future: getIt<CommonService>().getPackageInfo(), builder: (context, snapshot) => AnimatedCrossFade(
                             firstChild: const CompactText('Fetching version'),
-                            secondChild: const CompactText('Version: 1.0.5'),
-                            crossFadeState: (getIt<CommonService>().packageInfo?.version.isNotNullOrEmpty ?? false) ? CrossFadeState.showSecond : CrossFadeState.showFirst,
-                            duration: Durations.extralong4),
+                            secondChild: CompactText('Version: ${snapshot.data?.version}'),
+                            crossFadeState: (snapshot.data != null) ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+                            duration: Durations.extralong4)),
                       ),
                     ),
                   ],
