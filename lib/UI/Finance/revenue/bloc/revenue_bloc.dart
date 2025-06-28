@@ -151,7 +151,7 @@ class RevenueBloc extends Bloc<RevenueEvent, RevenueState> {
   }
 
   void _onCohortEvent(CohortEvent event, Emitter<RevenueState> emit) async {
-    selectedCohorts = event.cohort;
+    selectedCohorts = List<Map<String, dynamic>>.from(event.cohort);
     emit(LoadingState());
     await fetchData();
     add(SearchEvent(searchController.text));
