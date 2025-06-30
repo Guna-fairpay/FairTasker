@@ -4,6 +4,9 @@ import 'dart:io';
 import 'dart:convert';
 import 'dart:developer';
 import 'package:fairpytasker/UI/dialog/oil_change_exist_dialog.dart';
+import 'package:flutter_quill/flutter_quill.dart';
+import 'package:flutter_quill_delta_from_html/parser/html_to_delta.dart';
+import 'package:vsc_quill_delta_to_html/vsc_quill_delta_to_html.dart';
 
 import 'edit_todo_event.dart';
 import 'edit_todo_state.dart';
@@ -49,6 +52,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   final TextEditingController tripDrivenController = TextEditingController();
   final TextEditingController resolutionNotesController = TextEditingController();
   final TextEditingController commentsController = TextEditingController();
+  QuillController quillController = QuillController.basic();
 
   int? get branchId => Session.of.getInt(Str.branchIdPrefText);
   String? get currentUserId => Session.of.getString(Str.userIdPrefText);
@@ -230,6 +234,10 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     var selectedUser = resources
         .where((element) => element['id'].toString() == currentUserId)
         .toList();
+    if(todoResponse?['identifier_id'] == 358) {
+      quillController?.document = Document.fromDelta(
+          HtmlToDelta().convert(todoResponse?['rental_enquiry'] ?? ''));
+    }
     timeController.text = todoResponse?['todo_time'] ?? '';
     dateController.text = todoResponse?['todo_date'] ?? '';
     notesController.text = todoResponse?['notes'] ?? '';
@@ -1150,6 +1158,9 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
 
     baseBody['person'] = firstPerson?['name']?.toString() ?? "";
     baseBody['person_id'] = firstPerson?['id']?.toString() ?? "";
+    baseBody['rental_enquiry'] = QuillDeltaToHtmlConverter(
+      (quillController).document.toDelta().toJson(),
+      ConverterOptions.forEmail(),).convert();
     baseBody['type'] = "inline";
 
     var groupVehicleList = state.selectedVPerson
