@@ -1,6 +1,7 @@
 import 'package:fairpytasker/Component/custom_searcher_view.dart';
 import 'package:fairpytasker/Component/simple_popup_menu.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/UI/vehicle_main_view_ui.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/leads/ui/leads_main_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Employees/Employees/Employee_List_Page/UI/employee_main_page.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
@@ -101,20 +102,23 @@ class CustomVehiclePersonField extends StatelessWidget {
                 labelText: labelText,
                 autoClear: true,
                 showEmpty: true,
+                alwayShowSuffix: true,
                 itemAsStringSearch: (item) => List<String>.from(item['searchBy'] ?? []).join(", "),
                 onEmptyTapDetails: (details) async {
                   SimplePopUpMenu.instance.show(
                     context,
                     position: details.globalPosition,
-                    items: ["Vehicle", "Person"],
+                    items: ["Vehicle", "Person", "Leads"],
                     onTap: (item) async {
                       if (onEmptyAsync != null) {
                         onEmptyAsync?.call();
                         await Future.delayed(Durations.short1);
                       }
-                      item == "Vehicle"
-                          ? context.push(const VehicleMainViewUi())
-                          : context.push(const EmployeeMainPage());
+                      context.push(switch(item) {
+                        "Person" => const EmployeeMainPage(),
+                        "Leads" => const LeadsMainUI(),
+                        _ => const VehicleMainViewUi(),
+                      });
                     },
                   );
                 },
