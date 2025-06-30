@@ -282,8 +282,8 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
         (state.selectedLinkOption?['id'] == 1) ? customLinkController.text : "";
     baseBody['reference_id'] =
         (state.selectedLinkOption?['id'] != 1) ? customLinkController.text : "";
-    if (state.selectedTaskIdentifier.containsKey(1) && (state.selectedTaskIdentifier[1]?['id'] == 358)) {
-      if (enquiryController.pastePlainText.trim().isNotNullOrEmpty) {
+    if (baseBody['identifier_id'].toString().contains("358")) {
+      if (enquiryController.document.toPlainText().trim().isNotNullOrEmpty) {
         baseBody['rental_enquiry'] = QuillDeltaToHtmlConverter(enquiryController.document.toDelta().toJson(), ConverterOptions.forEmail()).convert();
       }
     }
@@ -575,7 +575,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
         if (lastVin.toString().isNotNullOrEmpty) return await _findOilChangeTaskExist(vin: lastVin);
       }
 
-      emit(state.copyWith(isLoading: true));
+      // emit(state.copyWith(isLoading: true));
       var files = state.attachments.whereType<File>().map((e) => {"images" : e.path}).toList();
       var response = await _apiRepository.addToDo(body: _addTodoBody(), infusedFiles: files);
       if ((response?.isNotEmpty ?? false) && (response?['status'] == 200)) Toaster.showSuccess(response?['message'] ?? "Success");
