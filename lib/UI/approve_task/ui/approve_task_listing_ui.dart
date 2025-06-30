@@ -136,11 +136,16 @@ class ApproveTaskListingUI extends StatelessWidget {
                             ),
                             if(item?['extraMin'] != null)
                             RichText(
-                                text: TextSpan(children: [
-                                  TextSpan(text: item?['extraMin'], style: const TextStyle(color: AppC.redAccent, fontWeight: FontWeight.bold)),
-                                  if(item?['notes_complete'] != null)
-                                    TextSpan(text: ' - ${item?['notes_complete']}', style: const TextStyle(color: AppC.text, fontWeight: FontWeight.bold)),
-                                ],),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              text: TextSpan(children: [
+                                TextSpan(text: item?['extraMin'], style: const TextStyle(color: AppC.redAccent, fontWeight: FontWeight.bold)),
+                                if(item?['notes_complete'] != null)
+                                  TextSpan(
+                                      recognizer: TapGestureRecognizer()..onTap = () => NotesDialog.show(context, message: item?['notes_complete']),
+                                      text: ' - ${item?['notes_complete']}',
+                                      style: const TextStyle(color: AppC.text, fontWeight: FontWeight.bold,)),
+                              ],),
                             ),
                           ],
                         ),

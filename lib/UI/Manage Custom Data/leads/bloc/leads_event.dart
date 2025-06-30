@@ -5,7 +5,12 @@ abstract class LeadsEvent extends Equatable{
   List<Object?> get props => [];
 }
 
-class InitialEvent extends LeadsEvent {}
+class InitialEvent extends LeadsEvent {
+  final dynamic customerName;
+  InitialEvent(this.customerName);
+  @override
+  List<Object?> get props => [customerName];
+}
 
 class ShowMoreEvent extends LeadsEvent {}
 

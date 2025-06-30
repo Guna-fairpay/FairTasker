@@ -1,9 +1,7 @@
-import 'dart:convert';
 import 'dart:math';
 
 import 'package:equatable/equatable.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
-import 'package:fairpytasker/Utilities/Utils.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/int_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
@@ -54,7 +52,6 @@ class ApproveTaskBloc extends Bloc<ApproveTaskEvent, ApproveTaskState>{
   void _onHideSupportEvent(HideSupportEvent event, Emitter<ApproveTaskState> emit) {
     try{
       hideSupport = !hideSupport;
-      //_hideSupport();
       _extraHours();
       emit(CommonState());
     }catch(e){
@@ -134,7 +131,6 @@ class ApproveTaskBloc extends Bloc<ApproveTaskEvent, ApproveTaskState>{
 
   Future<void> fetchData() async {
     var response = await _getApproveTask(fromDate: selectedDateRange.start.toFormat(), toDate: selectedDateRange.end.toFormat());
-    Console.of.log(jsonEncode(response?['data']));
     apiResponse = List.from(response?['data'] ?? [])
         .map((e) {
           if((e['complete_time_taken'] != null) && (e['complete_time_taken'] != e['allotted_time'])){
@@ -147,8 +143,6 @@ class ApproveTaskBloc extends Bloc<ApproveTaskEvent, ApproveTaskState>{
             return e;
           }
     }).toList();
-   // filterResponse = apiResponse;
-   //  _hideSupport();
     _extraHours();
   }
 
@@ -169,13 +163,4 @@ class ApproveTaskBloc extends Bloc<ApproveTaskEvent, ApproveTaskState>{
       filterResponse = apiResponse;
     }
   }
-  // void _hideSupport() {
-  //   Console.of.log(hideSupport);\
-  // if (hideSupport) {
-  // filterResponse = apiResponse?.where((task) => task['todo_user_type'] != 1).toList();
-  // }
-  //   else{
-  //     filterResponse = apiResponse;
-  //   }
-  // }
 }
