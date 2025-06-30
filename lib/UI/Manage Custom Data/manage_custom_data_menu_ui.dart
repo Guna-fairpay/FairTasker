@@ -18,7 +18,7 @@ class ManageCustomDataMenuUI extends StatelessWidget with ManageCustomDataRoutes
         onClose: context.pop,
       ),
       body: SafeArea(
-        minimum: 10.sp.padding,
+        minimum: 10.spMin.padding,
         child: ListView.separated(
           itemCount: routes.entries.length,
           itemBuilder: (context, index) {

@@ -116,7 +116,7 @@ class CustomVehiclePersonField extends StatelessWidget {
                       }
                       context.push(switch(item) {
                         "Person" => const EmployeeMainPage(),
-                        "Leads" => const LeadsMainUI(),
+                        "Leads" => LeadsMainUI(customerName: controller?.text ?? ""),
                         _ => const VehicleMainViewUi(),
                       });
                     },
