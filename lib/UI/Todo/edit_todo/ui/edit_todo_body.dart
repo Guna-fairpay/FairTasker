@@ -1,4 +1,5 @@
 
+import 'package:fairpytasker/Component/custom_quill_editor.dart';
 import 'package:fairpytasker/Component/custom_searcher_view.dart';
 import 'package:fairpytasker/Component/custom_vehicle_person_field.dart';
 import 'package:fairpytasker/Component/custom_vendor_location_field.dart';
@@ -142,9 +143,15 @@ class EditTodoBody extends StatelessWidget {
                         ?.copyWith(color: context.theme.hintColor),
                     style: context.textTheme.labelLarge
                         ?.copyWith(fontFamily: "Lato"),
-                    readOnly: false,
-                    onChangeCallback: (value) {}),
+                    ),
                 10.height,
+                if(state.apiResponse['identifier_id'] == 358)...[
+                  CustomQuillEditor(
+                    controller: context.read<EditToDoBloc>().quillController,
+                  ),
+                  10.height,
+                ],
+
                 if(state.apiResponse['maintenance_task_id'] != null && state.apiResponse['comments'] != null)...[
                   Utils.getTextFormField(
                     'Comments', context.read<EditToDoBloc>().commentsController,
@@ -154,8 +161,6 @@ class EditTodoBody extends StatelessWidget {
                         ?.copyWith(color: context.theme.hintColor),
                     style: context.textTheme.labelLarge
                         ?.copyWith(fontFamily: "Lato"),
-                    readOnly: false,
-                    onChangeCallback: (value) {},
                     minLines: 3,
                     maxLines: 3,
                   ),
