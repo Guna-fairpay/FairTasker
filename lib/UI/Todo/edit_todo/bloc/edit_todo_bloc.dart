@@ -286,11 +286,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       for (var group in userGroupResponse) {
         if (group['id'] == todoResponse?['user_group_id']) {
           var decodedList = List.from(json.decode(group['userId'] ?? '') ?? []);
-          if (decodedList is List) {
-            selectedIds = decodedList.map((e) => e.toString()).toList();
-          } else {
-            selectedIds = [];
-          }
+          selectedIds = decodedList.map((e) => e.toString()).toList();
         }
       }
     }
@@ -1008,13 +1004,13 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       var response = await _getOilChangeTask(vin: vin);
       emit(state.copyWith(isLoading: false));
       var context = CommonHelper.instance.navigatorKey.currentContext;
-      if ((response == null) || (response?.isEmpty ?? false)) return add(EditToDoSaveEvent(overrideOilCheck: true));
+      if ((response == null) || (response.isEmpty)) return add(EditToDoSaveEvent(overrideOilCheck: true));
       if (context != null) {
         var result = await OilChangeTaskExistDialog.show(context, model: response, isAddNew: false);
         Utils.dismissKeyboard(context);
         if (result == true) {
           emit(state.copyWith(isLoading: true));
-          var deleteResponse = await _deleteToDo(todoId: response?['id']);
+          var deleteResponse = await _deleteToDo(todoId: response['id']);
           emit(state.copyWith(isLoading: false));
           if (deleteResponse?['status'] == 200) return add(EditToDoSaveEvent(overrideOilCheck: true));
         }
@@ -1283,13 +1279,6 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     var result = await ImagePicker().pickMultiImage();
     return result.map((e) => File(e.path)).toList();
   }
-
-  Future<Map<String, dynamic>?> _getPreviousOdometer(
-      {required String date,
-        required String vin,
-        required dynamic identifierId}) async =>
-      await apiRepository.getPreviousOdometer(
-          date: date, vin: vin, identifierId: identifierId);
 
   var tabs = List.from(AddToDoConfig.editTodoBottomTaps);
 
