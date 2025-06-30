@@ -658,14 +658,15 @@ class APiRepository {
   Future<Map<String, dynamic>?> updateTodoExpense(
       {Map<String, dynamic>? body,
       List<File>? images,
-      String? expenseId}) async {
+      dynamic expenseId}) async {
     try {
       String apiUrl = '';
-      if (expenseId.isNotNullOrEmpty) {
+      if (expenseId != null) {
         apiUrl = "${Str.LIST_BASE_URL}$_updateExpense/$expenseId";
       } else {
         apiUrl = "${Str.LIST_BASE_URL}$_expenses";
       }
+      Console.of.log("🐅 ${jsonEncode(body)}", name: "PAYLOAD");
       final http.Response? response = await _apiClient.callPostMethodWithBody(
           apiUrl,
           body: body?..putIfAbsent('type', () => "inline"),
