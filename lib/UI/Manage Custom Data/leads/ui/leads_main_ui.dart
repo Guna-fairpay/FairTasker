@@ -24,7 +24,8 @@ part 'leads_text_form_field_ui.dart';
 part 'leads_listing_ui.dart';
 
 class LeadsMainUI extends StatelessWidget {
-  const LeadsMainUI({super.key});
+  final dynamic customerName;
+  const LeadsMainUI({super.key, this.customerName});
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +35,7 @@ class LeadsMainUI extends StatelessWidget {
         onClose: context.pop,
       ),
       body: BlocProvider(
-        create: (context) => LeadsBloc()..add(InitialEvent()),
+        create: (context) => LeadsBloc()..add(InitialEvent(customerName)),
           child: BlocListener<LeadsBloc, LeadsState>(
             listener: (context, state) {
               if(state is LoadingState){

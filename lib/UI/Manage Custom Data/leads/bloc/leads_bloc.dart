@@ -92,6 +92,7 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState>{
 
   Future<void> _onInitialEvent(InitialEvent event, Emitter<LeadsState> emit) async {
     try{
+      if(event.customerName != null) customerNameController.text = event.customerName;
       emit(LoadingState());
       await fetchData();
       emit(CommonState());
