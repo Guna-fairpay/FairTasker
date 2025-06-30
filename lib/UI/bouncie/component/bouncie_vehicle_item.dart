@@ -8,7 +8,6 @@ class BouncieVehicleItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var vImage = List.from(model?['images'] ?? []).firstWhereOrNull((element) => element['vehicle_image_type'] == 1)?['path'].toString().toStorageURL;
-    Console.of.log(vImage ?? "", name: "V_IMAGE");
     return RowTile(
       spacing: 10.spMin,
       leading: CircleAvatar(

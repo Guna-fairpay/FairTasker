@@ -27,6 +27,7 @@ class VendorTextFormFieldUI extends StatelessWidget {
                 selectedItem: (context.watch<VendorBloc>().selectedVendorType != null) ? null : context.watch<VendorBloc>().selectedVendorType,
                 onEmptyTap: () => context.read<VendorBloc>().add(VendorTypeEvent(context.read<VendorBloc>().vendorTypeController.text,)),
                 showEmpty: true,
+                alwayShowSuffix: true,
                 labelText: 'Vendor Type',
                 hintText: "Select Vendor Type",
               ),
