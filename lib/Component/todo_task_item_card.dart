@@ -159,7 +159,7 @@ class TodoTaskItemCard extends StatelessWidget {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Flexible(
-                                child: Hero(tag: model['id'].toString(), child: Text.rich(TextSpan(
+                                child: Text.rich(TextSpan(
                                     children: [
                                       TextSpan(
                                           recognizer: TapGestureRecognizer()..onTap = onTap,
@@ -188,7 +188,7 @@ class TodoTaskItemCard extends StatelessWidget {
                                 ), maxLines: 1,
                                     textAlign: TextAlign.center,
                                     overflow: TextOverflow.ellipsis,
-                                    style: context.textTheme.labelMedium?.copyWith(color: AppC.appColor, fontSize: 12.sp))),
+                                    style: context.textTheme.labelMedium?.copyWith(color: AppC.appColor, fontSize: 12.sp)),
                               ),
                               if (model['display']?['hasCustomLink'] ?? false)
                                 GestureDetector(

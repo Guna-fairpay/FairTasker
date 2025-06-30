@@ -1,3 +1,4 @@
+import 'package:fairpytasker/core/app/helper/dummy_data_provider.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/UI/tasker/bloc/tasker_todo_events.dart';
 import 'package:fairpytasker/UI/tasker/bloc/tasker_todo_states.dart';
@@ -5,15 +6,12 @@ import 'package:fairpytasker/Component/compact_scroll_wrapper.dart';
 import 'package:fairpytasker/UI/tasker/bloc/tasker_todo_bloc.dart';
 import 'package:fairpytasker/Component/todo_task_item_card.dart';
 import 'package:fairpytasker/UI/dialog/show_notes_dialog.dart';
-import 'package:fairpytasker/core/app/helper/dummy_data_provider.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
-import 'package:fairpytasker/Component/custom_loader.dart';
 import 'package:fairpytasker/Component/empty_widget.dart';
 import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter/material.dart';
 import 'package:skeletonizer/skeletonizer.dart';
+import 'package:flutter/material.dart';
 
 class TaskerListingUi extends StatelessWidget {
   const TaskerListingUi({super.key});
