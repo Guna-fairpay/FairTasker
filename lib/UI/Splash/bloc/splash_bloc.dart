@@ -22,7 +22,7 @@ class SplashBloc extends Bloc<SplashEvent, SplashState> {
   }
 
   void _onInitialEvent(InitialEvent event, Emitter<SplashState> emit) async {
-    await CommonHelper.instance.waitForPostFrameCallback();
+    await CommonHelper.instance.waitForPostFrameCallback(withDelay: true);
     emit(LoadingState());
     await getIt<CommonService>().initialFetch();
     var hasBiometrics = await _auth.getAvailableBiometrics();

@@ -5,7 +5,6 @@ import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/UI/Splash/bloc/splash_bloc.dart';
 import 'package:fairpytasker/UI/authentication/local_authentication_ui.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
-import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:flutter/services.dart';
 import 'package:fairpytasker/UI/authentication/authentication_ui.dart';
