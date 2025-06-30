@@ -4,15 +4,17 @@ import 'package:fairpytasker/UI/Manage%20Employees/permission/permission_listing
 import 'package:fairpytasker/UI/Manage%20Employees/role/role_view_page/ui/role_view_main_ui.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:remixicon/remixicon.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 mixin ManageEmployeesRoutes {
+
+  bool get _isAdmin => getIt<CommonService>().isAdminStrict;
+
   Map<String, Widget> get routes => {
     "Employees" : const EmployeeMainPage(),
-    if (getIt<CommonService>().isAdmin || kDebugMode) "Departments" : const DepartmentViewMainUI(),
-    if (getIt<CommonService>().isAdmin || kDebugMode) "Roles" : const RoleViewMainUI(),
-    if (getIt<CommonService>().isAdmin || kDebugMode) "Permissions" : const PermissionListingMainUI()
+    if (_isAdmin) "Departments" : const DepartmentViewMainUI(),
+    if (_isAdmin) "Roles" : const RoleViewMainUI(),
+    if (_isAdmin) "Permissions" : const PermissionListingMainUI()
   };
 
   Map<String, IconData> get icons => {
