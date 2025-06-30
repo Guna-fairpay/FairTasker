@@ -5,7 +5,6 @@ import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
 import 'package:fairpytasker/Remote/downloader.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
-import 'package:fairpytasker/Repository/report_repository.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
@@ -123,7 +122,6 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState>{
     _debouncer?.cancel();
     _debouncer = Timer(const Duration(seconds: 1), () => add(SearchEvent(query)));
   }
-
 
   @override
   Future<void> close() {
