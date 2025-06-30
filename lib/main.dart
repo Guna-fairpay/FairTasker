@@ -23,7 +23,7 @@ void main() {
     await Session.of.init();
     Initializer.of.init(); // GET_IT INITIALIZATION
     WorkManagerBridge.setupMainIsolatePort();
-    await Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
+    await Workmanager().initialize(callbackDispatcher, isInDebugMode: kDebugMode);
     FlutterError.onError = (error) {
       FlutterError.presentError(error);
       FirebaseCrashlytics.instance.recordFlutterFatalError(error);
