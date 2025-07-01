@@ -22,7 +22,10 @@ class TaskHourSummeryBloc extends Bloc<TaskHourSummeryEvent, TaskHourSummeryStat
     try {
       emit(TaskHourSummeryLoadingState());
       hourSummeryData = event.hourSummeryData ?? [];
-      total = event.hourSummeryData?.map((e) => e['total'].toString().toNumeric).sum ?? 0;
+      Console.of.log(hourSummeryData);
+      total = event.hourSummeryData?.where((element) => !element['task_name'].toString().toLowerCase().contains("other")).map((e) => e['total'].toString().toNumeric).sum ?? 0;
+      final otherAmount = event.hourSummeryData?.where((element) => element['task_name'].toString().toLowerCase().contains("other")).map((e) => e['hour_amount'].toString().toNumeric).sum ?? 0;
+      total+=otherAmount;
       emit(TaskHourSummeryCommonState());
     }catch (e) {
       _error("TaskHourSummeryInitialEvent :( ${e.toString()}");
