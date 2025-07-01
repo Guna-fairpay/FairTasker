@@ -103,98 +103,103 @@ class NotesItemCard extends StatelessWidget {
                     ),
                   ],
                 ),
-              ),
-                children: [
-                  ReorderableListView.builder(
-                      shrinkWrap: true,
-                      buildDefaultDragHandles: false,
-                      physics: const NeverScrollableScrollPhysics(),
-                      padding: 26.sp.horizontalPadding.copyWith(bottom: 10.sp),
-                      itemCount: (List.from(model?[ (isSharedNotes) ? 'products_items' : 'note_items'] ?? []).length) + 1,
-                      itemBuilder: (context, index) {
-                        var list = List.from(model?[(isSharedNotes) ? 'products_items' : 'note_items'] ?? []);
-                        var totalIndex = list.length - 1;
-                        var item = (index > totalIndex) ? null : list[index];
-                        return (item == null) ? DragTarget<Map<String, dynamic>>(
-                          key: Key("$index"),
-                          builder: (context, candidateData, rejectedData) => Container(
-                            padding: (candidateData.isNotEmpty ? 20 : 1).padding,
-                            color: candidateData.isNotEmpty
-                                ? AppC.blue50
-                                : Colors.transparent,
-                          ),
-                          onAcceptWithDetails: (details) => _onAcceptWithDetails(details, list, index),
-                        ) : Column(
-                          key: Key("${item['id']}"),
-                          children: [
-                            DragTarget<Map<String, dynamic>>(
-                              builder: (context, candidateData, rejectedData) => Container(
-                                padding: (candidateData.isNotEmpty ? 20 : 1).padding,
-                                color: candidateData.isNotEmpty
-                                    ? AppC.blue50
-                                    : Colors.transparent,
                               ),
-                              onAcceptWithDetails: (details) => _onAcceptWithDetails(details, list, index),
+                children: [
+                  Container(
+                    decoration: const BoxDecoration(
+                      border: Border(top: BorderSide(color: AppC.borderColor, width: Num.borderWidthButton)),
+                    ),
+                    child: ReorderableListView.builder(
+                        shrinkWrap: true,
+                        buildDefaultDragHandles: false,
+                        physics: const NeverScrollableScrollPhysics(),
+                        padding: 26.sp.horizontalPadding.copyWith(bottom: 10.sp),
+                        itemCount: (List.from(model?[ (isSharedNotes) ? 'products_items' : 'note_items'] ?? []).length) + 1,
+                        itemBuilder: (context, index) {
+                          var list = List.from(model?[(isSharedNotes) ? 'products_items' : 'note_items'] ?? []);
+                          var totalIndex = list.length - 1;
+                          var item = (index > totalIndex) ? null : list[index];
+                          return (item == null) ? DragTarget<Map<String, dynamic>>(
+                            key: Key("$index"),
+                            builder: (context, candidateData, rejectedData) => Container(
+                              padding: (candidateData.isNotEmpty ? 20 : 1).padding,
+                              color: candidateData.isNotEmpty
+                                  ? AppC.blue50
+                                  : Colors.transparent,
                             ),
-                            LongPressDraggable<Map<String, dynamic>>(
-                              data: item,
-                              feedback: Text("${item['title'] ?? ""}"),
-                              child: Column(
-                                spacing: 5.sp,
-                                mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  RowTile(
-                                    expandTitle: true,
-                                    onTap: () => onEditTakPressed?.call(item),
-                                    leading: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      children: [
-                                        ReorderableDragStartListener(
-                                          index: index,
-                                          child: const Icon(Icons.drag_indicator_rounded, color: AppC.appColor),
-                                        ),
-                                        Checkbox(
-                                          value: (item['todos']?['status'].toString().isNotNullOrEmpty ?? false) ? (item['todos']?['status'] == "Completed") : (item['complete_status'] == 1),
-                                          side:
-                                          const BorderSide(width: Num.borderWidthThinField),
-                                          onChanged: (value) => onTaskComplete?.call(item, value),
-                                        ),
-                                      ],
-                                    ),
-                                    title: CompactText("${item['title'] ?? ""}", styleType: TextStyleType.labelLarge, fontWeight: FontWeight.bold,
-                                        decoration: (isSharedNotes ? ((item?['complete_status'] == 1) ? TextDecoration.lineThrough : null) : null)),
-                                    trailing: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      children: [
-                                        if (isSharedNotes)
-                                          CompactText(item?['end_date'].toString().toFormat(inputFormat: "yyyy-MM-dd", format: "MM-dd-yy") ?? "", color: AppC.grey),
-                                        if (!isSharedNotes)
-                                          GestureDetector(
-                                              onTap: () => onTimePicker?.call(item),
-                                              child: (item?['note_time'].toString().isNullOrEmpty ?? false) ? const Icon(Iconsax.clock, color: AppC.appColor) : CompactText(item?['note_time'].toString().toFormat(inputFormat: "HH:mm:ss", format: "hh:mm a") ?? "")
+                            onAcceptWithDetails: (details) => _onAcceptWithDetails(details, list, index),
+                          ) : Column(
+                            key: Key("${item['id']}"),
+                            children: [
+                              DragTarget<Map<String, dynamic>>(
+                                builder: (context, candidateData, rejectedData) => Container(
+                                  padding: (candidateData.isNotEmpty ? 20 : 1).padding,
+                                  color: candidateData.isNotEmpty
+                                      ? AppC.blue50
+                                      : Colors.transparent,
+                                ),
+                                onAcceptWithDetails: (details) => _onAcceptWithDetails(details, list, index),
+                              ),
+                              LongPressDraggable<Map<String, dynamic>>(
+                                data: item,
+                                feedback: Text("${item['title'] ?? ""}"),
+                                child: Column(
+                                  spacing: 5.sp,
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    RowTile(
+                                      expandTitle: true,
+                                      onTap: () => onEditTakPressed?.call(item),
+                                      leading: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: [
+                                          ReorderableDragStartListener(
+                                            index: index,
+                                            child: const Icon(Icons.drag_indicator_rounded, color: AppC.appColor),
                                           ),
-                                      ],
-                                    ),
-                                  ),
-                                  if ((item['description'].toString().isNotNullOrEmpty) || ((item['todos'] != null) && (item['todos']?['notes'].toString().isNotNullOrEmpty ?? false)))
-                                    Padding(
-                                      padding: 16.leftPadding,
-                                      child: Text(
-                                        item['todos']?['notes'] ?? (item['description'] ?? ""),
-                                        style: context.textTheme.labelMedium,
+                                          Checkbox(
+                                            value: (item['todos']?['status'].toString().isNotNullOrEmpty ?? false) ? (item['todos']?['status'] == "Completed") : (item['complete_status'] == 1),
+                                            side:
+                                            const BorderSide(width: Num.borderWidthThinField),
+                                            onChanged: (value) => onTaskComplete?.call(item, value),
+                                          ),
+                                        ],
+                                      ),
+                                      title: CompactText("${item['title'] ?? ""}", styleType: TextStyleType.labelLarge, fontWeight: FontWeight.bold,
+                                          decoration: (isSharedNotes ? ((item?['complete_status'] == 1) ? TextDecoration.lineThrough : null) : null)),
+                                      trailing: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: [
+                                          if (isSharedNotes)
+                                            CompactText(item?['end_date'].toString().toFormat(inputFormat: "yyyy-MM-dd", format: "MM-dd-yy") ?? "", color: AppC.grey),
+                                          if (!isSharedNotes)
+                                            GestureDetector(
+                                                onTap: () => onTimePicker?.call(item),
+                                                child: (item?['note_time'].toString().isNullOrEmpty ?? false) ? const Icon(Iconsax.clock, color: AppC.appColor) : CompactText(item?['note_time'].toString().toFormat(inputFormat: "HH:mm:ss", format: "hh:mm a") ?? "")
+                                            ),
+                                        ],
                                       ),
                                     ),
-                                  const SizedBox.shrink()
-                                ],
+                                    if ((item['description'].toString().isNotNullOrEmpty) || ((item['todos'] != null) && (item['todos']?['notes'].toString().isNotNullOrEmpty ?? false)))
+                                      Padding(
+                                        padding: 16.leftPadding,
+                                        child: Text(
+                                          item['todos']?['notes'] ?? (item['description'] ?? ""),
+                                          style: context.textTheme.labelMedium,
+                                        ),
+                                      ),
+                                    const SizedBox.shrink()
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
-                        );
-                      }, onReorder: _onReorder),
+                            ],
+                          );
+                        }, onReorder: _onReorder)
+                  ),
                 ],
               ),
               // RowTile(

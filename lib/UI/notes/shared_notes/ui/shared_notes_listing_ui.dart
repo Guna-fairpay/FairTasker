@@ -16,7 +16,7 @@ class SharedNotesListingUI extends StatelessWidget {
                 key: UniqueKey(),
                 shrinkWrap: true,
                 physics: const BouncingScrollPhysics(),
-                padding: 16.sp.horizontalPadding,
+                padding: 10.sp.horizontalPadding,
                 itemBuilder: (context, index) {
                   var allData = context.read<SharedNotesBloc>().apiResponse;
                   var model = allData?[index];
