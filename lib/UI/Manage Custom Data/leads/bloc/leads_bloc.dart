@@ -61,6 +61,7 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState>{
 
   dynamic selectedStatus;
   dynamic editModel;
+  String searchText = '';
 
   int selectedTab = 0;
   int itemsPerPage = 10;
@@ -135,6 +136,7 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState>{
     try{
       emit(LoadingState());
       var query = event.query;
+      searchText = query;
       var response = await _getLeads(page: 1, search: query, type: '');
       if(response?['status'] == true){
         apiResponse = List.from(response?['data']?['data'] ?? []);
@@ -250,7 +252,7 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState>{
   }
 
   Future<void> fetchData() async {
-    var response = await _getLeads(page: currentIndex, search: '', type: '');
+    var response = await _getLeads(page: currentIndex, search: searchText, type: '');
     apiResponse = List.from(response?['data']?['data'] ?? []);
     totalCount = response?['data']?['total'] ?? 0;
     _unFilteredResponse = List.from(apiResponse);
