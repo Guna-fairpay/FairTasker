@@ -674,6 +674,15 @@ class CommonService {
     }
   }
 
+  List<Map<String, dynamic>> userByGroupId(int? userGroupId) {
+    if ((userGroupId == null) || (userGroupId == 0)) return [];
+    final groupPerson =  groupPersonList.firstWhereOrNull((element) => element['id'] == userGroupId);
+    final userIds = List<int>.from(jsonDecode(groupPerson?['userId'] ?? ""));
+    final result = List<Map<String, dynamic>>.from(usersList.where((element) => userIds.contains(element['id'])).toList());
+    result.sort((a, b) => a['id'].toString().compareTo(b['id'].toString()));
+    return result;
+  }
+
   void updateValues({List<Map<String, dynamic>>? userList, List<Map<String, dynamic>>? cohortsList, List<Map<String, dynamic>>? vendorsList, List<Map<String, dynamic>>? locationsList, List<Map<String, dynamic>>? partsList, List<Map<String, dynamic>>? suppliesList, List<Map<String, dynamic>>? groupVehicleList, List<Map<String, dynamic>>? activeVehicleList, List<Map<String, dynamic>>? activeVehicleCountList, List<Map<String, dynamic>>? bouncieVehicles, List<Map<String, dynamic>>? groupPersonList, List<Map<String, dynamic>>? taskExpenseDataList, List<Map<String, dynamic>>? expenseCategoriesList, List<Map<String, dynamic>>? paymentTypesList, List<Map<String, dynamic>>? resourcesList, List<Map<String, dynamic>>? branchList, List<Map<String, dynamic>>? toDoList, List<Map<String, dynamic>>? maintenanceCheckList, List<Map<String, dynamic>>? checkList, Map<String, dynamic>? vehicleStatus, List<Map<String, dynamic>>? vehicleCategories}) {
     this.usersList = userList ?? usersList;
     this.cohortsList = cohortsList ?? this.cohortsList;
