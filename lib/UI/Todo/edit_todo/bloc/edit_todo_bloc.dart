@@ -235,7 +235,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         .where((element) => element['id'].toString() == currentUserId)
         .toList();
     if(todoResponse?['identifier_id'] == 358) {
-      quillController?.document = Document.fromDelta(
+      quillController.document = Document.fromDelta(
           HtmlToDelta().convert(todoResponse?['rental_enquiry'] ?? ''));
     }
     timeController.text = todoResponse?['todo_time'] ?? '';
