@@ -48,6 +48,8 @@ class NotesBloc extends Bloc<NotesEvents, NotesStates> {
     on<ViewTabEvent>(_onViewTabEvent);
     on<TimePickerEvent>(_onTimePickerEvent);
     on<UpdateTimeEvent>(_onTimeUpdateEvent);
+    on<DeleteEvent>(_onDeleteEvent);
+    on<RemoveEvent>(_onRemoveEvent);
   }
 
   Future<Map<String, dynamic>?> _fetchNotes() async => await _apiRepository.getNotes(selectedDate: selectedDate, status: showCompletedStates);
@@ -58,7 +60,7 @@ class NotesBloc extends Bloc<NotesEvents, NotesStates> {
   Future<Map<String, dynamic>?> _updateNoteItem({dynamic id, Map<String, dynamic>? body}) async => await _apiRepository.updateNoteItem(id: id, body: body);
   Future<Map<String, dynamic>?> _swapNoteItem({Map<String, dynamic>? body}) async => await _apiRepository.swapNoteItems(body: body);
   Future<Map<String, dynamic>?> _swapNotes({Map<String, dynamic>? body}) async => await _apiRepository.swapNotes(body: body);
-
+  Future<Map<String, dynamic>?> _removeNoteItem(dynamic id) async => await _apiRepository.removeNoteItem(id: id);
 
   void _onInitialEvent(NotesInitialEvent event, Emitter<NotesStates> emit) => _refreshNotes();
 
@@ -154,8 +156,7 @@ class NotesBloc extends Bloc<NotesEvents, NotesStates> {
   void _onNotesDeleteEvent(NotesDeleteEvent event, Emitter<NotesStates> emit) async {
     try {
       emit(NotesLoadingState());
-      var response = await Future.microtask(() => _deleteNotes(id: event.data?['id']));
-      if (response != null) _refreshNotes();
+
     } catch (e) {
       Console.of.error(e);
       emit(NotesErrorState(e));
@@ -268,4 +269,28 @@ class NotesBloc extends Bloc<NotesEvents, NotesStates> {
       emit(NotesErrorState(e));
     }
   }
+
+  void _onDeleteEvent(DeleteEvent event, Emitter<NotesStates> emit){
+    try{
+      emit(DeleteNoteState(event.data));
+    }catch(e){
+      Console.of.error(e);
+      emit(NotesErrorState(e));
+    }
+  }
+
+  Future<void> _onRemoveEvent(RemoveEvent event, Emitter<NotesStates> emit) async {
+    try{
+      emit(NotesLoadingState());
+      var response = await _removeNoteItem(event.data?['id']);
+      if (response?['status'] == 200) {
+        _refreshNotes();
+        emit(SuccessState());
+      }
+    }catch(e){
+      Console.of.error(e);
+      emit(NotesErrorState(e));
+    }
+  }
+
 }

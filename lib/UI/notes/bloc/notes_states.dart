@@ -73,3 +73,15 @@ class TimePickerState extends NotesStates {
   @override
   List<Object?> get props => [model, Random().nextDouble()];
 }
+
+class DeleteNoteState extends NotesStates {
+  final dynamic data;
+  DeleteNoteState(this.data);
+  @override
+  List<Object?> get props => [data, Random().nextDouble()];
+}
+
+class SuccessState extends NotesStates {
+  @override
+  List<Object?> get props => [Random().nextDouble()];
+}

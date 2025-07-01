@@ -12,10 +12,16 @@ import 'package:iconsax/iconsax.dart';
 class NotesTaskAddEditDialog {
   NotesTaskAddEditDialog._();
 
-  static void show(BuildContext context, {required Map<String, dynamic>? model, ValueChanged<String>? onChanged, bool isEdit = false}) async {
+  static void show(BuildContext context, {
+    required Map<String, dynamic>? model,
+    ValueChanged<String>? onChanged,
+    bool isEdit = false,
+    final VoidCallback? onDeletePressed,
+    final Function(Map<String, dynamic>? value)? onTimePicker,
+  }) async {
     await showDialog(
         context: context,
-        builder: (context) => _NotesTaskAddEditDialogView(model: model, onChanged: onChanged, isEdit: isEdit),
+        builder: (context) => _NotesTaskAddEditDialogView(model: model, onChanged: onChanged, isEdit: isEdit, onDeletePressed: onDeletePressed, onTimePicker: onTimePicker,),
         barrierDismissible: true);
   }
 }
@@ -24,8 +30,10 @@ class _NotesTaskAddEditDialogView extends StatelessWidget {
   final Map<String, dynamic>? model;
   final TextEditingController _controller = TextEditingController();
   final ValueChanged<String>? onChanged;
+  final VoidCallback? onDeletePressed;
+  final Function(Map<String, dynamic>? value)? onTimePicker;
   final bool isEdit;
-  _NotesTaskAddEditDialogView({this.model, this.onChanged, required this.isEdit}) {
+  _NotesTaskAddEditDialogView({this.model, this.onChanged, required this.isEdit, this.onTimePicker, this.onDeletePressed}) {
     if (isEdit) _controller.text = model?['title'] ?? "";
   }
 
@@ -54,15 +62,17 @@ class _NotesTaskAddEditDialogView extends StatelessWidget {
               children: [
                 Flexible(child: Utils.getTextFormField("Notes", _controller)),
                 if(model != null && model?['note_time'] != null)...[
-                  Text(model?['note_time'].toString().toFormat(inputFormat: 'HH:mm', format: 'hh:mm a') ?? ''),
+                  GestureDetector(
+                    onTap: ()=> onTimePicker?.call(model),
+                      child: Text(model?['note_time'].toString().toFormat(inputFormat: 'HH:mm', format: 'hh:mm a') ?? '')),
                 ],
                 if(model?['note_time'] == null && isEdit)...[
                   GestureDetector(
-                      onTap: () {},
+                      onTap: ()=> onTimePicker?.call(model),
                       child: const Icon(Iconsax.clock, color: AppC.appColor)
                   ),
                   IconButton(
-                    onPressed: (){},
+                    onPressed: onDeletePressed,
                     icon: const Icon(Iconsax.trash),
                     color: AppC.redAccent,
                     style: const ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
@@ -71,7 +81,6 @@ class _NotesTaskAddEditDialogView extends StatelessWidget {
 
               ],
             ),
-            // Text("${model}"),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
