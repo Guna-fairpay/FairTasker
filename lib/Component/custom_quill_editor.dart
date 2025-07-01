@@ -32,7 +32,7 @@ class CustomQuillEditor extends StatelessWidget {
               showAlignmentButtons: false,
               showCenterAlignment: false,
               showCodeBlock: false,
-              showColorButton: true,
+              showColorButton: false,
               showRightAlignment: false,
               showLeftAlignment: false,
               showJustifyAlignment: false,
