@@ -26,7 +26,7 @@ class TaskDetailsCountUi extends StatelessWidget {
         ),
         GestureDetector(
           onTap: () => context.read<TaskDetailsBloc>().add(ViewAmountSummaryEvent()),
-          child: CompactText("\$${context.watch<TaskDetailsBloc>().configs?.map((e) => e['total'].toString().toNumeric).sum ?? 0}", styleType: TextStyleType.titleMedium, fontWeight: FontWeight.bold, color: Colors.white),
+          child: CompactText("\$${(context.watch<TaskDetailsBloc>().configs?.where((element) => !element['task_name'].toString().toLowerCase().contains("other")).map((e) => e['total'].toString().toNumeric).sum ?? 0) + (context.watch<TaskDetailsBloc>().configs?.where((element) => element['task_name'].toString().toLowerCase().contains("other")).map((e) => e['hour_amount'].toString().toNumeric).sum ?? 0)}", styleType: TextStyleType.titleMedium, fontWeight: FontWeight.bold, color: Colors.white),
         )
       ],
     ));
