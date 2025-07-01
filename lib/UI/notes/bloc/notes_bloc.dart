@@ -4,12 +4,14 @@ import 'dart:math';
 import 'package:equatable/equatable.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/extension/timeday_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
 part 'notes_events.dart';
 part 'notes_states.dart';
@@ -21,6 +23,7 @@ class NotesBloc extends Bloc<NotesEvents, NotesStates> {
   bool showCompletedStates = false;
   final FBroadcast _fBroadcast = FBroadcast.instance();
   int selectedPageIndex = 0;
+  TimeOfDay? editTaskTime;
   NotesBloc() : super(NotesLoadingState()) {
     _fBroadcast.register("notes_view", (value, callback) => add(NotesInitialEvent()));
     getIt<CommonService>().branchUpdate(callback: () => add(NotesInitialEvent()));
@@ -163,7 +166,12 @@ class NotesBloc extends Bloc<NotesEvents, NotesStates> {
     }
   }
 
-  void _onEditTaskTapEvent(NotesEditTaskTapEvent event, Emitter<NotesStates> emit) => emit(NotesEditTaskTapState(event.data));
+  void _onEditTaskTapEvent(NotesEditTaskTapEvent event, Emitter<NotesStates> emit) {
+    Console.of.log(event.data);
+    editTaskTime = (event.data?['note_time']).toString().toTimeOfDay();
+    Console.of.log(editTaskTime);
+    emit(NotesEditTaskTapState(event.data));
+  }
 
   void _onAddTaskTapEvent(NotesAddTaskTapEvent event, Emitter<NotesStates> emit) => emit(NotesAddTaskTapState(event.data));
 
@@ -189,6 +197,8 @@ class NotesBloc extends Bloc<NotesEvents, NotesStates> {
       var body = {
         "complete_status" : 0,
         "title" : event.input,
+        "note_time" : editTaskTime.toHMS(),
+        "type" : "Inline",
       };
       var response = await Future.microtask(() => _updateNoteItem(id: event.data?['id'], body: body));
       if (response != null) _refreshNotes();
@@ -256,14 +266,15 @@ class NotesBloc extends Bloc<NotesEvents, NotesStates> {
   void _onTimeUpdateEvent(UpdateTimeEvent event, Emitter<NotesStates> emit) async {
     try {
       emit(NotesLoadingState());
-      TimeOfDay time = event.time;
-      Map<String, dynamic>? model = event.model;
-      var body = {
-        "note_time" : time.toHMS(),
-        "type" : "inline",
-      };
-      var response = await Future.microtask(() => _updateNoteItem(id: model?['id'], body: body));
-      if (response != null) _refreshNotes();
+      editTaskTime = event.time;
+      // Map<String, dynamic>? model = event.model;
+      // var body = {
+      //   "note_time" : time.toHMS(),
+      //   "type" : "inline",
+      // };
+      // var response = await Future.microtask(() => _updateNoteItem(id: model?['id'], body: body));
+      // if (response != null) _refreshNotes();
+      emit(NotesCommonState());
     } catch (e) {
       Console.of.error(e);
       emit(NotesErrorState(e));

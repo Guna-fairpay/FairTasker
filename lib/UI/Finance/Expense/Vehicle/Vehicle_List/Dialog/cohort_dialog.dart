@@ -17,15 +17,13 @@ class CohortDialog {
   }) async {
     await showDialog(
         context: context,
-        builder: (dialogContext) {
-          return BlocProvider.value(
+        builder: (dialogContext) => BlocProvider.value(
             value: BlocProvider.of<ExpenseBloc>(context),
             child: _CohortDialog(
               expense: expense,
-                // onCompleted: onCompleted,
             ),
-          );
-        });
+          )
+        );
   }
 }
 

@@ -103,7 +103,7 @@ class NotesItemCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                              ),
+                ),
                 children: [
                   Container(
                     decoration: const BoxDecoration(
@@ -156,7 +156,7 @@ class NotesItemCard extends StatelessWidget {
                                         mainAxisSize: MainAxisSize.min,
                                         crossAxisAlignment: CrossAxisAlignment.center,
                                         children: [
-                                          ReorderableDragStartListener(
+                                          if (!isSharedNotes) ReorderableDragStartListener(
                                             index: index,
                                             child: const Icon(Icons.drag_indicator_rounded, color: AppC.appColor),
                                           ),
@@ -168,19 +168,27 @@ class NotesItemCard extends StatelessWidget {
                                           ),
                                         ],
                                       ),
-                                      title: CompactText("${item['title'] ?? ""}", styleType: TextStyleType.labelLarge, fontWeight: FontWeight.bold,
-                                          decoration: (isSharedNotes ? ((item?['complete_status'] == 1) ? TextDecoration.lineThrough : null) : null)),
+                                      title: RichText(text: TextSpan(
+                                        children: [
+                                        TextSpan(
+                                          text: "${item['title'] ?? ""}",
+                                      ),
+                                        (!isSharedNotes)?TextSpan(
+                                          text: item['note_time'].toString().isNullOrEmpty ? ""
+                                              : " (${item['note_time'].toString().toFormat(inputFormat: "HH:mm:ss", format: "hh:mm a")})")
+                                            : const TextSpan(),
+                                      ], style: context.textTheme.labelLarge?.copyWith(
+                                          fontWeight: FontWeight.bold, color: AppC.appColor,
+                                          decoration: (isSharedNotes ? ((item?['complete_status'] == 1)
+                                              ? TextDecoration.lineThrough : null)
+                                              : null)),
+                                      )),
                                       trailing: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         crossAxisAlignment: CrossAxisAlignment.center,
                                         children: [
                                           if (isSharedNotes)
                                             CompactText(item?['end_date'].toString().toFormat(inputFormat: "yyyy-MM-dd", format: "MM-dd-yy") ?? "", color: AppC.grey),
-                                          if (!isSharedNotes)
-                                            GestureDetector(
-                                                onTap: () => onTimePicker?.call(item),
-                                                child: (item?['note_time'].toString().isNullOrEmpty ?? false) ? const Icon(Iconsax.clock, color: AppC.appColor) : CompactText(item?['note_time'].toString().toFormat(inputFormat: "HH:mm:ss", format: "hh:mm a") ?? "")
-                                            ),
                                         ],
                                       ),
                                     ),

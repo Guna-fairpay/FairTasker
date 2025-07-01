@@ -171,3 +171,10 @@ class RemoveEvent extends NotesEvents {
   @override
   List<Object?> get props => [data];
 }
+
+class NotesUpdateEvent extends NotesEvents {
+  final Map<String, dynamic>? data;
+  NotesUpdateEvent(this.data);
+  @override
+  List<Object?> get props => [data];
+}
