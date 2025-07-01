@@ -145,7 +145,7 @@ class EditTodoBody extends StatelessWidget {
                         ?.copyWith(fontFamily: "Lato"),
                     ),
                 10.height,
-                if(state.apiResponse['identifier_id'] == 358)...[
+                if(state.selectedTask['id'] == 358)...[
                   CustomQuillEditor(
                     controller: context.read<EditToDoBloc>().quillController,
                   ),
