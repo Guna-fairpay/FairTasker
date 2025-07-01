@@ -49,7 +49,29 @@ class _NotesTaskAddEditDialogView extends StatelessWidget {
           spacing: 5.sp,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Utils.getTextFormField("Notes", _controller),
+            Row(
+              spacing: 10,
+              children: [
+                Flexible(child: Utils.getTextFormField("Notes", _controller)),
+                if(model != null && model?['note_time'] != null)...[
+                  Text(model?['note_time'].toString().toFormat(inputFormat: 'HH:mm', format: 'hh:mm a') ?? ''),
+                ],
+                if(model?['note_time'] == null && isEdit)...[
+                  GestureDetector(
+                      onTap: () {},
+                      child: const Icon(Iconsax.clock, color: AppC.appColor)
+                  ),
+                  IconButton(
+                    onPressed: (){},
+                    icon: const Icon(Iconsax.trash),
+                    color: AppC.redAccent,
+                    style: const ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+                  ),
+                ]
+
+              ],
+            ),
+            // Text("${model}"),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
