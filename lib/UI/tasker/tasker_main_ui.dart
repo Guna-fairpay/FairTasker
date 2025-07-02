@@ -75,7 +75,7 @@ class TaskerMainUi extends StatelessWidget {
             case ToDoTaskerTimePickerTapState(): Utils.showPickerTime(context, value: state.model?['todo_time'].toString().toTimeOfDay(), onChanged: (val) => context.read<ToDoTaskerBloc>().add(ToDoTaskerTimeChangeEvent(val, state.model))); break;
             case ToDoTaskerVendorLocationTapState(): TaskerVendorLocationDialog.show(context, state.model, onSelected: (val) => context.read<ToDoTaskerBloc>().add(ToDoTaskerVendorLocationUpdateEvent(state.model, val))); break;
             case ToDoTaskerCompleteOilChangeState(): TaskerOdometerCompleteDialog.show(context, state.model, onChanged: (currentOdometer, nextMileCheck, nextOdometer) => context.read<ToDoTaskerBloc>().add(ToDoTaskerCompleteOdometerEvent(state.model, currentOdometer, nextMileCheck, nextOdometer))); break;
-            case ToDoTaskerCompleteCheckInState(): TaskerCheckInOutCompleteDialog.show(context, state.model, isCheckOut: false); break;
+            case ToDoTaskerCompleteCheckInState(): TaskerCheckInOutCompleteDialog.show(context, state.model, isCheckOut: false, onYesterday: (value) => context.read<ToDoTaskerBloc>().add(ToDoTaskerYesterdayEvent(value))); break;
             case ToDoTaskerCompleteCheckOutState(): TaskerCheckInOutCompleteDialog.show(context, state.model, isCheckOut: true); break;
             case ToDoTaskerCompleteRentalCheckOutState(): TaskerRentalCompleteDialog.show(context, state.model, true, onCompleted: () => context.read<ToDoTaskerBloc>().add(ToDoTaskerRefreshEvent())); break;
             case ToDoTaskerCompleteRentalPickupState(): TaskerRentalCompleteDialog.show(context, state.model, false, onCompleted: () => context.read<ToDoTaskerBloc>().add(ToDoTaskerRefreshEvent())); break;

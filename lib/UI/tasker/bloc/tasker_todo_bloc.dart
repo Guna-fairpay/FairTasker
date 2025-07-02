@@ -123,6 +123,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     on<ToDoTaskerTimeSensitiveEvent>(_onTimeSensitiveEvent);
     on<ToDoTaskerViewBouncieEvent>(_onViewBouncieEvent);
     on<ToDoTaskerRemoveVehiclePersonEvent>(_onRemoveVehiclePersonEvent);
+    on<ToDoTaskerYesterdayEvent>(_onYesterdayEvent);
   }
 
   bool _isCheckInOutTask(Map<String, dynamic>? model) => _checkInOutTask.contains(model?['title']);
@@ -1177,5 +1178,11 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       Console.of.error("Error", error: e);
       emit(ToDoTaskerErrorState(e));
     }
+  }
+
+  void _onYesterdayEvent(ToDoTaskerYesterdayEvent event, Emitter<ToDoTaskerState> emit) {
+    selectedDate = event.selectedDate;
+    isCompleted = false;
+    _reFetchToDos();
   }
 }

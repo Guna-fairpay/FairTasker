@@ -361,3 +361,10 @@ class ToDoTaskerRemoveVehiclePersonEvent extends ToDoTaskerEvent {
   @override
   List<Object?> get props => [model];
 }
+
+class ToDoTaskerYesterdayEvent extends ToDoTaskerEvent {
+  final DateTime selectedDate;
+  ToDoTaskerYesterdayEvent(this.selectedDate);
+  @override
+  List<Object?> get props => [selectedDate];
+}
