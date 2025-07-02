@@ -1,15 +1,4 @@
-import 'package:fairpytasker/Component/table_header_row.dart';
-import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
-import 'package:fairpytasker/UI/resource/task_components_settings/bloc/task_components_bloc.dart';
-import 'package:fairpytasker/UI/resource/task_components_settings/bloc/task_components_event.dart';
-import 'package:fairpytasker/UI/resource/task_components_settings/bloc/task_components_state.dart';
-import 'package:fairpytasker/Utilities/appC.dart';
-import 'package:fairpytasker/Utilities/utils.dart';
-import 'package:fairpytasker/core/app/extension/sized_extension.dart';
-import 'package:fairpytasker/core/initializer/common_initializer.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+part of 'task_component_main_page.dart';
 
 class TaskBasedTable extends StatelessWidget {
   const TaskBasedTable({super.key});
@@ -37,7 +26,7 @@ class TaskBasedTable extends StatelessWidget {
             TableRowInkWell(
               child: Padding(
                 padding: 10.sp.padding,
-                child: Utils.getText(e['task_name']),
+                child: Utils.getText(e['task_name'] ?? ''),
               ),
               onTap: () => context.read<TaskComponentBloc>().add(TaskComponentEditEvent(value: e)),
             ),

@@ -1,8 +1,9 @@
 
+import 'dart:math';
+
 import 'package:collection/collection.dart';
+import 'package:equatable/equatable.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
-import 'package:fairpytasker/UI/resource/task_components_settings/bloc/task_components_event.dart';
-import 'package:fairpytasker/UI/resource/task_components_settings/bloc/task_components_state.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
@@ -10,28 +11,40 @@ import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+part 'task_components_event.dart';
+part 'task_components_state.dart';
+
 class TaskComponentBloc extends Bloc<TaskComponentEvent,TaskComponentState> {
+
   APiRepository apiRepository = APiRepository();
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   AutovalidateMode? autoValidateMode;
+
   TextEditingController taskNameController = TextEditingController();
   TextEditingController amountController = TextEditingController();
+
   List<dynamic> baseList = [
     {'id': '1', 'title': 'Task based'},
     {'id': '2', 'title': 'Hourly based'} ];
+
   List<dynamic>? apiResponse;
   List<dynamic>? taskBaseList;
   List<dynamic>? hourlyBaseList;
+  List<dynamic>? userId;
+
   dynamic selectedBase;
   dynamic selectedResource;
   dynamic editData;
+
   int selectedTab = 0;
+
   bool isHourBased = false;
   bool isEdit = false;
-  List get _resourceList => getIt<CommonService>().resourcesList;
+
+  List get _resourceList => getIt<CommonService>().usersList;
   List get resourceList {
-    var list = List.from(getIt<CommonService>().resourcesList);
-    list.removeWhere((element) => (element['id'] == 2) ||  (element['deleted_at'].toString().isNotNullOrEmpty)  || (element['branch_id'] != getIt<CommonService>().branchId) );
+    var list = List.from(getIt<CommonService>().usersList);
+    list.removeWhere((element) => (element['id'] == 2) ||  (element['deleted_at'].toString().isNotNullOrEmpty)  /*|| (element['branch_id'] != getIt<CommonService>().branchId)*/ );
     return list;
   }
 
@@ -49,11 +62,7 @@ class TaskComponentBloc extends Bloc<TaskComponentEvent,TaskComponentState> {
   Future<void> _onTaskComponentsInitialEvent(TaskComponentInitialEvent event, Emitter<TaskComponentState> emit) async {
     try {
       emit(TaskComponentLoadingState());
-      selectedBase = baseList.first;
-      await getIt<CommonService>().getResources();
-      var response = await apiRepository.getConfiguration();
-      apiResponse = response?['data'];
-      filterData(apiResponse);
+      await refetch();
       emit(TaskComponentCommentState());
     } catch (e) {
       _onError("TaskComponentInitialEvent ${e.toString()}");
@@ -112,6 +121,8 @@ class TaskComponentBloc extends Bloc<TaskComponentEvent,TaskComponentState> {
          taskNameController.text = event.value['task_name'];
          amountController.text = event.value['amount'];
        } else {
+         formKey.currentState?.reset();
+         autoValidateMode = null;
          isHourBased = true;
          taskNameController.clear();
          selectedBase = baseList.last;
@@ -127,8 +138,8 @@ class TaskComponentBloc extends Bloc<TaskComponentEvent,TaskComponentState> {
 
   void _onTaskComponentsClearAllFieldEvent(TaskComponentClearAllFieldEvent event, Emitter<TaskComponentState> emit) {
      try{
-       autoValidateMode = null;
        formKey.currentState?.reset();
+       autoValidateMode = null;
        isEdit = false;
        editData = null;
        selectedResource = null;
@@ -146,8 +157,7 @@ class TaskComponentBloc extends Bloc<TaskComponentEvent,TaskComponentState> {
        emit(TaskComponentLoadingState());
        var response = await apiRepository.deleteConfiguration(id: event.value['id']);
        if(response?['status'] == 200){
-         apiResponse?.removeWhere((element) => element['id'].toString() == event.value['id'].toString());
-         filterData(apiResponse);
+         await refetch();
        }
        if((event.value['id'].toString()) == (editData?['id'].toString())){
          add(TaskComponentClearAllFieldEvent());
@@ -164,21 +174,26 @@ class TaskComponentBloc extends Bloc<TaskComponentEvent,TaskComponentState> {
      if (formKey.currentState?.validate() == false) return emit(TaskComponentCommentState());
      try {
       autoValidateMode = null;
+      if((userId ?? []).contains(selectedResource?['id']) && !isEdit) return emit(ErrorState('User already exist'));
       emit(TaskComponentLoadingState());
       var response = await apiRepository.addConfiguration(id: isEdit ? "${editData['id']}" : null, body: _data);
       if(response?['status'] == 200){
-        if(isEdit){
-          apiResponse?.removeWhere((element) => element['id'] == editData['id']);
-          apiResponse?.add(response?['data']);
-          filterData(apiResponse);
-          editData = null;
-          isEdit = false;
-          add(TaskComponentClearAllFieldEvent());
-        } else {
-          apiResponse?.add(response?['data']);
-          filterData(apiResponse);
-          add(TaskComponentClearAllFieldEvent());
-        }
+        await refetch();
+        isEdit = false;
+        editData = null;
+        add(TaskComponentClearAllFieldEvent());
+        // if(isEdit){
+        //   apiResponse?.removeWhere((element) => element['id'] == editData['id']);
+        //   apiResponse?.add(response?['data']);
+        //   filterData(apiResponse);
+        //   editData = null;
+        //   isEdit = false;
+        //
+        // } else {
+        //   apiResponse?.add(response?['data']);
+        //   filterData(apiResponse);
+        //   add(TaskComponentClearAllFieldEvent());
+        // }
       }
       emit(TaskComponentCommentState());
      }catch (e){
@@ -213,6 +228,17 @@ class TaskComponentBloc extends Bloc<TaskComponentEvent,TaskComponentState> {
        }
        e['user_name'] = "${user?['first_name'] ?? ''} ${user?['last_name'] ?? ''}";
      });
+   }
+
+   Future<void> refetch()async {
+     selectedBase = baseList.first;
+     await getIt<CommonService>().getUsers();
+     var response = await apiRepository.getConfiguration();
+     apiResponse = response?['data'];
+     userId = apiResponse?.where((element) => element['user_id'] != null).map((e) => e['user_id']).toList();
+     // resourceList.removeWhere((element) => (userId ?? []).map((e) => e.toString()).contains(element['id'].toString()));
+     filterData(apiResponse);
+     Console.of.log(resourceList);
    }
 
 }

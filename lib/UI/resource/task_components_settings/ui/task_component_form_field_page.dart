@@ -1,12 +1,4 @@
-import 'package:fairpytasker/Component/success_button.dart';
-import 'package:fairpytasker/UI/resource/task_components_settings/bloc/task_components_bloc.dart';
-import 'package:fairpytasker/UI/resource/task_components_settings/bloc/task_components_event.dart';
-import 'package:fairpytasker/UI/resource/task_components_settings/bloc/task_components_state.dart';
-import 'package:fairpytasker/Utilities/appC.dart';
-import 'package:fairpytasker/Utilities/utils.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+part of 'task_component_main_page.dart';
 
 class TaskComponentFormFieldPage extends StatelessWidget {
   const TaskComponentFormFieldPage({super.key});
