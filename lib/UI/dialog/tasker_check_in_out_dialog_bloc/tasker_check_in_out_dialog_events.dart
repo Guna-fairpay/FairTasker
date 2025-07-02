@@ -1,4 +1,4 @@
-import 'package:equatable/equatable.dart';
+part of 'tasker_check_in_out_dialog_bloc.dart';
 
 abstract class TCIODEvents extends Equatable {
   @override
@@ -12,3 +12,5 @@ class TCIODInitialEvent extends TCIODEvents {
   @override
   List<Object?> get props => [isCheckout, model];
 }
+
+class NavigateYesterdayEvent extends TCIODEvents {}

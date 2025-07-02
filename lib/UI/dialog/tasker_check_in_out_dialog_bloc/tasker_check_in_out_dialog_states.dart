@@ -1,6 +1,4 @@
-import 'dart:math';
-
-import 'package:equatable/equatable.dart';
+part of 'tasker_check_in_out_dialog_bloc.dart';
 
 abstract class TCIODStates extends Equatable {
   @override
@@ -23,6 +21,13 @@ class TCIODErrorState extends TCIODStates {
 }
 
 class TCIODCommonState extends TCIODStates {
+  @override
+  List<Object?> get props => [Random().nextDouble()];
+}
+
+class NavigateYesterdayState extends TCIODStates {
+  final DateTime date;
+  NavigateYesterdayState(this.date);
   @override
   List<Object?> get props => [Random().nextDouble()];
 }
