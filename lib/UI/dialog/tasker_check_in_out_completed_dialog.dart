@@ -1,6 +1,4 @@
 import 'package:fairpytasker/UI/dialog/tasker_check_in_out_dialog_bloc/tasker_check_in_out_dialog_bloc.dart';
-import 'package:fairpytasker/UI/dialog/tasker_check_in_out_dialog_bloc/tasker_check_in_out_dialog_events.dart';
-import 'package:fairpytasker/UI/dialog/tasker_check_in_out_dialog_bloc/tasker_check_in_out_dialog_states.dart';
 import 'package:fairpytasker/Utilities/Utils.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
@@ -9,6 +7,7 @@ import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/extension/timeday_extension.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -18,20 +17,20 @@ class TaskerCheckInOutCompleteDialog {
   TaskerCheckInOutCompleteDialog._();
 
   static void show(BuildContext context, Map<String, dynamic>? model,
-      {bool isCheckOut = false}) async {
+      {bool isCheckOut = false, ValueChanged<DateTime>? onYesterday}) async {
     await showDialog(
         context: context,
         barrierDismissible: true,
         builder: (BuildContext context) => _TaskerCompleteCheckInOutView(
-            model: model, isCheckOut: isCheckOut));
+            model: model, isCheckOut: isCheckOut, onYesterday: onYesterday));
   }
 }
 
 class _TaskerCompleteCheckInOutView extends StatelessWidget {
   final bool isCheckOut;
   final Map<String, dynamic>? model;
-
-  const _TaskerCompleteCheckInOutView({this.isCheckOut = false, this.model});
+  final ValueChanged<DateTime>? onYesterday;
+  const _TaskerCompleteCheckInOutView({this.isCheckOut = false, this.model, this.onYesterday});
 
   @override
   Widget build(BuildContext context) {
@@ -64,17 +63,21 @@ class _TaskerCompleteCheckInOutView extends StatelessWidget {
                 switch (state) {
                   case TCIODSuccessState(): Toaster.showSuccess(state.message); break;
                   case TCIODErrorState(): Toaster.showError(state.message); break;
+                  case NavigateYesterdayState(): {
+                    onYesterday?.call(state.date);
+                    context.pop();
+                  } break;
                 }
               }
             },
-            child: _TaskerCompleteCheckInOutContentView(),
+            child: const _TaskerCompleteCheckInOutContentView(),
           ),
         ));
   }
 }
 
 class _TaskerCompleteCheckInOutContentView extends StatelessWidget {
-  const _TaskerCompleteCheckInOutContentView({super.key});
+  const _TaskerCompleteCheckInOutContentView();
 
   @override
   Widget build(BuildContext _) {
@@ -86,6 +89,18 @@ class _TaskerCompleteCheckInOutContentView extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Utils.getText( "${context.watch<TCIODBloc>().isCheckOut ? "Check Out" : "Yesterday Hours"} summary", size: 17.sp),
+            if (context.watch<TCIODBloc>().showPendingCounts)
+            Text.rich(TextSpan(
+              children: [
+                TextSpan(text: "You have ${context.watch<TCIODBloc>().previousTaskCounts} pending tasks from yesterday."),
+                const TextSpan(text: "\n"),
+                TextSpan(text: "Do you want to go yesterday - ", children: [
+                  TextSpan(text: "Click here",
+                      recognizer: TapGestureRecognizer()..onTap = ()=> context.read<TCIODBloc>().add(NavigateYesterdayEvent()),
+                      style: context.textTheme.labelLarge?.copyWith(color: AppC.bouncieButtonColor))
+                ]),
+              ]
+            ), style: context.textTheme.labelLarge,),
             Row(
               children: [
                 Expanded(
@@ -172,7 +187,7 @@ class _TaskerCompleteCheckInOutContentView extends StatelessWidget {
                   contentPadding: 10.horizontalPadding,
                 );
               },
-                separatorBuilder: (context, index) => Divider(height: 0.2,),
+                separatorBuilder: (context, index) => const Divider(height: 0.2,),
               itemCount: context.watch<TCIODBloc>().toDoList.length,),
             )
           ],
