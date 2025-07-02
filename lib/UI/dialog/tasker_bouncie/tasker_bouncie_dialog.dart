@@ -4,6 +4,7 @@ import 'package:fairpytasker/UI/dialog/tasker_bouncie/bloc/tasker_bouncie_event.
 import 'package:fairpytasker/UI/dialog/tasker_bouncie/bloc/tasker_bouncie_state.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
+import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
@@ -118,9 +119,11 @@ class _TaskerBouncieErrorWidget extends StatelessWidget {
                         style: context.textTheme.labelLarge
                             ?.copyWith(color: AppC.bouncieFontColor)),
                   ),
-                  const SuccessButton(
+                  if (context.watch<TaskerBouncieBloc>().displayErrorMsg == "Login to bouncie to get details")
+                  SuccessButton(
                     text: "Login Bouncie",
                     backgroundColor: AppC.bouncieButtonColor,
+                    onPressed: () => Utils.openURL("https://www.bouncie.app/login"),
                   )
                 ],
               )
@@ -185,7 +188,7 @@ class _TaskerBouncieMapWidget extends StatelessWidget {
             children: [
               TextSpan(text: "${context.watch<TaskerBouncieBloc>().lastUpdated ?? ""}")
             ]
-          ), style: context.textTheme.labelMedium?.copyWith(color: AppC.redAccent)),
+          ), style: context.textTheme.labelLarge?.copyWith(color: AppC.redAccent, fontWeight: FontWeight.w200)),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -193,14 +196,14 @@ class _TaskerBouncieMapWidget extends StatelessWidget {
                 spacing: 5.spMin,
                 children: [
                   const Icon(Icons.local_gas_station_rounded),
-                  Text("${context.watch<TaskerBouncieBloc>().fuelLevel ?? ""}", style: context.textTheme.labelLarge?.copyWith(color: AppC.green, fontWeight: FontWeight.bold))
+                  Text("${context.watch<TaskerBouncieBloc>().fuelLevel ?? ""}%", style: context.textTheme.labelLarge?.copyWith(color: AppC.green, fontWeight: FontWeight.bold))
                 ],
               ),
               Column(
                 spacing: 5.spMin,
                 children: [
                   const Icon(Icons.battery_3_bar_rounded),
-                  Text("${context.watch<TaskerBouncieBloc>().batteryLevel ?? ""}", style: context.textTheme.labelLarge?.copyWith(color: AppC.redAccent, fontWeight: FontWeight.bold))
+                  Text("${context.watch<TaskerBouncieBloc>().batteryLevel ?? ""}".toTitleCase(), style: context.textTheme.labelLarge?.copyWith(color: AppC.redAccent, fontWeight: FontWeight.bold))
                 ],
               ),
             ],

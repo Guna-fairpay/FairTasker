@@ -1,5 +1,4 @@
-import 'dart:math';
-import 'package:equatable/equatable.dart';
+part of 'add_vehicle_bloc.dart';
 
 abstract class AddVehicleEvent extends Equatable {
   @override

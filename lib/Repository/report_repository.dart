@@ -2,6 +2,7 @@ import 'package:fairpytasker/Remote/downloader.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
 import '../data/api_client.dart';
 
 class ReportRepository {
@@ -41,32 +42,16 @@ class ReportRepository {
       var response = await _apiRepository.tollExport(infusedFile: {"toll": filePath});
       if (response?['url'].toString().isNotNullOrEmpty ?? false) await customDownload(response?['url'].toString() ?? "");
       return response;
-      /*String apiUrl = '${Str.BASE_URL}toll-export';
-      final http.Response? response = await apiClient.callPostMethodWithBodyDynamic(apiUrl, infusedFiles: {"toll": filePath});
-      log("${response?.body}");
+    } catch (e) {
+      rethrow;
+    }
+  }
 
-      if (response != null) {
-        if (response.statusCode == 200 || response.statusCode == 201) {
-          // Parse the JSON response
-          final Map<String, dynamic> responseData = jsonDecode(response.body);
-          String? downloadUrl = responseData['url'];
-
-          if (downloadUrl != null) {
-            // Download the file
-            String path = await customDownload(downloadUrl);
-            Toaster.showSuccess("File downloaded successfully $path");
-            return path;
-          } else {
-            Utils.showSomethingWentWrong();
-            return null;
-          }
-        } else {
-          Utils.showSomethingWentWrong();
-          return null;
-        }
-      } else {
-        return null;
-      }*/
+  Future<Map<String, dynamic>?> downloadTaskReport(DateRange? dateRange) async {
+    try {
+      var response = await _apiRepository.taskExport(fromDate: dateRange?.start, toDate: dateRange?.end);
+      if (response?['url'].toString().isNotNullOrEmpty ?? false) response?['download'] = await customDownload(response['url'].toString() ?? "");
+      return response;
     } catch (e) {
       rethrow;
     }

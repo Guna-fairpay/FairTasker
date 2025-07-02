@@ -82,6 +82,9 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
   bool requireAllFields = true;
   final FBroadcast _broadcast = FBroadcast.instance();
 
+  Future<List<Map<String, dynamic>>>_groupVehicles() async => await getIt<CommonService>().groupVehicles();
+
+
   TodoEditExpenseBloc()
       : super(const TodoExpenseState(
           taskList: [],
@@ -194,21 +197,16 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
   Future<void> _onSaveExpenseEvent(SaveExpenseEvent event, Emitter<TodoExpenseState> emit) async {
     requireAllFields = true;
     autoValidateMode = AutovalidateMode.onUserInteraction;
-    if (formKey.currentState?.validate() == false)
+    if (formKey.currentState?.validate() == false) {
       return emit(state.copyWith());
+    }
     try {
       autoValidateMode = null;
-      if (((todoItem?["cohort_id"] ?? selectedVehicle?['cohort_id']) == null) ||
-          (((selectedVehicle?['vin']) ??
-                  (state.vehicleList.firstOrNull?['vin'])) ==
-              null)) {
+      if (((todoItem?["cohort_id"] ?? selectedVehicle?['cohort_id']) == null) || (((selectedVehicle?['vin']) ?? (state.vehicleList.firstOrNull?['vin'])) == null)) {
         Toaster.showError("Please update vehicle details to save expense");
         return;
       }
-      if ((todoItem?['identifier_id'] == 166) &&
-          (selectedVehicle != null) &&
-          (state.selectedMainCategory?['id'].toString() != '76' ||
-              state.selectedSubCategory?['id'].toString() != '100')) {
+      if ((todoItem?['identifier_id'] == 166) && (selectedVehicle != null) && (state.selectedMainCategory?['id'].toString() != '76' || state.selectedSubCategory?['id'].toString() != '100')) {
         Toaster.showError("Please update vehicle details to save expense");
         return;
       }
@@ -217,45 +215,45 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
       Set existingSuppliesIds = todoItem['supplies'].map((e) => e['supplies_id']).toSet();
       newSupplies = suppliesList.where((element) => !existingSuppliesIds.toString().contains(element['id'].toString())).toList();
       newVendor = vendor.firstWhereOrNull((e) => e['id'].toString() != todoItem['vendor_id'].toString());
-      Console.of.log(newSupplies, name: 'NEW_SUPPLIES');
-      Console.of.log(newVendor, name: 'VENDOR_ID');
-      Console.of.log(newParts, name: 'NEW_PARTS');
       emit(state.copyWith(isLoading: true));
-      var expenseId = todoItem?['expense_id'].toString().getExpenseId;
-      var response = await apiRepository.updateTodoExpense(
-          expenseId: "${expenseId ?? ""}",
-          images: state.expenseAttachments.whereType<File>().toList(),
-          body: _expenseData());
-      final int? newExpenseId =
-          (response?['data'] as List?)?.firstOrNull?['id'];
-      if (todoItem['expense_id'] == null && newExpenseId != null) {
-        if (List.from(todoItem['vehicles'] ?? []).length > 1) {
-          var id = List.from(todoItem['vehicles'] ?? []).firstWhereOrNull(
-            (element) => element['vin'] == selectedVehicle?['vin'],
-          )?['id'];
-          await apiRepository.updateExpenseTemp(body: {
-            "expense_id": newExpenseId,
-            "id": id,
-            "todo_id": todoItem?['id'],
-            "vin": "${selectedVehicle?['vin']}",
-          });
-        } else {
-          String expenseId = "$newExpenseId";
-          if (todoItem['vehicle_group_id'].toString().isNotNullOrEmpty)
-            expenseId = "${[newExpenseId]}";
-          await apiRepository.updateToDoApi(
-              images: [],
-              body: _expenseData()..putIfAbsent("expense_id", () => expenseId),
-              todoId: "${todoItem['id']}");
+      var response;
+      if((todoItem?['vehicle_group_id']).toString().isNotNullOrEmpty){
+       await groupVehicle();
+      }else{
+        var expenseId = todoItem?['expense_id'].toString().getExpenseId;
+         response = await apiRepository.updateTodoExpense(
+            expenseId: expenseId,
+            images: state.expenseAttachments.whereType<File>().toList(),
+            body: _expenseData());
+        final int? newExpenseId = List.from(response?['data'] ?? []).firstOrNull?['id'];
+        if (todoItem['expense_id'] == null && newExpenseId != null) {
+          if (List.from(todoItem['vehicles'] ?? []).length > 1) {
+            var id = List.from(todoItem['vehicles'] ?? []).firstWhereOrNull(
+                  (element) => element['vin'] == selectedVehicle?['vin'],
+            )?['id'];
+            await apiRepository.updateExpenseTemp(body: {
+              "expense_id": newExpenseId,
+              "id": id,
+              "todo_id": todoItem?['id'],
+              "vin": "${selectedVehicle?['vin']}",
+            });
+          } else {
+            String expenseId = "$newExpenseId";
+            if (todoItem['vehicle_group_id'].toString().isNotNullOrEmpty) {
+              expenseId = "${[newExpenseId]}";
+            }
+            await apiRepository.updateToDoApi(
+                images: [],
+                body: _expenseData()..putIfAbsent("expense_id", () => expenseId),
+                todoId: "${todoItem['id']}");
+          }
         }
       }
-      Console.of.log(todoItem['id'], name: 'TODO_ID');
-      if(newVendor != null || newSupplies.isNotEmpty || newParts.isNotEmpty){
+      if(newVendor != null || newSupplies.isNotEmpty || newParts.isNotEmpty) {
         var response = await apiRepository.updateToDoApi(
             todoId: "${todoItem['id']}",
             body: _todoData());
         if (response?.isNotEmpty ?? false) {
-         // Toaster.showSuccess(response?['message']);
           _broadcast.stickyBroadcast("todo_view", value: true);
         } else {
           emit(state.copyWith(isLoading: false));
@@ -283,12 +281,9 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
       if (status.isGranted) {
         var response =
             await apiRepository.generateInvoice(body: _invoiceData());
-        // if (response?.isNotEmpty ?? false)
-        // Toaster.showSuccess(response?['message'] ?? "Success");
         if ((response != null) && (response['message'] != null)) {
           emit(state.copyWith(
-            expenseAttachments: state.expenseAttachments
-              ..add(File(response['message'])),
+            expenseAttachments: state.expenseAttachments..add(File(response['message'])),
           ));
         }
         emit(state.copyWith(isLoading: false));
@@ -571,9 +566,9 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
 
   Future<void> _onGetTodoExpenseInitialEvent(GetTodoExpenseInitialEvent event, Emitter<TodoExpenseState> emit) async {
     try {
-      Console.of.log('Entered');
       emit(state.copyWith(isLoading: true));
       todoItem = event.todoItem;
+
       var vehs = List.from(todoItem['vehicles'] ?? []);
       var exTmpId =
           (vehs.length == 1) ? (vehs.firstOrNull?['expense_temp_id']) : null;
@@ -709,11 +704,11 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
             .toList();
         _updateExpenseTotal();
       } else {
-        selectedPart.forEach((element) {
+        for (var element in selectedPart) {
           if (partsList.map((e) => e['id']).contains(element['id']) == false) {
             partsList.add(element..["controller"] = TextEditingController());
           }
-        });
+        }
       }
       var currentIds = selectedPart.map((e) => e['id']);
       partsList.removeWhere((element) => !currentIds.contains(element['id']));
@@ -722,12 +717,12 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
             .map((e) => e..["controller"] = TextEditingController())
             .toList();
       } else {
-        selectedSupplies.forEach((element) {
+        for (var element in selectedSupplies) {
           if (suppliesList.map((e) => e['id']).contains(element['id']) ==
               false) {
             suppliesList.add(element..["controller"] = TextEditingController());
           }
-        });
+        }
       }
       var suppliesIds = selectedSupplies.map((e) => e['id']);
       suppliesList
@@ -737,20 +732,20 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
         if (splitExpenses is List) {
           for (var expense in splitExpenses) {
             if (expense['parts_id'] != null) {
-              partsList.forEach((element) {
+              for (var element in partsList) {
                 if (element['id'] == expense['parts_id']) {
                   element['controller'].text = expense['amount'].toString();
                 }
-              });
+              }
               _updateExpenseTotal();
             }
             if (expense['supplies_id'] != null) {
-              suppliesList.forEach((element) {
+              for (var element in suppliesList) {
                 if (element['id'] == expense['supplies_id']) {
                   element['controller'].text = expense['amount'].toString();
                 }
                 _updateExpenseTotal();
-              });
+              }
             }
           }
         }
@@ -891,7 +886,6 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
       var vins = List.from(jsonDecode(groupVehicles?['vin'] ?? ""));
       vin = vins.firstOrNull ?? "";
     }
-    log(expenseAmount, name: "Expense_Amount");
     Map<String, String> baseBody = {};
     baseBody['category_name'] = "${state.selectedMainCategory?['name'] ?? ''}";
     baseBody['category_id'] = "${state.selectedMainCategory?['id'] ?? ''}";
@@ -927,7 +921,7 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
       });
     }
     baseBody['approved'] = "${(state.apiResponse['approved'] ?? 0)}";
-    log(jsonEncode(baseBody), name: "Expense_Body");
+    //log(jsonEncode(baseBody), name: "Expense_Body");
     return baseBody;
   }
 
@@ -1051,4 +1045,38 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
         selectedSupplies: selectedSupplies,
         selectedVendor: selectedVendor));
   }
+
+  Future<void> groupVehicle() async {
+    List<dynamic>? expenseIds = [];
+    var responseA = await _groupVehicles();
+      var vehicleGroup = List.from(responseA).firstWhereOrNull((element) => element['id'] == todoItem?['vehicle_group_id'])?['vin'];
+      var expenseId = todoItem?['expense_id'].toString().getExpenseId;
+      List<String> vins = jsonDecode(vehicleGroup).cast<String>();
+      dynamic expenseAmount = '';
+      if (splitParts.isNotEmpty || splitSupplies.isNotEmpty) {
+        expenseAmount = double.tryParse(totalAmountController.text);
+      } else {
+        expenseAmount = double.tryParse(amountController.text);
+      }
+      var amount = vins.isNotEmpty ? expenseAmount / vins.length : 0.0;
+      if (vins.isNotEmpty) {
+        var response = await Future.wait(vins.map((e) => apiRepository.updateTodoExpense(
+            expenseId: expenseId,
+            images: state.expenseAttachments.whereType<File>().toList(),
+            body: _expenseData()
+              ..['vin'] = e
+              ..['expense_amount'] = amount.toStringAsFixed(2)
+        )).toList());
+        expenseIds = response.map((e) => e?['data'])
+            .expand((list) => list).map((item) => item['id']).toList();
+      }
+      Console.of.log(expenseIds, name: "expenseIds");
+      if(expenseIds.isNotEmpty){
+        await apiRepository.updateToDoApi(
+            images: [],
+            body: _expenseData()..["expense_id"] = "$expenseIds",
+            todoId: "${todoItem['id']}");
+      }
+  }
+
 }

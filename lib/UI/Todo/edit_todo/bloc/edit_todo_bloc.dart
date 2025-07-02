@@ -4,6 +4,9 @@ import 'dart:io';
 import 'dart:convert';
 import 'dart:developer';
 import 'package:fairpytasker/UI/dialog/oil_change_exist_dialog.dart';
+import 'package:flutter_quill/flutter_quill.dart';
+import 'package:flutter_quill_delta_from_html/parser/html_to_delta.dart';
+import 'package:vsc_quill_delta_to_html/vsc_quill_delta_to_html.dart';
 
 import 'edit_todo_event.dart';
 import 'edit_todo_state.dart';
@@ -49,6 +52,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   final TextEditingController tripDrivenController = TextEditingController();
   final TextEditingController resolutionNotesController = TextEditingController();
   final TextEditingController commentsController = TextEditingController();
+  QuillController quillController = QuillController.basic();
 
   int? get branchId => Session.of.getInt(Str.branchIdPrefText);
   String? get currentUserId => Session.of.getString(Str.userIdPrefText);
@@ -230,6 +234,10 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     var selectedUser = resources
         .where((element) => element['id'].toString() == currentUserId)
         .toList();
+    if(todoResponse?['identifier_id'] == 358) {
+      quillController.document = Document.fromDelta(
+          HtmlToDelta().convert(todoResponse?['rental_enquiry'] ?? ''));
+    }
     timeController.text = todoResponse?['todo_time'] ?? '';
     dateController.text = todoResponse?['todo_date'] ?? '';
     notesController.text = todoResponse?['notes'] ?? '';
@@ -286,11 +294,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       for (var group in userGroupResponse) {
         if (group['id'] == todoResponse?['user_group_id']) {
           var decodedList = List.from(json.decode(group['userId'] ?? '') ?? []);
-          if (decodedList is List) {
-            selectedIds = decodedList.map((e) => e.toString()).toList();
-          } else {
-            selectedIds = [];
-          }
+          selectedIds = decodedList.map((e) => e.toString()).toList();
         }
       }
     }
@@ -379,10 +383,11 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         .where((e) => addressIds.contains(e['id']))
         .toList();
     if(vinList.isNotEmpty){
-      previousOdometer = await _getPreviousOdometer(
+      previousOdometer = List.from(todoResponse?['previousOdometer']).firstOrNull;
+      /*previousOdometer = await _getPreviousOdometer(
           date: todoResponse?['todo_date'],
           vin: List.from(vinList).firstOrNull ?? '',
-          identifierId: todoResponse?['identifier_id']);
+          identifierId: todoResponse?['identifier_id']);*/
     }
     showCleanCar = Str.cleanCarCheckIds.contains(todoResponse?['identifier_id']);
     RegExp dateRegExp = RegExp(r'\d{2}-\d{2}-\d{4}');
@@ -390,7 +395,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       final matches = dateRegExp.allMatches(todoResponse?['recurring']??[]).toList();
       if (matches.isNotEmpty) {
         String startDate = matches[0].group(0)!;
-        DateTime parsedStart = DateFormat('MM-dd-yyyy').parse(startDate);
+        DateTime parsedStart = DateFormat('yyyy-MM-dd').parse(startDate);
         recurringStartDate = parsedStart;
         selectedStartDate = DateFormat('yyyy-MM-dd').parse(todoResponse?['todo_date']);
         selectedEndDate = DateFormat('yyyy-MM-dd').parse(todoResponse?['recurring_last_date']);
@@ -427,7 +432,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       bottomTapData: tabs,
       resourceName: list,
       apiResponse: todoResponse,
-      previousOdometer: "${previousOdometer?['data'] ?? ''}",
+      previousOdometer: "${previousOdometer?['odometer'] ?? ''}",
       todoStatus: todoResponse?['status'] == 'In Progress' ? false : true,
       selectedBottomTap: selectionTaps,
       tasks: task,
@@ -1007,13 +1012,13 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       var response = await _getOilChangeTask(vin: vin);
       emit(state.copyWith(isLoading: false));
       var context = CommonHelper.instance.navigatorKey.currentContext;
-      if ((response == null) || (response?.isEmpty ?? false)) return add(EditToDoSaveEvent(overrideOilCheck: true));
+      if ((response == null) || (response.isEmpty)) return add(EditToDoSaveEvent(overrideOilCheck: true));
       if (context != null) {
         var result = await OilChangeTaskExistDialog.show(context, model: response, isAddNew: false);
         Utils.dismissKeyboard(context);
         if (result == true) {
           emit(state.copyWith(isLoading: true));
-          var deleteResponse = await _deleteToDo(todoId: response?['id']);
+          var deleteResponse = await _deleteToDo(todoId: response['id']);
           emit(state.copyWith(isLoading: false));
           if (deleteResponse?['status'] == 200) return add(EditToDoSaveEvent(overrideOilCheck: true));
         }
@@ -1153,6 +1158,9 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
 
     baseBody['person'] = firstPerson?['name']?.toString() ?? "";
     baseBody['person_id'] = firstPerson?['id']?.toString() ?? "";
+    baseBody['rental_enquiry'] = QuillDeltaToHtmlConverter(
+      (quillController).document.toDelta().toJson(),
+      ConverterOptions.forEmail(),).convert();
     baseBody['type'] = "inline";
 
     var groupVehicleList = state.selectedVPerson
@@ -1282,13 +1290,6 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     var result = await ImagePicker().pickMultiImage();
     return result.map((e) => File(e.path)).toList();
   }
-
-  Future<Map<String, dynamic>?> _getPreviousOdometer(
-      {required String date,
-        required String vin,
-        required dynamic identifierId}) async =>
-      await apiRepository.getPreviousOdometer(
-          date: date, vin: vin, identifierId: identifierId);
 
   var tabs = List.from(AddToDoConfig.editTodoBottomTaps);
 

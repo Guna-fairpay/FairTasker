@@ -8,6 +8,8 @@ class DetailedReportByDayItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var vehicles = List.from(model?['vehicles'] ?? []);
+    final users = getIt<CommonService>().userByGroupId(model?['user_group_id']);
+    final userInitials = "${<String>[(users.firstOrNull?['first_name'] ?? ""), (users.firstOrNull?['last_name'] ?? "")].toInitial}...";
     String? vehicleImage = (model?['vehicle_image'] ?? (List.from(getIt<CommonService>().activeVehicleList.firstWhereOrNull((element) => element['vin'] == (List.from(model?['vehicles'] ?? []).firstOrNull)?['vin'])?['images'] ?? []).firstWhereOrNull((element) => element['vehicle_image_type'] == 1)?['path'].toString().toStorageURL ?? ""));
     if (vehicles.isNotEmpty && vehicles.length > 1) vehicleImage = null;
     return Padding(
@@ -80,7 +82,11 @@ class DetailedReportByDayItem extends StatelessWidget {
                 ),
                 RowTile(
                   title: Text("${model?['vehicle_name'] ?? (getIt<CommonService>().activeVehicleList.firstWhereOrNull((element) => element['vin'] == (List.from(model?['vehicles'] ?? []).firstOrNull)?['vin'])?['vehicle_name'] ?? "")}"),
-                  trailing: CompactText(<String>[(model?['users']?['first_name'] ?? ""), (model?['users']?['last_name'] ?? "")].toInitial, color: AppC.appColor, fontWeight: FontWeight.bold),
+                  trailing: CompactText(
+                    (model?['user_group_id'] == null) ?
+                      <String>[(model?['users']?['first_name'] ?? ""), (model?['users']?['last_name'] ?? "")].toInitial
+                      : userInitials,
+                      color: AppC.appColor, fontWeight: FontWeight.bold),
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 ),
                 if (((model?['location'] ?? model?['vendor_name'] ?? "").toString().isNotNullOrEmpty) || (model?['notes'].toString().isNotNullOrEmpty ?? false))

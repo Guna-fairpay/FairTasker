@@ -939,12 +939,11 @@ class Utils {
     if (existingDate.isNotEmpty) {
       currentDate = convertStringToDateTime(existingDate);
     }
-    var lastDate = last ??
-        DateTime(currentDate.year + 10, currentDate.month, currentDate.day);
+    var lastDate = last ?? DateTime(currentDate.year + 100, currentDate.month, currentDate.day);
 
     Widget dialog = DatePickerDialog(
       initialDate: initialDate,
-      firstDate:DateTime(1900, 1, 1),
+      firstDate:DateTime(1990, 1, 1),
       lastDate: lastDate,
       currentDate: currentDate,
       initialEntryMode: DatePickerEntryMode.calendarOnly,
@@ -1146,6 +1145,7 @@ class Utils {
     return {
       'accept': 'application/json',
       'Content-Type': 'application/json',
+      'Accept-Encoding': 'gzip',
     };
   }
 
@@ -1153,6 +1153,7 @@ class Utils {
     return {
       'accept': 'application/json',
       'Content-Type': 'application/json',
+      'Accept-Encoding': 'gzip',
       'Authorization': (url.isFairReturns) ? returnBearerToken : bearerToken
     };
   }
@@ -1617,6 +1618,7 @@ class Utils {
     List<String> userPermissionList,
     int branchId,
     int hrmId,
+      {int? departmentId, String? data}
   ) async {
     // accessTokenGlobal = token; Str.userPermissionPrefText
     // userPermissionsGlobal = [];
@@ -1635,7 +1637,9 @@ class Utils {
     ..set(Str.branchIdPrefText, branchId)
     ..set(Str.hrmIdPrefText, hrmId)
     ..set(Str.accessTokenPrefText, token)
-    ..set(Str.emailPrefText, email);
+    ..set(Str.emailPrefText, email)
+    ..set(Str.departmentIdPrefText, departmentId)
+    ..set(Str.userPrefText, data);
 
     Utils.setStringPreference("name", name.toString());
     Utils.setStringListPreference(Str.rolePrefText, role ?? []);
@@ -1647,6 +1651,8 @@ class Utils {
     Utils.setIntPreference(Str.hrmIdPrefText, hrmId);
     Utils.setStringPreference(Str.accessTokenPrefText, token);
     Utils.setStringPreference(Str.emailPrefText, email);
+    Utils.setStringPreference(Str.userPrefText, data ?? "");
+    Utils.setIntPreference(Str.departmentIdPrefText, departmentId ?? 0);
   }
 
   /*---------------------------------------------------Shared preference---------------------------------------------------*/

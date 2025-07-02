@@ -3,10 +3,10 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'dart:math';
 import 'package:collection/collection.dart';
+import 'package:equatable/equatable.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleAdd/Bloc/add_vehicle_event.dart';
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleAdd/Bloc/add_vehicle_state.dart';
 import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
@@ -18,6 +18,9 @@ import 'package:fbroadcast/fbroadcast.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+part 'add_vehicle_event.dart';
+part 'add_vehicle_state.dart';
 
 class AddVehicleBloc extends Bloc<AddVehicleEvent, AddVehicleState>{
   final APiRepository _apiRepository = APiRepository();
@@ -122,7 +125,7 @@ class AddVehicleBloc extends Bloc<AddVehicleEvent, AddVehicleState>{
 
     on<PurchaseReceiptImageEvent>((event, emit) async {
       await _handleFileSelection(receiptImage, "receiptImageFile", emit);
-      log("$receiptImage", name: "PurchaseReceiptImageEvent");
+      Console.of.log("$receiptImage", name: "PurchaseReceiptImageEvent");
     });
 
     on<VehicleImageEvent>((event, emit) async {
@@ -272,7 +275,7 @@ class AddVehicleBloc extends Bloc<AddVehicleEvent, AddVehicleState>{
         // _broadcast.stickyBroadcast("expense_person_refresh", value: true);
       } catch (e) {
         Toaster.showError("$e");
-        log(e.toString(), name: 'ERROR');
+        Console.of.log(e.toString(), name: 'ERROR');
         emit(AddCompletedState());
       }
 
@@ -326,7 +329,7 @@ class AddVehicleBloc extends Bloc<AddVehicleEvent, AddVehicleState>{
     baseBody['insurance_cost'] = insuranceCostController.text;
     baseBody['employee_id'] = "${getIt<CommonService>().userId}";
     baseBody['platform_from'] = 'tasker-app';
-    log(jsonEncode(baseBody), name: "Expense_Body");
+    Console.of.log(jsonEncode(baseBody), name: "Expense_Body");
     return baseBody;
   }
 
@@ -361,7 +364,7 @@ class AddVehicleBloc extends Bloc<AddVehicleEvent, AddVehicleState>{
       fileList.addAll(existingAttachments.map((path) => File(path))); // Retain existing
       fileList.addAll(newFiles);
 
-      log("$fileList", name: logName);
+      Console.of.log("$fileList", name: logName);
       emit(AddVehicleCommonState());
     }
   }

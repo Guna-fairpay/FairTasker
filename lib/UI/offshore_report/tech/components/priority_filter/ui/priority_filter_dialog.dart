@@ -1,6 +1,6 @@
 import 'package:fairpytasker/Component/custom_search_bar.dart';
 import 'package:fairpytasker/Component/custom_text/compact_text.dart';
-import 'package:fairpytasker/UI/CheckIn%20CheckOut/Component/custom_checkbox.dart';
+import 'package:fairpytasker/Component/custom_checkbox.dart';
 import 'package:fairpytasker/UI/offshore_report/tech/components/priority_filter/bloc/priority_filter_bloc.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';

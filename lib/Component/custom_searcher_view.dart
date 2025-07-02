@@ -18,6 +18,7 @@ class SearchViewField<T extends Object> extends StatelessWidget {
   final ValueNotifier<bool> _showEmptyWidget = ValueNotifier(false);
   final VoidCallback? onEmptyTap;
   final bool autoClear;
+  final bool alwayShowSuffix;
   final Function(FocusNode focusNode)? onFieldFocusCreated;
   final Function(TapDownDetails details)? onEmptyTapDetails;
   final Function(T value, {FocusNode? focusNode})? onSelectedFocus;
@@ -38,6 +39,7 @@ class SearchViewField<T extends Object> extends StatelessWidget {
       this.onEmptyTapDetails,
       this.onCleared,
       this.onSelected,
+      this.alwayShowSuffix = false,
       this.onSelectedFocus}) {
     if (selectedItem != null) {
       controller.text = itemAsString(selectedItem!);
@@ -54,15 +56,17 @@ class SearchViewField<T extends Object> extends StatelessWidget {
               hintText: hintText,
               autoClear: autoClear,
               onSelectedFocus: onSelectedFocus,
-              // onFieldFocusCreated: onFieldFocusCreated,
               optionsBuilder: _optionsBuilder,
-              onChanged: (value) => (value.isNullOrEmpty && (selectedItem != null)) ? onCleared?.call(selectedItem!) : null,
+              onChanged: (value) =>
+                  (value.isNullOrEmpty && (selectedItem != null))
+                      ? onCleared?.call(selectedItem!)
+                      : null,
               itemAsString: itemAsString,
               onSelected: onSelected,
               showEmptyWidget: value,
               onEmptyWidgetTap: onEmptyTap,
-          onEmptyWidgetTapDown: onEmptyTapDetails,
-
+              alwaysShowSuffix: alwayShowSuffix,
+              onEmptyWidgetTapDown: onEmptyTapDetails,
             ));
   }
 
@@ -74,13 +78,16 @@ class SearchViewField<T extends Object> extends StatelessWidget {
         : (itemAsString(selectedItem!) == controller.text)
             ? selectedItem
             : null;
-    // Console.of.log("omitted: $omitted ${itemAsString(selectedItem!)} ${controller.text}");
     var omitting = suggestions.where((element) => element == omitted);
-    var result = suggestions
-        .where((element) => element != omitted)
-        .where((element) => "${(itemAsStringSearch?.call(element)) ?? element}".toLowerCase().contains(searchQuery));
-    Console.of.log("result: ${result.isEmpty} ${omitting.isEmpty} ${omitted == null}");
-    if (showEmpty) _showEmptyWidget.value = (result.isEmpty) && ((omitting.isEmpty) && (omitted == null));
+    var result = suggestions.where((element) => element != omitted).where(
+        (element) => "${(itemAsStringSearch?.call(element)) ?? element}"
+            .toLowerCase()
+            .contains(searchQuery));
+    Console.of.log(
+        "result: ${result.isEmpty} ${omitting.isEmpty} ${omitted == null}");
+    if (showEmpty)
+      _showEmptyWidget.value =
+          (result.isEmpty) && ((omitting.isEmpty) && (omitted == null));
     return result;
   }
 }

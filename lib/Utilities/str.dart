@@ -23,11 +23,15 @@ class Str{
   static const String emailPrefText = 'EmailPref';
   static const String frBearerToken = 'fr_bearerToken';
   static const String accessTokenPrefText = 'AccessTokenPref';
+  static const String departmentIdPrefText = 'departmentIdPref';
+  static const String userPrefText = 'userDataPref';
+  static const String availBioMetrics = 'availBioMetricsPref';
 
   static const String userPunchListRefresh = 'refresh_user_punch_list';
 
     static const String branchNamePrefText = 'BranchNamePref';
   static const String branchChange = 'branch_has_been_changed';
+  static const String valueChange = 'api_value_has_been_changed';
 
   static const String appName = "FairPYTasker";
   // static const String addExpense = "Add Expenses";

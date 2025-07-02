@@ -1,15 +1,16 @@
 
+import 'package:fairpytasker/UI/Finance/Expense/vehicles/vehicle_add_edit/ui/vehicle_add_edit_main_ui.dart';
+import 'package:fairpytasker/UI/Vehicle/vehicle_expense_history/ui/vehicle_expense_history_ui.dart';
+import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
+import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
+import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
-import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter/material.dart';
-import '../../../../../Vehicle/vehicle_expense_history/ui/vehicle_expense_history_ui.dart';
-import '../../../../../dialog/ask_permission_dialog.dart';
-import '../../../../../dialog/show_attachments_dialog.dart';
-import '../../Vehicle_Edit/UI/vehicle_expense_edit_ui.dart';
+
 
 class ExpenseVehicleListItem extends StatelessWidget {
   final Map<String, dynamic> expense;
@@ -60,7 +61,7 @@ class ExpenseVehicleListItem extends StatelessWidget {
         ? const Color(0xFF13b3b3)
         : AppC.grey;
 
-    List<dynamic> images = expense['attachments'];
+    List<dynamic> images = List.from(expense['attachments'] ?? []);
 
     List<dynamic> expenseImages =
         images.map((e) => e['path'].toString().toStorageURL).toList();
@@ -113,14 +114,8 @@ class ExpenseVehicleListItem extends StatelessWidget {
                       ),
                       Expanded(
                         child: InkWell(
-                          onTap: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                fullscreenDialog: true,
-                                builder: (context) =>
-                                     ExpenseVehicleEditUI(expenseId: "${expense['id']}",
-                                     vehicleName: expense['vehicle']?['vehicle_name'],),
-                              )),
+                          onTap:()=> context.push(VehicleAddEditMainUI(editModel: expense)),
+                         // onTap:()=> context.push(ExpenseVehicleEditUI(expenseId: "${expense['id']}", vehicleName: expense['vehicle']?['vehicle_name'],),),
                           child: Utils.getText(
                               expense['vehicle']?['vehicle_name'] ?? '',
                               overFlow: TextOverflow.ellipsis,
@@ -134,7 +129,7 @@ class ExpenseVehicleListItem extends StatelessWidget {
                 10.width,
                 Expanded(
                   child: Visibility(
-                    visible: expense['attachments'].isNotEmpty,
+                    visible: (expense['attachments'] ?? []).isNotEmpty,
                     child: InkWell(
                         onTap: () => ShowAttachmentsDialog.of.show(context,
                             attachments: expenseImages, title: 'Expense Image'),
@@ -236,19 +231,14 @@ class ExpenseVehicleListItem extends StatelessWidget {
                               context,
                               MaterialPageRoute(
                                   builder: (context) => VehicleExpenseHistoryUI(
-
                                         vin: expense['vehicle']['vin'] ?? '',
-                                        vehicleName: expense['vehicle']
-                                                ['vehicle_name'] ??
-                                            '',
-                                        currentExpenseAmount: expense['approved']==0? double.tryParse(
-                                            expense['expense_amount']
-                                                .toString()):0.0,
+                                        vehicleName: expense['vehicle']['vehicle_name'] ?? '',
+                                        currentExpenseAmount: expense['approved']==0? double.tryParse(expense['expense_amount'].toString()):0.0,
                                         showTotalAmount: true,
                                       )));
                         },
                         child: Utils.getText(
-                          "\$${expense['approved_amount'].toString().toDoubleDigit}",
+                          "\$${expense['approveAmount'].toString().toDoubleDigit}",
                           weight: FontWeight.bold,
                           color: AppC.grey,
                           overFlow: TextOverflow.ellipsis,

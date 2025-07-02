@@ -2,8 +2,6 @@ import 'dart:async';
 import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
-import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
-import 'package:fairpytasker/core/app/extension/int_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
@@ -37,8 +35,6 @@ class ResourceCheckInOutBloc extends Bloc<ResourceCheckInOutEvent, ResourceCheck
   List<Map<String, dynamic>>? workingHours = [];
   List<Map<String, dynamic>>? _employeeWorkHours = [];
   List<Map<String, dynamic>>? employeeWorkHours = [];
-  List<Map<String, dynamic>>? _employeeActiveHours = [];
-  List<Map<String, dynamic>>? _employeeHistoryCount = [];
 
   ResourceCheckInOutBloc() : super(LoadingState()) {
     on<InitialEvent>(_onInitialEvent);
@@ -50,44 +46,25 @@ class ResourceCheckInOutBloc extends Bloc<ResourceCheckInOutEvent, ResourceCheck
     on<ViewTaskCountEvent>(_onViewTaskCountEvent);
   }
 
-  Future<List<Map<String, dynamic>>> _getResources() async => await getIt<CommonService>().getResources();
-  Future<List<Map<String, dynamic>>?> _getWorkingHours() async => await _aPiRepository.getWorkingHours();
-  Future<List<Map<String, dynamic>>?> _getEmployeeWorkHours() async => List<Map<String, dynamic>>.from((await _aPiRepository.employeeWorkHours(fromDate: selectedDateRange?.start, toDate: selectedDateRange?.end))?['data']?['data'] ?? []);
-  Future<List<Map<String, dynamic>>?> _getEmployeeActiveHours() async => List<Map<String, dynamic>>.from((await _aPiRepository.employeeActiveHours(fromDate: selectedDateRange?.start, toDate: selectedDateRange?.end))?['data'] ?? []);
-  Future<List<Map<String, dynamic>>?> _getEmployeeHistoryCount() async => List<Map<String, dynamic>>.from((await _aPiRepository.employeeHistoryCount(fromDate: selectedDateRange?.start, toDate: selectedDateRange?.end))?['history'] ?? []);
+  Future<Map<String, dynamic>?> _checkInOut() async => await _aPiRepository.getCheckInOut(fromDate: selectedDateRange?.start, toDate: selectedDateRange?.end);
 
   void _processData() {
-    _employeeHistoryCount = _employeeHistoryCount?.map((e) => e..['hrm_id'] = (e['users']?['hrm_id'])).toList();
-    _employeeActiveHours?.removeWhere((element) => element['hrm_id'].toString().isNullOrEmpty);
-    workingHours = workingHours?.map((e) => e..['active'] = (_employeeActiveHours?.where((element) => element['todo_date'] == (DateTime.now().toFormat())).where((element) => element['hrm_id'] == (e['employee']?['id'])).map((e1) => (e1['active_hours'].toString().parseDurationToMinutes)).sum.minutesToHourMinute)).toList();
     selectedResource = resources.firstOrNull ?? {'id': -1, 'first_name': 'All', "last_name": ""};
     if (!isAllowed) selectedResource = resources.firstWhereOrNull((element) => element['id'] == getIt<CommonService>().userId);
-    Console.of.log(selectedResource, name: "SELECTED_RESOURCE");
-    Console.of.log(getIt<CommonService>().branchId, name: "CURRENT_BRANCH_ID");
-    Console.of.log(_currentBranchHrmIds, name: "CURRENT_BRANCH_HRM_IDS");
-    employeeWorkHours?.forEach((e) {
-      e['user_id'] = (resources.firstWhereOrNull((element) => element['hrm_id'] == e['id']))?['id'];
-      e['active'] = (_employeeActiveHours?.where((element) => element['hrm_id'] == e['id']).map((e1) => (e1['active_hours'].toString().parseDurationToMinutes)).sum.minutesToHourMinute);
-      e['totalCount'] = (_employeeHistoryCount?.firstWhereOrNull((element) => element['hrm_id'] == e['id'])?['task_count']);
-      e['task_count'] = (List.from(e['list'] ?? [])).length;
-    });
     employeeWorkHours?.removeWhere((element) => !_currentBranchHrmIds.contains(element['id']));
     _employeeWorkHours = employeeWorkHours;
-    workingHours?.removeWhere((element) => !_currentBranchHrmIds.contains(element['employee']?['id']));
+    workingHours?.removeWhere((element) => !_currentBranchHrmIds.contains(element['id']));
     if (getIt<CommonService>().freelancerHrmIds.isNotEmpty) workingHours?.removeWhere((element) => !getIt<CommonService>().freelancerHrmIds.contains(element['employee']?['id']));
   }
 
   void _onInitialEvent(InitialEvent event, Emitter<ResourceCheckInOutState> emit) async {
     try {
       emit(LoadingState());
-      var response = await Future.wait([_getWorkingHours(), _getResources(), _getEmployeeWorkHours(), _getEmployeeActiveHours(), _getEmployeeHistoryCount()]);
-      workingHours = response[0] ?? [];
-      employeeWorkHours = (response[2]?.map((e) => e['user']).toList() ?? []).cast<Map<String, dynamic>>();
-      _employeeActiveHours = response[3] ?? [];
-      _employeeHistoryCount = response[4] ?? [];
+      var data = await _checkInOut();
+      employeeWorkHours = List.from(data?['employeeWorkHours'] ?? []);
+      workingHours = List.from(data?['workingHours'] ?? []);
       _processData();
       if (!isAllowed) add(ResourceSelectEvent(selectedResource));
-      Console.of.log(employeeWorkHours);
       emit(CommonState());
     } catch (e) {
       Console.of.error("Error", error: e);
@@ -101,10 +78,9 @@ class ResourceCheckInOutBloc extends Bloc<ResourceCheckInOutEvent, ResourceCheck
       _employeeWorkHours = [];
       employeeWorkHours = [];
       emit(LoadingState());
-      var response = await Future.wait([_getEmployeeWorkHours(), _getEmployeeActiveHours(), _getEmployeeHistoryCount()]);
-      employeeWorkHours = (response[0]?.map((e) => e['user']).toList() ?? []).cast<Map<String, dynamic>>();
-      _employeeActiveHours = response[1] ?? [];
-      _employeeHistoryCount = response[2] ?? [];
+      var data = await _checkInOut();
+      employeeWorkHours = List.from(data?['employeeWorkHours'] ?? []);
+      workingHours = List.from(data?['workingHours'] ?? []);
       _processData();
       emit(CommonState());
     } catch (e) {

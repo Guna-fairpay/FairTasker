@@ -3,8 +3,6 @@ import 'package:fairpytasker/Component/custom_compact_icon_button.dart';
 import 'package:fairpytasker/Component/custom_date_time_picker.dart';
 import 'package:fairpytasker/Component/image_viewer.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleEdit/Bloc/edit_vehicle_bloc.dart';
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleEdit/Bloc/edit_vehicle_state.dart';
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleEdit/Bloc/edit_vehicle_event.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleEdit/UI/edit_vehicle_more_part_one.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/Components/image_upload_selection.dart';
 import 'package:fairpytasker/Utilities/utils.dart';

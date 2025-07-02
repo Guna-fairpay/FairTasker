@@ -1,10 +1,7 @@
 import 'package:fairpytasker/Component/compact_bottom_bar_item.dart';
 import 'package:fairpytasker/Component/drawer_ui.dart';
-import 'package:fairpytasker/UI/Finance/Expense/Component/expense_tap_ui.dart';
-import 'package:fairpytasker/UI/Finance/Finance/profit&loss_ui.dart';
-import 'package:fairpytasker/UI/Finance/Invoice/invoice_view_ui.dart';
-import 'package:fairpytasker/UI/Finance/Revenue/revenue_view_ui.dart';
-import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_list/vehicle_status_list_ui.dart';
+import 'package:fairpytasker/UI/Finance/expense_main/expense_main_screen.dart';
+import 'package:fairpytasker/UI/vehicle_status/vehicle_status_list/vehicle_status_list_ui.dart';
 import 'package:fairpytasker/UI/notes/notes_main_ui.dart';
 import 'package:fairpytasker/UI/tasker/tasker_main_ui.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
@@ -44,7 +41,7 @@ class _BottomNavigationForTaskViewState
       extendBody: false,
       appBar:  PreferredSize(
         preferredSize: Size.fromHeight(25.h),
-        child: HeaderView(),
+        child: const HeaderView(),
       ),
       backgroundColor: AppC.white,
       bottomNavigationBar: BottomNavigationBar(
@@ -73,10 +70,7 @@ class _BottomNavigationForTaskViewState
       1 => const NotesMainUi(),
       2 => const VehicleStatusListUi(),
       3 => const FeedBackUI(),
-      4 => const ExpenseTab(),
-      5 => const InvoiceViewUI(),
-      6 => const RevenueViewUI(),
-      7 => const ProfitAndLossUI(),
+      4 => const ExpenseMainUI(),
       _ => const TaskerMainUi(),
       },
     );

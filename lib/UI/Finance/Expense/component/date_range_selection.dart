@@ -12,12 +12,14 @@ class DateRangePicker extends StatelessWidget {
   final DateRange? selectedDateRange;
   final String? splitter;
   final Function(DateRange) onDateRangeSelected;
+  final EdgeInsets? padding;
 
   const DateRangePicker({
     super.key,
     this.splitter = "-",
     this.selectedDateRange,
     required this.onDateRangeSelected,
+    this.padding,
   });
 
   @override
@@ -37,7 +39,7 @@ class DateRangePicker extends StatelessWidget {
       },
       child: Container(
         width: double.maxFinite,
-        padding: 8.spMin.padding,
+        padding: padding ?? 8.spMin.padding,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(Num.subradiusButton),
           border: Border.all(color: AppC.borderColor)
@@ -46,9 +48,14 @@ class DateRangePicker extends StatelessWidget {
           children: [
             Expanded(
               child: Text(
-                ((selectedDateRange?.start) == (selectedDateRange?.end)) ? selectedDateRange?.start.toFormat() ?? "" : "${selectedDateRange?.start.toFormat() ?? ""} $splitter ${selectedDateRange?.end.toFormat() ?? ""}",
+               ((selectedDateRange?.start == null) && (selectedDateRange?.end == null))
+                   ? "Select Date Range"
+                   : ((selectedDateRange?.start) == (selectedDateRange?.end))
+                   ? selectedDateRange?.start.toFormat() ?? ""
+                   : "${selectedDateRange?.start.toFormat() ?? ""} $splitter ${selectedDateRange?.end.toFormat() ?? ""}",
                 overflow: TextOverflow.ellipsis,
-                style: context.textTheme.labelLarge,
+                style: context.textTheme.labelLarge?.copyWith(color: ((selectedDateRange?.start == null) && (selectedDateRange?.end == null))? AppC.grey : AppC.text),
+
               ),
             ),
             Icon(Icons.calendar_month_rounded, size: 13.spMin, color: AppC.subText,)

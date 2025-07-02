@@ -1,6 +1,6 @@
 
 import 'package:fairpytasker/Component/success_button.dart';
-import 'package:fairpytasker/UI/CheckIn%20CheckOut/Component/custom_checkbox.dart';
+import 'package:fairpytasker/Component/custom_checkbox.dart';
 import 'package:fairpytasker/UI/dialog/transport_car_dialog/Bloc/transport_car_complete_bloc.dart';
 import 'package:fairpytasker/UI/dialog/transport_car_dialog/Bloc/transport_car_complete_event.dart';
 import 'package:fairpytasker/UI/dialog/transport_car_dialog/Bloc/transport_car_complete_state.dart';

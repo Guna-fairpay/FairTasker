@@ -3,6 +3,7 @@ import 'package:fairpytasker/Utilities/assets.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:flutter/material.dart' show BottomNavigationBarItem, BoxFit, BuildContext, Column, FontWeight, GlobalKey, Icon, Icons, Image, MainAxisAlignment, Offset, PopupMenuItem, RelativeRect, RenderBox, Row, Size, SizedBox, Widget, showMenu;
+import 'package:r_icon_pro/r_icon_pro.dart';
 
 class BottomMenuHelper {
   BottomMenuHelper._();
@@ -129,29 +130,29 @@ class BottomMenuHelper {
   static List<Map<String, dynamic>> get pages => [
     {
       "name" : "Tasker",
-      "icon" : Icons.calendar_today_rounded,
-      "activeIcon" : Icons.calendar_month_rounded,
+      "icon" : RIcon.Calendar_Minimalistic,
+      "activeIcon" : RIcon.Calendar,
     },
     {
       "name" : "Notes",
-      "icon" : Icons.note_outlined,
-      "activeIcon" : Icons.note_rounded,
+      "icon" : RIcon.Documents_Minimalistic,
+      "activeIcon" : RIcon.Notes_Minimalistic,
     },
     {
       "name" : "Asset",
-      "icon" : Icons.verified_outlined,
-      "activeIcon" : Icons.verified_rounded,
+      "icon" : RIcon.Check_Circle,
+      "activeIcon" : RIcon.Verified_Check,
     },
     {
       "name" : "Feedback",
-      "icon" : Icons.feed_outlined,
-      "activeIcon" : Icons.feed_rounded,
+      "icon" : RIcon.File_Text,
+      "activeIcon" : RIcon.File_Smile__,
     },
     if(getIt<CommonService>().showExpense)
     {
       "name" : "Expense",
-      "icon" : Icons.monetization_on_outlined,
-      "activeIcon" : Icons.monetization_on_rounded,
+      "icon" : RIcon.Dollar_Minimalistic,
+      "activeIcon" : RIcon.Bill_Check_,
     },
   ];
 

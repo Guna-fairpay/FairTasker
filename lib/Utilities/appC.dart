@@ -12,6 +12,7 @@ static const redAccent = Color(0xffd01601);
     Color base = const Color(0xFF374E8C);
   static const text = Color(0xff373737);
   static const subText = Color(0xd6373737);
+  static const lightDark = Color(0xFF495057);
   // Color base1 = selectedColor;
  
   static const white = Color(0xffffffff);
@@ -48,6 +49,7 @@ static const redAccent = Color(0xffd01601);
 
   static const buttonColor = Color(0xFF369f6f);
   static const darkGreen = Color(0xFF075a33);
+  static const darkestGreen = Color(0xFF008000);
 
   static const blueButtonColor = Color(0xFF41a5d4);
   static const fileButtonColor = Color(0xFFeff2f7);

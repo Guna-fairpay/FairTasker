@@ -105,12 +105,12 @@ class _HourSummeryPopView extends StatelessWidget {
                                 TableCell(
                                     child: Padding(
                                       padding: 10.sp.padding,
-                                      child: Text("${e['task_count'] ?? ''}"),
+                                      child: Text(" ${e['task_name'].toString().toLowerCase().contains("other") ? (e['total_time'] ?? "") : (e['task_count'] ?? "")}"),
                                     )),
                                 TableCell(
                                     child: Padding(
                                       padding: 10.sp.padding,
-                                      child: Text("\$${e['total'] ?? ''}"),
+                                      child: Text("\$${e['task_name'].toString().toLowerCase().contains("other") ? (e['hour_amount'] ?? "") : (e['total'] ?? "")}"),
                                     )),
                               ],
                             ),

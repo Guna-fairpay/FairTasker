@@ -2,6 +2,7 @@ import 'package:fairpytasker/Component/custom_compact_pagination.dart';
 import 'package:fairpytasker/Component/custom_compact_search_view.dart';
 import 'package:fairpytasker/Component/custom_vehicle_history_card_view.dart';
 import 'package:fairpytasker/Component/empty_widget.dart';
+import 'package:fairpytasker/Component/expand_wrapper.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/ui/edit_todo_ui.dart';
 import 'package:fairpytasker/UI/Vehicle/vehicle_history/bloc/vehicle_history_bloc.dart';
 import 'package:fairpytasker/UI/Vehicle/vehicle_history/event/vehicle_history_event.dart';
@@ -172,87 +173,43 @@ class VehicleHistoryViewUI extends StatelessWidget {
                         ),
                       ),
                     ),
-                  if ((state is! VehicleHistoryLoadingState) &&
-                      context
-                          .watch<VehicleHistoryBloc>()
-                          .listData
-                          .isEmpty)
+                  if ((state is! VehicleHistoryLoadingState) && context.watch<VehicleHistoryBloc>().listData.isEmpty)
                     const EmptyWidget(withExpand: false),
-                  if (additionalScroll) ...[
-                    if (context
-                        .watch<VehicleHistoryBloc>()
-                        .listData
-                        .isNotEmpty)
-                      Expanded(
-                          child: ListView.builder(
-                            shrinkWrap: true,
-                            itemCount: context
-                                .watch<VehicleHistoryBloc>()
-                                .listData
-                                .length,
-                            physics: additionalScroll
-                                ? const BouncingScrollPhysics()
-                                : const NeverScrollableScrollPhysics(),
-                            itemBuilder: (context, index) {
-                              var model = context
-                                  .watch<VehicleHistoryBloc>()
-                                  .listData[index];
-                              var isCompleted =
-                              (model['status'] == 'Completed');
-                              return CustomVehicleHistoryCardView(
-                                model: model,
-                                confirmDismiss: (direction) async {
-                                  context.read<VehicleHistoryBloc>().add(
-                                      VehicleHistoryCompleteEvent(
-                                          model['id'], !isCompleted));
-                                  return false;
-                                },
-                                onTap: () => context.read<VehicleHistoryBloc>().add(VehicleHistoryViewEvent(model)),
-                                onDelete: () => context.read<VehicleHistoryBloc>().add(VehicleHistoryDeleteInitEvent(model)),
-                                onParts: () => context.read<VehicleHistoryBloc>().add(VehicleHistoryShowPartsEvent(model)),
-                                onSupplies: () => context.read<VehicleHistoryBloc>().add(VehicleHistoryShowSuppliesEvent(model)),
-                                onUserTap: (users) => context.read<VehicleHistoryBloc>().add(VehicleHistoryShowUsersEvent(users)),
-                                onCustom: (customId, customLink) => context.read<VehicleHistoryBloc>().add(VehicleHistoryViewCustomLinkEvent(customId, customLink)),
-                              );
-                            },
-                          ))
-                  ],
-                  if (!additionalScroll) ...[
-                    if (context
-                        .watch<VehicleHistoryBloc>()
-                        .listData
-                        .isNotEmpty)
-                      ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: context
-                            .watch<VehicleHistoryBloc>()
-                            .listData
-                            .length,
-                        physics: additionalScroll
-                            ? const BouncingScrollPhysics()
-                            : const NeverScrollableScrollPhysics(),
-                        itemBuilder: (context, index) {
-                          var model = context
+                  if (context.watch<VehicleHistoryBloc>().listData.isNotEmpty)
+                    ExpandWrapper(
+                        asExpand: additionalScroll,
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: context
                               .watch<VehicleHistoryBloc>()
-                              .listData[index];
-                          return CustomVehicleHistoryCardView(
-                            model: model,
-                            confirmDismiss: (direction) async {
-                              context.read<VehicleHistoryBloc>().add(
-                                  VehicleHistoryCompleteEvent(model['id'],
-                                      !(model['status'] == 'Completed')));
-                              return false;
-                            },
-                            onTap: () => context.read<VehicleHistoryBloc>().add(VehicleHistoryViewEvent(model)),
-                            onDelete: () => context.read<VehicleHistoryBloc>().add(VehicleHistoryDeleteInitEvent(model)),
-                            onParts: () => context.read<VehicleHistoryBloc>().add(VehicleHistoryShowPartsEvent(model)),
-                            onSupplies: () => context.read<VehicleHistoryBloc>().add(VehicleHistoryShowSuppliesEvent(model)),
-                            onUserTap: (users) => context.read<VehicleHistoryBloc>().add(VehicleHistoryShowUsersEvent(users)),
-                            onCustom: (customId, customLink) => context.read<VehicleHistoryBloc>().add(VehicleHistoryViewCustomLinkEvent(customId, customLink)),
-                          );
-                        },
-                      )
-                  ],
+                              .listData
+                              .length,
+                          physics: additionalScroll
+                              ? const BouncingScrollPhysics()
+                              : const NeverScrollableScrollPhysics(),
+                          itemBuilder: (context, index) {
+                            var model = context
+                                .watch<VehicleHistoryBloc>()
+                                .listData[index];
+                            var isCompleted =
+                            (model['status'] == 'Completed');
+                            return CustomVehicleHistoryCardView(
+                              model: model,
+                              confirmDismiss: (direction) async {
+                                context.read<VehicleHistoryBloc>().add(
+                                    VehicleHistoryCompleteEvent(
+                                        model['id'], !isCompleted));
+                                return false;
+                              },
+                              onTap: () => context.read<VehicleHistoryBloc>().add(VehicleHistoryViewEvent(model)),
+                              onDelete: () => context.read<VehicleHistoryBloc>().add(VehicleHistoryDeleteInitEvent(model)),
+                              onParts: () => context.read<VehicleHistoryBloc>().add(VehicleHistoryShowPartsEvent(model)),
+                              onSupplies: () => context.read<VehicleHistoryBloc>().add(VehicleHistoryShowSuppliesEvent(model)),
+                              onUserTap: (users) => context.read<VehicleHistoryBloc>().add(VehicleHistoryShowUsersEvent(users)),
+                              onCustom: (customId, customLink) => context.read<VehicleHistoryBloc>().add(VehicleHistoryViewCustomLinkEvent(customId, customLink)),
+                            );
+                          },
+                        )),
                   CompactPagination(
                       totalPages:
                       context.watch<VehicleHistoryBloc>().totalPage,

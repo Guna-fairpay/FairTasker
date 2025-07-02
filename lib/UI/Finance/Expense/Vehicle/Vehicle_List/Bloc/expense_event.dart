@@ -10,31 +10,9 @@ abstract class ExpenseEvent extends Equatable {
 }
 
 class GetVehicleExpenseData extends ExpenseEvent {
-   final String? minDate;
-   final String? maxDate;
-  const GetVehicleExpenseData({required this.minDate, required this.maxDate});
-  @override
-  List<Object?> get props => [minDate, maxDate];
-}
-
-class GetVehicleExpenseAddData extends ExpenseEvent {
-
-  const GetVehicleExpenseAddData();
-  @override
-  List<Object?> get props => [];
-}
-
-class GetVehicleExpenseEditData extends ExpenseEvent {
-  final String? id;
-  const GetVehicleExpenseEditData({required this.id});
-  @override
-  List<Object?> get props => [id];
-}
-
-class DateRangeEvent extends ExpenseEvent {
-  final String? minDate;
-  final String? maxDate;
-  const DateRangeEvent({required this.minDate, required this.maxDate});
+   final dynamic minDate;
+   final dynamic maxDate;
+  const GetVehicleExpenseData({this.minDate, this.maxDate});
   @override
   List<Object?> get props => [minDate, maxDate];
 }
@@ -110,25 +88,11 @@ class ApprovedExpenseEvent extends ExpenseEvent {
   List<Object?> get props => [isApproved];
 }
 
-class VehicleEvent extends ExpenseEvent {
-  final dynamic selectedVehicle;
-  const VehicleEvent({required this.selectedVehicle});
-  @override
-  List<Object?> get props => [selectedVehicle, Random().nextDouble()];
-}
-
 class DateChangeEvent extends ExpenseEvent {
   final DateTime selectedDate;
   const DateChangeEvent({required this.selectedDate});
   @override
   List<Object?> get props => [selectedDate];
-}
-
-class DeleteExpenseVehicleEvent extends ExpenseEvent {
-  final String? id;
-  const DeleteExpenseVehicleEvent({required this.id});
-  @override
-  List<Object?> get props => [id];
 }
 
 class UpdateCategoryEvent extends ExpenseEvent {
@@ -167,10 +131,5 @@ class SaveSubcategory extends ExpenseEvent {
   List<Object?> get props => [name, expenseToId, categoryId,Random().nextDouble()];
 }
 
-class GetCategoryDropDownData extends ExpenseEvent {
-  const GetCategoryDropDownData();
-  @override
-  List<Object?> get props => [];
-}
-
 class RefreshEvent extends ExpenseEvent {}
+

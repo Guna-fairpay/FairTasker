@@ -1,10 +1,14 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
-import 'dart:ui' show VoidCallback;
 import 'package:date_time/date_time.dart';
+import 'package:fairpytasker/Response/authentication_response.dart';
+import 'package:fairpytasker/core/app/helper/work_manager_helper.dart';
 import 'package:fairpytasker/core/initializer/receive_intent.dart';
 import 'package:fairpytasker/core/initializer/todo_supporter.dart';
 import 'package:flutter/foundation.dart' show ValueNotifier, kDebugMode;
+import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:collection/collection.dart';
@@ -13,12 +17,10 @@ import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
-import 'package:fairpytasker/core/app/helper/authenticator.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/utilities/utils.dart';
 import 'package:fbroadcast/fbroadcast.dart';
-import 'package:flutter/foundation.dart' show ValueNotifier;
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
@@ -33,9 +35,10 @@ class Initializer {
 
   void init() async {
     tz.initializeTimeZones();
-    getIt.registerSingleton<CommonService>(CommonService());
-    getIt.registerSingleton<ToDoSupport>(ToDoSupport());
-    getIt.registerSingleton<ReceiveIntent>(ReceiveIntent());
+    getIt
+    ..registerSingleton<CommonService>(CommonService())
+    ..registerSingleton<ToDoSupport>(ToDoSupport())
+    ..registerSingleton<ReceiveIntent>(ReceiveIntent());
   }
 }
 
@@ -67,30 +70,38 @@ class CommonService {
   List<Map<String, dynamic>> _privateRentalCustomersList = [];
   List<Map<String, dynamic>> _maintenanceCheckList = [];
   List<Map<String, dynamic>> _checkList = [];
+  List<Map<String, dynamic>> _vehicleCategories = [];
   List<Map<String, dynamic>> FairTechProjects = [];
   Map<String, dynamic> employeesList = {};
   List<Map<String, dynamic>> taskCategoryGroupList = [];
   Map<String, dynamic>? _vehicleStatus;
+  Map<String, dynamic>? releaseNotes;
   List<Map<String, dynamic>> _leavelistType = [];
   List<Map<String, dynamic>> expensesCategory = [];
+
+  PackageInfo? packageInfo;
 
 
   final ValueNotifier<bool> updateBranch = ValueNotifier(false);
   int get userId => int.tryParse(Session.of.getString(Str.userIdPrefText) ?? "0") ?? 0;
   Iterable<String>? get roles => Session.of.getStringList(Str.rolePrefText)?.map((e) => e.toString().toLowerCase());
   bool get isAdmin => (roles?.contains("admin") ?? false) || ([1, 2, 3].contains(userId));
+  bool get isAdminStrict => (roles?.contains("admin") ?? false);
   bool get showExpense => ((roles?.contains("admin") ?? false) || ([3, 1, 28, 17].contains(userId)));///22 - Saeed ali , 21 - hidayath
   bool get hideReportItems => [20, 21, 10, 23, 2, 16, 15].contains(userId);
 
-  int get departmentId => Session.of.getInt("departmentId") ?? 0;
+  int get departmentId => Session.of.getInt(Str.departmentIdPrefText) ?? 0;
   int? get branchId => Session.of.getInt(Str.branchIdPrefText);
   int? get hrmId => Session.of.getInt(Str.hrmIdPrefText);
+
+  User? get _user => User.fromJson(jsonDecode(Session.of.getString(Str.userPrefText) ?? ""));
 
   String get currentPlatform => Platform.isAndroid ? "android" : "ios";
 
   List<String>? get userPermissions => Session.of.getStringList(Str.userPermissionPrefText);
 
   bool get hasReport => userPermissions?.map((e) => e.toLowerCase()).contains("report") ?? false;
+  bool get hasFinance => userPermissions?.map((e) => e.toLowerCase()).contains("finance") ?? false;
   bool get hasFairTechEOD => (userPermissions?.map((e) => e.toLowerCase()).contains("fairtech-eod") ?? false) || (kDebugMode);
 
   List<dynamic> get freelancerHrmIds {
@@ -106,6 +117,11 @@ class CommonService {
 
   void branchUpdate({VoidCallback? callback}) {
     _broadcast.register(Str.branchChange, (value, _) => callback?.call());
+  }
+
+  Future<PackageInfo?> getPackageInfo() async {
+    packageInfo ??= await PackageInfo.fromPlatform();
+    return packageInfo;
   }
 
   List<dynamic> get currentBranchHrmIds {
@@ -129,15 +145,56 @@ class CommonService {
     return now;
   }
 
+  void initializeTasker(dynamic value) {
+    Console.of.log("Value is ${value.runtimeType}", name: "CommonService");
+    var response = (value is String) ? jsonDecode(value) : value;
+    if (response is Map<String, dynamic>) {
+      Console.of.debug("Response is ${response.runtimeType} and setting values", name: "CommonService");
+      if (response.containsKey("vehicles") == false) return;
+      List<Map<String, dynamic>>? users = List.from(response['users'] ?? []);
+      List<Map<String, dynamic>>? userGroup = List.from(response['userGroup'] ?? []);
+      List<Map<String, dynamic>>? taskExpenseData = List.from(response['taskExpenseData'] ?? []);
+      List<Map<String, dynamic>>? locations = List.from(response['locations'] ?? []);
+      List<Map<String, dynamic>>? vendors = List.from(response['vendors'] ?? []);
+      List<Map<String, dynamic>>? vehicleStatusCategories = List.from(response['vehicleStatusCategories'] ?? []);
+      List<Map<String, dynamic>>? vehicles = List.from(response['vehicles'] ?? []);
+      List<Map<String, dynamic>>? vehicleGroups = List.from(response['vehicleGroups'] ?? []);
+      List<Map<String, dynamic>>? resources = List.from(response['resources'] ?? []);
+      List<Map<String, dynamic>>? parts = List.from(response['parts'] ?? []);
+      List<Map<String, dynamic>>? supplies = List.from(response['supplies'] ?? []);
+      updateValues(userList: users, groupPersonList: userGroup, taskExpenseDataList: taskExpenseData, locationsList: locations, vendorsList: vendors, groupVehicleList: vehicleGroups, activeVehicleList: vehicles, resourcesList: resources, partsList: parts, suppliesList: supplies, vehicleCategories: vehicleStatusCategories);
+      Console.of.debug("⌛Response is settled", name: "CommonService");
+    }
+  }
+
   Future<void> initialFetch() async {
-    await Future.wait([
-      // getUsers(),
-      getCohorts(),
-      getBranches(),
-      Authenticator.instance.getBearerToken(),
-      Authenticator.instance.getDepartmentId(),
-    ]);
+    await Future.delayed(Durations.short1);
+    if (Session.of.getBool(Str.loginPrefText) ?? false) triggerAll;
+    await Future.microtask(getPackageInfo);
+    await Future.microtask(getReleaseNotes);
     Console.of.log("$timeNow", name: "TIME_NOW_IN_AMERICA");
+  }
+
+  void initializeCohort(Map<String, dynamic>? response) {
+    cohortsList = List<Map<String, dynamic>>.from(response?['cohortsData'] ?? []);
+    expenseCategoriesList = List<Map<String, dynamic>>.from(response?['expenseCategories'] ?? []);
+    Console.of.debug("🛠️ Initialized cohorts", name: "CommonService");
+  }
+
+  void initializeBranch(Map<String, dynamic>? response) {
+    branchList = List<Map<String, dynamic>>.from(response?['data'] ?? []);
+    Console.of.debug("📥️ Initialized Branch", name: "CommonService");
+  }
+
+  Future<Map<String, dynamic>?> getReleaseNotes() async {
+    try {
+      var version = packageInfo?.version ?? "";
+      releaseNotes ??= await _apiRepository.fetchReleaseNotes(version);
+      Console.of.log(releaseNotes);
+      return releaseNotes;
+    } catch (e) {
+      return null;
+    }
   }
 
   Future<Map<String, dynamic>?> getCurrentLocation() async {
@@ -190,8 +247,10 @@ class CommonService {
   }
 
   Map<String, dynamic>? get user {
-    var userId = getUserId;
-    return usersList.firstWhereOrNull((element) => element['id'] == userId);
+    // var userId = getUserId;
+
+    // return usersList.firstWhereOrNull((element) => element['id'] == userId);
+    return _user?.toJson();
   }
 
   Future<List<Map<String, dynamic>>> getUsers({bool reset = false}) async {
@@ -309,7 +368,9 @@ class CommonService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getGroupPersons() async {
+  Future<List<Map<String, dynamic>>> getGroupPersons({bool reset = false}) async {
+    if (reset) groupPersonList.clear();
+    if (groupPersonList.isNotEmpty) return groupPersonList;
     try {
       var response = await _apiRepository.getGroupPersonList();
       groupPersonList = response?.data ?? [];
@@ -378,9 +439,9 @@ class CommonService {
     }
 
     try {
-      final response = await _apiRepository.getVendorsType();
+      final response = await _apiRepository.getVendorType();
 
-      if (response != null && response is List) {
+      if (response != null) {
         vendorsTypeList = List<Map<String, dynamic>>.from(
           response.whereType<Map<String, dynamic>>(),
         );
@@ -391,7 +452,7 @@ class CommonService {
       return vendorsTypeList;
     } catch (e) {
       Toaster.showError(e.toString());
-      log("${e.toString()}", name: "getVendorTypeList");
+      log(e.toString(), name: "getVendorTypeList");
       return [];
     }
   }
@@ -489,7 +550,7 @@ class CommonService {
     }
   }
 
-  /// CURRENT DATE TODO LIST
+  /// CURRENT DATE TODO_LIST
   Future<List<Map<String, dynamic>>> getToDos({bool reset = false}) async {
     if (reset) _toDoList.clear();
     if (_toDoList.isNotEmpty) return _toDoList;
@@ -613,7 +674,16 @@ class CommonService {
     }
   }
 
-  void updateValues({List<Map<String, dynamic>>? userList, List<Map<String, dynamic>>? cohortsList, List<Map<String, dynamic>>? vendorsList, List<Map<String, dynamic>>? locationsList, List<Map<String, dynamic>>? partsList, List<Map<String, dynamic>>? suppliesList, List<Map<String, dynamic>>? groupVehicleList, List<Map<String, dynamic>>? activeVehicleList, List<Map<String, dynamic>>? activeVehicleCountList, List<Map<String, dynamic>>? bouncieVehicles, List<Map<String, dynamic>>? groupPersonList, List<Map<String, dynamic>>? taskExpenseDataList, List<Map<String, dynamic>>? expenseCategoriesList, List<Map<String, dynamic>>? paymentTypesList, List<Map<String, dynamic>>? resourcesList, List<Map<String, dynamic>>? branchList, List<Map<String, dynamic>>? toDoList, List<Map<String, dynamic>>? maintenanceCheckList, List<Map<String, dynamic>>? checkList, Map<String, dynamic>? vehicleStatus}) {
+  List<Map<String, dynamic>> userByGroupId(int? userGroupId) {
+    if ((userGroupId == null) || (userGroupId == 0)) return [];
+    final groupPerson =  groupPersonList.firstWhereOrNull((element) => element['id'] == userGroupId);
+    final userIds = List<int>.from(jsonDecode(groupPerson?['userId'] ?? ""));
+    final result = List<Map<String, dynamic>>.from(usersList.where((element) => userIds.contains(element['id'])).toList());
+    result.sort((a, b) => a['id'].toString().compareTo(b['id'].toString()));
+    return result;
+  }
+
+  void updateValues({List<Map<String, dynamic>>? userList, List<Map<String, dynamic>>? cohortsList, List<Map<String, dynamic>>? vendorsList, List<Map<String, dynamic>>? locationsList, List<Map<String, dynamic>>? partsList, List<Map<String, dynamic>>? suppliesList, List<Map<String, dynamic>>? groupVehicleList, List<Map<String, dynamic>>? activeVehicleList, List<Map<String, dynamic>>? activeVehicleCountList, List<Map<String, dynamic>>? bouncieVehicles, List<Map<String, dynamic>>? groupPersonList, List<Map<String, dynamic>>? taskExpenseDataList, List<Map<String, dynamic>>? expenseCategoriesList, List<Map<String, dynamic>>? paymentTypesList, List<Map<String, dynamic>>? resourcesList, List<Map<String, dynamic>>? branchList, List<Map<String, dynamic>>? toDoList, List<Map<String, dynamic>>? maintenanceCheckList, List<Map<String, dynamic>>? checkList, Map<String, dynamic>? vehicleStatus, List<Map<String, dynamic>>? vehicleCategories}) {
     this.usersList = userList ?? usersList;
     this.cohortsList = cohortsList ?? this.cohortsList;
     this.vendorsList = vendorsList ?? this.vendorsList;
@@ -631,6 +701,7 @@ class CommonService {
     this.resourcesList = resourcesList ?? this.resourcesList;
     this._vehicleStatus = vehicleStatus ?? _vehicleStatus;
     this.branchList = branchList ?? this.branchList;
+    _vehicleCategories = vehicleCategories ?? _vehicleCategories;
     _toDoList = toDoList ?? _toDoList;
     _maintenanceCheckList = maintenanceCheckList ?? _maintenanceCheckList;
     Console.of.log("Value resetted", name: "CommonInitializer");
@@ -657,6 +728,7 @@ class CommonService {
     _toDoList.clear();
     _maintenanceCheckList.clear();
     _checkList.clear();
+    _vehicleCategories.clear();
     Console.of.debug("Cleared all records", name: "CommonInitializer");
   }
 

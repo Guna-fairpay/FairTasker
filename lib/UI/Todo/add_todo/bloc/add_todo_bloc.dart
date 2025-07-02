@@ -26,7 +26,9 @@ import 'package:fairpytasker/core/initializer/todo_supporter.dart';
 import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:vsc_quill_delta_to_html/vsc_quill_delta_to_html.dart';
 
 class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
   final APiRepository _apiRepository = APiRepository();
@@ -49,6 +51,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
   final TextEditingController addressController = TextEditingController();
   final TextEditingController partsController = TextEditingController();
   final TextEditingController suppliesController = TextEditingController();
+  final QuillController enquiryController = QuillController.basic();
 
   final FBroadcast _broadcast = FBroadcast.instance();
 
@@ -182,6 +185,8 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
     on<AddToDoRecurringYearlySelectedMonthEvent>(_onRecurringYearlySelectedMonthEvent);
   }
 
+  bool get hasEnquiry => state.selectedTaskIdentifier[1]?['id'] == 358;
+
   Future<Map<String, dynamic>?> findClearCarExist(dynamic vin) async => await _apiRepository.checkCleanCarTask(vin: vin);
   Future<void> _findOilChangeTaskExist({required dynamic vin}) async {
     try {
@@ -207,7 +212,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
   }
 
   Future<void> _findReservationColor(String? vin) async {
-    if (vin == null) return;
+    if ((vin == null) || (isNextTask)) return;
     var response = await getIt<CommonService>().findVehicleReservation(vin: vin);
     Console.of.log("${response?['identifier_id']}", name: "AddToDoBloc");
     existingRefId = response?['reference_id'] ?? "";
@@ -277,6 +282,11 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
         (state.selectedLinkOption?['id'] == 1) ? customLinkController.text : "";
     baseBody['reference_id'] =
         (state.selectedLinkOption?['id'] != 1) ? customLinkController.text : "";
+    if (baseBody['identifier_id'].toString().contains("358")) {
+      if (enquiryController.document.toPlainText().trim().isNotNullOrEmpty) {
+        baseBody['rental_enquiry'] = QuillDeltaToHtmlConverter(enquiryController.document.toDelta().toJson(), ConverterOptions.forEmail()).convert();
+      }
+    }
     log(jsonEncode(baseBody), name: "ADD_TODO_BODY");
     return baseBody;
   }
@@ -565,7 +575,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
         if (lastVin.toString().isNotNullOrEmpty) return await _findOilChangeTaskExist(vin: lastVin);
       }
 
-      emit(state.copyWith(isLoading: true));
+      // emit(state.copyWith(isLoading: true));
       var files = state.attachments.whereType<File>().map((e) => {"images" : e.path}).toList();
       var response = await _apiRepository.addToDo(body: _addTodoBody(), infusedFiles: files);
       if ((response?.isNotEmpty ?? false) && (response?['status'] == 200)) Toaster.showSuccess(response?['message'] ?? "Success");

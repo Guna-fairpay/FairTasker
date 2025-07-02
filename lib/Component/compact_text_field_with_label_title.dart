@@ -1,6 +1,7 @@
 import 'package:fairpytasker/Component/compact_text_field.dart';
 import 'package:fairpytasker/Component/focus_node_wrapper.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -27,10 +28,10 @@ class _CompactTextFieldWithLabelTitleState extends State<CompactTextFieldWithLab
   }
 
   Widget get _passwordIcon {
-    return (widget.isPasswordField) ? InkWell(
+    return (widget.isPasswordField) ? Padding(padding: 10.spMin.rightPadding, child: InkWell(
       onTap: () => setState(() => _showPassword = !_showPassword),
       child: Icon((_showPassword) ? Icons.visibility_off_rounded : Icons.visibility_rounded, color: Colors.grey),
-    ) : const SizedBox.shrink();
+    )) : const SizedBox.shrink();
   }
 
   @override

@@ -2,7 +2,12 @@
 import 'package:fairpytasker/UI/Todo/edit_todo/Component/ask_date_range_permission_dialog.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/bloc/edit_todo_bloc.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/bloc/edit_todo_event.dart';
+import 'package:fairpytasker/UI/Todo/edit_todo/bloc/edit_todo_state.dart';
+import 'package:fairpytasker/UI/Todo/edit_todo/ui/edit_todo_body.dart';
+import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
+import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
 import 'package:fairpytasker/UI/dialog/tasker_check_pickup_reason_dialog.dart';
+import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
@@ -12,11 +17,7 @@ import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import '../../../../Utilities/appC.dart';
-import '../../../dialog/ask_permission_dialog.dart';
-import '../../../dialog/show_attachments_dialog.dart';
-import '../bloc/edit_todo_state.dart';
-import 'edit_todo_body.dart';
+
 
 class EditTodoUI extends StatelessWidget {
   final dynamic todoId;
@@ -26,7 +27,6 @@ class EditTodoUI extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Console.of.log("${model?['title']}", name: "EditTodoUI");
     return BlocProvider(
       create: (context) => EditToDoBloc()..add(GetEditTodoInitialEvent(todoId: "$todoId", model: model)),
       child: BlocListener<EditToDoBloc, EditTodoState>(
@@ -185,7 +185,7 @@ class EditTodoUI extends StatelessWidget {
                                 AskDateRangePermissionDialog.show(context,
                                     isReasonRequired: true,
                                     endDate: state.selectedEndDate.toFormat(),
-                                    startDate: context.read<EditToDoBloc>().recurringStartDate?.toFormat(format: 'MM-dd-yyyy'),
+                                    startDate: context.read<EditToDoBloc>().recurringStartDate?.toFormat(),
                                     selectedEndDate: state.selectedEndDate,
                                     selectedStartDate: state.selectedStartDate,
                                     positiveText: 'Delete',
@@ -231,8 +231,8 @@ class EditTodoUI extends StatelessWidget {
                                   if(state.selectedEndDate != null && state.selectedStartDate != null){
                                     await Future.delayed(Durations.short1);
                                     AskDateRangePermissionDialog.show(context,
-                                        endDate: state.selectedEndDate?.toFormat(format: 'MM-dd-yyyy'),
-                                        startDate: context.read<EditToDoBloc>().recurringStartDate?.toFormat(format: 'MM-dd-yyyy'),
+                                        endDate: state.selectedEndDate?.toFormat(format: 'yyyy-MM-dd'),
+                                        startDate: context.read<EditToDoBloc>().recurringStartDate?.toFormat(format: 'yyyy-MM-dd'),
                                         selectedEndDate: state.selectedEndDate,
                                         selectedStartDate: state.selectedStartDate,
                                         onStartDate: (value)=>context.read<EditToDoBloc>().add(EditToDoStartDateChangeEvent(value)),

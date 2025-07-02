@@ -25,8 +25,9 @@ class CompactSearchAutoField<T extends Object> extends StatefulWidget {
   final FormFieldValidator<T>? validator;
   final AutovalidateMode autoValidateMode;
   final T? value;
+  final bool alwaysShowSuffix;
 
-  CompactSearchAutoField({
+  const CompactSearchAutoField({
     super.key,
     this.labelText,
     this.value,
@@ -43,6 +44,7 @@ class CompactSearchAutoField<T extends Object> extends StatefulWidget {
     this.onEmptyWidgetTapDown,
     this.validator,
     this.autoValidateMode = AutovalidateMode.disabled,
+    this.alwaysShowSuffix = false
   });
 
   @override
@@ -179,7 +181,7 @@ class _CompactSearchAutoFieldState<T extends Object> extends State<CompactSearch
                       suffixIcon: ValueListenableBuilder(
                           valueListenable: widget.controller,
                           builder: (context, value, child) =>
-                          (widget.showEmptyWidget && value.text.isNotEmpty)
+                          ((widget.showEmptyWidget && value.text.isNotEmpty) || widget.alwaysShowSuffix)
                               ? GestureDetector(
                             onTap: widget.onEmptyWidgetTap,
                             onTapDown: widget.onEmptyWidgetTapDown,

@@ -19,11 +19,11 @@ class BouncieVehicleItem extends StatelessWidget {
               fit: BoxFit.cover,
             width: context.width,
             height: context.height,
-            loadingBuilder: (context, child, loadingProgress) => CircleAvatar(
+            loadingBuilder: (context, child, loadingProgress) => ((loadingProgress?.expectedTotalBytes ?? 0) != (loadingProgress?.cumulativeBytesLoaded ?? 0)) ? CircleAvatar(
               backgroundColor: AppC.white,
               radius: 35.spMin,
               child: const CircularProgressIndicator(),
-            ),
+            ) : child,
             errorBuilder: (context, error, stackTrace) => CircleAvatar(
               backgroundColor: AppC.white,
               radius: 34.spMin,
@@ -46,18 +46,18 @@ class BouncieVehicleItem extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CompactText(model?['bouncie']?['nickName'] ?? (model?['vehicle_name'] ?? ""),
+              CompactText((model?['vehicle_name'] ?? "").toString().toUpperCase(),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  fontWeight: FontWeight.bold, color: ((model?['bouncie']?['stats']?['isRunning'] ?? false)) ? AppC.green : AppC.black),
-              CompactText(model?['bouncie']?['address'] ?? ""),
-              CompactText("${model?['bouncie']?['vin'] ?? ""}/${model?['vehicle_number'] ?? ""}", color: AppC.appColor),
+                  fontWeight: FontWeight.bold, color: ((model?['bouncie_data']?['stats']?['isRunning'] ?? false)) ? AppC.darkestGreen : AppC.black),
+              CompactText(model?['bouncie_data']?['address'] ?? ""),
+              CompactText("${model?['vin'] ?? ""}/${model?['vehicle_number'] ?? ""}", color: AppC.appColor),
             ],
           ),
           trailing: RowTile(
             onTap: onTap,
             leading: const Icon(Icons.location_on_outlined, color: AppC.redAccent),
-            title: CompactText("${model?['bouncie']?['distance'] ?? 0}"),
+            title: CompactText("${model?['bouncie_data']?['distance'] ?? 0}"),
           ),
         ),
       ),

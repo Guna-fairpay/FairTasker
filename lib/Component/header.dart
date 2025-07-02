@@ -1,7 +1,5 @@
 import 'package:fairpytasker/Bloc/header_bloc.dart';
-import 'package:fairpytasker/Event/header_events.dart';
 import 'package:fairpytasker/State/header_states.dart';
-import 'package:fairpytasker/UI/CheckIn%20CheckOut/UI/resource_ui.dart';
 import 'package:fairpytasker/UI/dialog/popup/branch_popup.dart';
 import 'package:fairpytasker/UI/log/log_ui.dart';
 import 'package:fairpytasker/UI/resource/resource_main/resource_check_in_out_ui.dart';
@@ -17,6 +15,7 @@ import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:r_icon_pro/r_icon_pro.dart';
 import '../Utilities/str.dart';
 import 'bottom_nav_for_task.dart';
 
@@ -53,7 +52,7 @@ class HeaderView extends StatelessWidget {
                   width: 20.w,
                   height: 20.h,
                   fit: BoxFit.fitHeight,
-                  color: AppC().base,
+                  theme: const SvgTheme(currentColor: AppC.appColor),
                 ),
               ),
               Padding(
@@ -69,10 +68,10 @@ class HeaderView extends StatelessWidget {
                 ),
               ),
               if (getIt<CommonService>().hasReport)
-                IconButton(onPressed: () => context.push(const LogUi(), fullscreenDialog: true), icon: Icon(Icons.receipt_long_rounded, color: AppC.grey, size: 20.r,)),
+                IconButton(onPressed: () => context.push(const LogUi(), fullscreenDialog: true), icon: Icon(RIcon.Document_Add, color: AppC.grey, size: 20.r,)),
               const Spacer(),
               if (kDebugMode)
-              Badge.count(count: 0, smallSize: 8.sp, child: Icon(Icons.email_rounded,color: AppC.appColor, size: 18.r)),
+              Badge.count(count: 0, smallSize: 8.spMin, child: Icon(RIcon.Letter,color: AppC.appColor, size: 18.r)),
               BlocSelector<HeaderBloc, HeaderState, HeaderState>(
                 selector: (state) => state,
                 builder: (context, state) => GestureDetector(
@@ -82,19 +81,6 @@ class HeaderView extends StatelessWidget {
                     decoration: Utils.getBoxDecoration(),
                     padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
                     child: Utils.getText(' ${context.watch<HeaderBloc>().checkInOutCount ?? "0/0"} ', weight: FontWeight.bold),
-                  ),
-                ),
-              ),
-              if (kDebugMode)
-              BlocSelector<HeaderBloc, HeaderState, HeaderState>(
-                selector: (state) => state,
-                builder: (context, state) => GestureDetector(
-                  // onTap: () => context.push(const ResourceCheckInOutUi(), fullscreenDialog: true),
-                  onTap: () => context.push(WorkHoursViewUI(), fullscreenDialog: true),
-                  child: Container(
-                    decoration: Utils.getBoxDecoration(bgColor: Colors.orange),
-                    padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
-                    child: Utils.getText(' ${context.watch<HeaderBloc>().checkInCount}/${context.watch<HeaderBloc>().checkOutCount} '),
                   ),
                 ),
               ),

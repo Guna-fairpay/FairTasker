@@ -6,10 +6,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class TableHeaderLabel extends StatelessWidget {
   final String label;
   final TextAlign? textAlign;
-  const TableHeaderLabel({super.key, required this.label, this.textAlign});
+  final EdgeInsets? padding;
+  const TableHeaderLabel({super.key, required this.label, this.textAlign, this.padding});
 
   @override
   Widget build(BuildContext context) {
-    return TableCell(child: Padding(padding: 5.sp.padding, child: Text(label, style: context.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.bold), textAlign: textAlign)));
+    return TableCell(child: Padding(padding: padding ?? 5.sp.padding, child: Text(label, style: context.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.bold), textAlign: textAlign)));
   }
 }

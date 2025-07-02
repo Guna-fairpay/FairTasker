@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:collection/collection.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
+import 'package:fairpytasker/core/app/extension/int_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
@@ -64,12 +65,19 @@ class TaskDetailsBloc extends Bloc<TaskDetailsEvent, TaskDetailsState> {
 
       _employeeTaskHistory = (employeeTaskHistory?['history'] is Map) ? (employeeTaskHistory?['history']) : null;
 
+      Map<String, int> totalHours = {};
+      _employeeTaskHistory?.entries.forEach((element) {
+        totalHours[element.key] = List.from(element.value ?? []).map((e) => e['complete_time_taken'].toString().parseDurationToMinutes).sum;
+      });
       /// TASK COUNT CALCULATIONS
       Map<String, dynamic>? taskCount = (employeeTaskHistory?['taskCount'] is Map) ? (employeeTaskHistory?['taskCount']) : null;
       var taskIds = taskCount?.keys.map((e) => e.toNumeric);
       var confs = _configs;
+      final userAmounts = _configs.firstWhereOrNull((element) => (element['user_id'] == _model?['user_id']) && (element['type'] == "hourly"))?['amount'].toString().toNumeric ?? 0;
       confs.removeWhere((element) => !(taskIds?.contains(element['id']) ?? false));
-      configs = confs.map((e) => e..['task_count'] = (taskCount?[e['id'].toString()] ?? 0)..['total'] = ((taskCount?[e['id'].toString()] ?? 0) * (e['amount'].toString().toNumeric))).toList();
+      configs = confs.map((e) => e..['task_count'] = (taskCount?[e['id'].toString()] ?? 0)..['total'] = ((taskCount?[e['id'].toString()] ?? 0) * (e['amount'].toString().toNumeric))
+      ..['total_time'] = totalHours[e['id'].toString()]?.minutesToHourMinute ?? 0
+      ..['hour_amount'] = ((totalHours[e['id'].toString()] ?? 0) / 60) * userAmounts ).toList();
 
       var history = _employeeTaskHistory?.values.expand((element) => element).toList();
       tasks = _mainCategories;
@@ -108,6 +116,7 @@ class TaskDetailsBloc extends Bloc<TaskDetailsEvent, TaskDetailsState> {
   void _onInitialEvent(InitialEvent event, Emitter<TaskDetailsState> emit) async {
     try {
       _model = event.model;
+      Console.of.log(_model);
       dateRange = event.dateRange;
       emit(LoadingState());
       await _getCohorts();

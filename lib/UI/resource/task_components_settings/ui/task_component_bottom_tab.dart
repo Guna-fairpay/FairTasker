@@ -1,16 +1,4 @@
-import 'package:fairpytasker/Component/custom_tab_button.dart';
-import 'package:fairpytasker/Component/table_header_row.dart';
-import 'package:fairpytasker/UI/resource/task_components_settings/bloc/task_components_bloc.dart';
-import 'package:fairpytasker/UI/resource/task_components_settings/bloc/task_components_event.dart';
-import 'package:fairpytasker/UI/resource/task_components_settings/bloc/task_components_state.dart';
-import 'package:fairpytasker/UI/resource/task_components_settings/ui/hourly_based_table.dart';
-import 'package:fairpytasker/UI/resource/task_components_settings/ui/task_based_table.dart';
-import 'package:fairpytasker/Utilities/appC.dart';
-import 'package:fairpytasker/Utilities/num.dart';
-import 'package:fairpytasker/core/app/extension/sized_extension.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+part of 'task_component_main_page.dart';
 
 class TaskComponentBottomTab extends StatelessWidget {
   const TaskComponentBottomTab({super.key});
@@ -52,7 +40,7 @@ class TaskComponentBottomTab extends StatelessWidget {
                   ],
                 ),
               ),
-              10.sp.height,
+              10.spMin.height,
               if(context.read<TaskComponentBloc>().selectedTab == 0)
                 const TaskBasedTable(),
               if(context.read<TaskComponentBloc>().selectedTab == 1)

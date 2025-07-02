@@ -1,5 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/Utilities/appC.dart';
+import 'package:remixicon/remixicon.dart';
+import 'package:flutter/material.dart';
 
 class TodoTopSearchBar extends StatelessWidget {
   final VoidCallback? onAdd, onMic;
@@ -17,7 +19,7 @@ class TodoTopSearchBar extends StatelessWidget {
       dense: true,
       minVerticalPadding: 0,
       tileColor: Colors.blue[50],
-      leading: IconButton(onPressed: onAdd, icon: const Icon(Icons.add_rounded)),
+      leading: IconButton(onPressed: onAdd, icon: const Icon(Remix.add_line), color: AppC.appColor),
       title: TextField(
         autofocus: false,
         focusNode: focusNode,
@@ -28,7 +30,7 @@ class TodoTopSearchBar extends StatelessWidget {
         onTap: () => focusNode?.requestFocus(),
         onTapOutside: (event) => focusNode?.unfocus(),
         decoration: InputDecoration(
-            prefixIcon: const Icon(Icons.search_rounded),
+            prefixIcon: const Icon(Remix.search_line, color: AppC.grey),
             border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
                 borderSide: BorderSide.none),
@@ -42,8 +44,7 @@ class TodoTopSearchBar extends StatelessWidget {
             hintStyle: context.textTheme.labelLarge?.copyWith(
                 color: context.theme.hintColor, fontWeight: FontWeight.normal)),
       ),
-      trailing:
-          IconButton(onPressed: onMic, icon: const Icon(Icons.mic_none_rounded)),
+      trailing: IconButton(onPressed: onMic, icon: const Icon(Remix.mic_line), color: AppC.grey),
     );
   }
 }

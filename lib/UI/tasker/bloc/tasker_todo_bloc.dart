@@ -3,7 +3,6 @@ import 'dart:convert' show jsonEncode;
 import 'dart:io' show File;
 import 'package:collection/collection.dart';
 import 'package:date_time/date_time.dart' show DateTimeExtensions, Time;
-import 'package:fairpytasker/UI/dialog/transport_car_dialog/UI/transportcar_pop.dart';
 import 'package:fairpytasker/Response/general_response.dart';
 import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
@@ -12,8 +11,10 @@ import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/extension/timeday_extension.dart';
 import 'package:fairpytasker/core/app/helper/debouncer.dart';
+import 'package:fairpytasker/core/app/helper/dummy_data_provider.dart';
 import 'package:fairpytasker/core/app/helper/tasker_hours_processor.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
+import 'package:fairpytasker/core/app/helper/work_manager_helper.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter/cupertino.dart';
@@ -24,7 +25,6 @@ import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/UI/tasker/bloc/tasker_todo_events.dart';
 import 'package:fairpytasker/UI/tasker/bloc/tasker_todo_states.dart';
-import 'package:fairpytasker/core/app/helper/tasker_todo_data_processor.dart';
 
 class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
   bool isFilterSelected = false;
@@ -62,6 +62,11 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
   int get _userId => getIt<CommonService>().userId;
   int? get _hrmId => getIt<CommonService>().hrmId;
   int? get _branchId => getIt<CommonService>().branchId;
+
+  List<Map<String, dynamic>> get taskerResult {
+    if (toDos.isEmpty) return List.generate(10, (index) => DummyData.tasker);
+    return toDos;
+  }
 
   ToDoTaskerBloc() : super(ToDoTaskerLoadingState()) {
     _listenBroadCast();
@@ -140,7 +145,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
 
   /* BEGIN: API CALLS */
   // Future<List<Map<String, dynamic>>?> _fetchToDoList() async => await _toDoProcessor.getToDoList(selectedDate, isCompleted, resourceId: _selectedUserIds);
-  Future<Map<String, dynamic>?> _fetchToDoList({bool showOther = false}) async => await _aPiRepository.getToDoModList(selectedDate: selectedDate.toFormat(), status: isCompleted, resourceId: _selectedUserIds, showOther: showOther);
+  Future<Map<String, dynamic>?> _fetchToDoList({bool showOther = false}) async => await _aPiRepository.getToDoModList(selectedDate: selectedDate.toFormat(), status: isCompleted, resourceId: _selectedUserIds, showOther: getIt<CommonService>().activeVehicleList.isEmpty ? showOther : false);
   Future<Map<String, dynamic>?> _changeToMorrow({required List<String> todoIds, dynamic groupId, required String groupName, DateTime? date, TimeOfDay? time}) async => await _aPiRepository.changeToDoByGroup(todoList: todoIds, groupId: groupId, groupName: groupName, date: date, time: time);
   Future<Map<String, dynamic>?> _updateToDo({required Map<String, dynamic> body, required dynamic todoId}) async => await _aPiRepository.updateToDo(body: body, toDoId: todoId);
   Future<Map<String, dynamic>?> _swapToDo({required dynamic fromId, required dynamic toId}) async => await _aPiRepository.swapToDo(fromId: fromId, toId: toId);
@@ -165,7 +170,10 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     List<Map<String, dynamic>>? vehicleStatusCategories = List.from(model?['vehicleStatusCategories'] ?? []);
     List<Map<String, dynamic>>? vehicles = List.from(model?['vehicles'] ?? []);
     List<Map<String, dynamic>>? vehicleGroups = List.from(model?['vehicleGroups'] ?? []);
-    getIt<CommonService>().updateValues(userList: users, groupPersonList: userGroup, taskExpenseDataList: taskExpenseData, locationsList: locations, vendorsList: vendors, groupVehicleList: vehicleGroups, activeVehicleList: vehicles);
+    List<Map<String, dynamic>>? resources = List.from(model?['resources'] ?? []);
+    List<Map<String, dynamic>>? parts = List.from(model?['parts'] ?? []);
+    List<Map<String, dynamic>>? supplies = List.from(model?['supplies'] ?? []);
+    getIt<CommonService>().updateValues(userList: users, groupPersonList: userGroup, taskExpenseDataList: taskExpenseData, locationsList: locations, vendorsList: vendors, groupVehicleList: vehicleGroups, activeVehicleList: vehicles, resourcesList: resources, partsList: parts, suppliesList: supplies, vehicleCategories: vehicleStatusCategories);
   }
 
   // INITIAL EVENT PROCESSOR
@@ -173,21 +181,22 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
   void _onInitialEvent(ToDoTaskerInitialEvent event, Emitter<ToDoTaskerState> emit) async {
     try {
       toDos.clear();
+      await CommonHelper.instance.waitForPostFrameCallback(withDelay: true);
       emit(ToDoTaskerLoadingState());
-      // await CommonHelper.instance.waitForPostFrameCallback();
-      getIt<CommonService>().getCurrentLocation();
+      // getIt<CommonService>().getCurrentLocation();
       if (!isAdmin) {
         if ((currentUser != null) && (currentUser?.isNotEmpty ?? false)) selectedUsers?.add(currentUser ?? {});
       }
-      await _taskerHoursProcessor.initialize();
       var response = await _fetchToDoList(showOther: true);
       if (response != null) _setOtherValues(response);
-      processedWorkingHours = _taskerHoursProcessor.processWorkingHours();
       unfiltered = _processTodo(List.from(response?['todos'] ?? []));
       toDos = unfiltered;
-      _generateKeys();
+      // _generateKeys();
       isUserSelected = (selectedUsers?.isNotEmpty ?? false);
       Console.of.log("TASKER_ALL_API_LOADED", name: "TASKER_TODO_BLOC");
+      emit(ToDoTaskerCommonState());
+      await _taskerHoursProcessor.initialize();
+      processedWorkingHours = _taskerHoursProcessor.processWorkingHours();
       emit(ToDoTaskerCommonState());
     } catch (e) {
       Console.of.error("Error", error: e);
@@ -250,14 +259,15 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       if ( (!showLoading) &&  (!isClosed)) emit(ToDoTaskerCommonState());
       Console.of.debug("SHOW_LOADING $showLoading");
       if ( showLoading && (!isClosed)) emit(ToDoTaskerLoadingState());
-      // if (refresh) await _toDoProcessor.refresh();
+      if (refresh) triggerTasker; // TRIGGER WORK MANAGER TO FETCH ALL THE VALUES BACKGROUND
       var response = await _fetchToDoList(showOther: refresh);
-      if ((response != null) && (refresh)) _setOtherValues(response);
-      processedWorkingHours = await _taskerHoursProcessor.refresh();
+      if ((response != null) && (refresh)) _setOtherValues(response); // COMMENTED DUE TO HANDLED IN WM (Work Manager)
       unfiltered = _processTodo(List.from(response?['todos'] ?? []));
       toDos = unfiltered;
       _searchTasks();
       Console.of.debug("CHECK ${toDos.length}");
+      if (!isClosed) emit(ToDoTaskerCommonState());
+      processedWorkingHours = await _taskerHoursProcessor.refresh();
       if (!isClosed) emit(ToDoTaskerCommonState());
     } catch (e) {
       Console.of.error("REFRESH_TODOS", error: e);

@@ -195,10 +195,10 @@ class _CommentsAddUIState extends State<CommentsAddUI> {
                     children: [
                       SizedBox(
                         height: 50,
-                        child: quill.QuillToolbar.simple(
+                        child: quill.QuillSimpleToolbar(
                           controller: commentsController,
-                          configurations:
-                              quill.QuillSimpleToolbarConfigurations(
+                          config:
+                              quill.QuillSimpleToolbarConfig(
                                   showSmallButton: false,
                                   showSearchButton: false,
                                   showClipboardCopy: false,
@@ -225,7 +225,7 @@ class _CommentsAddUIState extends State<CommentsAddUI> {
                     controller: commentsController,
                     scrollController: ScrollController(),
                     focusNode: FocusNode(),
-                    configurations: const quill.QuillEditorConfigurations(
+                    config: const quill.QuillEditorConfig(
                       placeholder: 'Add a comment...',
                       floatingCursorDisabled: false,
                     ),

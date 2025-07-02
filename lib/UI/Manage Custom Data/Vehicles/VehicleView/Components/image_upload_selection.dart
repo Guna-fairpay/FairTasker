@@ -20,6 +20,7 @@ class ImageUploadSection extends StatelessWidget {
   final bool isRequired;
   final bool isDeleteDialog;
   final bool isDeleteIcon;
+  final IconData icon;
 
   const ImageUploadSection({
     Key? key,
@@ -32,6 +33,7 @@ class ImageUploadSection extends StatelessWidget {
     required this.logName,
     this.isRequired = true,
     this.isDeleteIcon = true,
+    this.icon = Icons.cloud_upload,
   }) : super(key: key);
 
   @override
@@ -52,8 +54,8 @@ class ImageUploadSection extends StatelessWidget {
                 spacing: 5,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.cloud_upload, color: borderColor, size: 13.spMin),
-                  Utils.getText(title, color: borderColor, weight: FontWeight.bold, size: 12.spMin),
+                  Icon(icon, color: borderColor, size: 13.spMin),
+                  Utils.getText(title, color: borderColor, weight: FontWeight.bold, size: 12.sp),
                 ],
               ),
             ),

@@ -1,7 +1,5 @@
 
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleAdd/Bloc/add_vehicle_bloc.dart';
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleAdd/Bloc/add_vehicle_event.dart';
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleAdd/Bloc/add_vehicle_state.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleAdd/UI/add_vehicle_more_part_two.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/Components/checkbox_with_text.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/Components/image_upload_selection.dart';
@@ -44,7 +42,7 @@ class AddVehicleMorePartOne extends StatelessWidget {
                 textInputFormatter: [FilteringTextInputFormatter.digitsOnly],
               ),
               10.height,
-              Utils.dropdownBox('Select Vehicle Status', context.read<AddVehicleBloc>().vehicleStatus, (value) => context.read<AddVehicleBloc>().add(VehicleStatusDropDownEvent(model: value)), labelKey: 'category_name',initialSelection: context.read<AddVehicleBloc>().selectedVehicleStatus),
+              Utils.dropdownBox('Select vehicle_status', context.read<AddVehicleBloc>().vehicleStatus, (value) => context.read<AddVehicleBloc>().add(VehicleStatusDropDownEvent(model: value)), labelKey: 'category_name',initialSelection: context.read<AddVehicleBloc>().selectedVehicleStatus),
               10.height,
               Utils.dropdownBox('Select Active Status', context.read<AddVehicleBloc>().activeStatus, (value) => context.read<AddVehicleBloc>().add(VehicleActiveDropDownEvent(model: value)), labelKey: 'category_name',initialSelection: context.read<AddVehicleBloc>().selectedActiveStatus),
               10.height,

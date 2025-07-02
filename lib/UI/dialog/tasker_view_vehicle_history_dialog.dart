@@ -129,20 +129,18 @@ class _TaskerViewVehicleHistoryView extends StatelessWidget {
                     ),
                   );
                 },
-                imageUrl: model?['display']?['vehicle_image'] ?? "",
+                imageUrl: (model?['display']?['vehicle_image'] ?? "").toString().toStorageURL,
                 placeholder: (context, url) =>
                     Utils.getProgressIndicator(context),
-                errorWidget: (context, url, error) {
-                  return Container(
-                    margin: const EdgeInsets.symmetric(vertical: 0),
-                    padding: const EdgeInsets.all(0),
-                    alignment: Alignment.center,
-                    child: Utils.getText("CT",
-                        size: 22,
-                        color: AppC.red,
-                        weight: FontWeight.bold),
-                  );
-                },
+                errorWidget: (context, url, error) => Container(
+                  margin: const EdgeInsets.symmetric(vertical: 0),
+                  padding: const EdgeInsets.all(0),
+                  alignment: Alignment.center,
+                  child: Utils.getText("CT",
+                      size: 22,
+                      color: AppC.red,
+                      weight: FontWeight.bold),
+                ),
               ),
             )),
             VehicleHistoryViewUI(
