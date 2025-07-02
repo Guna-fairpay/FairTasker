@@ -32,12 +32,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
   List<dynamic>? selectedPaymentId;
   List<dynamic>? attachments = [];
   List<dynamic>? ogAttachments = [];
-  TextEditingController vehicleController = TextEditingController();
-  TextEditingController amountController = TextEditingController();
-  TextEditingController descriptionController = TextEditingController();
-  TextEditingController dateController = TextEditingController();
   TextEditingController subCategoryController = TextEditingController();
-  TextEditingController odometerController = TextEditingController();
   List<dynamic>? selectedCohorts;
   List<dynamic>? selectedVehicle;
   dynamic minDate;
@@ -52,14 +47,6 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
   List<String> vehicleNameList = [];
   List<dynamic> partsList = [];
   List<dynamic> suppliesList = [];
-  final TextEditingController partsCostController = TextEditingController();
-  final TextEditingController labourCostController = TextEditingController();
-  final TextEditingController subTotalController = TextEditingController();
-  final TextEditingController saleTaxController = TextEditingController();
-  final TextEditingController shippingController = TextEditingController();
-  final TextEditingController totalAmountController = TextEditingController();
-  final TextEditingController percentageOrAmountController =
-      TextEditingController();
   bool taxIsTapped = false;
   List<Map<String, dynamic>> selectedParts = [];
   List<Map<String, dynamic>> selectedSupplies = [];
@@ -70,7 +57,6 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
   List <dynamic> apiResponse =[];
   final FBroadcast _broadcast = FBroadcast.instance();
   // int? get _branch =>  getIt<CommonService>().branchId;
-
 
   @override
   Future<void> close() {
