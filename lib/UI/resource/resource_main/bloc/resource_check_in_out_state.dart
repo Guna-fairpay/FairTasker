@@ -33,7 +33,10 @@ class ViewHoursDetailsState extends ResourceCheckInOutState {
   List<Object?> get props => [model, dateRange, Random().nextDouble()];
 }
 
-class TaskComponentState extends ResourceCheckInOutState {}
+class TaskComponentState extends ResourceCheckInOutState {
+  @override
+  List<Object?> get props => [Random().nextDouble()];
+}
 
 class ViewTaskDetailsState extends ResourceCheckInOutState {
   final dynamic model;
