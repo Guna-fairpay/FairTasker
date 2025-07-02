@@ -10,6 +10,7 @@ import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 
 class ExpenseVehicleListItem extends StatelessWidget {
@@ -99,80 +100,44 @@ class ExpenseVehicleListItem extends StatelessWidget {
       },
       child: SafeArea(
         minimum: 5.padding,
-        child: Column(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 10,
           children: [
-            Row(
-              children: [
-                Expanded(
-                  flex: 5,
-                  child: Row(
-                    spacing: 10,
-                    children: [
-                      Utils.getText(
-                        expense['expense_date'].toString().toDateTime()?.toFormat(format: 'MM-dd') ?? '',
-                        color: approveColor,
+            Expanded(
+              flex: 5,
+              child: Column(
+                spacing: 10,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(children: [
+                    Expanded(
+                      flex: 5,
+                      child: Row(
+                        spacing: 10,
+                        children: [
+                          Utils.getText(
+                            expense['expense_date'].toString().toDateTime()?.toFormat(format: 'MM-dd') ?? '',
+                            color: approveColor,
+                          ),
+                          Expanded(
+                            child: InkWell(
+                              onTap:()=> context.push(VehicleAddEditMainUI(editModel: expense)),
+                              // onTap:()=> context.push(ExpenseVehicleEditUI(expenseId: "${expense['id']}", vehicleName: expense['vehicle']?['vehicle_name'],),),
+                              child: Utils.getText(
+                                  expense['vehicle']?['vehicle_name'] ?? '',
+                                  overFlow: TextOverflow.ellipsis,
+                                  color: approveColor,
+                                  weight: FontWeight.bold),
+                            ),
+                          ),
+                        ],
                       ),
+                    ),
+                  ]),
+                  Row(children: [
+                    if (cohort.isNotNullOrEmpty)
                       Expanded(
-                        child: InkWell(
-                          onTap:()=> context.push(VehicleAddEditMainUI(editModel: expense)),
-                         // onTap:()=> context.push(ExpenseVehicleEditUI(expenseId: "${expense['id']}", vehicleName: expense['vehicle']?['vehicle_name'],),),
-                          child: Utils.getText(
-                              expense['vehicle']?['vehicle_name'] ?? '',
-                              overFlow: TextOverflow.ellipsis,
-                              color: approveColor,
-                              weight: FontWeight.bold),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                10.width,
-                Expanded(
-                  child: Visibility(
-                    visible: (expense['attachments'] ?? []).isNotEmpty,
-                    child: InkWell(
-                        onTap: () => ShowAttachmentsDialog.of.show(context,
-                            attachments: expenseImages, title: 'Expense Image'),
-                        child: const Icon(
-                          size: 20,
-                          Icons.remove_red_eye,
-                          color: AppC.appColor,
-                        )),
-                  ),
-                ),
-                10.width,
-                Expanded(
-                  child: Utils.getText(
-                    "${expense['employee_name'] ?? ''}",
-                    color: approveColor,
-                    weight: FontWeight.bold,
-                  ),
-                ),
-                Expanded(
-                  flex: 2,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Utils.getText(
-                        "\$${expense['expense_amount'].toString().toDoubleDigit}",
-                        color: approveColor,
-                        weight: FontWeight.bold,
-                        overFlow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            Row(
-              children: [
-                Expanded(
-                  flex: 5,
-                  child: Row(
-                    children: [
-                      if (cohort.isNotNullOrEmpty)
-                      Expanded(
-                        flex: 2,
                         child: InkWell(
                           onTap: onCohortTapEvent,
                           child: Utils.getText(
@@ -184,71 +149,100 @@ class ExpenseVehicleListItem extends StatelessWidget {
                           ),
                         ),
                       ),
-                      Utils.getText(" | ", weight: FontWeight.w900),
-                      Expanded(
-                        flex: 3,
-                        child: InkWell(
-                          onTap: onCategoryTapEvent,
-                          child: Utils.getText(
-                            '${expense['category']?['name'] ?? ''} ',
-                            overFlow: TextOverflow.ellipsis,
-                            color: categoryColor,
-                          ),
-                        ),
-                      ),
-                      Utils.getText(" | ", weight: FontWeight.w900),
-                      Expanded(
-                        flex: 3,
-                        child: InkWell(
-                          onTap: onCategoryTapEvent,
-                          child: Utils.getText(
-                            '${expense['subcategory']?['name'] ?? ''}',
-                            overFlow: TextOverflow.ellipsis,
-                            color: categoryColor,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                28.width,
-                Expanded(
-                  child: Checkbox(
-                    activeColor: AppC.appColor,
-                    value: (expense['approved'] == 1),
-                    onChanged:
-                      onChanged,
-                  ),
-                ),
-                Expanded(
-                  flex: 2,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      InkWell(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => VehicleExpenseHistoryUI(
-                                        vin: expense['vehicle']['vin'] ?? '',
-                                        vehicleName: expense['vehicle']['vehicle_name'] ?? '',
-                                        currentExpenseAmount: expense['approved']==0? double.tryParse(expense['expense_amount'].toString()):0.0,
-                                        showTotalAmount: true,
-                                      )));
-                        },
+                    Utils.getText(" | ", weight: FontWeight.w900),
+                    Expanded(
+                      child: InkWell(
+                        onTap: onCategoryTapEvent,
                         child: Utils.getText(
-                          "\$${expense['approveAmount'].toString().toDoubleDigit}",
-                          weight: FontWeight.bold,
-                          color: AppC.grey,
+                          '${expense['category']?['name'] ?? ''} ',
                           overFlow: TextOverflow.ellipsis,
+                          color: categoryColor,
                         ),
                       ),
-                    ],
+                    ),
+                    Utils.getText(" | ", weight: FontWeight.w900),
+                    Expanded(
+                      child: InkWell(
+                        onTap: onCategoryTapEvent,
+                        child: Utils.getText(
+                          '${expense['subcategory']?['name'] ?? ''}',
+                          overFlow: TextOverflow.ellipsis,
+                          color: categoryColor,
+                        ),
+                      ),
+                    ),
+                  ],)
+                ],
+              ),
+            ),
+            ((expense['attachments'] ?? []).isNotEmpty)
+                ? InkWell(
+                onTap: () => ShowAttachmentsDialog.of.show(context,
+                    attachments: expenseImages, title: 'Expense Image'),
+                child: const Icon(
+                  size: 20,
+                  Icons.remove_red_eye,
+                  color: AppC.appColor,
+                ))
+                : const Icon(
+              Icons.remove_red_eye,
+              color: AppC.trans,
+            ),
+            Expanded(
+              child: Column(
+                spacing: 10,
+                children: [
+                Utils.getText(
+                  "${expense['employee_name'] ?? ''}",
+                  color: approveColor,
+                  weight: FontWeight.bold,
+                ),
+                  FittedBox(
+                    child: SizedBox.fromSize(
+                      size: Size.fromRadius(14.spMin),
+                    child: Checkbox(
+                      activeColor: AppC.appColor,
+                      value: (expense['approved'] == 1),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      side: const BorderSide(width: 0.8, color: AppC.appColor),
+                      onChanged:
+                      onChanged,
+                    ),
                   ),
                 ),
-              ],
-            )
+              ],),
+            ),
+            Expanded(
+              flex: 2,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                spacing: 10,
+                children: [
+                  Utils.getText(
+                    "\$${expense['expense_amount'].toString().toDoubleDigit}",
+                    color: approveColor,
+                    weight: FontWeight.bold,
+                    overFlow: TextOverflow.ellipsis,
+                  ),
+                  InkWell(
+                    onTap: () => context.push(VehicleExpenseHistoryUI(
+                      vin: expense['vehicle']['vin'] ?? '',
+                      vehicleName: expense['vehicle']['vehicle_name'] ?? '',
+                      currentExpenseAmount: expense['approved']==0? double.tryParse(expense['expense_amount'].toString()):0.0,
+                      showTotalAmount: true,
+                    )),
+                    child: Utils.getText(
+                      "\$${expense['approveAmount'].toString().toDoubleDigit}",
+                      weight: FontWeight.bold,
+                      color: AppC.grey,
+                      overFlow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),

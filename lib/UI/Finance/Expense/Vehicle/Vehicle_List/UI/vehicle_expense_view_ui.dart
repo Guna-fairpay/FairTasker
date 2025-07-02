@@ -82,9 +82,9 @@ class ExpenseVehicleViewUI extends StatelessWidget {
                               CustomCheckboxListTile(
                                 padding: 0.padding,
                                 borderColor: AppC.appColor,
-                                radius: 8,
+                                radius: 14.spMin,
                                 useExpand: false,
-                                title: Utils.getText('Approved',size: 12.sp,color: AppC.grey,weight: FontWeight.bold),
+                                title: Utils.getText('Approved',size: 12.spMin,color: AppC.grey,weight: FontWeight.bold),
                                 value: state.isExpenseApproved,
                                 onChanged:  (value)=>context.read<ExpenseBloc>().add(ApprovedExpenseEvent(isApproved:value)),),
                               InkWell(
