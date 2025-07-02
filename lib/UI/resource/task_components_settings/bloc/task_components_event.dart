@@ -1,5 +1,4 @@
-
-import 'package:equatable/equatable.dart';
+part of 'task_components_bloc.dart';
 
 abstract class TaskComponentEvent extends Equatable{
   @override

@@ -1,15 +1,4 @@
-import 'package:fairpytasker/Component/table_header_row.dart';
-import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
-import 'package:fairpytasker/UI/resource/task_components_settings/bloc/task_components_bloc.dart';
-import 'package:fairpytasker/UI/resource/task_components_settings/bloc/task_components_event.dart';
-import 'package:fairpytasker/UI/resource/task_components_settings/bloc/task_components_state.dart';
-import 'package:fairpytasker/Utilities/appC.dart';
-import 'package:fairpytasker/core/app/extension/sized_extension.dart';
-import 'package:fairpytasker/core/initializer/common_initializer.dart';
-import 'package:fairpytasker/utilities/utils.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+part of 'task_component_main_page.dart';
 
 class HourlyBasedTable extends StatelessWidget {
   const HourlyBasedTable({super.key});
