@@ -49,7 +49,7 @@ class EmployeeAddEditMainPage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all( color: AppC.grey,width: 0.5)
                   ),
-                    padding: EdgeInsets.all(16.sp),
+                    padding: EdgeInsets.all(16.spMin),
                   child: EmployeeAddEditTextFormFieldPage(id: id,)
                 ),
               ],

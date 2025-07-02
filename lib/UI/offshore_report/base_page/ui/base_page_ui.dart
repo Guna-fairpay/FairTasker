@@ -32,7 +32,7 @@ abstract class BasePageUI extends StatelessWidget {
               onClose: context.pop,
             ),
             body: SafeArea(
-              minimum: 16.sp.padding,
+              minimum: 16.spMin.padding,
               child: Column(
                 spacing: 10,
                 crossAxisAlignment: CrossAxisAlignment.start,

@@ -12,11 +12,11 @@ class CheckInOutRow extends TableRow {
   
   @override
   List<Widget> get children => [
-    TableCell(child: Padding(padding: 5.sp.padding, child: Text(model?['date'].toString().toDateTime().toFormat(format: "MM-dd-yy") ?? "", textAlign: TextAlign.start))),
-    TableCell(child: Padding(padding: 5.sp.padding, child: Text(model?['start_time'].toString().parseDurationToMinutes.minutesToHourMinute ?? "", textAlign: TextAlign.center))),
-    TableCell(child: Padding(padding: 5.sp.padding, child: Text(model?['end_time'].toString().parseDurationToMinutes.minutesToHourMinute ?? "", textAlign: TextAlign.center))),
-    TableCell(child: Padding(padding: 5.sp.padding, child: Text(model?['total_hours'].toString().parseDurationToMinutes.minutesToHM ?? "", textAlign: TextAlign.center))),
-    TableRowInkWell(onTap: onTask,child: Padding(padding: 5.sp.padding, child: Text("${model?['task_count'] ?? "0"}", textAlign: TextAlign.center)),),
+    TableCell(child: Padding(padding: 5.spMin.padding, child: Text(model?['date'].toString().toDateTime().toFormat(format: "MM-dd-yy") ?? "", textAlign: TextAlign.start))),
+    TableCell(child: Padding(padding: 5.spMin.padding, child: Text(model?['start_time'].toString().parseDurationToMinutes.minutesToHourMinute ?? "", textAlign: TextAlign.center))),
+    TableCell(child: Padding(padding: 5.spMin.padding, child: Text(model?['end_time'].toString().parseDurationToMinutes.minutesToHourMinute ?? "", textAlign: TextAlign.center))),
+    TableCell(child: Padding(padding: 5.spMin.padding, child: Text(model?['total_hours'].toString().parseDurationToMinutes.minutesToHM ?? "", textAlign: TextAlign.center))),
+    TableRowInkWell(onTap: onTask,child: Padding(padding: 5.spMin.padding, child: Text("${model?['task_count'] ?? "0"}", textAlign: TextAlign.center)),),
   ];
 
 }

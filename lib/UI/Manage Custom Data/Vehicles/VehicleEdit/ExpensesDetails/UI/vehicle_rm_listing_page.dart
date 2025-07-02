@@ -24,7 +24,7 @@ class VehicleRMListingPage extends StatelessWidget {
       builder: (context, state) => SafeArea(
         minimum: 10.padding,
         child: Column(
-          spacing: 10.sp,
+          spacing: 10.spMin,
           children: [
             Row(
               spacing: 10,

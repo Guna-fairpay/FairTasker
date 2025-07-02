@@ -37,14 +37,14 @@ class ExpenseFilterPopup {
                 IconButton(onPressed: ()=> context.pop(), icon: const Icon(Icons.close_rounded, color: AppC.redAccent,)),
                 Utils.getText('All'),
                 Container(
-                  constraints: BoxConstraints(maxHeight: 200.sp),
+                  constraints: BoxConstraints(maxHeight: 200.spMin),
                   child: ListView.builder(
                     shrinkWrap: true,
                     itemCount: 10,
                       itemBuilder: (context, index) => Text("Index $index")),
                 )
                 // SizedBox.fromSize(
-                //   size: Size.fromHeight(60.sp),
+                //   size: Size.fromHeight(60.spMin),
                 //   child: ListView.builder(
                 //     itemCount: model?.length ?? 0,
                 //       shrinkWrap: true,

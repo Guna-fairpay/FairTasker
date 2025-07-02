@@ -118,7 +118,7 @@ class EditVehicleMoreTwo extends StatelessWidget {
                         controller:
                         context.read<EditVehicleBloc>().renewalDateController,
                         format: "MM-dd-yyyy",
-                        padding: 8.sp.padding,
+                        padding: 8.spMin.padding,
                         suffixIcon: Icon(Icons.calendar_month_rounded,
                             size: 18, color: context.theme.hintColor),
                         textAlign: TextAlign.start,

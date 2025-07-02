@@ -50,7 +50,7 @@ class _InvoiceDialog extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          Utils.getText('Invoice Preview', weight: FontWeight.w900,size: 15.sp),
+                          Utils.getText('Invoice Preview', weight: FontWeight.w900,size: 15.spMin),
                           const Spacer(),
                           InkWell(
                             onTap: () => context.pop(),
@@ -78,12 +78,12 @@ class _InvoiceDialog extends StatelessWidget {
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
-                                    spacing: 18.sp,
+                                    spacing: 18.spMin,
                                     children: [
-                                      Utils.getText(invoiceData?['title']??'', weight: FontWeight.w900,size: 16.sp),
+                                      Utils.getText(invoiceData?['title']??'', weight: FontWeight.w900,size: 16.spMin),
                                       Utils.getText(invoiceData?['address']??'',),
                                       Utils.getText('Phone: ${invoiceData?['phone']??''}'),
-                                      Utils.getText('TO', weight: FontWeight.w900,size: 16.sp),
+                                      Utils.getText('TO', weight: FontWeight.w900,size: 16.spMin),
                                       Utils.getText(
                                         'Hasanath Mohammed,\n'
                                             'FairPY INC,\n'
@@ -96,10 +96,10 @@ class _InvoiceDialog extends StatelessWidget {
                                 ),
                                 Expanded(
                                   child: Column(
-                                    spacing: 18.sp,
+                                    spacing: 18.spMin,
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Utils.getText('Invoice', weight: FontWeight.w900,size: 16.sp),
+                                      Utils.getText('Invoice', weight: FontWeight.w900,size: 16.spMin),
                                       Utils.getText('INVOICE ${invoiceData?['invoiceId']}'),
                                       Utils.getText('DATE : ${invoiceData?['date']}'),
                                       Utils.getText('CAR PLATE : ${invoiceData?['plateNo']??''}'),
@@ -126,35 +126,35 @@ class _InvoiceDialog extends StatelessWidget {
                                 TableRow(
                                     children: [
                                       Padding(
-                                          padding: 5.sp.padding.copyWith(left: 0.sp, right: 10.sp),
+                                          padding: 5.spMin.padding.copyWith(left: 0.spMin, right: 10.spMin),
                                           child: Text("S.NO",
                                               style: context.textTheme.labelLarge?.copyWith(
                                                   fontWeight: FontWeight.bold,
-                                                  fontSize: 12.sp))),
+                                                  fontSize: 12.spMin))),
                                       Padding(
-                                          padding: 5.sp.padding.copyWith(left: 5.sp, right: 10.sp),
+                                          padding: 5.spMin.padding.copyWith(left: 5.spMin, right: 10.spMin),
                                           child: Text("Description",
                                               style: context.textTheme.labelLarge?.copyWith(
                                                   fontWeight: FontWeight.bold,
-                                                  fontSize: 12.sp))),
+                                                  fontSize: 12.spMin))),
                                       Padding(
-                                          padding: 5.sp.padding.copyWith(left: 5.sp, right: 10.sp),
+                                          padding: 5.spMin.padding.copyWith(left: 5.spMin, right: 10.spMin),
                                           child: Text("Qty",
                                               style: context.textTheme.labelLarge?.copyWith(
                                                   fontWeight: FontWeight.bold,
-                                                  fontSize: 12.sp))),
+                                                  fontSize: 12.spMin))),
                                       Padding(
-                                          padding: 5.sp.padding.copyWith(left: 5.sp, right: 10.sp),
+                                          padding: 5.spMin.padding.copyWith(left: 5.spMin, right: 10.spMin),
                                           child: Text("Rate",
                                               style: context.textTheme.labelLarge?.copyWith(
                                                   fontWeight: FontWeight.bold,
-                                                  fontSize: 12.sp))),
+                                                  fontSize: 12.spMin))),
                                       Padding(
-                                          padding: 5.sp.padding.copyWith(left: 5.sp, right: 10.sp),
+                                          padding: 5.spMin.padding.copyWith(left: 5.spMin, right: 10.spMin),
                                           child: Text("Total",
                                               style: context.textTheme.labelLarge?.copyWith(
                                                   fontWeight: FontWeight.bold,
-                                                  fontSize: 12.sp))),
+                                                  fontSize: 12.spMin))),
                                     ]),
                                 ...List.from(invoiceData?['itemList'] ??[])
                                     .map((e) => InvoiceTable(

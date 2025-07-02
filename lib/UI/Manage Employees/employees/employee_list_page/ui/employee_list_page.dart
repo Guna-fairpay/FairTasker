@@ -23,9 +23,9 @@ class EmployeeListPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<EmployeesViewBloc, EmployeesViewState>(
         builder: (context, state) => Padding(
-          padding: 10.sp.padding,
+          padding: 10.spMin.padding,
           child: Column(
-            spacing: 10.sp,
+            spacing: 10.spMin,
             children: [
               Row(
                 spacing: 10,

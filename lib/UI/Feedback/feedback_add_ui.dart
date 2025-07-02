@@ -96,7 +96,7 @@ class _FeedbackAddBodyUI extends StatelessWidget {
                   ListTile(
                     title: const Text("Attachments"),
                     trailing: const Icon(Icons.add_rounded),
-                    titleTextStyle: context.textTheme.labelMedium?.copyWith(fontWeight: FontWeight.bold, fontSize: 12.sp),
+                    titleTextStyle: context.textTheme.labelMedium?.copyWith(fontWeight: FontWeight.bold, fontSize: 12.spMin),
                     onTap: () => context
                         .read<FeedbackAddBloc>()
                         .add(FeedbackAddAttachmentEvent()),

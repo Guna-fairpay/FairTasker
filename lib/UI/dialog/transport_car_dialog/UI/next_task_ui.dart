@@ -26,7 +26,7 @@ class NextTaskUI extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             spacing: 10,
             children: [
-              Utils.getText("Next Task", size: 12.sp),
+              Utils.getText("Next Task", size: 12.spMin),
               MultiDropdown<Map<String, dynamic>>(
                 dropdownDecoration: DropdownDecoration(
                   borderRadius: BorderRadius.circular(Num.borderRadius)

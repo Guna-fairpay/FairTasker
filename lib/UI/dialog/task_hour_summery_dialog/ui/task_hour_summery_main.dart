@@ -54,15 +54,15 @@ class _HourSummeryPopView extends StatelessWidget {
                   shape: ContinuousRectangleBorder(
                       borderRadius: BorderRadius.circular(Num.borderRadiusXLarge)),
                   backgroundColor: AppC.white,
-                  insetPadding: 10.sp.padding,
+                  insetPadding: 10.spMin.padding,
                   titlePadding: EdgeInsets.zero,
-                  contentPadding: 5.sp.padding.copyWith(left: 15.sp, right: 20.sp, bottom: 15.sp),
+                  contentPadding: 5.spMin.padding.copyWith(left: 15.spMin, right: 20.spMin, bottom: 15.spMin),
                   title: ListTile(
                       title: Utils.getText(
                           "${name ?? ""} - Hour Summary",
                           color: AppC.appColor,
                           weight: FontWeight.bold,
-                          size: 16.sp,
+                          size: 16.spMin,
 
                       ),
                       trailing: IconButton(
@@ -85,31 +85,31 @@ class _HourSummeryPopView extends StatelessWidget {
                           TableHeaderRow(
                               tableDecoration: BoxDecoration(
                                 borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(4.sp),
-                                    topRight: Radius.circular(4.sp)),
-                                border: Border(bottom: BorderSide(color: AppC.borderColor, width: 1.sp),),
+                                    topLeft: Radius.circular(4.spMin),
+                                    topRight: Radius.circular(4.spMin)),
+                                border: Border(bottom: BorderSide(color: AppC.borderColor, width: 1.spMin),),
                                 color: AppC.white,),
                               backgroundColor: AppC.appbgColor,
                               labels: const ["Task Name", "Count/Time", "Amount"],
                           ),
                             ...?context.read<TaskHourSummeryBloc>().hourSummeryData?.map((e) => TableRow(
                               decoration: BoxDecoration(
-                                border: Border(bottom: BorderSide(color: AppC.borderColor, width: 1.sp),),
+                                border: Border(bottom: BorderSide(color: AppC.borderColor, width: 1.spMin),),
                               ),
                               children: [
                                 TableCell(
                                     child: Padding(
-                                      padding: 10.sp.padding,
+                                      padding: 10.spMin.padding,
                                       child: Utils.getText(e['task_name'] ?? ''),
                                     )),
                                 TableCell(
                                     child: Padding(
-                                      padding: 10.sp.padding,
+                                      padding: 10.spMin.padding,
                                       child: Text(" ${e['task_name'].toString().toLowerCase().contains("other") ? (e['total_time'] ?? "") : (e['task_count'] ?? "")}"),
                                     )),
                                 TableCell(
                                     child: Padding(
-                                      padding: 10.sp.padding,
+                                      padding: 10.spMin.padding,
                                       child: Text("\$${e['task_name'].toString().toLowerCase().contains("other") ? (e['hour_amount'] ?? "") : (e['total'] ?? "")}"),
                                     )),
                               ],
@@ -117,7 +117,7 @@ class _HourSummeryPopView extends StatelessWidget {
                             ),
                           ],
                         ),
-                        10.sp.height,
+                        10.spMin.height,
                         Align(
                           alignment: Alignment.centerRight,
                             child: Utils.getText("Total:\t\t \$${context.read<TaskHourSummeryBloc>().total.toString().toDoubleDigit}", weight: FontWeight.bold)),

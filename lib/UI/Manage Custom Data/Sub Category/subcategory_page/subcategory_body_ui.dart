@@ -10,7 +10,7 @@ class SubcategoryBodyUi extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-        minimum: 16.sp.padding,
+        minimum: 16.spMin.padding,
         child: ListView(
           children: [
             const SubcategoryAlterUi(),

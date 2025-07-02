@@ -13,14 +13,14 @@ class VehicleGroupItem extends TableRow {
   List<Widget> get children => [
     TableCell(
         verticalAlignment: TableCellVerticalAlignment.middle,
-        child: Padding(padding: EdgeInsets.symmetric(vertical: 5.sp, horizontal: 10.sp), child: Text("${index ?? 0}", textAlign: TextAlign.center))),
+        child: Padding(padding: EdgeInsets.symmetric(vertical: 5.spMin, horizontal: 10.spMin), child: Text("${index ?? 0}", textAlign: TextAlign.center))),
     TableRowInkWell(
         onTap: onEdit,
-        child: Padding(padding: EdgeInsets.symmetric(vertical: 5.sp, horizontal: 10.sp), child: Text("${model?['name'] ?? ""}", textAlign: TextAlign.center))),
+        child: Padding(padding: EdgeInsets.symmetric(vertical: 5.spMin, horizontal: 10.spMin), child: Text("${model?['name'] ?? ""}", textAlign: TextAlign.center))),
     TableCell(
         verticalAlignment: TableCellVerticalAlignment.middle,
         child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 5.sp, horizontal: 10.sp),
+          padding: EdgeInsets.symmetric(vertical: 5.spMin, horizontal: 10.spMin),
           child: Row(
             spacing: 5,
             mainAxisSize: MainAxisSize.min,

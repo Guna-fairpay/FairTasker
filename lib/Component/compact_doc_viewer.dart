@@ -42,7 +42,7 @@ class DocumentViewer extends StatelessWidget {
                         Downloader.instance.start(input, openFile: true),
                     style: ButtonStyle(
                       shape: WidgetStatePropertyAll(RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20.sp))),
+                          borderRadius: BorderRadius.circular(20.spMin))),
                       backgroundColor:
                           WidgetStatePropertyAll(Colors.grey.shade200),
                     ),
@@ -52,12 +52,12 @@ class DocumentViewer extends StatelessWidget {
             ],
           )
         : Column(
-            spacing: 10.sp,
+            spacing: 10.spMin,
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Icon(Icons.file_present_rounded, size: 46.sp, color: AppC.text),
+              Icon(Icons.file_present_rounded, size: 46.spMin, color: AppC.text),
               Text(
                 p.basename((input as File).path),
                 style: context.textTheme.titleMedium,

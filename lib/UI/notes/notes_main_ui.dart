@@ -63,7 +63,7 @@ class NotesMainUi extends StatelessWidget {
           }
         },
         child: Padding(
-          padding: 5.sp.padding,
+          padding: 5.spMin.padding,
           child: const Column(
             spacing: 5,
             children: [

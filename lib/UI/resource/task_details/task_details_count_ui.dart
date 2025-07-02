@@ -13,15 +13,15 @@ class TaskDetailsCountUi extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<TaskDetailsBloc, TaskDetailsState>(builder: (context, state) => Row(
-      spacing: 10.sp,
+      spacing: 10.spMin,
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
           decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16.sp),
+              borderRadius: BorderRadius.circular(16.spMin),
               border: Border.all(color: Colors.white)
           ),
-          padding: 10.sp.horizontalPadding,
+          padding: 10.spMin.horizontalPadding,
           child: CompactText("${context.watch<TaskDetailsBloc>().configs?.map((e) => e['task_count'].toString().toNumeric).sum ?? 0}", styleType: TextStyleType.titleMedium, fontWeight: FontWeight.bold, color: Colors.white),
         ),
         GestureDetector(

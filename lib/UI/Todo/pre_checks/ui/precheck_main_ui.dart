@@ -51,10 +51,10 @@ class PreCheckMainUi extends StatelessWidget {
           builder: (context, state) => ListView.separated(
             itemCount: context.watch<PreCheckBloc>().checkLists.length,
             shrinkWrap: true,
-            padding: 5.sp.padding,
+            padding: 5.spMin.padding,
             clipBehavior: Clip.antiAliasWithSaveLayer,
             physics: const NeverScrollableScrollPhysics(),
-            separatorBuilder: (context, index) => 5.sp.height,
+            separatorBuilder: (context, index) => 5.spMin.height,
             itemBuilder: (context, index) {
               var model = context.watch<PreCheckBloc>().checkLists[index];
               return PreCheckListItem(

@@ -51,7 +51,7 @@ class CompactTextField extends StatelessWidget {
         isDense: true,
         hintText: hintText,
         labelText: labelText,
-        contentPadding: 7.sp.padding.copyWith(left: 10.sp, right: 10.sp),
+        contentPadding: 7.spMin.padding.copyWith(left: 10.spMin, right: 10.spMin),
         prefixIconConstraints: const BoxConstraints(),
         border: border,
         enabledBorder: border,

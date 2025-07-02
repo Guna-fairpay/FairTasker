@@ -59,9 +59,9 @@ class _GoogleAuthenticatorUIState extends State<GoogleAuthenticatorUI> {
         foregroundColor: AppC.white,
       ),
       body: Padding(
-        padding: 16.sp.padding,
+        padding: 16.spMin.padding,
         child: Column(
-          spacing: 16.sp,
+          spacing: 16.spMin,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             const SizedBox.shrink(),
@@ -86,7 +86,7 @@ class _GoogleAuthenticatorUIState extends State<GoogleAuthenticatorUI> {
               weight: FontWeight.bold,
             ),
             Row(
-              spacing: 10.sp,
+              spacing: 10.spMin,
               children: [
                 Expanded(
                   child: Utils.getTextFormField(

@@ -30,7 +30,7 @@ class CategorySelectionField extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               if(model?['vehicle_status']!=4)...[
-                Utils.getText("Do you want to move the status to ?",size: 12.sp,),
+                Utils.getText("Do you want to move the status to ?",size: 12.spMin,),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
@@ -95,12 +95,12 @@ class CategorySelectionField extends StatelessWidget {
                             onChanged: (value)=>context.read<TCCDBloc>().add(CalendarSwitchEvent())),
                       ),
                     ),
-                    Utils.getText("Unblock Calendar",size: 12.sp,),
+                    Utils.getText("Unblock Calendar",size: 12.spMin,),
                     Expanded(
                       child: FittedBox(child: CustomCheckboxListTile(
                         useExpand: false,
                         mainAxisSize: MainAxisSize.min,
-                        title: Utils.getText('Is Clean Required?',size: 12.sp,),
+                        title: Utils.getText('Is Clean Required?',size: 12.spMin,),
                         value: context.watch<TCCDBloc>().isCleanRequired,
                         onChanged:(value)=>context.read<TCCDBloc>().add(CleanCheckBoxEvent()),
                         padding: 0.padding,

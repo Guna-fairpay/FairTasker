@@ -45,7 +45,7 @@ class _BottomNavigationForTaskViewState
       ),
       backgroundColor: AppC.white,
       bottomNavigationBar: BottomNavigationBar(
-        elevation: 5.sp,
+        elevation: 5.spMin,
         type: BottomNavigationBarType.fixed,
         backgroundColor: Colors.white,
         currentIndex: index,
@@ -55,9 +55,9 @@ class _BottomNavigationForTaskViewState
         selectedItemColor: AppC().base,
         unselectedItemColor: AppC.grey,
         unselectedLabelStyle: context.textTheme.labelMedium,
-          unselectedFontSize: 12.sp,
+          unselectedFontSize: 12.spMin,
         selectedLabelStyle: context.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.bold),
-        selectedFontSize: 14.sp,
+        selectedFontSize: 14.spMin,
         onTap: (value) {
           setState(() {
             index = value;

@@ -23,7 +23,7 @@ class VehicleExpenseListingPageUI extends StatelessWidget {
         minimum: 10.padding,
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          spacing: 10.sp,
+          spacing: 10.spMin,
           children: [
             Row(
               spacing: 10,

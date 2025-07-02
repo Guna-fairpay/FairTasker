@@ -53,21 +53,21 @@ class ImportTaskMainUi extends StatelessWidget {
             },
             child: BlocBuilder<ImportTaskBloc, ImportTaskState>(
               builder: (context, state) => SafeArea(
-                minimum: 16.sp.padding,
+                minimum: 16.spMin.padding,
                 child: SingleChildScrollView(
                   child: Container(
                     decoration: (fixedPage == null) ? BoxDecoration(
                         borderRadius:
                             BorderRadius.circular(Num.borderRadiusLarge),
                         border: Border.all(color: AppC.fieldBase)) : null,
-                    padding: (fixedPage == null) ? 10.sp.padding : EdgeInsets.zero,
+                    padding: (fixedPage == null) ? 10.spMin.padding : EdgeInsets.zero,
                     child: Form(
                       key: (context.watch<ImportTaskBloc>().currentPageIndex == 0)
                           ? context.watch<ImportTaskBloc>().textFormKey
                           : context.watch<ImportTaskBloc>().turoFormKey,
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
-                        spacing: 10.sp,
+                        spacing: 10.spMin,
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -114,8 +114,8 @@ class ImportTaskMainUi extends StatelessWidget {
                                     0)
                                 ? context.watch<ImportTaskBloc>().textController
                                 : context.watch<ImportTaskBloc>().turoController,
-                            minLines: 16.sp.ceil(),
-                            maxLines: 16.sp.ceil(),
+                            minLines: 16.spMin.ceil(),
+                            maxLines: 16.spMin.ceil(),
                             borderColor: AppC.fieldBase,
                             hintText: "Paste your text here...",
                             validator: (value) =>

@@ -57,7 +57,7 @@ class AuthenticationUI extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
-                  spacing: 10.sp,
+                  spacing: 10.spMin,
                   children: [
                     AnimatedContainer(
                         duration: Durations.long1,

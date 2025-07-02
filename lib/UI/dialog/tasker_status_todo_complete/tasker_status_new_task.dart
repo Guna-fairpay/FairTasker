@@ -26,8 +26,8 @@ class TaskerStatusNewTask extends StatelessWidget {
       shrinkWrap: true,
       physics: const BouncingScrollPhysics(),
       children: [
-        Text("Next Task", style: context.textTheme.labelMedium?.copyWith(fontSize: 12.sp)),
-        5.sp.height,
+        Text("Next Task", style: context.textTheme.labelMedium?.copyWith(fontSize: 12.spMin)),
+        5.spMin.height,
         MultiDropdown<Map<String, dynamic>>(
           key: UniqueKey(),
           searchEnabled: true,
@@ -43,9 +43,9 @@ class TaskerStatusNewTask extends StatelessWidget {
           items: context.watch<TaskerStatusBloc>().tasks?.map((e) => DropdownItem<Map<String, dynamic>>(
               value: e, label: (e['checklist_name'] ?? ""))).toList() ?? [],
         ),
-        10.sp.height,
+        10.spMin.height,
         FocusNodeWrapper(builder: (focusNode) => CompactTextField(hintText: "Custom Task", controller: context.read<TaskerStatusBloc>().taskController, focusNode: focusNode)),
-        10.sp.height,
+        10.spMin.height,
         Row(
           spacing: 10,
           children: [
@@ -70,7 +70,7 @@ class TaskerStatusNewTask extends StatelessWidget {
                 )),
           ],
         ),
-        10.sp.height,
+        10.spMin.height,
         Utils.dropdownBox(
           "Select Resource",
           context.watch<TaskerStatusBloc>().resourcesList,
@@ -79,7 +79,7 @@ class TaskerStatusNewTask extends StatelessWidget {
           labelKey2: "last_name",
           initialSelection: context.read<TaskerStatusBloc>().selectedResource,
         ),
-        10.sp.height,
+        10.spMin.height,
         CustomVendorLocationField(
           enableEmptyWidget: false,
           vendorsList: context.watch<TaskerStatusBloc>().vendorsList,
@@ -90,7 +90,7 @@ class TaskerStatusNewTask extends StatelessWidget {
         ),
         if (context.watch<TaskerStatusBloc>().selectedVendorLocation?['type'] == 'location')
           ...[
-            10.sp.height,
+            10.spMin.height,
             SearchViewField<Map<String, dynamic>>(
                 suggestions: context.watch<TaskerStatusBloc>().addressList,
                 selectedItem: context.watch<TaskerStatusBloc>().selectedAddress,
@@ -100,11 +100,11 @@ class TaskerStatusNewTask extends StatelessWidget {
                 onSelected: (value) => context.read<TaskerStatusBloc>().add(TaskerStatusAddressEvent(value)),
                 itemAsString: (item) => item['address'].toString()),
           ],
-        10.sp.height,
+        10.spMin.height,
         FocusNodeWrapper(builder: (focusNode) => CompactTextField(hintText: "Notes", controller: context.read<TaskerStatusBloc>().notesController, focusNode: focusNode)),
-        10.sp.height,
+        10.spMin.height,
         Row(
-          spacing: 10.sp,
+          spacing: 10.spMin,
           children: [
             SuccessButton(
               text: "Save",
@@ -117,7 +117,7 @@ class TaskerStatusNewTask extends StatelessWidget {
             )
           ],
         ),
-        10.sp.height,
+        10.spMin.height,
       ],
     ));
   }

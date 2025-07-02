@@ -55,7 +55,7 @@ class ImageUploadSection extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(icon, color: borderColor, size: 13.spMin),
-                  Utils.getText(title, color: borderColor, weight: FontWeight.bold, size: 12.sp),
+                  Utils.getText(title, color: borderColor, weight: FontWeight.bold, size: 12.spMin),
                 ],
               ),
             ),

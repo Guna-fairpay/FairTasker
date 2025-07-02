@@ -50,7 +50,7 @@ class LocationView extends StatelessWidget {
           },
           child: SafeArea(
             child: ListView(
-              padding: EdgeInsets.symmetric(horizontal: 10.sp, vertical: 20.sp),
+              padding: EdgeInsets.symmetric(horizontal: 10.spMin, vertical: 20.spMin),
               children: [
                 const LocationAlter(),
                 10.height,

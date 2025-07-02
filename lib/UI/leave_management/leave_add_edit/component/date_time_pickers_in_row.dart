@@ -39,7 +39,7 @@ class DateTimePickersInRow<T> extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Utils.getText(firstLabel,weight: FontWeight.bold),
-                5.sp.height,
+                5.spMin.height,
                 CustomDateTimePicker<T>(
                   padding: 8.padding,
                   value: firstValue,
@@ -56,7 +56,7 @@ class DateTimePickersInRow<T> extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Utils.getText(secondLabel,weight: FontWeight.bold),
-                5.sp.height,
+                5.spMin.height,
                 CustomDateTimePicker<T>(
                   padding: 8.padding,
                   value: secondValue,

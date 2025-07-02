@@ -67,12 +67,12 @@ class CompactDropDown<T extends Object> extends StatelessWidget {
                 menuHeight: context.height * 0.3,
                 inputDecorationTheme: InputDecorationTheme(
                     hintStyle: context.textTheme.labelMedium?.copyWith(color: AppC.grey),
-                    contentPadding: EdgeInsets.symmetric(horizontal: 10.sp),
+                    contentPadding: EdgeInsets.symmetric(horizontal: 10.spMin),
                     enabledBorder: border,
                     isCollapsed: true,
                     border: border,
                     isDense: true,
-                    constraints: BoxConstraints(maxHeight: 35.sp)
+                    constraints: BoxConstraints(maxHeight: 35.spMin)
                 ),
                 menuStyle: MenuStyle(
                   backgroundColor: WidgetStateProperty.all<Color>(Colors.white),

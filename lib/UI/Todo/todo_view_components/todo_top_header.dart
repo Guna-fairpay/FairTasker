@@ -117,7 +117,7 @@ class TodoTopHeader extends StatelessWidget {
                 onTap: onDatePressed,
                 child: Utils.getText(
                     (selectedDate.toFormat(format: "MMM dd") ?? ""),
-                    size: 12.sp,
+                    size: 12.spMin,
                     weight: FontWeight.w500),
               ),
               GestureDetector(

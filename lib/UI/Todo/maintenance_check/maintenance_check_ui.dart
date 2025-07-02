@@ -57,7 +57,7 @@ class MaintenanceCheckUi extends StatelessWidget {
           children: [
             const MaintenanceCheckAllUi(),
             const MaintenanceCheckListUi(),
-            16.sp.height,
+            16.spMin.height,
             CompactTextField(
               controller: commentsController,
               hintText: "Comments",
@@ -66,7 +66,7 @@ class MaintenanceCheckUi extends StatelessWidget {
               minLines: 3,
               maxLines: 10,
             ),
-            16.sp.height,
+            16.spMin.height,
           ],
         ),
       ),
