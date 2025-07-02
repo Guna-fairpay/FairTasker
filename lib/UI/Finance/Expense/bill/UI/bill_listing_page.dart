@@ -50,7 +50,7 @@ class BillListingPage extends StatelessWidget {
                   2: FlexColumnWidth(5),
                   3: IntrinsicColumnWidth(),
                   4: IntrinsicColumnWidth(),
-                  5: FlexColumnWidth(2),
+                  5: IntrinsicColumnWidth(),
                 },
                 defaultVerticalAlignment: TableCellVerticalAlignment.middle,
                 border:  const TableBorder(
@@ -83,7 +83,7 @@ class BillListingPage extends StatelessWidget {
                             padding: 5.spMin.padding.copyWith(left: 10.spMin, right: 10.spMin),
                             child: Icon(Icons.person_2_rounded,size: 16.spMin,)),
                         Padding(
-                            padding: 5.spMin.padding.copyWith(left: 10.spMin, right: 10.spMin),
+                            padding: 5.spMin.padding.copyWith(left: 20.spMin, /*right: 10.spMin*/),
                             child: Text("#",style: context.textTheme.labelLarge?.copyWith(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 12.spMin))),

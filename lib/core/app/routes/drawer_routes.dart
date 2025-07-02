@@ -138,7 +138,7 @@ mixin DrawerRoutes {
               Icon(icon, color: Colors.white),
               Utils.getText(
                 label,
-                size: 12.sp,
+                size: 14.spMin,
                 color: Colors.white,
                 weight: FontWeight.w400,
               ),

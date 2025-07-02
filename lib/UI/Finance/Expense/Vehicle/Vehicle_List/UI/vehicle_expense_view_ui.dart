@@ -1,5 +1,6 @@
 
 import "package:fairpytasker/Component/custom_checkbox.dart";
+import "package:fairpytasker/Component/custom_compact_icon_button.dart";
 import "package:fairpytasker/UI/Finance/Expense/Component/date_range_selection.dart";
 import "package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_List/Bloc/expense_bloc.dart";
 import "package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_List/Bloc/expense_event.dart";
@@ -33,13 +34,14 @@ class ExpenseVehicleViewUI extends StatelessWidget {
           listener: (context, state) {
             state.isLoading ? EasyLoading.show() : EasyLoading.dismiss();
           },
-          child:
-              BlocBuilder<ExpenseBloc, ExpenseState>(builder: (context, state) {
-            return Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  child: Row(
+          child: BlocBuilder<ExpenseBloc, ExpenseState>(
+              builder: (context, state) {
+            return SafeArea(
+              minimum: 10.verticalPadding,
+              child: Column(
+                spacing: 10,
+                children: [
+                  Row(
                     spacing: 10,
                     children: [
                       Expanded(
@@ -57,19 +59,13 @@ class ExpenseVehicleViewUI extends StatelessWidget {
                           },
                         ),
                       ),
-                      InkWell(
-                        onTap:()=> context.push(const VehicleAddEditMainUI()),
-                        child: Container(
-                          height: 40,
-                          width: 40,
-                          decoration: BoxDecoration(
-                              color: AppC.appColor,
-                              borderRadius: BorderRadiusDirectional.circular(8)),
-                          child: const Icon(
-                            Icons.add,
-                            color: Colors.white,
-                          ),
-                        ),
+                      CompactIconButton(
+                        elevation: 2,
+                        icon:Icons.add,
+                        iconSize: 18.spMin,
+                        backgroundColor: AppC.appColor,
+                        onPressed: ()=> context.push(const VehicleAddEditMainUI()),
+                        shape: WidgetStatePropertyAll<OutlinedBorder>(RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))),
                       ),
                       Skeletonizer(
                           ignorePointers: true,
@@ -107,76 +103,76 @@ class ExpenseVehicleViewUI extends StatelessWidget {
                           )),
                     ],
                   ),
-                ),
-                Expanded(
-                  child: Skeletonizer(
-                    ignorePointers: true,
-                    ignoreContainers: true,
-                    enabled: (state.isLoading),
-                      child: ListView.separated(
-                    physics:const BouncingScrollPhysics(),
-                    shrinkWrap: true,
-                    separatorBuilder: (context, index) => const Divider(height: 0.5),
-                    itemCount: (state.isLoading) ? 10 : state.filteredResponse.length,
-                    itemBuilder: (context, index) => ExpenseVehicleListItem(
-                      expense: (state.isLoading) ? DummyData.vExpense : state.filteredResponse[index],
-                      onCategoryTapEvent: () {
-                        CategorySubcategoryDialog.show(
-                          context,
-                          expense: state.filteredResponse[index],
-                          onCompleted: () => context.read<ExpenseBloc>().add(RefreshEvent()),
-                        );
-                      },
-                      onCohortTapEvent: () {
-                        context.read<ExpenseBloc>().add(CohortDialogEvent(
-                            data: state.filteredResponse[index]));
-                        CohortDialog.show(
-                          context,
-                          expense: state.filteredResponse[index],
-                        );
-                      },
-                      onChanged: (value) => context.read<ExpenseBloc>()
-                          .add(ApproveEvent(
-                          model: state.filteredResponse[index],
-                          approved: "${value == true ? 1 : 0}")),
-                      onDelete: (id) => context.read<ExpenseBloc>()
-                          .add(DeleteExpenseEvent(id: id)),
-                    ),
-                  )),
-                ),
-                /*Expanded(
-                  child: ListView.separated(
-                    physics:const BouncingScrollPhysics(),
+                  Expanded(
+                    child: Skeletonizer(
+                      ignorePointers: true,
+                      ignoreContainers: true,
+                      enabled: (state.isLoading),
+                        child: ListView.separated(
+                      physics:const BouncingScrollPhysics(),
                       shrinkWrap: true,
                       separatorBuilder: (context, index) => const Divider(height: 0.5),
-                      itemCount: state.filteredResponse.length,
+                      itemCount: (state.isLoading) ? 10 : state.filteredResponse.length,
                       itemBuilder: (context, index) => ExpenseVehicleListItem(
+                        expense: (state.isLoading) ? DummyData.vExpense : state.filteredResponse[index],
+                        onCategoryTapEvent: () {
+                          CategorySubcategoryDialog.show(
+                            context,
                             expense: state.filteredResponse[index],
-                            onCategoryTapEvent: () {
-                              CategorySubcategoryDialog.show(
-                                context,
-                                expense: state.filteredResponse[index],
-                                onCompleted: () => context.read<ExpenseBloc>().add(RefreshEvent()),
-                              );
-                            },
-                            onCohortTapEvent: () {
-                              context.read<ExpenseBloc>().add(CohortDialogEvent(
-                                  data: state.filteredResponse[index]));
-                              CohortDialog.show(
-                                context,
-                                expense: state.filteredResponse[index],
-                              );
-                            },
-                            onChanged: (value) => context.read<ExpenseBloc>()
-                                .add(ApproveEvent(
-                                    model: state.filteredResponse[index],
-                                    approved: "${value == true ? 1 : 0}")),
-                            onDelete: (id) => context.read<ExpenseBloc>()
-                                .add(DeleteExpenseEvent(id: id)),
-                          ),
+                            onCompleted: () => context.read<ExpenseBloc>().add(RefreshEvent()),
+                          );
+                        },
+                        onCohortTapEvent: () {
+                          context.read<ExpenseBloc>().add(CohortDialogEvent(
+                              data: state.filteredResponse[index]));
+                          CohortDialog.show(
+                            context,
+                            expense: state.filteredResponse[index],
+                          );
+                        },
+                        onChanged: (value) => context.read<ExpenseBloc>()
+                            .add(ApproveEvent(
+                            model: state.filteredResponse[index],
+                            approved: "${value == true ? 1 : 0}")),
+                        onDelete: (id) => context.read<ExpenseBloc>()
+                            .add(DeleteExpenseEvent(id: id)),
+                      ),
+                    )),
                   ),
-                ),*/
-              ],
+                  /*Expanded(
+                    child: ListView.separated(
+                      physics:const BouncingScrollPhysics(),
+                        shrinkWrap: true,
+                        separatorBuilder: (context, index) => const Divider(height: 0.5),
+                        itemCount: state.filteredResponse.length,
+                        itemBuilder: (context, index) => ExpenseVehicleListItem(
+                              expense: state.filteredResponse[index],
+                              onCategoryTapEvent: () {
+                                CategorySubcategoryDialog.show(
+                                  context,
+                                  expense: state.filteredResponse[index],
+                                  onCompleted: () => context.read<ExpenseBloc>().add(RefreshEvent()),
+                                );
+                              },
+                              onCohortTapEvent: () {
+                                context.read<ExpenseBloc>().add(CohortDialogEvent(
+                                    data: state.filteredResponse[index]));
+                                CohortDialog.show(
+                                  context,
+                                  expense: state.filteredResponse[index],
+                                );
+                              },
+                              onChanged: (value) => context.read<ExpenseBloc>()
+                                  .add(ApproveEvent(
+                                      model: state.filteredResponse[index],
+                                      approved: "${value == true ? 1 : 0}")),
+                              onDelete: (id) => context.read<ExpenseBloc>()
+                                  .add(DeleteExpenseEvent(id: id)),
+                            ),
+                    ),
+                  ),*/
+                ],
+              ),
             );
           }),
         ));

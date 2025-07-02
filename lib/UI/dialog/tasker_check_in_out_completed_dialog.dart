@@ -88,7 +88,7 @@ class _TaskerCompleteCheckInOutContentView extends StatelessWidget {
           spacing: 10,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Utils.getText( "${context.watch<TCIODBloc>().isCheckOut ? "Check Out" : "Yesterday Hours"} summary", size: 17.sp),
+            Utils.getText( "${context.watch<TCIODBloc>().isCheckOut ? "Check Out" : "Yesterday Hours"} summary", size: 17.spMin),
             if (context.watch<TCIODBloc>().showPendingCounts)
             Text.rich(TextSpan(
               children: [

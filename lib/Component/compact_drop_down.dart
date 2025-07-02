@@ -37,7 +37,7 @@ class CompactDropDown<T extends Object> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var border = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(Num.borderRadius),
+      borderRadius: BorderRadius.circular(Num.subradiusButton),
       borderSide: const BorderSide(color:  AppC.fieldBase, width: Num.borderWidthButton),
     );
     return (validator != null) ? FormField<T>(
@@ -49,7 +49,7 @@ class CompactDropDown<T extends Object> extends StatelessWidget {
             if ((initialSelection != null) && (field.hasError && (field.value == null))) field.didChange(initialSelection);
           });
           var border = OutlineInputBorder(
-            borderRadius: BorderRadius.circular(Num.borderRadius),
+            borderRadius: BorderRadius.circular(Num.subradiusButton),
             borderSide: BorderSide(color: (field.hasError) ? AppC.errorTextColor : AppC.fieldBase, width: Num.borderWidthButton),
           );
           return Column(
@@ -115,12 +115,12 @@ class CompactDropDown<T extends Object> extends StatelessWidget {
       menuHeight: context.height * 0.3,
       inputDecorationTheme: InputDecorationTheme(
           hintStyle: context.textTheme.labelMedium?.copyWith(color: AppC.grey),
-          contentPadding: EdgeInsets.symmetric(horizontal: 10.sp),
+          contentPadding: EdgeInsets.symmetric(horizontal: 10.spMin),
           enabledBorder: border,
           isCollapsed: true,
           border: border,
           isDense: true,
-          constraints: BoxConstraints(maxHeight: 35.sp),
+          constraints: BoxConstraints(maxHeight: 38.spMin),
       ),
       menuStyle: MenuStyle(
         backgroundColor: WidgetStateProperty.all<Color>(Colors.white),
