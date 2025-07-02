@@ -61,7 +61,7 @@ class TodoTaskItemCard extends StatelessWidget {
                 padding: 10.padding,
                 child: Utils.getText(
                     secondaryTitle,
-                    size: 12.spMin,
+                    size: 13.spMin,
                     color: AppC.white,
                     weight: FontWeight.bold),
               ),
@@ -73,7 +73,7 @@ class TodoTaskItemCard extends StatelessWidget {
                 alignment: Alignment.centerLeft,
                 padding: 10.padding,
                 child: Utils.getText("Tomorrow",
-                    size: 12.spMin, color: AppC.white, weight: FontWeight.bold),
+                    size: 13.spMin, color: AppC.white, weight: FontWeight.bold),
               ),
               confirmDismiss: (direction) async {
                 if (direction == DismissDirection.endToStart) {

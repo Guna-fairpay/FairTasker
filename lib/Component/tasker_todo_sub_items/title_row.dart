@@ -29,11 +29,11 @@ class TitleRow extends StatelessWidget {
         onTap: onDateChange,
         child: Icon(
           Icons.calendar_month_outlined,
-          size: 13.sp,
+          size: 13.spMin,
         ),
       ),
-      if (hasCompletedTime) GestureDetector(onTap: onCompletedTimeChange, child: Utils.getText(completedTime, size: 12.sp)),
-      GestureDetector(onTap: onTimeChange, child: Utils.getText(Utils.convertString24HTo12H(taskTime), size: 12.sp)),
+      if (hasCompletedTime) GestureDetector(onTap: onCompletedTimeChange, child: Utils.getText(completedTime, size: 13.spMin)),
+      GestureDetector(onTap: onTimeChange, child: Utils.getText(Utils.convertString24HTo12H(taskTime), size: 13.spMin)),
       const SizedBox.shrink()
     ];
     Widget firstChild = Expanded(child: Row(
