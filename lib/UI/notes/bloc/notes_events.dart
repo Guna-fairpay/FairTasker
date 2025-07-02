@@ -157,3 +157,24 @@ class UpdateTimeEvent extends NotesEvents {
   @override
   List<Object?> get props => [model, time];
 }
+
+class DeleteEvent extends NotesEvents {
+  final Map<String, dynamic>? data;
+  DeleteEvent(this.data);
+  @override
+  List<Object?> get props => [data];
+}
+
+class RemoveEvent extends NotesEvents {
+  final Map<String, dynamic>? data;
+  RemoveEvent(this.data);
+  @override
+  List<Object?> get props => [data];
+}
+
+class NotesUpdateEvent extends NotesEvents {
+  final Map<String, dynamic>? data;
+  NotesUpdateEvent(this.data);
+  @override
+  List<Object?> get props => [data];
+}
