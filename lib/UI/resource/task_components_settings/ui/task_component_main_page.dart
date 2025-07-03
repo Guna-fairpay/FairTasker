@@ -38,11 +38,11 @@ class TaskComponentsMainPage extends StatelessWidget {
           IconButton(onPressed: () => context.pop(), icon: const Icon(Icons.close_rounded)),
         ],
       ),
-      body: BlocProvider(create: (context)=>TaskComponentBloc()..add(TaskComponentInitialEvent()),
+      body: BlocProvider(create: (context)=>TaskComponentBloc()..add(InitialEvent()),
       child: BlocListener<TaskComponentBloc, TaskComponentState>(
         listener: (context, state) {
-          if (state is TaskComponentLoadingState) EasyLoading.show();
-          if (state is TaskComponentCommentState) EasyLoading.dismiss();
+          if (state is LoadingState) EasyLoading.show();
+          if (state is CommentState) EasyLoading.dismiss();
           if (state is ErrorState) Toaster.showError(state.message);
         },
           child: SafeArea(
