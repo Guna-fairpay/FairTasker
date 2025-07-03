@@ -28,7 +28,7 @@ class TaskBasedTable extends StatelessWidget {
                 padding: 10.sp.padding,
                 child: Utils.getText(e['task_name'] ?? ''),
               ),
-              onTap: () => context.read<TaskComponentBloc>().add(TaskComponentEditEvent(value: e)),
+              onTap: () => context.read<TaskComponentBloc>().add(EditEvent(value: e)),
             ),
             TableCell(
                 child: Padding(
@@ -42,7 +42,7 @@ class TaskBasedTable extends StatelessWidget {
                     child: Row(
                       children: [
                         GestureDetector(
-                            onTap: () => context.read<TaskComponentBloc>().add(TaskComponentEditEvent(value: e)),
+                            onTap: () => context.read<TaskComponentBloc>().add(EditEvent(value: e)),
                             child: const Icon(
                               Icons.edit_outlined,
                               color: AppC.blue,)
@@ -55,7 +55,7 @@ class TaskBasedTable extends StatelessWidget {
                                 positiveText: "Yes, delete it!",
                                 negativeText: "Cancel",
                                 isReasonRequired: false,
-                                onPositivePressed: () => context.read<TaskComponentBloc>().add(TaskComponentDeleteEvent(value: e))),
+                                onPositivePressed: () => context.read<TaskComponentBloc>().add(DeleteEvent(value: e))),
                             child: const Icon(Icons.delete_outline_rounded, color: AppC.redAccent)),
                       ],
                     ),
