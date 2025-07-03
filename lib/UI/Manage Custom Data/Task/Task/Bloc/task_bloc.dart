@@ -28,7 +28,14 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
   List<Map<String, dynamic>> _unfilteredResponse = [];
   List<Map<String, dynamic>> filteredResponse = [];
   List<dynamic>listSubcategory=[];
-  List<dynamic>usersType=[{'id': 0, 'name': 'Select'}, {'id': 1, 'name': 'Support Task'}];
+  List<dynamic>usersType=[
+    {'id': 0, 'name': 'Select'},
+    {'id': 1, 'name': 'Support Task'},
+    {'id': 2, 'name': 'Rental Task'},
+    {'id': 3, 'name': 'Lead Task'},
+    {'id': 4, 'name': 'Non-Rental Task'},
+    {'id': 5, 'name': 'Meeting'},
+  ];
 
   List<dynamic> get category => getIt<CommonService>().expenseCategoriesList;
   List<dynamic> get subcategory => List.from(category.firstWhereOrNull((element) => element['id'] == selectedCategory?['id'])?['sub_categories'] ?? []);
