@@ -12,7 +12,7 @@ class TaskComponentBottomTab extends StatelessWidget {
               Container(
                 decoration:  const BoxDecoration(
                     border: Border(
-                        bottom: BorderSide(width: Num.borderWidthThinField)
+                        bottom: BorderSide(width: Num.borderWidthThinField, color: AppC.grey),
                     ),
                 ),
                 child:  Row(
