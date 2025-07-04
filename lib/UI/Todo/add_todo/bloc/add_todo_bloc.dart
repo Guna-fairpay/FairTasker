@@ -103,6 +103,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
   List<Map<String, dynamic>> get groupVehicleList => getIt<CommonService>().groupVehicleList;
   List<Map<String, dynamic>> get partsList => getIt<CommonService>().partsList;
   List<Map<String, dynamic>> get suppliesList => getIt<CommonService>().suppliesList;
+  List<Map<String, dynamic>> get leads => getIt<CommonService>().leads;
   Color reservationColor = AppC.appColor;
 
   @override
@@ -385,6 +386,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
   Future<List<Map<String, dynamic>>?> _getParts() async => await getIt<CommonService>().getPartsList(); // API CALL: GET-PARTS
   Future<List<Map<String, dynamic>>?> _getSupplies() async => await getIt<CommonService>().getSuppliesList(); // API CALL: GET-PARTS
   Future<List<Map<String, dynamic>>> _getGroupVehicles() async => await getIt<CommonService>().groupVehicles(); // API CALL: GET-GROUP-VEHICLES
+  Future<List<Map<String, dynamic>>> _getLeads() async => await getIt<CommonService>().fetchLeads(); // API CALL: GET-GROUP-VEHICLES
   // Future<List<Map<String, dynamic>>> _getCurrentToDos() async => await getIt<CommonService>().getToDos(); // API CALL: GET-TODOS
   Future<Map<String, dynamic>?> _getOilChangeTask({required dynamic vin}) async => await getIt<CommonService>().getLatestOilChangeTask(vin: vin, dateTime: state.selectedDate ?? DateTime.now());
   Future<Map<String, dynamic>?> _deleteToDo({dynamic todoId}) async => await _apiRepository.deleteTodo(id: todoId, reason: "");
@@ -518,6 +520,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
         _getSupplies(), // 5
         _getResources(), // 6
         _getGroupVehicles(), // 7
+        _getLeads(), // 7
         // _getCurrentToDos(), // 8
       ]);
       var resources = response[6] ?? [];
@@ -657,6 +660,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
         _getSupplies(), // 5
         _getResources(), // 6
         _getGroupVehicles(), // 7
+        _getLeads(), // 7
         // _getCurrentToDos(), // 8
       ]);
       var resources = response[6] ?? [];

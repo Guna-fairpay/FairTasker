@@ -18,7 +18,6 @@ void callbackDispatcher() {
       "fetchAllApi" => Future.wait(
         data.entries.map((e) async => {e.key.toString(): jsonEncode(await _get(dio, e.value) ?? {})}),
       ).then((listOfMaps) => listOfMaps.fold<Map<String, dynamic>>({}, (previous, element) => previous..addAll(element))),
-
       _ => _get(dio, data),
     };
     log("🚀 Response Triggering" , name: "WorkManager");
@@ -55,6 +54,10 @@ void get triggerAll {
     "fetchBearerTokenApi" : _getBearerToken,
   };
   triggerWM(mapData, task: "fetchAllApi");
+}
+
+void get triggerPreRequests {
+  triggerWM(_preRequests, task: "preRequests");
 }
 
 void get triggerTasker {
@@ -136,6 +139,17 @@ Map<String, dynamic> get _getBearerToken {
 
 Map<String, dynamic> get _getCohort {
   var url = "${Str.LIST_BASE_URL}getCohortsData";
+  Map<String, dynamic> mapData = {
+    "url" :  url,
+    "queryParameters" : null,
+    "method" : "get",
+    "headers" : Utils.getHeadersWithToken(url: url),
+  };
+  return mapData;
+}
+
+Map<String, dynamic> get _preRequests {
+  final url = "${Str.BASE_URL}preRequests";
   Map<String, dynamic> mapData = {
     "url" :  url,
     "queryParameters" : null,
