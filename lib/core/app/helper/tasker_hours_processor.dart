@@ -1,5 +1,9 @@
+import 'dart:convert';
+
 import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
 
 class TaskerHoursProcessor {
@@ -16,7 +20,13 @@ class TaskerHoursProcessor {
 
   Future<Map<String, dynamic>> refresh() async {
     _response = await _findCheckInHours();
-    var checkInOutCount = "${_response?['checkInCount'] ?? 0}/${_response?['checkOutCount'] ?? 0}";
+    final currentHrmIds = getIt<CommonService>().currentBranchHrmIds;
+    List<Map<String, dynamic>> punchList = List.from(_response?['userPunchList'] ?? []);
+    var users = punchList.where((element) => currentHrmIds.contains(element['employee']?['id']));
+    final checkInCount = users.where((element) => element['end_time'].toString().trim().isNullOrEmpty).length;
+    final checkOutCount = users.where((element) => element['end_time'].toString().trim().isNotNullOrEmpty).length;
+    // var checkInOutCount = "${_response?['checkInCount'] ?? 0}/${_response?['checkOutCount'] ?? 0}";
+    var checkInOutCount = "${checkInCount ?? 0}/${checkOutCount ?? 0}";
     _broadcast.broadcast("check_in_out_count", value: checkInOutCount);
     return processWorkingHours();
   }

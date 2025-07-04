@@ -172,7 +172,8 @@ class CommonService {
       List<Map<String, dynamic>>? cohortsData = List.from(response['cohortsData'] ?? []);
       List<Map<String, dynamic>>? expenseCategories = List.from(response['expenseCategories'] ?? []);
       List<Map<String, dynamic>>? leads = List.from(response['leads'] ?? []);
-      updateValues(userList: users, groupPersonList: userGroup, taskExpenseDataList: taskExpenseData, locationsList: locations, vendorsList: vendors, groupVehicleList: vehicleGroups, activeVehicleList: vehicles, resourcesList: resources, partsList: parts, suppliesList: supplies, vehicleCategories: vehicleStatusCategories, taskCategoryGroupList: taskCategoryGroupList, cohortsList: cohortsData, expenseCategoriesList: expenseCategories, leads: leads);
+      List<Map<String, dynamic>>? branchs = List.from(response['branchs'] ?? []);
+      updateValues(userList: users, groupPersonList: userGroup, taskExpenseDataList: taskExpenseData, locationsList: locations, vendorsList: vendors, groupVehicleList: vehicleGroups, activeVehicleList: vehicles, resourcesList: resources, partsList: parts, suppliesList: supplies, vehicleCategories: vehicleStatusCategories, taskCategoryGroupList: taskCategoryGroupList, cohortsList: cohortsData, expenseCategoriesList: expenseCategories, leads: leads, branchList: branchs);
       Console.of.debug("⌛Response is settled", name: "CommonService");
     }
   }
