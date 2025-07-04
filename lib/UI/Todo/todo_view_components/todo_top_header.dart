@@ -46,63 +46,65 @@ class TodoTopHeader extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         spacing: 10,
         children: [
-          Row(
-            spacing: 10.r,
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-            SizedBox.fromSize(
-              size: Size.fromRadius(14.r),
-              child: FittedBox(
-                  child: Switch(
-                      trackOutlineColor: WidgetStateColor.resolveWith(
-                            (states) {
-                          if (states.contains(WidgetState.selected)) {
-                            return AppC.green;
-                          } else {
-                            return AppC.grey;
-                          }
-                        },
-                      ),
-                      activeTrackColor: AppC.green,
-                      activeColor: AppC.white,
-                      inactiveThumbColor: AppC.white,
-                      inactiveTrackColor: AppC.grey,
-                      value: showCompleted,
-                      onChanged: onSwitch)),
-            ),
-            GestureDetector(
-              onTapDown: onVehicleSearchPressed,
-              child: SizedBox.fromSize(
-                size: Size(18.w, 18.h),
-                child: FittedBox(
-                  child: Image.asset(
-                    Assets.vehicleSearchIcon,
-                    color: vehicleSearchColor ?? AppC.appColor,
-                  ),
-                ),
-              ),
-            ),
-            InkWell(
-              borderRadius: BorderRadius.circular(Num.borderRadius),
-              onTap: () => onChangeTimeSensitive?.call(!isTimeSensitive),
-              child: SizedBox.fromSize(
-                size: Size(14.w, 16.h),
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: (isTimeSensitive) ? AppC.appColor : AppC.borderColor, width: Num.borderWidthThinField,
-                    ),
-                    borderRadius: BorderRadius.circular(Num.borderRadius),
-                    color: (isTimeSensitive) ? AppC.appColor : AppC.trans
-                  ),
-                  child: Icon(Icons.check, size: 14.r, color: (isTimeSensitive) ? AppC.white : AppC.trans,),
-                ),
-              ),
-            ),
-          ],),
           Expanded(
-            flex: 3,
+            child: Row(
+              spacing: 10.r,
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+              SizedBox.fromSize(
+                size: Size.fromRadius(16.spMin),
+                child: FittedBox(
+                    child: Switch(
+                        trackOutlineColor: WidgetStateColor.resolveWith(
+                              (states) {
+                            if (states.contains(WidgetState.selected)) {
+                              return AppC.green;
+                            } else {
+                              return AppC.grey;
+                            }
+                          },
+                        ),
+                        activeTrackColor: AppC.green,
+                        activeColor: AppC.white,
+                        inactiveThumbColor: AppC.white,
+                        inactiveTrackColor: AppC.grey,
+                        value: showCompleted,
+                        onChanged: onSwitch)),
+              ),
+              GestureDetector(
+                onTapDown: onVehicleSearchPressed,
+                child: SizedBox.fromSize(
+                  size: Size(22.spMin, 22.spMin),
+                  child: FittedBox(
+                    child: Image.asset(
+                      Assets.vehicleSearchIcon,
+                      color: vehicleSearchColor ?? AppC.appColor,
+                    ),
+                  ),
+                ),
+              ),
+              InkWell(
+                borderRadius: BorderRadius.circular(Num.borderRadius),
+                onTap: () => onChangeTimeSensitive?.call(!isTimeSensitive),
+                child: SizedBox.fromSize(
+                  size: Size(20.spMin, 20.spMin),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: (isTimeSensitive) ? AppC.appColor : AppC.borderColor, width: Num.borderWidthThinField,
+                      ),
+                      borderRadius: BorderRadius.circular(Num.borderRadius),
+                      color: (isTimeSensitive) ? AppC.appColor : AppC.trans
+                    ),
+                    child: Icon(Icons.check, size: 14.r, color: (isTimeSensitive) ? AppC.white : AppC.trans,),
+                  ),
+                ),
+              ),
+            ],),
+          ),
+          Expanded(
+            flex: 2,
               child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -111,49 +113,41 @@ class TodoTopHeader extends StatelessWidget {
                   child: Icon(
                     Icons.chevron_left,
                     color: AppC().base,
-                    size: 22.r,
+                    size: 22.spMin,
                   )),
               InkWell(
                 onTap: onDatePressed,
                 child: Utils.getText(
                     (selectedDate.toFormat(format: "MMM dd") ?? ""),
-                    size: 12.spMin,
-                    weight: FontWeight.w500),
+                    size: 14.spMin,
+                    weight: FontWeight.w900),
               ),
               GestureDetector(
                   onTap: onNextPressed,
                   child: Icon(
                     Icons.chevron_right,
                     color: AppC().base,
-                    size: 22.r,
+                    size: 22.spMin,
                   )),
               if (getIt<CommonService>().departmentId != 9)
               GestureDetector(
                 onTapDown: onUserTapDown,
-                child: Row(
-                  children: [
-                    Icon(
-                      isUserSelected
-                          ? Remix.group_fill
-                          : Remix.user_line,
-                      color: AppC().base,
-                      size: 17.r,
-                    ),
-                  ],
+                child: Icon(
+                  isUserSelected
+                      ? Remix.group_fill
+                      : Remix.user_line,
+                  color: AppC().base,
+                  size: 20.spMin,
                 ),
               ),
               GestureDetector(
                   onTapDown: onFilterPressed,
-                  child: Row(
-                    children: [
-                      Icon(
-                        !isFilterSelected
-                            ? Remix.filter_line
-                            : Remix.filter_fill,
-                        color: AppC.black,
-                        size: 18.r,
-                      ),
-                    ],
+                  child: Icon(
+                    !isFilterSelected
+                        ? Remix.filter_line
+                        : Remix.filter_fill,
+                    color: AppC.black,
+                    size: 20.spMin,
                   )),
             ],
           ))

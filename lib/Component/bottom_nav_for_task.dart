@@ -49,7 +49,7 @@ class _BottomNavigationForTaskViewState
         type: BottomNavigationBarType.fixed,
         backgroundColor: Colors.white,
         currentIndex: index,
-        iconSize: 20.r,
+        iconSize: 24.spMin,
         showSelectedLabels: true,
         showUnselectedLabels: true,
         selectedItemColor: AppC().base,

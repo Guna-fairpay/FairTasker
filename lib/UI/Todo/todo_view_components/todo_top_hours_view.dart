@@ -18,6 +18,7 @@ class TodoTopHoursView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FittedBox(
+      fit: BoxFit.contain,
       child: Row(
         spacing: 5.spMin,
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
