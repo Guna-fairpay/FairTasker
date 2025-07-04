@@ -13,9 +13,11 @@ import 'package:flutter/material.dart';
 import 'package:fairpytasker/Utilities/assets.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:r_icon_pro/r_icon_pro.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import '../Utilities/str.dart';
 import 'bottom_nav_for_task.dart';
 
@@ -77,10 +79,14 @@ class HeaderView extends StatelessWidget {
                 builder: (context, state) => GestureDetector(
                   onTap: () => context.push(const ResourceCheckInOutUi(), fullscreenDialog: true),
                   // onTap: () => context.push(WorkHoursViewUI(), fullscreenDialog: true),
-                  child: Container(
-                    decoration: Utils.getBoxDecoration(),
-                    padding: EdgeInsets.symmetric(horizontal: 5.spMin, vertical: 2.spMin),
-                    child: Utils.getText(' ${context.watch<HeaderBloc>().checkInOutCount ?? "0/0"} ', weight: FontWeight.bold),
+                  child: Skeletonizer(
+                    enabled: EasyLoading.isShow,
+                    ignoreContainers: true,
+                    child: Container(
+                      decoration: Utils.getBoxDecoration(),
+                      padding: EdgeInsets.symmetric(horizontal: 5.spMin, vertical: 2.spMin),
+                      child: Utils.getText(' ${context.watch<HeaderBloc>().checkInOutCount ?? "0/0"} ', weight: FontWeight.bold),
+                    ),
                   ),
                 ),
               ),
