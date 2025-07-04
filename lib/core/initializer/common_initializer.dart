@@ -78,6 +78,7 @@ class CommonService {
   Map<String, dynamic>? releaseNotes;
   List<Map<String, dynamic>> _leavelistType = [];
   List<Map<String, dynamic>> expensesCategory = [];
+  List<Map<String, dynamic>> leads = [];
 
   PackageInfo? packageInfo;
 
@@ -149,6 +150,11 @@ class CommonService {
     Console.of.log("Value is ${value.runtimeType}", name: "CommonService");
     var response = (value is String) ? jsonDecode(value) : value;
     if (response is Map<String, dynamic>) {
+      if (response.containsKey("token") && (response['token'].toString().isNotNullOrEmpty)) {
+        Session.of.set(Str.frBearerToken, (response['token'] ?? ""));
+        Utils.setStringPreference(Str.frBearerToken, (response['token'] ?? ""));
+        Console.of.log("✨ Token refreshed");
+      }
       Console.of.debug("Response is ${response.runtimeType} and setting values", name: "CommonService");
       if (response.containsKey("vehicles") == false) return;
       List<Map<String, dynamic>>? users = List.from(response['users'] ?? []);
@@ -162,14 +168,18 @@ class CommonService {
       List<Map<String, dynamic>>? resources = List.from(response['resources'] ?? []);
       List<Map<String, dynamic>>? parts = List.from(response['parts'] ?? []);
       List<Map<String, dynamic>>? supplies = List.from(response['supplies'] ?? []);
-      updateValues(userList: users, groupPersonList: userGroup, taskExpenseDataList: taskExpenseData, locationsList: locations, vendorsList: vendors, groupVehicleList: vehicleGroups, activeVehicleList: vehicles, resourcesList: resources, partsList: parts, suppliesList: supplies, vehicleCategories: vehicleStatusCategories);
+      List<Map<String, dynamic>>? taskCategoryGroupList = List.from(response['taskCategoryGroup'] ?? []);
+      List<Map<String, dynamic>>? cohortsData = List.from(response['cohortsData'] ?? []);
+      List<Map<String, dynamic>>? expenseCategories = List.from(response['expenseCategories'] ?? []);
+      List<Map<String, dynamic>>? leads = List.from(response['leads'] ?? []);
+      updateValues(userList: users, groupPersonList: userGroup, taskExpenseDataList: taskExpenseData, locationsList: locations, vendorsList: vendors, groupVehicleList: vehicleGroups, activeVehicleList: vehicles, resourcesList: resources, partsList: parts, suppliesList: supplies, vehicleCategories: vehicleStatusCategories, taskCategoryGroupList: taskCategoryGroupList, cohortsList: cohortsData, expenseCategoriesList: expenseCategories, leads: leads);
       Console.of.debug("⌛Response is settled", name: "CommonService");
     }
   }
 
   Future<void> initialFetch() async {
     await Future.delayed(Durations.short1);
-    if (Session.of.getBool(Str.loginPrefText) ?? false) triggerAll;
+    if (Session.of.getBool(Str.loginPrefText) ?? false) triggerPreRequests;
     await Future.microtask(getPackageInfo);
     await Future.microtask(getReleaseNotes);
     Console.of.log("$timeNow", name: "TIME_NOW_IN_AMERICA");
@@ -674,6 +684,19 @@ class CommonService {
     }
   }
 
+  Future<List<Map<String, dynamic>>> fetchLeads({bool reset = false}) async {
+    if (reset) leads.clear();
+    if (leads.isNotEmpty) return [...leads];
+    try {
+      var response = await _apiRepository.getLeads(type: "all");
+      leads = List<Map<String, dynamic>>.from(response?['data'] ?? []);
+      return [...leads];
+    } catch (e) {
+      Toaster.showError(e.toString());
+      return [];
+    }
+  }
+
   List<Map<String, dynamic>> userByGroupId(int? userGroupId) {
     if ((userGroupId == null) || (userGroupId == 0)) return [];
     final groupPerson =  groupPersonList.firstWhereOrNull((element) => element['id'] == userGroupId);
@@ -683,7 +706,7 @@ class CommonService {
     return result;
   }
 
-  void updateValues({List<Map<String, dynamic>>? userList, List<Map<String, dynamic>>? cohortsList, List<Map<String, dynamic>>? vendorsList, List<Map<String, dynamic>>? locationsList, List<Map<String, dynamic>>? partsList, List<Map<String, dynamic>>? suppliesList, List<Map<String, dynamic>>? groupVehicleList, List<Map<String, dynamic>>? activeVehicleList, List<Map<String, dynamic>>? activeVehicleCountList, List<Map<String, dynamic>>? bouncieVehicles, List<Map<String, dynamic>>? groupPersonList, List<Map<String, dynamic>>? taskExpenseDataList, List<Map<String, dynamic>>? expenseCategoriesList, List<Map<String, dynamic>>? paymentTypesList, List<Map<String, dynamic>>? resourcesList, List<Map<String, dynamic>>? branchList, List<Map<String, dynamic>>? toDoList, List<Map<String, dynamic>>? maintenanceCheckList, List<Map<String, dynamic>>? checkList, Map<String, dynamic>? vehicleStatus, List<Map<String, dynamic>>? vehicleCategories}) {
+  void updateValues({List<Map<String, dynamic>>? userList, List<Map<String, dynamic>>? cohortsList, List<Map<String, dynamic>>? vendorsList, List<Map<String, dynamic>>? locationsList, List<Map<String, dynamic>>? partsList, List<Map<String, dynamic>>? suppliesList, List<Map<String, dynamic>>? groupVehicleList, List<Map<String, dynamic>>? activeVehicleList, List<Map<String, dynamic>>? activeVehicleCountList, List<Map<String, dynamic>>? bouncieVehicles, List<Map<String, dynamic>>? groupPersonList, List<Map<String, dynamic>>? taskExpenseDataList, List<Map<String, dynamic>>? expenseCategoriesList, List<Map<String, dynamic>>? paymentTypesList, List<Map<String, dynamic>>? resourcesList, List<Map<String, dynamic>>? branchList, List<Map<String, dynamic>>? toDoList, List<Map<String, dynamic>>? maintenanceCheckList, List<Map<String, dynamic>>? checkList, Map<String, dynamic>? vehicleStatus, List<Map<String, dynamic>>? vehicleCategories, List<Map<String, dynamic>>? taskCategoryGroupList, List<Map<String, dynamic>>? leads}) {
     this.usersList = userList ?? usersList;
     this.cohortsList = cohortsList ?? this.cohortsList;
     this.vendorsList = vendorsList ?? this.vendorsList;
@@ -699,8 +722,10 @@ class CommonService {
     this.expenseCategoriesList = expenseCategoriesList ?? this.expenseCategoriesList;
     this.paymentTypesList = paymentTypesList ?? this.paymentTypesList;
     this.resourcesList = resourcesList ?? this.resourcesList;
+    this.taskCategoryGroupList = taskCategoryGroupList ?? this.taskCategoryGroupList;
     this._vehicleStatus = vehicleStatus ?? _vehicleStatus;
     this.branchList = branchList ?? this.branchList;
+    this.leads = leads ?? this.leads;
     _vehicleCategories = vehicleCategories ?? _vehicleCategories;
     _toDoList = toDoList ?? _toDoList;
     _maintenanceCheckList = maintenanceCheckList ?? _maintenanceCheckList;

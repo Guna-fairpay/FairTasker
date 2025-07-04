@@ -40,7 +40,9 @@ class WorkManagerBridge {
             }
           }
         } else {
+          Console.of.log("✅ Main isolate (${message.keys.first})");
           switch(message.keys.first) {
+            case "preRequests" : getIt<CommonService>().initializeTasker(message['preRequests']);
             case "fetchToDoApi": getIt<CommonService>().initializeTasker(message['fetchToDoApi']); break;
             case "fetchBearerTokenApi" : {
               var response = message['fetchBearerTokenApi'];
