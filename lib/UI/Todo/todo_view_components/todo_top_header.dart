@@ -44,11 +44,11 @@ class TodoTopHeader extends StatelessWidget {
       padding: const EdgeInsets.only(top: 0, bottom: 0, left: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        spacing: 10,
+        spacing: 30.spMin,
         children: [
           Expanded(
             child: Row(
-              spacing: 10.r,
+              spacing: 10.spMin,
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
