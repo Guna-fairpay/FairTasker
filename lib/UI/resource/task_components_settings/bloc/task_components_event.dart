@@ -5,46 +5,46 @@ abstract class TaskComponentEvent extends Equatable{
   List<Object?> get props => [];
 }
 
-class TaskComponentInitialEvent extends TaskComponentEvent {}
+class InitialEvent extends TaskComponentEvent {}
 
-class TaskComponentDropdownBaseEvent extends TaskComponentEvent {
+class DropdownBaseEvent extends TaskComponentEvent {
   final Map<String, dynamic> value;
-  TaskComponentDropdownBaseEvent({required this.value});
+  DropdownBaseEvent({required this.value});
   @override
   List<Object?> get props => [value];
 }
 
-class TaskComponentResourceDropdownEvent extends TaskComponentEvent {
+class ResourceDropdownEvent extends TaskComponentEvent {
   final Map<String, dynamic> value;
-  TaskComponentResourceDropdownEvent({required this.value});
+  ResourceDropdownEvent({required this.value});
   @override
   List<Object?> get props => [value];
 }
 
-class TaskComponentTabBarEvent extends TaskComponentEvent {
+class TabBarEvent extends TaskComponentEvent {
   final int tabIndex;
-  TaskComponentTabBarEvent({required this.tabIndex});
+  TabBarEvent({required this.tabIndex});
   @override
   List<Object?> get props => [tabIndex];
 }
 
-class TaskComponentDeleteEvent extends TaskComponentEvent {
+class DeleteEvent extends TaskComponentEvent {
   final Map<String, dynamic> value;
-  TaskComponentDeleteEvent({required this.value});
+  DeleteEvent({required this.value});
   @override
   List<Object?> get props => [value];
 }
 
-class TaskComponentEditEvent extends TaskComponentEvent {
+class EditEvent extends TaskComponentEvent {
   final Map<String, dynamic> value;
-  TaskComponentEditEvent({required this.value});
+  EditEvent({required this.value});
   @override
   List<Object?> get props => [value];
 }
 
-class TaskComponentSaveEvent extends TaskComponentEvent {}
+class SaveEvent extends TaskComponentEvent {}
 
-class TaskComponentUpdateEvent extends TaskComponentEvent {}
+class UpdateEvent extends TaskComponentEvent {}
 
-class TaskComponentClearAllFieldEvent extends TaskComponentEvent {}
+class ClearAllFieldEvent extends TaskComponentEvent {}
 

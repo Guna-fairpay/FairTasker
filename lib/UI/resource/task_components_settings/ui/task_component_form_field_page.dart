@@ -15,14 +15,14 @@ class TaskComponentFormFieldPage extends StatelessWidget {
               children: [
                 Utils.dropdownBox('',
                     context.read<TaskComponentBloc>().baseList,
-                    (value) => context.read<TaskComponentBloc>().add(TaskComponentDropdownBaseEvent(value: value)),
+                    (value) => context.read<TaskComponentBloc>().add(DropdownBaseEvent(value: value)),
                     labelKey: 'title',
                   initialSelection: context.read<TaskComponentBloc>().selectedBase,
                 ),
                 if(context.read<TaskComponentBloc>().isHourBased)
                 Utils.dropdownBox('Select User',
                     context.read<TaskComponentBloc>().resourceList,
-                    (value) => context.read<TaskComponentBloc>().add(TaskComponentResourceDropdownEvent(value: value)),
+                    (value) => context.read<TaskComponentBloc>().add(ResourceDropdownEvent(value: value)),
                     initialSelection: context.read<TaskComponentBloc>().selectedResource,
                     selectedKey: context.read<TaskComponentBloc>().selectedResource,
                     labelKey: 'first_name',
@@ -52,16 +52,16 @@ class TaskComponentFormFieldPage extends StatelessWidget {
                     if(!context.read<TaskComponentBloc>().isEdit)...[
                       SuccessButton(
                       text: 'Save',
-                      onPressed: () => context.read<TaskComponentBloc>().add(TaskComponentSaveEvent()),
+                      onPressed: () => context.read<TaskComponentBloc>().add(SaveEvent()),
                     ),],
                     if(context.read<TaskComponentBloc>().isEdit)...[SuccessButton(
                       text: 'Update',
-                      onPressed: () => context.read<TaskComponentBloc>().add(TaskComponentSaveEvent()),
+                      onPressed: () => context.read<TaskComponentBloc>().add(SaveEvent()),
                     ),
                     SuccessButton(
                       text: 'Cancel',
                       backgroundColor: AppC.redAccent,
-                      onPressed: () => context.read<TaskComponentBloc>().add(TaskComponentClearAllFieldEvent()),
+                      onPressed: () => context.read<TaskComponentBloc>().add(ClearAllFieldEvent()),
                     ),]
                   ],
                 ),

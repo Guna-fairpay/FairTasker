@@ -6,9 +6,9 @@ abstract class TaskComponentState extends Equatable{
   List<Object?> get props => [];
 }
 
-class TaskComponentLoadingState extends TaskComponentState {}
+class LoadingState extends TaskComponentState {}
 
-class TaskComponentCommentState extends TaskComponentState {
+class CommentState extends TaskComponentState {
   @override
   List<Object?> get props => [Random().nextDouble()];
 }

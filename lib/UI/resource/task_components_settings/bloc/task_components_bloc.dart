@@ -1,4 +1,3 @@
-
 import 'dart:math';
 
 import 'package:collection/collection.dart';
@@ -6,7 +5,6 @@ import 'package:equatable/equatable.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
-import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -25,12 +23,14 @@ class TaskComponentBloc extends Bloc<TaskComponentEvent,TaskComponentState> {
 
   List<dynamic> baseList = [
     {'id': '1', 'title': 'Task based'},
-    {'id': '2', 'title': 'Hourly based'} ];
+    {'id': '2', 'title': 'Hourly based'}
+  ];
 
   List<dynamic>? apiResponse;
   List<dynamic>? taskBaseList;
   List<dynamic>? hourlyBaseList;
   List<dynamic>? userId;
+  List<dynamic> resourceList = [];
 
   dynamic selectedBase;
   dynamic selectedResource;
@@ -41,164 +41,140 @@ class TaskComponentBloc extends Bloc<TaskComponentEvent,TaskComponentState> {
   bool isHourBased = false;
   bool isEdit = false;
 
-  List get _resourceList => getIt<CommonService>().usersList;
-  List get resourceList {
+  // List get _resourceList => getIt<CommonService>().usersList;
+  List get _resourceList {
     var list = List.from(getIt<CommonService>().usersList);
     list.removeWhere((element) => (element['id'] == 2) ||  (element['deleted_at'].toString().isNotNullOrEmpty)  /*|| (element['branch_id'] != getIt<CommonService>().branchId)*/ );
     return list;
   }
 
-  TaskComponentBloc() :super(TaskComponentLoadingState()){
-    on<TaskComponentInitialEvent>(_onTaskComponentsInitialEvent);
-    on<TaskComponentDropdownBaseEvent>(_onTaskComponentsDropdownBaseEvent);
-    on<TaskComponentResourceDropdownEvent>(_onTaskComponentsResourceDropdownEvent);
-    on<TaskComponentTabBarEvent>(_onTaskComponentsTabBarEvent);
-    on<TaskComponentEditEvent>(_onTaskComponentsEditEvent);
-    on<TaskComponentClearAllFieldEvent>(_onTaskComponentsClearAllFieldEvent);
-    on<TaskComponentSaveEvent>(_onTaskComponentsSaveEvent);
-    on<TaskComponentDeleteEvent>(_onTaskComponentDeleteEvent);
+  TaskComponentBloc() :super(LoadingState()){
+    on<InitialEvent>(_onInitialEvent);
+    on<DropdownBaseEvent>(_onDropdownBaseEvent);
+    on<ResourceDropdownEvent>(_onResourceDropdownEvent);
+    on<TabBarEvent>(_onTabBarEvent);
+    on<EditEvent>(_onEditEvent);
+    on<ClearAllFieldEvent>(_onClearAllFieldEvent);
+    on<SaveEvent>(_onSaveEvent);
+    on<DeleteEvent>(_onDeleteEvent);
   }
 
-  Future<void> _onTaskComponentsInitialEvent(TaskComponentInitialEvent event, Emitter<TaskComponentState> emit) async {
+  Future<void> _onInitialEvent(InitialEvent event, Emitter<TaskComponentState> emit) async {
     try {
-      emit(TaskComponentLoadingState());
+      emit(LoadingState());
+      selectedBase = baseList.first;
       await refetch();
-      emit(TaskComponentCommentState());
+      emit(CommentState());
     } catch (e) {
-      _onError("TaskComponentInitialEvent ${e.toString()}");
-      emit(TaskComponentCommentState());
+      _onError(e, emit);
+      emit(CommentState());
     }
   }
 
-  Future<void> _onTaskComponentsDropdownBaseEvent(TaskComponentDropdownBaseEvent event, Emitter<TaskComponentState> emit) async {
+  void _onDropdownBaseEvent(DropdownBaseEvent event, Emitter<TaskComponentState> emit) {
     try {
       if(selectedBase != event.value){
         selectedBase = event.value;
-        if (selectedBase['id'] == '2') {
-          isHourBased = true;
-          selectedTab = 1;
-        } else {
-          isHourBased = false;
-          selectedTab = 0;
-        }
-        add(TaskComponentClearAllFieldEvent());
+        isHourBased = selectedBase['id'] == '2';
+        selectedTab = selectedBase['id'] == '2' ? 1 : 0;
+        clearAll();
       }
-      emit(TaskComponentCommentState());
+      emit(CommentState());
       } catch (e) {
-      _onError("TaskComponentDropdownBaseEvent ${e.toString()}");
-      emit(TaskComponentCommentState());
+      _onError(e, emit);
+      emit(CommentState());
     }
   }
 
-  void _onTaskComponentsResourceDropdownEvent(TaskComponentResourceDropdownEvent event, Emitter<TaskComponentState> emit) {
+  void _onResourceDropdownEvent(ResourceDropdownEvent event, Emitter<TaskComponentState> emit) {
     try {
       selectedResource = event.value;
-      emit(TaskComponentCommentState());
+      emit(CommentState());
     } catch (e) {
-      _onError("TaskComponentResourceDropdownEvent ${e.toString()}");
-      emit(TaskComponentCommentState());
+      _onError(e, emit);
+      emit(CommentState());
     }
   }
 
-  void _onTaskComponentsTabBarEvent(TaskComponentTabBarEvent event, Emitter<TaskComponentState> emit) {
+  void _onTabBarEvent(TabBarEvent event, Emitter<TaskComponentState> emit) {
     try {
       selectedTab = event.tabIndex;
-      emit(TaskComponentCommentState());
+      emit(CommentState());
     } catch (e) {
-      _onError("TaskComponentTabBarEvent ${e.toString()}");
-      emit(TaskComponentCommentState());
+      _onError(e, emit);
+      emit(CommentState());
     }
   }
 
-  void _onTaskComponentsEditEvent(TaskComponentEditEvent event, Emitter<TaskComponentState> emit) {
+  void _onEditEvent(EditEvent event, Emitter<TaskComponentState> emit) {
      try{
        isEdit = event.value.isNotEmpty;
        editData = event.value;
-       if(event.value['type'] == 'task') {
+       if(editData['type'] == 'task') {
          isHourBased = false;
          selectedResource = null;
          selectedBase = baseList.first;
-         taskNameController.text = event.value['task_name'];
-         amountController.text = event.value['amount'];
+         taskNameController.text = editData['task_name'];
+         amountController.text = editData['amount'];
        } else {
          formKey.currentState?.reset();
          autoValidateMode = null;
          isHourBased = true;
          taskNameController.clear();
          selectedBase = baseList.last;
-         amountController.text = event.value['amount'];
-         selectedResource = resourceList.firstWhereOrNull((e) => e['id'].toString() == event.value['user_id'].toString());
+         amountController.text = editData['amount'];
+         resourceList.add(_resourceList.firstWhereOrNull((e) => e['id'].toString() == editData['user_id'].toString()));
+         selectedResource = resourceList.firstWhereOrNull((e) => e['id'].toString() == editData['user_id'].toString());
        }
-       emit(TaskComponentCommentState());
+       emit(CommentState());
      } catch (e) {
-       _onError("TaskComponentEditEvent ${e.toString()}");
-       emit(TaskComponentCommentState());
+       _onError(e, emit);
+       emit(CommentState());
      }
   }
 
-  void _onTaskComponentsClearAllFieldEvent(TaskComponentClearAllFieldEvent event, Emitter<TaskComponentState> emit) {
+  void _onClearAllFieldEvent(ClearAllFieldEvent event, Emitter<TaskComponentState> emit) {
      try{
-       formKey.currentState?.reset();
-       autoValidateMode = null;
-       isEdit = false;
-       editData = null;
-       selectedResource = null;
-       taskNameController.clear();
-       amountController.clear();
-       emit(TaskComponentCommentState());
+       clearAll();
+       emit(CommentState());
      }catch(e){
-       _onError("TaskComponentsClearAllFieldEvent ${e.toString()}");
-       emit(TaskComponentCommentState());
+       _onError(e, emit);
+       emit(CommentState());
      }
    }
 
-   Future<void> _onTaskComponentDeleteEvent(TaskComponentDeleteEvent event, Emitter<TaskComponentState> emit) async {
+   Future<void> _onDeleteEvent(DeleteEvent event, Emitter<TaskComponentState> emit) async {
      try {
-       emit(TaskComponentLoadingState());
+       emit(LoadingState());
        var response = await apiRepository.deleteConfiguration(id: event.value['id']);
        if(response?['status'] == 200){
          await refetch();
+         if((event.value['id'].toString()) == (editData?['id'].toString())){
+           clearAll();
+         }
        }
-       if((event.value['id'].toString()) == (editData?['id'].toString())){
-         add(TaskComponentClearAllFieldEvent());
-       }
-       emit(TaskComponentCommentState());
-       } catch (e) {
-       _onError("TaskComponentDeleteEvent ${e.toString()}");
-       emit(TaskComponentCommentState());
+       emit(CommentState());
+     } catch (e) {
+       _onError(e, emit);
+       emit(CommentState());
      }
    }
 
-   Future<void> _onTaskComponentsSaveEvent(TaskComponentSaveEvent event, Emitter<TaskComponentState> emit) async {
+   Future<void> _onSaveEvent(SaveEvent event, Emitter<TaskComponentState> emit) async {
      autoValidateMode = AutovalidateMode.onUserInteraction;
-     if (formKey.currentState?.validate() == false) return emit(TaskComponentCommentState());
+     if (formKey.currentState?.validate() == false) return emit(CommentState());
      try {
       autoValidateMode = null;
-      if((userId ?? []).contains(selectedResource?['id']) && !isEdit) return emit(ErrorState('User already exist'));
-      emit(TaskComponentLoadingState());
+      emit(LoadingState());
       var response = await apiRepository.addConfiguration(id: isEdit ? "${editData['id']}" : null, body: _data);
       if(response?['status'] == 200){
         await refetch();
-        isEdit = false;
-        editData = null;
-        add(TaskComponentClearAllFieldEvent());
-        // if(isEdit){
-        //   apiResponse?.removeWhere((element) => element['id'] == editData['id']);
-        //   apiResponse?.add(response?['data']);
-        //   filterData(apiResponse);
-        //   editData = null;
-        //   isEdit = false;
-        //
-        // } else {
-        //   apiResponse?.add(response?['data']);
-        //   filterData(apiResponse);
-        //   add(TaskComponentClearAllFieldEvent());
-        // }
+        clearAll();
       }
-      emit(TaskComponentCommentState());
+      emit(CommentState());
      }catch (e){
-       _onError("TaskComponentSaveEvent ${e.toString()}");
-       emit(TaskComponentCommentState());
+       _onError(e, emit);
+       emit(CommentState());
      }
    }
 
@@ -212,9 +188,9 @@ class TaskComponentBloc extends Bloc<TaskComponentEvent,TaskComponentState> {
      return data;
    }
 
-   void _onError(dynamic error) {
+   void _onError(dynamic error, Emitter<TaskComponentState> emit) {
      Console.of.error(error);
-     Toaster.showError(error,);
+     emit(ErrorState(error));
    }
 
    Future<void> filterData(List<dynamic>? apiResponse) async {
@@ -223,22 +199,31 @@ class TaskComponentBloc extends Bloc<TaskComponentEvent,TaskComponentState> {
      hourlyBaseList?.forEach((e) {
        dynamic user;
        if (e['user_id'].toString().isNotNullOrEmpty) {
-         user = _resourceList.firstWhereOrNull(
-                 (element) => element['id'].toString() == e['user_id'].toString());
+         user = _resourceList.firstWhereOrNull((element) => element['id'].toString() == e['user_id'].toString());
        }
        e['user_name'] = "${user?['first_name'] ?? ''} ${user?['last_name'] ?? ''}";
      });
    }
 
    Future<void> refetch()async {
-     selectedBase = baseList.first;
      await getIt<CommonService>().getUsers();
      var response = await apiRepository.getConfiguration();
      apiResponse = response?['data'];
      userId = apiResponse?.where((element) => element['user_id'] != null).map((e) => e['user_id']).toList();
-     // resourceList.removeWhere((element) => (userId ?? []).map((e) => e.toString()).contains(element['id'].toString()));
+     resourceList = List.from(_resourceList);
+     resourceList.removeWhere((element) => (userId ?? []).map((e) => e.toString()).contains(element['id'].toString()));
      filterData(apiResponse);
-     Console.of.log(resourceList);
+   }
+
+   void clearAll(){
+     formKey.currentState?.reset();
+     autoValidateMode = null;
+     isEdit = false;
+     resourceList.removeWhere((element) => element['id'].toString() == editData?['user_id'].toString());
+     editData = null;
+     selectedResource = null;
+     taskNameController.clear();
+     amountController.clear();
    }
 
 }

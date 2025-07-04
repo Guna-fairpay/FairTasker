@@ -12,7 +12,7 @@ class TaskComponentBottomTab extends StatelessWidget {
               Container(
                 decoration:  const BoxDecoration(
                     border: Border(
-                        bottom: BorderSide(width: Num.borderWidthThinField)
+                        bottom: BorderSide(width: Num.borderWidthThinField, color: AppC.grey),
                     ),
                 ),
                 child:  Row(
@@ -25,7 +25,7 @@ class TaskComponentBottomTab extends StatelessWidget {
                         buttonText: 'Task based',
                         value: 0,
                         selectedValue: context.watch<TaskComponentBloc>().selectedTab,
-                        onPressed:(val)=> context.read<TaskComponentBloc>().add(TaskComponentTabBarEvent(tabIndex: val))
+                        onPressed:(val)=> context.read<TaskComponentBloc>().add(TabBarEvent(tabIndex: val))
                     ),
                     CustomTabButton(
                         decoration: BoxDecoration(
@@ -35,7 +35,7 @@ class TaskComponentBottomTab extends StatelessWidget {
                         buttonText: 'Hourly based',
                         value: 1,
                         selectedValue: context.watch<TaskComponentBloc>().selectedTab,
-                        onPressed:(val)=> context.read<TaskComponentBloc>().add(TaskComponentTabBarEvent(tabIndex: val))
+                        onPressed:(val)=> context.read<TaskComponentBloc>().add(TabBarEvent(tabIndex: val))
                     ),
                   ],
                 ),
