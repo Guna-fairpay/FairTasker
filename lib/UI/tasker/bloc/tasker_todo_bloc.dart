@@ -260,9 +260,9 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       if ( (!showLoading) &&  (!isClosed)) emit(ToDoTaskerCommonState());
       Console.of.debug("SHOW_LOADING $showLoading");
       if ( showLoading && (!isClosed)) emit(ToDoTaskerLoadingState());
-      if (refresh) triggerTasker; // TRIGGER WORK MANAGER TO FETCH ALL THE VALUES BACKGROUND
-      var response = await _fetchToDoList(showOther: refresh);
-      if ((response != null) && (refresh)) _setOtherValues(response); // COMMENTED DUE TO HANDLED IN WM (Work Manager)
+      if (refresh) triggerPreRequests; // TRIGGER WORK MANAGER TO FETCH ALL THE VALUES BACKGROUND
+      var response = await _fetchToDoList();
+      // if ((response != null) && (refresh)) _setOtherValues(response); // COMMENTED DUE TO HANDLED IN WM (Work Manager)
       unfiltered = _processTodo(List.from(response?['todos'] ?? []));
       toDos = unfiltered;
       _searchTasks();

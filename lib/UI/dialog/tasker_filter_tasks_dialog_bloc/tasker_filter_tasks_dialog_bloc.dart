@@ -1,9 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:collection/collection.dart';
 import 'package:fairpytasker/UI/dialog/tasker_filter_tasks_dialog_bloc/tasker_filter_tasks_dialog_events.dart';
 import 'package:fairpytasker/UI/dialog/tasker_filter_tasks_dialog_bloc/tasker_filter_tasks_dialog_states.dart';
 import 'package:fairpytasker/Utilities/Utils.dart';
-import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -26,21 +26,24 @@ class TFTDBloc extends Bloc<TFTDEvents, TFTDStates> {
     on<TFTDMultiSelectEvent>(_onMultiSelectEvent);
   }
 
-  Future<List<Map<String, dynamic>>> _fetchTaskCategoryGroup() async => await getIt<CommonService>().getTaskCategoryGroupList(reset: true);
+  Future<List<Map<String, dynamic>>> _fetchTaskCategoryGroup() async => await getIt<CommonService>().getTaskCategoryGroupList();
+  List<Map<String, dynamic>> get _taskCategoryGroup => [...getIt<CommonService>().taskCategoryGroupList];
 
   void _onInitialEvent(TFTDInitialEvent event, Emitter<TFTDStates> emit) async {
     try {
       toDos = event.toDos;
       selected = event.selected ?? [];
       emit(TFTDLoadingState());
-      taskCategoryGroup = await _fetchTaskCategoryGroup();
-      mainCategories = taskCategoryGroup?.where((element) => element['parent_id'].toString().isNullOrEmpty || element['subcategories'].toString().isNotNullOrEmpty).toList();
-      subCategories = taskCategoryGroup?.where((element) => element['parent_id'].toString().isNotNullOrEmpty && (List.from(element['subcategories'] ?? []).isEmpty)).toList();
-      subCategories = [
-        ...(subCategories ?? []),
-        ...(mainCategories?.where((element) => element['subsubcategories'].toString().isNotNullOrEmpty).map((e) => e['subsubcategories'] ?? []).toList() ?? [])
-      ];
-      processedCategories = _processedMap() ?? [];
+      await _fetchTaskCategoryGroup();
+      taskCategoryGroup = _taskCategoryGroup;
+      // mainCategories = taskCategoryGroup?.where((element) => element['parent_id'].toString().isNullOrEmpty || element['subcategories'].toString().isNotNullOrEmpty).toList();
+      // subCategories = taskCategoryGroup?.where((element) => element['parent_id'].toString().isNotNullOrEmpty && (List.from(element['subcategories'] ?? []).isEmpty)).toList();
+      // subCategories = [
+      //   ...(subCategories ?? []),
+      //   ...(mainCategories?.where((element) => element['subsubcategories'].toString().isNotNullOrEmpty).map((e) => e['subsubcategories'] ?? []).toList() ?? [])
+      // ];
+      // processedCategories = _processedMap() ?? [];
+      processedCategories = _processedMapMod() ?? [];
       for (var element in processedCategories) {
         element['related_sub_names'].forEach((e)=> allRelateds.add(e));
       }
@@ -85,7 +88,62 @@ class TFTDBloc extends Bloc<TFTDEvents, TFTDStates> {
         }).toList()
       });
     }
+    Console.of.log(jsonEncode(mapData ?? []));
     return mapData;
+  }
+  List<Map<String, dynamic>>? _processedMapMod() {
+    Map<String, dynamic> mapData = {};
+    List<Map<String, dynamic>> listMapData = [];
+    var addedTitles = Set();
+    var todosNames = toDos?.map((e) => e['title'].toString().toLowerCase()).toSet().toList();
+    taskCategoryGroup?.forEach((element) {
+      final parentName = element['name'].toString().toLowerCase();
+      mapData[element['name']] = [];
+      if (element['subcategories'] is List) {
+        element['subcategories'].forEach((e) {
+          final subName = e['name'].toString().toLowerCase();
+          todosNames?.forEach((lowercaseTile){
+            if (lowercaseTile == subName && !addedTitles.contains(lowercaseTile)) {
+              mapData[element['name']].add(lowercaseTile);
+              addedTitles.add(lowercaseTile);
+            }
+          });
+          });
+      }
+      todosNames?.forEach((lowercaseTile){
+        if (lowercaseTile == parentName && !addedTitles.contains(lowercaseTile)) {
+          mapData[element['name']].add(lowercaseTile);
+          addedTitles.add(lowercaseTile);
+        }
+      });
+    });
+    mapData.removeWhere((key, value) => (value as List).isEmpty);
+    todosNames?.forEach((element) {
+      if (!addedTitles.contains(element) && !(['check out', 'check in'].contains(element))) {
+        if (!mapData.containsKey("Others")) mapData['Others'] = [];
+        mapData['Others'].add(element);
+      }
+    });
+    Console.of.log(jsonEncode(mapData));
+    for (var element in mapData.entries) {
+      var key = element.key;
+      var value = List.from(element.value ?? []);
+      var id = taskCategoryGroup?.firstWhereOrNull((e) => e['name'] == key)?['id'] ?? -1;
+      var tasks = toDos?.where((e) => value.contains(e['title'].toString().toLowerCase())).map((e) => e['title'].toString()).toList() ?? [];
+      var map = {
+        "id" : id,
+        "name" : key,
+        "related_sub_names": tasks,
+        "task_count" : tasks.length,
+        "tasks" : value.map((e) => {
+          "task_name" : toDos?.firstWhereOrNull((task) => task['title'].toString().toLowerCase() == e)?['title'],
+          "count" : toDos?.where((task) => task['title'].toString().toLowerCase() == e).length ?? 0
+        }).toList()
+      };
+      listMapData.add(map);
+    }
+    Console.of.log(jsonEncode(listMapData), name: "MOD");
+    return listMapData;
   }
 
   void _onAllSelectEvent(TFTDAllSelectEvent event, Emitter<TFTDStates> emit) {
