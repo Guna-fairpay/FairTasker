@@ -91,10 +91,10 @@ class ResourceCheckInOutBloc extends Bloc<ResourceCheckInOutEvent, ResourceCheck
 
   void _onResourceSelectEvent(ResourceSelectEvent event, Emitter<ResourceCheckInOutState> emit) {
     selectedResource = event.model;
-    if (selectedResource['id'] == -1) {
+    if (selectedResource?['id'] == -1) {
       employeeWorkHours = _employeeWorkHours;
     } else {
-      employeeWorkHours = _employeeWorkHours?.where((element) => element['id'] == selectedResource['hrm_id']).toList();
+      employeeWorkHours = _employeeWorkHours?.where((element) => element['id'] == selectedResource?['hrm_id']).toList();
     }
     emit(CommonState());
   }
