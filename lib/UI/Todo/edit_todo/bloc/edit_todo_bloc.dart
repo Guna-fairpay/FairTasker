@@ -81,12 +81,17 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   List<dynamic> locations = [];
   List<dynamic> partsIdList = [];
   List<dynamic> suppliesIdList = [];
+  List<dynamic> meetingType = [
+    {'id': 1, 'name': 'Online'},
+    {'id': 2, 'name': 'Person'},
+  ];
 
   Map<String, dynamic> selectionTaps = {};
 
   dynamic selectedSentiments = {};
   dynamic previousOdometer = {};
   dynamic selectedDate;
+  dynamic selectedMeetingType;
 
   Map<String, dynamic>? todoResponse = {};
 
@@ -208,6 +213,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     on<RemoveMileageImageEvent>(_onRemoveMileageImageEvent);
     on<EditToDoSaveEvent>(_onSaveEvent);
     on<EditToDoCleanCarEvent>(_onCleanCarEvent);
+    on<EditToDoMeetingTypeEvent>(_onMeetingTypeEvent);
   }
 
   Future<void>_onInitialEvent(GetEditTodoInitialEvent event, Emitter<EditTodoState> emit) async  {
@@ -425,6 +431,8 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
 
     Console.of.log(showOdometer.toString(), name: "show");
     isRecurring = todoResponse?['recurring_id'] != null;
+
+    selectedMeetingType = meetingType.firstWhereOrNull((element) => element['name'] == todoResponse?['meeting_type']);
 
     emit(state.copyWith(
       isLoading: false,
@@ -1066,6 +1074,15 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     }
   }
 
+  void _onMeetingTypeEvent(EditToDoMeetingTypeEvent event, Emitter<EditTodoState> emit) {
+    try{
+      selectedMeetingType = event.meetingType;
+      emit(state.copyWith());
+    }catch(e){
+      Toaster.showError("$e");
+    }
+  }
+
   Map<String, String> _editTodoBody() {
     Console.of.log(isRecurring);
     state.selectedVPerson
@@ -1161,6 +1178,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     baseBody['rental_enquiry'] = QuillDeltaToHtmlConverter(
       (quillController).document.toDelta().toJson(),
       ConverterOptions.forEmail(),).convert();
+    baseBody['meeting_mode'] = selectedMeetingType?['name'];
     baseBody['type'] = "inline";
 
     var groupVehicleList = state.selectedVPerson
