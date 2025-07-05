@@ -301,7 +301,12 @@ class RemoveMileageImageEvent extends EditToDoEvent {
 
 class EditToDoRefreshEvent extends EditToDoEvent {}
 
-class PartsRemovedEvent extends EditToDoEvent {
+class PartsRemovedEvent extends EditToDoEvent {}
 
+class EditToDoMeetingTypeEvent extends EditToDoEvent {
+  final dynamic meetingType;
+  EditToDoMeetingTypeEvent(this.meetingType);
+  @override
+  List<Object?> get props => [meetingType];
 }
 

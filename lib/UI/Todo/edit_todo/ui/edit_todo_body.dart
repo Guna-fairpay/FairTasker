@@ -5,12 +5,18 @@ import 'package:fairpytasker/Component/custom_vehicle_person_field.dart';
 import 'package:fairpytasker/Component/custom_vendor_location_field.dart';
 import 'package:fairpytasker/Component/page_keep_aliver.dart';
 import 'package:fairpytasker/Component/custom_checkbox.dart';
+import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/Task/UI/task_main_page.dart';
+import 'package:fairpytasker/UI/Todo/edit_todo/Component/ask_date_range_permission_dialog.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/Component/resource_popup.dart';
+import 'package:fairpytasker/UI/Todo/edit_todo/ui/edit_todo_update_button.dart';
+import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
+import 'package:fairpytasker/core/app/helper/warning_helper.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -108,7 +114,7 @@ class EditTodoBody extends StatelessWidget {
                   hintText: "Select Task",
                 ),
                 10.height,
-                if(!["Check In", "Check Out"].contains(state.apiResponse['title']))
+                if(!["Check In", "Check Out"].contains(state.apiResponse['title']) && state.selectedTask['id'] != 80)
                   ...[
                     CustomVehiclePersonField(
                       vehiclesList: context.watch<EditToDoBloc>().vehicles,
@@ -135,6 +141,15 @@ class EditTodoBody extends StatelessWidget {
                     ),
                     10.height,
                   ],
+               if(state.selectedTask['id'] == 80)...[
+                 Utils.dropdownBox(
+                    'Select Mode',
+                    context.read<EditToDoBloc>().meetingType,
+                    (value) => context.read<EditToDoBloc>().add(EditToDoMeetingTypeEvent(value)),
+                    initialSelection: context.watch<EditToDoBloc>().selectedMeetingType,
+                    labelKey: 'name'),
+                 10.height,
+               ],
                 Utils.getTextFormField(
                     'Notes', context.read<EditToDoBloc>().notesController,
                     isDense: true,
@@ -166,8 +181,7 @@ class EditTodoBody extends StatelessWidget {
                   ),
                   10.height,
                 ],
-                if((state.apiResponse['title']).toString().toLowerCase().contains('fix'))
-                  ...[
+                if((state.apiResponse['title']).toString().toLowerCase().contains('fix'))...[
                     Utils.getTextFormField(
                         'Resolution Notes', context.read<EditToDoBloc>().resolutionNotesController,
                         isDense: true,
@@ -180,7 +194,9 @@ class EditTodoBody extends StatelessWidget {
                         onChangeCallback: (value) {}),
                     10.height,
                   ],
-                if(!["Check In", "Check Out"].contains(state.apiResponse['title']))
+                const EditTodoUpdateButton(),
+                10.height,
+                if(!["Check In", "Check Out"].contains(state.apiResponse['title']) && state.selectedTask['id'] != 80)
                 const EditTodoMoreForm(),
                 10.height,
                  if (state.apiResponse.isNotEmpty)

@@ -79,14 +79,10 @@ class HeaderView extends StatelessWidget {
                 builder: (context, state) => GestureDetector(
                   onTap: () => context.push(const ResourceCheckInOutUi(), fullscreenDialog: true),
                   // onTap: () => context.push(WorkHoursViewUI(), fullscreenDialog: true),
-                  child: Skeletonizer(
-                    enabled: EasyLoading.isShow,
-                    ignoreContainers: true,
-                    child: Container(
-                      decoration: Utils.getBoxDecoration(),
-                      padding: EdgeInsets.symmetric(horizontal: 5.spMin, vertical: 2.spMin),
-                      child: Utils.getText(' ${context.watch<HeaderBloc>().checkInOutCount ?? "0/0"} ', weight: FontWeight.bold),
-                    ),
+                  child: Container(
+                    decoration: Utils.getBoxDecoration(),
+                    padding: EdgeInsets.symmetric(horizontal: 5.spMin, vertical: 2.spMin),
+                    child: Utils.getText(' ${context.watch<HeaderBloc>().checkInOutCount ?? "0/0"} ', weight: FontWeight.bold),
                   ),
                 ),
               ),
