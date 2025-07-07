@@ -5,14 +5,20 @@ class TaskForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AddToDoBloc, AddToDoState>(builder: (context, state) => CompactTaskManager<Map<String, dynamic>>(
-      validator: (value) => (value?.isEmpty ?? false) ? "Please select task manager" : null,
-      label: "Task Manager",
-      items: context.watch<AddToDoBloc>().persons,
-      itemAsString: (item) => "${item['first_name'] ?? ""} ${item['last_name'] ?? ""}",
-      autoValidateMode: AutovalidateMode.onUserInteraction,
-      selectedItems: context.watch<AddToDoBloc>().selectedTaskManagers,
-      onChanged: (isChecked, value) => context.read<AddToDoBloc>().add(TaskManagerEvent(isChecked, value)),
+    return BlocBuilder<AddToDoBloc, AddToDoState>(builder: (context, state) => Column(
+      spacing: 10.spMin,
+      children: [
+        const SizedBox.shrink(),
+        CompactTaskManager<Map<String, dynamic>>(
+          validator: (value) => (value?.isEmpty ?? false) ? "Please select task manager" : null,
+          label: "Task Manager",
+          items: context.watch<AddToDoBloc>().persons,
+          itemAsString: (item) => "${item['first_name'] ?? ""} ${item['last_name'] ?? ""}",
+          autoValidateMode: AutovalidateMode.onUserInteraction,
+          selectedItems: context.watch<AddToDoBloc>().selectedTaskManagers,
+          onChanged: (isChecked, value) => context.read<AddToDoBloc>().add(TaskManagerEvent(isChecked, value)),
+        ),
+      ],
     ));
   }
 }
