@@ -9,7 +9,6 @@ class BodyForm extends StatelessWidget {
         builder: (context, state) => Form(
           key: context.read<AddToDoBloc>().formKey,
           child: Column(
-            spacing: 10.spMin,
             children: [
               const MainForm(),
               if (!context.watch<AddToDoBloc>().isMeeting)

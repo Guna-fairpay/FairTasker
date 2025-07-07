@@ -69,6 +69,7 @@ class TaskerAddToDo extends StatelessWidget {
           actionWidgets: const [ HeaderActions() ],
         ),
         body: SafeArea(
+          top: true,
           minimum: 16.spMin.padding,
           child: ListView(
             physics: const BouncingScrollPhysics(),

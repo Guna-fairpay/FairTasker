@@ -16,7 +16,9 @@ class MoreForm extends StatelessWidget {
             labelText: "Address",
             showEmpty: false,
             itemAsString: (item) => item['address'] ?? "",
-            onChanged: (isChecked, value) => context.read<AddToDoBloc>().add(AddressEvent(isChecked, value))),
+            onChanged: (isChecked, value) => context.read<AddToDoBloc>().add(AddressEvent(isChecked, value)))
+        else
+          const SizedBox.shrink(),
         if (context.watch<AddToDoBloc>().showMore)
         Row(
           spacing: 10.spMin,
