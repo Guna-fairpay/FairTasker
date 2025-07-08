@@ -116,6 +116,7 @@ class TodoTaskViewUI extends StatelessWidget {
                     logName: "expenseAttachmentsEvent",
                     isRequired: false,
                     isDeleteIcon: false,
+                    showDownload: true,
                   ),
               ],
             ),

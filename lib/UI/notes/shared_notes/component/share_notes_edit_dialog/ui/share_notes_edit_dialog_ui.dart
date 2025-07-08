@@ -87,13 +87,13 @@ class _ShareNotesEditDialogUI extends StatelessWidget {
                       Utils.getTextFormField(
                           null,
                           context.read<ShareNotesEditDialogBloc>().editProductController,
-                          hintText: 'Edit Product',
+                          hintText: context.read<ShareNotesEditDialogBloc>().model != null ? 'Edit Product' : 'Add Product',
                           maxLines: 2,
                           minLines: 2
                       ),
                       CustomDateTimePicker<DateTime>(
                           controller: context.read<ShareNotesEditDialogBloc>().dateController,
-                        format: 'dd-MM-yyyy',
+                        format: 'MM-dd-yyyy',
                         value: context.watch<ShareNotesEditDialogBloc>().selectedDate,
                         labelText: 'Select Date',
                         onChanged: (value)=> context.read<ShareNotesEditDialogBloc>().add(DateEvent(value)),

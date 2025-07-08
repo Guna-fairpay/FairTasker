@@ -10,13 +10,13 @@ class ShowAttachmentsDialog {
 
   static final ShowAttachmentsDialog of = ShowAttachmentsDialog._();
 
-  void show(BuildContext context,{required List<dynamic> attachments, required String? title, dynamic currentAttachment, void Function(dynamic value)? onDeleted}) async {
+  void show(BuildContext context,{required List<dynamic> attachments, required String? title, dynamic currentAttachment, void Function(dynamic value)? onDeleted, void Function(dynamic value)? onDownload, bool showDownload = false}) async {
     var allAttachments = attachments;
     allAttachments.removeWhere((element) => element == null);
     Console.of.log(attachments);
     await showDialog(
       context: context,
-      builder: (context) => _ShowAttachmentsDialogView(attachments: attachments, title: title, currentAttachment: currentAttachment, onDeleted: onDeleted),
+      builder: (context) => _ShowAttachmentsDialogView(attachments: attachments, title: title, currentAttachment: currentAttachment, onDeleted: onDeleted, onDownload: onDownload, showDownload: showDownload),
     );
   }
 }
@@ -26,7 +26,9 @@ class _ShowAttachmentsDialogView extends StatelessWidget {
   final String? title;
   final dynamic currentAttachment;
   final void Function(dynamic value)? onDeleted;
-  const _ShowAttachmentsDialogView({super.key, required this.attachments, required this.title, this.currentAttachment, this.onDeleted});
+  final void Function(dynamic value)? onDownload;
+  final bool showDownload;
+  const _ShowAttachmentsDialogView({super.key, required this.attachments, required this.title, this.currentAttachment, this.onDeleted, this.onDownload, this.showDownload = false});
 
   @override
   Widget build(BuildContext context) {
@@ -57,6 +59,10 @@ class _ShowAttachmentsDialogView extends StatelessWidget {
           currentAttachment: currentAttachment,
           onDeleted: (onDeleted == null) ? null : (value) {
             onDeleted?.call(value);
+          },
+          showDownload: showDownload,
+          onDownload: (onDownload == null) ? null : (value) {
+            onDownload?.call(value);
           },
           onClose: () => Navigator.pop(context),
         ),

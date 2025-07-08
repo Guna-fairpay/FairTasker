@@ -1178,7 +1178,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     baseBody['rental_enquiry'] = QuillDeltaToHtmlConverter(
       (quillController).document.toDelta().toJson(),
       ConverterOptions.forEmail(),).convert();
-    baseBody['meeting_mode'] = selectedMeetingType?['name'];
+    baseBody['meeting_mode'] = selectedMeetingType?['name'] ?? '';
     baseBody['type'] = "inline";
 
     var groupVehicleList = state.selectedVPerson

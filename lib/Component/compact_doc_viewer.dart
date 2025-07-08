@@ -34,7 +34,7 @@ class DocumentViewer extends StatelessWidget {
                 data: fileHtml,
                 key: UniqueKey(),
               ),
-              if (enableDownload)
+             /* if (enableDownload)
                 Align(
                   alignment: Alignment.bottomCenter,
                   child: TextButton(
@@ -48,7 +48,7 @@ class DocumentViewer extends StatelessWidget {
                     ),
                     child: const Text("Download attachment!"),
                   ),
-                )
+                )*/
             ],
           )
         : Column(
