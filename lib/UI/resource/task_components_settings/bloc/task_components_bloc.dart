@@ -108,6 +108,7 @@ class TaskComponentBloc extends Bloc<TaskComponentEvent,TaskComponentState> {
 
   void _onEditEvent(EditEvent event, Emitter<TaskComponentState> emit) {
      try{
+       resourceList.removeWhere((element) => element['id'].toString() == editData?['user_id'].toString());
        isEdit = event.value.isNotEmpty;
        editData = event.value;
        if(editData['type'] == 'task') {
