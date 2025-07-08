@@ -5,30 +5,30 @@ class TaskRecurringForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AddToDoBloc, AddToDoState>(builder: (context, state) => Column(
-      children: (context.watch<AddToDoBloc>().selectedRecurring['label'].toString().isDoesNotRepeat) ? [] : [
+    return BlocBuilder<AddToDoBloc, AddToDoState>(builder: (context, state) => AnimatedCrossFade(firstChild: Column(
+      children: [
         if (context.watch<AddToDoBloc>().selectedRecurring['label'].toString().isDailyOrWeekly)
-        ListTile(
-          dense: true,
-          leading: const Text("Occur every"),
-          contentPadding: 5.horizontalPadding,
-          leadingAndTrailingTextStyle: context.textTheme.titleMedium,
-          title: Utils.getTextFormField(null,
-              context.read<AddToDoBloc>().recurringEveryDayWeekController,
-              isDense: true,
-              hintText: "e.g: 1/2/3",
-              validator: (value) =>
-              (value?.isEmpty ?? false) ? "Required Field" : null,
-              textType: TextInputType.number,
-              textInputFormatter: [
-                FilteringTextInputFormatter.digitsOnly
-              ],
-              contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 20, vertical: 5),
-              style: context.textTheme.labelLarge,
-              labelStyle: context.textTheme.labelMedium),
-              trailing: Text((['daily'].contains(context.watch<AddToDoBloc>().selectedRecurring['label'].toString().toLowerCase())) ? "days" : "weeks"),
-        ),
+          ListTile(
+            dense: true,
+            leading: const Text("Occur every"),
+            contentPadding: 5.horizontalPadding,
+            leadingAndTrailingTextStyle: context.textTheme.titleMedium,
+            title: Utils.getTextFormField(null,
+                context.read<AddToDoBloc>().recurringEveryDayWeekController,
+                isDense: true,
+                hintText: "e.g: 1/2/3",
+                validator: (value) =>
+                (value?.isEmpty ?? false) ? "Required Field" : null,
+                textType: TextInputType.number,
+                textInputFormatter: [
+                  FilteringTextInputFormatter.digitsOnly
+                ],
+                contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 20, vertical: 5),
+                style: context.textTheme.labelLarge,
+                labelStyle: context.textTheme.labelMedium),
+            trailing: Text((['daily'].contains(context.watch<AddToDoBloc>().selectedRecurring['label'].toString().toLowerCase())) ? "days" : "weeks"),
+          ),
         if (context.watch<AddToDoBloc>().selectedRecurring['label'].toString().isWeekly)
           CustomWeekdaysGridview<String>(
               items: AddToDoConfig.days,
@@ -57,6 +57,6 @@ class TaskRecurringForm extends StatelessWidget {
           occurrenceController: context.read<AddToDoBloc>().recurringNoOccurrenceController,
         )
       ],
-    ));
+    ), secondChild: const SizedBox.shrink(), crossFadeState: (context.watch<AddToDoBloc>().selectedRecurring['label'].toString().isDoesNotRepeat) ? CrossFadeState.showSecond : CrossFadeState.showFirst, duration: Durations.long3));
   }
 }

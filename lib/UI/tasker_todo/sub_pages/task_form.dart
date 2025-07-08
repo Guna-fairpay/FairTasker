@@ -13,6 +13,7 @@ class TaskForm extends StatelessWidget {
           validator: (value) => (value?.isEmpty ?? false) ? "Please select task manager" : null,
           label: "Task Manager",
           items: context.watch<AddToDoBloc>().persons,
+          showMaxItems: context.watch<AddToDoBloc>().isMeeting ? 10 : null,
           itemAsString: (item) => "${item['first_name'] ?? ""} ${item['last_name'] ?? ""}",
           autoValidateMode: AutovalidateMode.onUserInteraction,
           selectedItems: context.watch<AddToDoBloc>().selectedTaskManagers,

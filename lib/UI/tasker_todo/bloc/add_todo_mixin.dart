@@ -89,7 +89,7 @@ mixin AddToDoMixin {
   bool get hasEnquiry => selectedTaskIdentifier[1]?['id'] == 358;
   bool get hasPlatformCheck => Str.platFormCheckIds.contains(selectedTaskIdentifier[1]?['id'] ?? 0);
   bool get hasCleanCar => Str.cleanCarCheckIds.contains(selectedTaskIdentifier[1]?['id'] ?? 0);
-  bool get hasVehicle => _selectedVPerson?.isNotEmpty ?? false;
+  bool get hasVehicle => (_selectedVPerson?.isNotEmpty ?? false) && (["vehicles", "g_vehicles"].contains(_selectedVPerson?['type']));
   bool get showReservation => (selectedCustom.isNotEmpty) && (!isNextTask);
   bool get hasAddress => showMore && selectedTaskIdentifier[3]?['type'] == "location";
 
@@ -116,21 +116,20 @@ mixin AddToDoMixin {
     baseBody['repeatPeriod'] =
         ((selectedRecurring['label'].toString().isDoesNotRepeat == false)
             ? (selectedRecurring['label'].toString().toLowerCase())
-            : "") ??
-            '';
+            : "");
     baseBody['repeatDay'] =
-    (selectedRecurring['label'].toString().isDaily ?? false)
+    (selectedRecurring['label'].toString().isDaily)
         ? recurringEveryDayWeekController.text
         : "";
     baseBody['repeatWeek'] =
-    (selectedRecurring['label'].toString().isWeekly ?? false)
+    (selectedRecurring['label'].toString().isWeekly)
         ? recurringEveryDayWeekController.text
         : "";
     baseBody['weekDay'] =
-    (selectedRecurring['label'].toString().isWeekly ?? false)
+    (selectedRecurring['label'].toString().isWeekly)
         ? "${selectedRecurringDays.map((e) => jsonEncode(e.toString().toLowerCase())).toList()}"
         : "";
-    baseBody['recur_monthly_type'] = "${isRecurringMonthOccurrence}";
+    baseBody['recur_monthly_type'] = "$isRecurringMonthOccurrence";
     baseBody['repeatDateMonth'] = isRecurringMonthOccurrence
         ? recurringMonthDateController.text
         : "";
@@ -141,12 +140,12 @@ mixin AddToDoMixin {
         ? recurringMonthMonthController.text
         : "";
     baseBody['repeatDateYear'] =
-    (selectedRecurring['label'].toString().isYearly ?? false)
+    (selectedRecurring['label'].toString().isYearly)
         ? recurringYearDateController.text
         : "";
     baseBody['repeatMonthYear'] =
         recurringYearlySelectedMonth?['month'].toString() ?? "";
-    baseBody['end_type'] = "${isRecurringEndDate}";
+    baseBody['end_type'] = "$isRecurringEndDate";
     baseBody['end_after'] = (!isRecurringEndDate)
         ? (recurringNoOccurrenceController.text)
         : "";
@@ -185,7 +184,7 @@ mixin AddToDoMixin {
         ? selectedTaskIdentifier[2]
         : null;
     var isAdd = selectedTaskIdentifier[1]?['id'] == 210;
-    var date = selectedDate ?? DateTime.now();
+    var date = selectedDate;
     var timeAt = selectedTime.toDateTime;
     var timeDay = selectedTime;
     if (timeAt != null) {
@@ -193,10 +192,10 @@ mixin AddToDoMixin {
           DateTime(date.year, date.month, date.day, timeAt.hour, timeAt.minute);
       if (isAdd) {
         timeAt =
-            date.add(Duration(minutes: selectedClearDuration?['value']));
+            date.add(Duration(minutes: selectedClearDuration['value']));
       } else {
         timeAt = date
-            .subtract(Duration(minutes: selectedClearDuration?['value']));
+            .subtract(Duration(minutes: selectedClearDuration['value']));
       }
       timeDay = TimeOfDay.fromDateTime(timeAt);
     }
@@ -243,7 +242,7 @@ mixin AddToDoMixin {
       "${selectedTaskManagers.map((e) => e['id']).toList()}",
       "todo_time": "${timeDay.toHMS()}",
       "reason": reasonController.text,
-      "time_sensitive": "${isTimeSensitive}",
+      "time_sensitive": "$isTimeSensitive",
       "branch_id": "$branchId",
     };
     return jsonBody;

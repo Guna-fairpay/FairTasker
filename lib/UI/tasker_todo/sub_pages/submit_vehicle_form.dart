@@ -43,19 +43,18 @@ class SubmitVehicleForm extends StatelessWidget {
             )
           ],
         ),
-        if (context.watch<AddToDoBloc>().hasVehicle)
-          PageKeepAliver(
-              key: const PageStorageKey("vehicle_history"),
-              child: VehicleHistoryViewUI(
-                  showSameTask: true,
-                  title: context.watch<AddToDoBloc>().taskName,
-                  itemPerPage: 5,
-                  additionalScroll: false,
-                  showLoading: false,
-                  vin: context.watch<AddToDoBloc>().lasVehicleVin,
-                  vehicleName: context.watch<AddToDoBloc>().lasVehicleName,
-                  groupId: context.watch<AddToDoBloc>().lasVehicleGroupId,
-                  showHeader: false))
+        AnimatedCrossFade(firstChild: PageKeepAliver(
+            key: const PageStorageKey("vehicle_history"),
+            child: VehicleHistoryViewUI(
+                showSameTask: true,
+                title: context.watch<AddToDoBloc>().taskName,
+                itemPerPage: 5,
+                additionalScroll: false,
+                showLoading: false,
+                vin: context.watch<AddToDoBloc>().lasVehicleVin,
+                vehicleName: context.watch<AddToDoBloc>().lasVehicleName,
+                groupId: context.watch<AddToDoBloc>().lasVehicleGroupId,
+                showHeader: false)), secondChild: const SizedBox.shrink(), crossFadeState: (context.watch<AddToDoBloc>().hasVehicle) ? CrossFadeState.showFirst : CrossFadeState.showSecond, duration: Durations.long3),
       ],
     );
   }

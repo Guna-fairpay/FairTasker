@@ -8,19 +8,14 @@ class MoreForm extends StatelessWidget {
     return BlocBuilder<AddToDoBloc, AddToDoState>(builder: (context, state) => Column(
       spacing: 10.spMin,
       children: [
-        if (context.watch<AddToDoBloc>().hasAddress)
-        CustomMultiSelectionChipsField<Map<String, dynamic>>(
+        AnimatedCrossFade(firstChild: CustomMultiSelectionChipsField<Map<String, dynamic>>(
             selectedPartsList: context.watch<AddToDoBloc>().selectedAddress,
             suggestionsList: context.watch<AddToDoBloc>().addresses,
             controller: context.read<AddToDoBloc>().addressController,
             labelText: "Address",
             showEmpty: false,
-            itemAsString: (item) => item['address'] ?? "",
-            onChanged: (isChecked, value) => context.read<AddToDoBloc>().add(AddressEvent(isChecked, value)))
-        else
-          const SizedBox.shrink(),
-        if (context.watch<AddToDoBloc>().showMore)
-        Row(
+            itemAsString: (item) => item['address'] ?? "", onChanged: (isChecked, value) => context.read<AddToDoBloc>().add(AddressEvent(isChecked, value))), secondChild: const SizedBox.shrink(), crossFadeState: (context.watch<AddToDoBloc>().hasAddress) ? CrossFadeState.showFirst : CrossFadeState.showSecond, duration: Durations.long3),
+        AnimatedCrossFade(firstChild: Row(
           spacing: 10.spMin,
           children: [
             Utils.getCircleCheckWidget(() => context.read<AddToDoBloc>().add(PartStatusEvent()), context.watch<AddToDoBloc>().showParts, 'Parts/Services'),
@@ -45,27 +40,25 @@ class MoreForm extends StatelessWidget {
               ],
           ],
         ),
-        if (context.watch<AddToDoBloc>().showParts)
-        CustomMultiSelectionChipsField<Map<String, dynamic>>(
+            secondChild: const SizedBox.shrink(),
+            crossFadeState: (context.watch<AddToDoBloc>().showMore) ? CrossFadeState.showFirst : CrossFadeState.showSecond, duration: Durations.long3),
+        AnimatedCrossFade(firstChild: CustomMultiSelectionChipsField<Map<String, dynamic>>(
             selectedPartsList: context.watch<AddToDoBloc>().selectedParts,
             suggestionsList: context.watch<AddToDoBloc>().partsList,
             controller: context.read<AddToDoBloc>().partsController,
             labelText: "Parts",
             itemAsString: (item) => item['name'].toString(),
             onChanged: (isChecked, value) => context.read<AddToDoBloc>().add(PartsEvent(isChecked, value)),
-            onEmptyTap: () => context.read<AddToDoBloc>().add(NewPartsEvent())),
-        if (context.watch<AddToDoBloc>().showSupplies)
-        CustomMultiSelectionChipsField<Map<String, dynamic>>(
+            onEmptyTap: () => context.read<AddToDoBloc>().add(NewPartsEvent())), secondChild: const SizedBox.shrink(), crossFadeState: (context.watch<AddToDoBloc>().showParts) ? CrossFadeState.showFirst : CrossFadeState.showSecond, duration: Durations.long3),
+        AnimatedCrossFade(firstChild: CustomMultiSelectionChipsField<Map<String, dynamic>>(
             selectedPartsList: context.watch<AddToDoBloc>().selectedSupplies,
             suggestionsList: context.watch<AddToDoBloc>().suppliesList,
             controller: context.read<AddToDoBloc>().suppliesController,
             labelText: "Supplies",
             itemAsString: (item) => item['name'].toString(),
             onChanged: (isChecked, value) => context.read<AddToDoBloc>().add(SuppliesEvent(isChecked, value)),
-            onEmptyTap: () => context.read<AddToDoBloc>().add(NewSuppliesEvent())),
-        if (context.watch<AddToDoBloc>().hasPlatformCheck)
-        Utils.getCircleCheckWidget(() => context.read<AddToDoBloc>().add(PlatformCheckEvent()), context.watch<AddToDoBloc>().isPlatformCheck, 'Platform Check'),
-        const SizedBox.shrink(),
+            onEmptyTap: () => context.read<AddToDoBloc>().add(NewSuppliesEvent())), secondChild: const SizedBox.shrink(), crossFadeState: (context.watch<AddToDoBloc>().showSupplies) ? CrossFadeState.showFirst : CrossFadeState.showSecond, duration: Durations.long3),
+        AnimatedCrossFade(firstChild: Utils.getCircleCheckWidget(() => context.read<AddToDoBloc>().add(PlatformCheckEvent()), context.watch<AddToDoBloc>().isPlatformCheck, 'Platform Check'), secondChild: const SizedBox.shrink(), crossFadeState: (context.watch<AddToDoBloc>().hasPlatformCheck) ? CrossFadeState.showFirst : CrossFadeState.showSecond, duration: Durations.long3),
       ],
     ));
   }
