@@ -6,7 +6,6 @@ import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
-import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter/material.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
@@ -15,7 +14,6 @@ class EditTodoExpenseAttachment extends StatelessWidget {
   final VoidCallback? pickImageEvent;
   final VoidCallback? captureImageEvent;
   final VoidCallback? invoiceEvent;
-  final Function(dynamic) downloadEvent;
   final Function(dynamic) removeImageEvent;
   final dynamic vendorList;
   final List<dynamic> attachments;
@@ -28,7 +26,6 @@ class EditTodoExpenseAttachment extends StatelessWidget {
     required this.captureImageEvent,
     required this.invoiceEvent,
     required this.removeImageEvent,
-    required this.downloadEvent,
   });
 
   @override

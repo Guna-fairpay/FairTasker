@@ -87,7 +87,7 @@ class TodoExpense extends StatelessWidget {
                 },
                 removeImageEvent: (data) => context.read<TodoEditExpenseBloc>().add(RemoveImageEvent(data: data)),
                 vendorList: state.vendorList,
-                downloadEvent: (data) => context.read<TodoEditExpenseBloc>().add(DownloadEvent(data: data)),
+
               ),
               Row(
                 spacing: 10,
