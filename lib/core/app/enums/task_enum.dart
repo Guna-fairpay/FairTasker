@@ -16,3 +16,14 @@ extension TaskTypeExtension on TaskType {
         TaskType.meeting => "Meeting"
       };
 }
+
+extension TaskTypeExtensionByInt on int {
+  String get taskType => switch (this) {
+        1 => "Support",
+        2 => "Rental",
+        3 => "Lead",
+        4 => "NonRental",
+        5 => "Meeting",
+        _ => "Other"
+      };
+  }

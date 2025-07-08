@@ -1,4 +1,8 @@
+import 'dart:convert';
+
+import 'package:fairpytasker/core/app/enums/task_enum.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 
 class CustomSearchDataConverter {
   CustomSearchDataConverter._();
@@ -103,5 +107,89 @@ class CustomSearchDataConverter {
             .toList() ??
         [];
     return taskList;
+  }
+
+  static List<List<Map<String, dynamic>>> convertTaskIdentifier({
+    List<Map<String, dynamic>>? taskExpense,
+    List<Map<String, dynamic>>? leads,
+    List<Map<String, dynamic>>? vehicles,
+    List<Map<String, dynamic>>? resources,
+    List<Map<String, dynamic>>? groupVehicles,
+    List<Map<String, dynamic>>? vendors,
+    List<Map<String, dynamic>>? locations}) {
+    List<List<Map<String, dynamic>>> result = [];
+    var tasks = taskExpense?.map((e) => {
+      "id" : e['id'],
+      "name" : e['task'],
+      "user_type" : e['user_type'].toString().toNumeric.toInt().taskType,
+      "searchBy" : [e['task'], e['user_type'].toString().toNumeric.toInt().taskType],
+      "type" : "task",
+      "value" : e
+    }).toList();
+    var lead = leads?.map((e) => {
+      "id" : e['id'],
+      "name" : e['customer_name'],
+      "searchBy" : [e['customer_name']],
+      "type" : "lead",
+      "value" : e
+    }).toList();
+    var vehicle = vehicles?.map((e) => {
+      "id" : e['id'],
+      "name" : e['vehicle_name'],
+      "subname" : (e['vehicle_number'] ?? ""),
+      "searchBy" : [e['vehicle_name'], e['vin'], e['vehicle_number']],
+      "type" : "vehicle",
+      "value" : e
+    }).toList();
+    var resource = resources?.map((e) => {
+      "id" : e['id'],
+      "name" : "${(e['first_name'] ?? "")} ${(e['last_name'] ?? "")}",
+      "searchBy" : [e['first_name'], e['last_name']],
+      "type" : "person",
+      "value" : e
+    }).toList();
+    var groupVehicle = groupVehicles?.map((e) => {
+      "id" : e['id'],
+      "name" : e['name'],
+      "searchBy" : [e['name']],
+      "type" : "group_vehicle",
+      "value" : e
+    }).toList();
+    var vendor = vendors?.map((e) => {
+      "id" : e['id'],
+      "name" : e['name'],
+      "searchBy" : [e['name']],
+      "type" : "vendor",
+      "value" : e
+    }).toList();
+    var location = locations?.map((e) => {
+      "id" : e['id'],
+      "name" : e['name'],
+      "searchBy" : [e['name']],
+      "type" : "location",
+      "value" : e
+    }).toList();
+    List<Map<String, dynamic>>? vehiclePerson = (vehicles == null) ? null : [];
+    List<Map<String, dynamic>>? vendorLocation = (vendors == null) ? null : [];
+    if (vehicles != null) {
+      vehiclePerson = [
+        ...(vehicle ?? []),
+        ...(resource ?? []),
+        ...(groupVehicle ?? []),
+      ];
+    }
+    if (vendors != null) {
+      vendorLocation = [
+        ...(vendor ?? []),
+        ...(location ?? []),
+      ];
+    }
+    result = [
+      if (tasks != null) tasks,
+      if (lead != null) lead,
+      if (vehiclePerson != null) vehiclePerson,
+      if (vendorLocation != null) vendorLocation,
+    ];
+    return result;
   }
 }

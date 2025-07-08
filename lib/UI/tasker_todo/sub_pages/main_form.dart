@@ -8,6 +8,15 @@ class MainForm extends StatelessWidget {
     return BlocBuilder<AddToDoBloc, AddToDoState>(builder: (context, state) => Column(
       spacing: 10.spMin,
       children: [
+        SegmentedAutocomplete<Map<String, dynamic>>(segmentedSuggestions: CustomSearchDataConverter.convertTaskIdentifier(
+          taskExpense: getIt<CommonService>().taskExpenseDataList,
+          leads: (context.watch<AddToDoBloc>().isLeadTask) ? getIt<CommonService>().leads : null,
+          vehicles: getIt<CommonService>().activeVehicleList,
+          resources: getIt<CommonService>().resourcesList,
+          groupVehicles: getIt<CommonService>().groupVehicleList,
+          vendors: getIt<CommonService>().vendorsList,
+          locations: getIt<CommonService>().locationsList,
+        ), itemAsString: (option) => (option.containsKey("subname")) ? "${option['name']} (${option['subname']})" : option['name'], itemAsSearchString: (option) => option['searchBy']),
         TaskIdentifier(
             taskIdentifierController: context.read<AddToDoBloc>().identifierController,
             location: getIt<CommonService>().locationsList,
