@@ -114,6 +114,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> with AddToDoMixin {
 
   void _onSubmitEvent(SubmitEvent event, Emitter<AddToDoState> emit) async {
     try {
+      _validate(emit);
       if (formKey.currentState?.validate() == false) return emit(ErrorState("All fields are required"));
       if (isCurrentDate && lasVehicleVin.isNotNullOrEmpty && isCleanCar) return add(CleanCarEvent());
       if (hasOilChange && lasVehicleVin.isNotNullOrEmpty && !event.oilChangeOverride) {

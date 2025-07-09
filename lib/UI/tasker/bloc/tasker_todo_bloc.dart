@@ -1131,12 +1131,15 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
 
   void _onViewCustomLinkEvent(ToDoTaskerViewCustomLinkEvent event, Emitter<ToDoTaskerState> emit) {
     var link = event.model?['custom_link'];
+    final hasFaiRental = ((event.model?['custom_link_id'] == 3) && (event.model?['rental_booking_id'] != null));
+    final faiRentalBookingId = event.model?['rental_booking_id'];
     if (event.model?['display']?['customLinkText'].toString().isNotNullOrEmpty ?? false) {
       link = switch(event.model?['display']?['customLinkText']) {
         "G" => event.model?['reference_id'].toString().toGetAroundReserveUrl,
         _ => event.model?['reference_id'].toString().toTuroReserveUrl
       };
     }
+    if (hasFaiRental) link = faiRentalBookingId.toString().toFaiRentalReserveUrl;
     emit(ViewCustomLinkState(event.model, link));
   }
 

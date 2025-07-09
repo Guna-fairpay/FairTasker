@@ -4,7 +4,7 @@ void _listenNavigation(BuildContext context, AddToDoState state) async {
   if (state is LoadingState) {
     if (!EasyLoading.isShow) EasyLoading.show();
   } else {
-    if ((state is CompletedState) && (EasyLoading.isShow)) EasyLoading.dismiss();
+    if ((state is! CompletedState) && (EasyLoading.isShow)) EasyLoading.dismiss();
     switch(state) {
       case SuccessState(): Toaster.showSuccess(state.message); break;
       case ErrorState(): Toaster.showError(state.message); break;

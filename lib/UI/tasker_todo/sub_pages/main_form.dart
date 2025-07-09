@@ -42,7 +42,7 @@ class MainForm extends StatelessWidget {
             groupVehicles: context.watch<AddToDoBloc>().groupVehicleList,
             selected: context.watch<AddToDoBloc>().selectedVPerson,
             onSelected: (val) => context.read<AddToDoBloc>().add(VehiclePersonEvent(val)),
-            controller: context.read<AddToDoBloc>().vehicleController
+            controller: context.read<AddToDoBloc>().vehicleController,
         ),
         if (context.watch<AddToDoBloc>().isRentalTask)
         CustomVendorLocationField(

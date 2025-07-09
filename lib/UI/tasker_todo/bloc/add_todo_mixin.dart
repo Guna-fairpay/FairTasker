@@ -100,6 +100,7 @@ mixin AddToDoMixin {
   bool get hasVehicle => (_selectedVPerson?.isNotEmpty ?? false) && (["vehicles", "g_vehicles", "vehicle", "group_vehicle"].contains(_selectedVPerson?['type']));
   bool get showReservation => (selectedCustom.isNotEmpty) && (!isNextTask);
   bool get hasAddress => showMore && selectedTaskIdentifier[3]?['type'] == "location";
+  bool get isVehicleRequired => isCleanCar || hasCleanCar || hasOilChange;
 
   List<Map<String, dynamic>> get addresses => List.from(selectedTaskIdentifier[3]?['value']?['addresses'] ?? []);
 
@@ -570,5 +571,33 @@ mixin AddToDoMixin {
     selectedAddress.clear();
     selectedAddress.addAll(addresses);
     emit(CommonState());
+  }
+
+  /// Validation rules:
+  /// dept == 7 → platform check required
+  /// task_name != null
+  /// task_manager != empty
+  void _validate(Emitter<AddToDoState> emit) {
+    if (taskNameController.text.trim().isNullOrEmpty) return emit(ErrorState("Task name is required"));
+    final isPlatformCheckRequired = hasPlatformCheck && departmentId == 7 && (!isPlatformCheck);
+    if (isPlatformCheckRequired) return emit(ErrorState("Platform check is required"));
+    if (selectedTaskManagers.isEmpty) return emit(ErrorState("Task manager is required"));
+    final recurringLabel = selectedRecurring['label'].toString();
+    final isRecurring = !selectedRecurring['label'].toString().isDoesNotRepeat;
+    if (isRecurring) {
+      if (isRecurringEndDate && selectedRecurringEndDate == null) return emit(ErrorState("End date is required"));
+      if (!isRecurringEndDate && recurringNoOccurrenceController.text.trim().isNullOrEmpty) return emit(ErrorState("No of occurrences is required"));
+      if (recurringLabel.isDailyOrWeekly && recurringEveryDayWeekController.text.trim().isNullOrEmpty) return emit(ErrorState("Occurring count is required"));
+      if (recurringLabel.isWeekly && selectedRecurringDays.isEmpty) return emit(ErrorState("Please choose at least one day to recur"));
+      if (recurringLabel.isMonthly) {
+        if (recurringMonthDateController.text.trim().isNullOrEmpty) return emit(ErrorState("Occurrence Date is required"));
+        if (!isRecurringMonthOccurrence && recurringMonthMonthController.text.trim().isNullOrEmpty) return emit(ErrorState("Occurrence Month is required"));
+      }
+
+      if (recurringLabel.isYearly) {
+        if (recurringYearDateController.text.trim().isNullOrEmpty) return emit(ErrorState("Occurrence Date is required"));
+        if (recurringYearlySelectedMonth == null) return emit(ErrorState("Occurrence Month is required"));
+      }
+    }
   }
 }
