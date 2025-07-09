@@ -60,6 +60,8 @@ extension StringExtension on String? {
 
   String get toGetAroundReserveUrl => "${Str.GETAROUND_RESERV_URL}$this";
 
+  String get toFaiRentalReserveUrl => "${Str.FAIRENTAL_BOOKING_SUMMARY}$this";
+
   String get toBearer => "Bearer ${this ?? ""}";
 
   bool get isFairReturns => this?.startsWith(Str.LIST_BASE_URL) ?? false;

@@ -46,3 +46,19 @@ class OpenLinkState extends AddToDoState {
   @override
   List<Object?> get props => [link, Random().nextDouble()];
 }
+
+class CleanTaskReassignState extends AddToDoState {
+  final dynamic model;
+  CleanTaskReassignState(this.model);
+  @override
+  List<Object?> get props => [model, Random().nextDouble()];
+}
+
+class OilChangeTaskExistState extends AddToDoState {
+  final dynamic model;
+  OilChangeTaskExistState(this.model);
+  @override
+  List<Object?> get props => [model, Random().nextDouble()];
+}
+
+class CompletedState extends AddToDoState {}

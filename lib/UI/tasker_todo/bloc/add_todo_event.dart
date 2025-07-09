@@ -20,7 +20,7 @@ class InitialEvent extends AddToDoEvent {
 class RefreshEvent extends AddToDoEvent {}
 
 class IdentifierEvent extends AddToDoEvent {
-  final Map<int, dynamic> identifier;
+  final dynamic identifier;
   IdentifierEvent(this.identifier);
   @override
   List<Object?> get props => [identifier];
@@ -118,13 +118,21 @@ class VehiclePersonEvent extends AddToDoEvent {
   List<Object?> get props => [vehiclePerson];
 }
 
-class SubmitEvent extends AddToDoEvent {}
+class SubmitEvent extends AddToDoEvent {
+  final bool oilChangeOverride;
+  SubmitEvent({this.oilChangeOverride = false});
+  @override
+  List<Object?> get props => [oilChangeOverride];
+
+}
 
 class TimeSensitiveEvent extends AddToDoEvent {}
 
 class ViewAttachmentEvent extends AddToDoEvent {}
 
 class AddAttachmentEvent extends AddToDoEvent {}
+
+class CleanCarEvent extends AddToDoEvent {}
 
 class CleanCarDurationEvent extends AddToDoEvent {
   final dynamic duration;
@@ -175,4 +183,20 @@ class AddressEvent extends AddToDoEvent {
   AddressEvent(this.isChecked, this.address);
   @override
   List<Object?> get props => [isChecked, address];
+}
+
+class ReassignEvent extends AddToDoEvent {
+  final bool? isSaveEvent;
+  final List<dynamic>? reasonFiles;
+  final String? reasonMessage;
+  ReassignEvent({this.isSaveEvent, this.reasonFiles, this.reasonMessage});
+  @override
+  List<Object?> get props => [isSaveEvent, reasonFiles, reasonMessage];
+}
+
+class DeleteTodoEvent extends AddToDoEvent {
+  final dynamic model;
+  DeleteTodoEvent(this.model);
+  @override
+  List<Object?> get props => [model];
 }

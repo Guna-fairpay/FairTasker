@@ -121,6 +121,7 @@ class CustomSearchDataConverter {
     var tasks = taskExpense?.map((e) => {
       "id" : e['id'],
       "name" : e['task'],
+      "user_type_id" : e['user_type'],
       "user_type" : e['user_type'].toString().toNumeric.toInt().taskType,
       "searchBy" : [e['task'], e['user_type'].toString().toNumeric.toInt().taskType],
       "type" : "task",

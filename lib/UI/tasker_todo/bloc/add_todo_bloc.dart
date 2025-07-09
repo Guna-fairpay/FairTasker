@@ -6,6 +6,7 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
+import 'package:fairpytasker/UI/tasker/helper/tasker_helper.dart';
 import 'package:fairpytasker/Utilities/Str.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/prefs.dart';
@@ -16,6 +17,7 @@ import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/extension/timeday_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
+import 'package:fairpytasker/core/app/helper/custom_search_data_converter.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter/material.dart';
@@ -64,6 +66,9 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> with AddToDoMixin {
     on<MeetingEvent>(_onMeetingEvent); /// MEETING EVENT
     on<OpenCustomLinkEvent>(_onOpenCustomLinkEvent); /// OPEN CUSTOM LINK EVENT
     on<AddressEvent>(_onAddressEvent); /// ADDRESS EVENT
+    on<CleanCarEvent>(_onCleanCarEvent); /// CLEAN CAR EVENT
+    on<ReassignEvent>(_onReassignEvent); /// REASSIGN EVENT
+    on<DeleteTodoEvent>(_onDeleteTodoEvent); /// DELETE TODO EVENT
     on<SubmitEvent>(_onSubmitEvent); /// SUBMIT EVENT
   }
 
@@ -87,10 +92,13 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> with AddToDoMixin {
       selectedTaskManagers.add(persons.firstWhereOrNull((element) => element['id'] == userId) ?? {});
       emit(LoadingState());
       await _fetchAllApis();
+      if (isMeeting) {
+        selectedTaskIdentifiers.insert(0, taskIdentifierList.expand((element) => element).firstWhere((element) => element['id'] == 80));
+        Console.of.log(selectedTaskIdentifiers);
+      }
       emit(CommonState());
     } catch (e) {
-      Console.of.error("Error", error: e, name: "ADD_TODO_BLOC");
-      emit(ErrorState(e));
+      _errorCatch(e, emit);
     }
   }
 
@@ -100,8 +108,88 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> with AddToDoMixin {
       await _fetchAllApis();
       emit(CommonState());
     } catch (e) {
-      Console.of.error("Error", error: e, name: "ADD_TODO_BLOC");
-      emit(ErrorState(e));
+      _errorCatch(e, emit);
+    }
+  }
+
+  void _onSubmitEvent(SubmitEvent event, Emitter<AddToDoState> emit) async {
+    try {
+      if (formKey.currentState?.validate() == false) return emit(ErrorState("All fields are required"));
+      if (isCurrentDate && lasVehicleVin.isNotNullOrEmpty && isCleanCar) return add(CleanCarEvent());
+      if (hasOilChange && lasVehicleVin.isNotNullOrEmpty && !event.oilChangeOverride) {
+        final response = await _getOilChangeTask(vin: lasVehicleVin);
+        if (response?.isEmpty ?? false) return add(SubmitEvent(oilChangeOverride: true));
+        return emit(OilChangeTaskExistState(response));
+      }
+      final images = attachments.whereType<File>().map((e) => {"images" : e.path}).toList();
+      final response = await _apiRepository.addToDo(body: _addTodoBody(), infusedFiles: images);
+      final isSuccess = response?['status'] == 200;
+      if (isSuccess) TaskerHelper.instance.refresh();
+      emit(isSuccess ? SuccessState(response?['message'] ?? "Success") : ErrorState(response?['message'] ?? "Error occurred!"));
+      await Future.delayed(Durations.short1);
+      if (isSuccess) return emit(CompletedState());
+    } catch (e) {
+      _errorCatch(e, emit);
+    }
+  }
+
+  void _onCleanCarEvent(CleanCarEvent event, Emitter<AddToDoState> emit) async {
+    try {
+      if (formKey.currentState?.validate() == false) return emit(ErrorState("All fields are required"));
+      if (!hasVehicle) return emit(ErrorState("Please select a vehicle"));
+      if (isCurrentDate && (lasVehicleVin.isNotNullOrEmpty)) {
+        final response = await _findClearCarExist(lasVehicleVin);
+        if ((response?['status'] == true) && (response?['data'] != null)) {
+          var lastBody = response?['data'];
+          return emit(CleanTaskReassignState(lastBody));
+        }
+      }
+      emit(LoadingState());
+      final response = await _apiRepository.cleanCar(body: _cleanCarBody());
+      final isSuccess = (response?['status'] == 200);
+      if (isSuccess) TaskerHelper.instance.refresh();
+      return emit(isSuccess ? SuccessState(response?['message'] ?? "Success") : ErrorState(response?['message'] ?? "Error occurred!"));
+    } catch (e) {
+      _errorCatch(e, emit);
+    }
+  }
+
+  void _onReassignEvent(ReassignEvent event, Emitter<AddToDoState> emit) async {
+    try {
+      emit(LoadingState());
+      final body = (event.isSaveEvent ?? false) ? _addTodoBody() : _cleanCarBody();
+      body['reason'] = event.reasonMessage ?? "";
+      final reasonImages = event.reasonFiles?.whereType<File>().map((e) => {"reason_images" : e.path}).toList() ?? [];
+      List<Map<String, dynamic>> bodyAttachments = [];
+      if (event.isSaveEvent ?? false) { // SAVE WITH REASON AND FILES
+        final images = attachments.whereType<File>().map((e) => {"images" : e.path}).toList();
+        bodyAttachments = [...images, ...reasonImages];
+      } else { // CREATE CLEAN CAR WITH REASON AND IMAGES
+        bodyAttachments = reasonImages;
+      }
+      final response = await _apiRepository.addToDo(body: body, infusedFiles: bodyAttachments);
+      final isSuccess = response?['status'] == 200;
+      if (isSuccess) TaskerHelper.instance.refresh();
+      emit(isSuccess ? SuccessState(response?['message'] ?? "Success") : ErrorState(response?['message'] ?? "Error occurred!"));
+      await Future.delayed(Durations.short1);
+      return emit(CompletedState());
+    } catch (e) {
+      _errorCatch(e, emit);
+    }
+  }
+
+  void _onDeleteTodoEvent(DeleteTodoEvent event, Emitter<AddToDoState> emit) async {
+    try {
+      emit(LoadingState());
+      final response = await _deleteToDo(todoId: event.model?['id']);
+      final isSuccess = response?['status'] == 200;
+      if (isSuccess) {
+        return add(SubmitEvent(oilChangeOverride: true));
+      } else {
+        return emit(ErrorState(response?['message'] ?? "Error occurred!"));
+      }
+    } catch (e) {
+      _errorCatch(e, emit);
     }
   }
 }

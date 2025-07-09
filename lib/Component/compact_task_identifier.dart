@@ -1,5 +1,9 @@
+import 'dart:async';
 import 'dart:collection';
+import 'dart:convert';
 
+import 'package:collection/collection.dart';
+import 'package:fairpytasker/Component/custom_text/compact_text.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
@@ -11,6 +15,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class SegmentedAutocomplete<T extends Object> extends StatefulWidget {
   final List<List<T>> segmentedSuggestions;
   final AutocompleteOptionToString<T> itemAsString;
+  final AutocompleteOptionToString<T> itemAsStringTitle;
   final dynamic Function(T) itemAsSearchString;
   final InputDecoration? decoration;
   final void Function(List<T>)? onChanged;
@@ -22,6 +27,7 @@ class SegmentedAutocomplete<T extends Object> extends StatefulWidget {
     super.key,
     required this.segmentedSuggestions,
     required this.itemAsString,
+    required this.itemAsStringTitle,
     required this.itemAsSearchString,
     this.decoration,
     this.onChanged,
@@ -39,14 +45,23 @@ class _SegmentedAutocompleteState<T extends Object> extends State<SegmentedAutoc
   final FocusNode _focusNode = FocusNode();
 
   late List<T> selectedItems;
+  Timer? _debounce;
 
   @override
   void initState() {
     super.initState();
     selectedItems = List<T>.from(widget.selectedValues ?? []);
     _controller = TextEditingController(
-      text: selectedItems.map(widget.itemAsString).join(widget.separator),
+      text: selectedItems.map(widget.itemAsStringTitle).join(widget.separator),
     );
+  }
+
+
+  @override
+  void didUpdateWidget(oldWidget) {
+    selectedItems = List<T>.from(widget.selectedValues ?? []);
+    _controller.text = selectedItems.map(widget.itemAsStringTitle).join(widget.separator);
+    super.didUpdateWidget(oldWidget);
   }
 
   int get currentSegmentIndex {
@@ -76,7 +91,7 @@ class _SegmentedAutocompleteState<T extends Object> extends State<SegmentedAutoc
       parts[index] = newText;
     }
     final newTextValue = parts.join(widget.separator);
-    _controller.text = newTextValue;
+    _controller.text = "$newTextValue${widget.separator}";
 
     final newCursorOffset = parts.sublist(0, index + 1).join(widget.separator).length;
     _controller.selection = TextSelection.collapsed(offset: newCursorOffset);
@@ -91,18 +106,20 @@ class _SegmentedAutocompleteState<T extends Object> extends State<SegmentedAutoc
     return RawAutocomplete<T>(
       textEditingController: _controller,
       focusNode: _focusNode,
-      optionsBuilder: (textEditingValue) {
+      optionsBuilder: (TextEditingValue textEditingValue) {
         final index = currentSegmentIndex;
         if (index >= widget.segmentedSuggestions.length) return const Iterable.empty();
 
         final currentSearch = currentSegmentText.toLowerCase();
+        if (textEditingValue.text.split(widget.separator).length == 4) return const Iterable.empty();
         return widget.segmentedSuggestions[index].where((item) {
+          if (selectedItems.contains(item)) return false;
           final searchField = widget.itemAsSearchString(item);
           if (searchField is List) {
             return searchField.any((val) => val.toString().toLowerCase().contains(currentSearch));
           }
           return searchField.toString().toLowerCase().contains(currentSearch);
-          });
+        });
       },
       displayStringForOption: widget.itemAsString,
       optionsViewBuilder: (context, onSelected, options) => Align(
@@ -125,6 +142,27 @@ class _SegmentedAutocompleteState<T extends Object> extends State<SegmentedAutoc
         focusNode: focusNode,
         onTapOutside: (event) => _focusNode.unfocus(),
         style: context.textTheme.labelLarge,
+        onChanged: (_) {
+          final parts = controller.text.split(widget.separator);
+          final newSelectedItems = <T>[];
+          for (int i = 0; i < parts.length; i++) {
+            final segment = parts[i].trim();
+            if (segment.isEmpty || i >= widget.segmentedSuggestions.length) continue;
+            final match = widget.segmentedSuggestions[i].firstWhereOrNull(
+                  (item) => widget.itemAsString(item) == segment,
+            );
+            if (match != null) newSelectedItems.add(match as T);
+          }
+
+          // Emit only when a previously selected item was removed (i.e. fewer items now)
+          if (newSelectedItems.length < selectedItems.where((element) => (element as Map).isNotEmpty).length) {
+            selectedItems = newSelectedItems;
+            // _debounce?.cancel();
+            // _debounce = Timer(Durations.extralong4, () => widget.onChanged?.call(selectedItems));
+          } else {
+            selectedItems = newSelectedItems;
+          }
+        },
         decoration: (widget.decoration ?? const InputDecoration(hintText: 'Enter segmented values')).copyWith(
           isDense: true,
           border: border,
@@ -154,10 +192,11 @@ class _SegmentedAutocompleteState<T extends Object> extends State<SegmentedAutoc
         if (entry.key.isNotNullOrEmpty)
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          color: Colors.grey[300],
-          child: Text(
+          color: Colors.grey[200],
+          child: CompactText(
             entry.key,
-            style: const TextStyle(fontWeight: FontWeight.bold),
+            fontWeight: FontWeight.bold,
+            styleType: TextStyleType.titleMedium,
           ),
         ),
         ...entry.value.map((option) => ListTile(
@@ -166,15 +205,14 @@ class _SegmentedAutocompleteState<T extends Object> extends State<SegmentedAutoc
           title: Text(widget.itemAsString(option)),
           onTap: () {
             final index = currentSegmentIndex;
-            replaceSegment(index, widget.itemAsString(option));
+            replaceSegment(index, widget.itemAsStringTitle(option));
             if (selectedItems.length <= index) {
               selectedItems.add(option);
             } else {
               selectedItems[index] = option;
             }
             widget.onChanged?.call(selectedItems);
-            FocusScope.of(context).requestFocus(FocusNode());
-            Future.delayed(const Duration(milliseconds: 100), () => _focusNode.requestFocus());
+            _focusNode.unfocus();
           },
         ))
       ];

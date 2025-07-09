@@ -23,7 +23,7 @@ class MoreForm extends StatelessWidget {
             if (context.watch<AddToDoBloc>().hasCleanCar)
               ...[
                 IconButton(
-                  onPressed: () {},
+                  onPressed: () => context.read<AddToDoBloc>().add(CleanCarEvent()),
                   icon: const Icon(Icons.local_car_wash_sharp),
                   style: ButtonStyle(
                       shape: WidgetStatePropertyAll(ContinuousRectangleBorder(

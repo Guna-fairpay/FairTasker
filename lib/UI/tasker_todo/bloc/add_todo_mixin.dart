@@ -35,11 +35,16 @@ mixin AddToDoMixin {
   TimeOfDay selectedTime = TimeOfDay.now();
   DateTime? selectedRecurringEndDate;
   dynamic recurringYearlySelectedMonth;
-  Map<int, dynamic> selectedTaskIdentifier = {};
+  Map<int, Map<String, dynamic>> selectedTaskIdentifier = {
+    1 : {},
+    2 : {},
+    3 : {}
+  };
   Map<String, dynamic> selectedRecurring = ToDoConfig.recurringOptions.first, selectedCustom = ToDoConfig.customOptions.first, selectedClearDuration = ToDoConfig.cleanCarDurations.first, selectedLead = {}, selectedMeetingMode = ToDoConfig.meetingMode.firstWhere((element) => element['id'] == 1);
   List<String> selectedRecurringDays = [];
   List<Map<String, dynamic>> selectedVPerson = [];
   TaskType taskType = TaskType.rental;
+  List<Map<String, dynamic>> selectedTaskIdentifiers = [];
 
   List<Map<String, dynamic>> get locations => getIt<CommonService>().locationsList;
   List<Map<String, dynamic>> get persons {
@@ -62,7 +67,7 @@ mixin AddToDoMixin {
   String? get taskName {
     var selectedTask = selectedTaskIdentifier[1];
     if ( (selectedTask != null) && ((selectedTask as Map?)?.isNotEmpty ?? false)) {
-      return selectedTask?['name'];
+      return selectedTask['name'];
     } else {
       return null;
     }
@@ -76,11 +81,13 @@ mixin AddToDoMixin {
 
   dynamic existingRefId;
 
-  Map<String, dynamic>? get _selectedVPerson => selectedVPerson.lastWhereOrNull((element) => ["vehicles", "g_vehicles"].contains(element['type']));
+  Map<String, dynamic>? get _selectedVPerson => selectedVPerson.lastWhereOrNull((element) => ["vehicles", "g_vehicles", "vehicle", "group_vehicle"].contains(element['type']));
 
   bool isNextTask = false;
 
+  bool get isCurrentDate => selectedDate.isToday;
   bool get isLeadTask => (taskType == TaskType.lead);
+  bool get isCleanCar => selectedTaskIdentifier[1]?['id'] == 30;
   bool get isRentalTask => ([TaskType.rental, TaskType.nonRental].contains(taskType));
   bool get isRentalOnlyTask => ([TaskType.rental].contains(taskType));
   bool get isMeeting => (taskType == TaskType.meeting);
@@ -89,15 +96,26 @@ mixin AddToDoMixin {
   bool get hasEnquiry => selectedTaskIdentifier[1]?['id'] == 358;
   bool get hasPlatformCheck => Str.platFormCheckIds.contains(selectedTaskIdentifier[1]?['id'] ?? 0);
   bool get hasCleanCar => Str.cleanCarCheckIds.contains(selectedTaskIdentifier[1]?['id'] ?? 0);
-  bool get hasVehicle => (_selectedVPerson?.isNotEmpty ?? false) && (["vehicles", "g_vehicles"].contains(_selectedVPerson?['type']));
+  bool get hasOilChange => Str.oilChangeCheckIds.contains(selectedTaskIdentifier[1]?['id'] ?? 0);
+  bool get hasVehicle => (_selectedVPerson?.isNotEmpty ?? false) && (["vehicles", "g_vehicles", "vehicle", "group_vehicle"].contains(_selectedVPerson?['type']));
   bool get showReservation => (selectedCustom.isNotEmpty) && (!isNextTask);
   bool get hasAddress => showMore && selectedTaskIdentifier[3]?['type'] == "location";
 
   List<Map<String, dynamic>> get addresses => List.from(selectedTaskIdentifier[3]?['value']?['addresses'] ?? []);
 
-  String? get lasVehicleVin => (_selectedVPerson?['type'] == "vehicles") ? (_selectedVPerson?['value']?['vin']) : null;
-  String? get lasVehicleGroupId => (_selectedVPerson?['type'] == "g_vehicles") ? (_selectedVPerson?['id']) : null;
+  String? get lasVehicleVin => (["vehicles", "vehicle"].contains(_selectedVPerson?['type'])) ? (_selectedVPerson?['value']?['vin']) : null;
+  String? get lasVehicleGroupId => (["g_vehicles", "group_vehicle"].contains(_selectedVPerson?['type'])) ? (_selectedVPerson?['id']) : null;
   String? get lasVehicleName => _selectedVPerson?['name'];
+
+  List<List<Map<String, dynamic>>> get taskIdentifierList => CustomSearchDataConverter.convertTaskIdentifier(
+    taskExpense: tasks,
+    leads: isLeadTask ? leads : null,
+    vehicles: isMeeting ? null : vehicles,
+    resources: isMeeting ? null : persons,
+    groupVehicles: isMeeting ? null : groupVehicleList,
+    vendors: isRentalTask ? vendors : null,
+    locations: isRentalTask ? locations : null
+  );
 
   // PICK MULTI IMAGES / FILES
   Future<List<File>?> _pickFiles() async {
@@ -264,20 +282,96 @@ mixin AddToDoMixin {
   Future<Map<String, dynamic>?> _findReservation(dynamic vin) async => await getIt<CommonService>().findVehicleReservation(vin: vin);
   Future<Map<String, dynamic>?> _getOilChangeTask({required dynamic vin}) async => await getIt<CommonService>().getLatestOilChangeTask(vin: vin, dateTime: selectedDate);
 
+  void _errorCatch(dynamic e, Emitter<AddToDoState> emit) {
+    Console.of.error("Error", error: e, name: "ADD_TODO_BLOC");
+    emit(ErrorState(e));
+  }
+
   void _onIdentifierEvent(IdentifierEvent event, Emitter<AddToDoState> emit) {
-    selectedTaskIdentifier = event.identifier;
-    for (var element in selectedTaskIdentifier.entries) {
-      Console.of.log(element.value, name: "ADD_TODO_BLOC");
-      switch(element.key) {
-        case 1: { taskNameController.text = element.value?['name'] ?? ""; } break;
-        case 2: {
-          if (element.value?.isNotEmpty ?? false) {
-            selectedVPerson.add(element.value);
-          }
-          selectedVPerson = selectedVPerson.unique((element) => element['id']);
-        } break;
+    if (event.identifier is Map) {
+      selectedTaskIdentifier = event.identifier;
+      for (var element in selectedTaskIdentifier.entries) {
+        switch(element.key) {
+          case 1: { taskNameController.text = element.value['name'] ?? ""; } break;
+          case 2: {
+            if (element.value.isNotEmpty ?? false) {
+              selectedVPerson.add(element.value);
+            }
+            selectedVPerson = selectedVPerson.unique((element) => element['id']);
+          } break;
+        }
       }
-    }emit(CommonState());
+    } else if (event.identifier is List) {
+      selectedTaskIdentifiers = event.identifier;
+      final result = selectedTaskIdentifiers.fold<Map<int, Map<String, dynamic>>>({}, (map, e) {
+        if (e['type'] == 'task') {
+          map[1] = e;
+        } else if (['lead', "vehicle", "person", "group_vehicle"].contains(e['type'])) {
+          map[(e['type'] == "lead") ? 2 : (isLeadTask) ? 3 : 2] = e;
+        } else if (["vendor", "location"].contains(e['type'])) {
+          map[3] = e;
+        }
+        return map;
+      });
+      selectedTaskIdentifier = selectedTaskIdentifiers.isEmpty ? {
+        1 : {},
+        2 : {},
+        3 : {}
+      } : {
+        1 : result[1] ?? {},
+        2 : result[2] ?? (selectedTaskIdentifier[2] ?? {}),
+        3 : result[3] ?? (selectedTaskIdentifier[3] ?? {}),
+      };
+      for (var element in selectedTaskIdentifier.entries) {
+        switch(element.key) {
+          case 1: {
+            taskType = switch(element.value['user_type_id']) {
+              1 => TaskType.rental,
+              2 => TaskType.rental,
+              3 => TaskType.lead,
+              4 => TaskType.nonRental,
+              5 => TaskType.meeting,
+              _ => TaskType.rental,
+            };
+            taskNameController.text = element.value['name'] ?? "";
+          } break;
+          case 2: {
+            if (element.value.isEmpty) {
+              selectedVPerson.clear();
+              selectedLead.clear();
+            }
+            if ((element.value.isNotEmpty) && (element.value['type'] != "lead")) selectedVPerson.add(element.value);
+            if (element.value['type'] == "lead") selectedLead = element.value?['value'];
+            selectedVPerson = selectedVPerson.unique((element) => element['id']);
+          } break;
+          case 3: {
+            if (element.value.isEmpty) {
+              selectedTaskIdentifier[3] = {};
+              if (isLeadTask) {
+                selectedLead.clear();
+                selectedVPerson.clear();
+              }
+            }
+            if (["vehicle", "person", "group_vehicle"].contains(element.value['type'])) {
+              selectedVPerson.add(element.value);
+              selectedVPerson = selectedVPerson.unique((element) => element['id']);
+            }
+          } break;
+        }
+      }
+    }
+    if (isMeeting || isLeadTask) selectedTaskIdentifier.removeWhere((key, value) => [2,3].contains(key));
+    if (isLeadTask) {
+      if (selectedLead.isNotEmpty) {
+        selectedTaskIdentifier[2] = taskIdentifierList.expand((element) => element).firstWhereOrNull((element) => element['id'] == selectedLead['id'] && element['type'] == "lead") ?? {};
+      }
+      if (selectedVPerson.isNotEmpty) {
+        final last = selectedVPerson.lastOrNull;
+        var result = taskIdentifierList.expand((element) => element).firstWhereOrNull((element) => (element['id'] == last?['id']) && (["vehicle", "group_vehicle", "person", "lead"].contains(element['type'])));
+        selectedTaskIdentifier[3] = result ?? {};
+      }
+    }
+    emit(CommonState());
   }
 
   void _onPartStatusEvent(PartStatusEvent event, Emitter<AddToDoState> emit) {
@@ -365,14 +459,26 @@ mixin AddToDoMixin {
 
   void _onVendorLocationEvent(VendorLocationEvent event, Emitter<AddToDoState> emit) {
     selectedTaskIdentifier[3] = event.vendorLocation;
+    var result = taskIdentifierList.expand((element) => element).firstWhereOrNull((element) => (element['id'] == event.vendorLocation['id']) && (["vendor", "location"].contains(element['type'])));
+    if (result != null) {
+      if (selectedTaskIdentifiers.isEmpty) while (selectedTaskIdentifiers.length <= 2) { selectedTaskIdentifiers.add({}); }
+      selectedTaskIdentifiers[0] = selectedTaskIdentifiers[0] ?? {};
+      selectedTaskIdentifiers[1] = selectedTaskIdentifiers[1] ?? {};
+      selectedTaskIdentifiers[2] = result;
+    }
     emit(CommonState());
   }
 
   void _onVehiclePersonEvent(VehiclePersonEvent event, Emitter<AddToDoState> emit) {
-    if (event.vehiclePerson.isNotEmpty) {
-      selectedTaskIdentifier[2] = event.vehiclePerson[2];
+    selectedVPerson = event.vehiclePerson;
+    if (selectedVPerson.isNotEmpty) {
+      final last = selectedVPerson.lastOrNull;
+      Console.of.log(last?['id'], name: "LAST_V");
+      var result = taskIdentifierList.expand((element) => element).firstWhereOrNull((element) => (element['id'] == last?['id']) && (["vehicle", "group_vehicle", "person"].contains(element['type'])));
+      Console.of.log(last?['id'], name: "LAST_V");
+      selectedTaskIdentifier[isLeadTask ? 3 : 2] = result ?? {};
     } else {
-      selectedTaskIdentifier.remove(2);
+      selectedTaskIdentifier[isLeadTask ? 3 : 2] = {};
     }
     emit(CommonState());
   }
@@ -429,6 +535,10 @@ mixin AddToDoMixin {
 
   void _onLeadEvent(LeadEvent event, Emitter<AddToDoState> emit) {
     selectedLead = event.lead;
+    if (["vehicle", "group_vehicle", "person"].contains(selectedTaskIdentifier[2]?['type'])) {
+      selectedTaskIdentifier[3] = selectedTaskIdentifier[2] ?? {};
+    }
+    selectedTaskIdentifier[2] = taskIdentifierList.expand((element) => element).firstWhereOrNull((element) => element['id'] == selectedLead['id'] && element['type'] == "lead") ?? {};
     emit(CommonState());
   }
 
@@ -443,7 +553,7 @@ mixin AddToDoMixin {
           ? customLinkController.text
           : selectedCustom['label'].toString().isTuroReservation
           ? customLinkController.text.toTuroReserveUrl
-          : customLinkController.text.toGetAroundReserveUrl;
+          : customLinkController.text.toFaiRentalReserveUrl;
       emit(OpenLinkState(url));
     } catch (e) {
       Console.of.error("Error", error: e);
@@ -460,8 +570,5 @@ mixin AddToDoMixin {
     selectedAddress.clear();
     selectedAddress.addAll(addresses);
     emit(CommonState());
-  }
-
-  void _onSubmitEvent(SubmitEvent event, Emitter<AddToDoState> emit) {
   }
 }
