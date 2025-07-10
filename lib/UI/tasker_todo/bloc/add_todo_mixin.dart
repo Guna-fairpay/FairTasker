@@ -310,6 +310,10 @@ mixin AddToDoMixin {
           case 2: {
             final result = taskIdentifierList.expand((element) => element).firstWhereOrNull((element) => (element['id'] == selectedLead['id']) && (["lead"].contains(element['type']))) ?? {};
             optional[2] = (value.isEmpty) ? result : value;
+            if (value.isEmpty && result.isNotEmpty) {
+              optional[2] = {};
+              selectedLead.clear();
+            }
           } break;
           case 3: {
             if (selectedVPerson.isNotEmpty) {
@@ -323,6 +327,9 @@ mixin AddToDoMixin {
             final hasVendor = ["vendor", "location"].contains(selectedTaskIdentifier[3]?['type']);
             final vendorLoc = selectedTaskIdentifier[3];
             optional[4] = (value.isEmpty && hasVendor) ? (vendorLoc ?? {}) : value;
+            if (value.isEmpty && (vendorLoc?.isNotEmpty ?? false)) {
+              optional[4] = {};
+            }
           } break;
         }
       }
@@ -372,8 +379,35 @@ mixin AddToDoMixin {
         partsList.clear();
         suppliesList.clear();
         showParts = showSupplies = false;
+        selectedMeetingMode = ToDoConfig.meetingMode.first;
       }
     }
+    emit(CommonState());
+  }
+
+  void _onRemoveIdentifierEvent(RemoveIdentifierEvent event, Emitter<AddToDoState> emit) {
+    final model = event.identifier;
+    final index = event.index;
+    final isTask = model?['type'] == 'task';
+    final isLead = model?['type'] == "lead";
+    final isVehicle = ["vehicles", "person", "g_vehicles"].contains(model?['type']);
+    final isVendor = ["vendor", "location"].contains(model?['type']);
+    if (isTask) {
+      taskNameController.clear();
+      selectedTaskIdentifier[1] = {};
+      if (isLeadTask) {
+        selectedLead.clear();
+        selectedTaskIdentifier[2] = selectedTaskIdentifier[3] ?? {};
+        selectedTaskIdentifier[3] = {};
+      }
+      taskType = TaskType.rental;
+    }
+    if (isLead) {
+      selectedLead.clear();
+      selectedTaskIdentifier[2] = {};
+    }
+    if (isVehicle) selectedTaskIdentifier[isLeadTask ? 3 : 2] = {};
+    if (isVendor) selectedTaskIdentifier[3] = {};
     emit(CommonState());
   }
 

@@ -26,6 +26,14 @@ class IdentifierEvent extends AddToDoEvent {
   List<Object?> get props => [identifier];
 }
 
+class RemoveIdentifierEvent extends AddToDoEvent {
+  final dynamic identifier;
+  final int index;
+  RemoveIdentifierEvent(this.identifier, this.index);
+  @override
+  List<Object?> get props => [identifier, index];
+}
+
 class MoreEvent extends AddToDoEvent {}
 class PartStatusEvent extends AddToDoEvent {}
 class SupplyStatusEvent extends AddToDoEvent {}

@@ -1,10 +1,12 @@
 import 'dart:collection';
 
+import 'package:collection/collection.dart';
 import 'package:fairpytasker/Component/custom_text/compact_text.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -18,6 +20,7 @@ class SegmentedAutocomplete<T extends Object> extends StatefulWidget {
   final String separator;
   final String? hintText;
   final void Function(String value)? onEmptyTap;
+  final void Function(T removedItem, int index)? onItemRemoved;
   final List<T>? selectedValues;
 
   const SegmentedAutocomplete({
@@ -31,7 +34,8 @@ class SegmentedAutocomplete<T extends Object> extends StatefulWidget {
     this.hintText,
     this.separator = '-',
     this.selectedValues,
-    this.onEmptyTap
+    this.onEmptyTap,
+    this.onItemRemoved,
   });
 
   @override
@@ -41,6 +45,8 @@ class SegmentedAutocomplete<T extends Object> extends StatefulWidget {
 class _SegmentedAutocompleteState<T extends Object> extends State<SegmentedAutocomplete<T>> {
   late final TextEditingController _controller;
   final FocusNode _focusNode = FocusNode();
+  String _previousText = '';
+  TextSelection _previousSelection = const TextSelection.collapsed(offset: -1);
 
   late List<T> selectedItems;
   bool _isFirstSegmentInvalid = false;
@@ -57,9 +63,11 @@ class _SegmentedAutocompleteState<T extends Object> extends State<SegmentedAutoc
 
   @override
   void didUpdateWidget(oldWidget) {
-    selectedItems = List<T>.from(widget.selectedValues ?? []);
-    _controller.text = selectedItems.map(widget.itemAsStringTitle).join(widget.separator);
     super.didUpdateWidget(oldWidget);
+    if (widget.selectedValues != oldWidget.selectedValues) {
+      selectedItems = List<T>.from(widget.selectedValues ?? []);
+      _controller.text = selectedItems.map(widget.itemAsStringTitle).join(widget.separator);
+    }
   }
 
   int get currentSegmentIndex {
@@ -140,30 +148,7 @@ class _SegmentedAutocompleteState<T extends Object> extends State<SegmentedAutoc
         focusNode: focusNode,
         onTapOutside: (event) => _focusNode.unfocus(),
         style: context.textTheme.labelLarge,
-        onChanged: (_) {
-          // final parts = controller.text.split(widget.separator);
-          // final newSelectedItems = <T>[];
-          // for (int i = 0; i < parts.length; i++) {
-          //   final segment = parts[i].trim();
-          //   if (segment.isEmpty || i >= widget.segmentedSuggestions.length) continue;
-          //   final match = widget.segmentedSuggestions[i].firstWhereOrNull(
-          //         (item) => widget.itemAsString(item) == segment,
-          //   );
-          //   if (match != null) newSelectedItems.add(match);
-          // }
-
-          // Emit only when a previously selected item was removed (i.e. fewer items now)
-          // if (newSelectedItems.length < selectedItems.where((element) => (element as Map).isNotEmpty).length) {
-          //   selectedItems = newSelectedItems;
-          //   // _debounce?.cancel();
-          //   // _debounce = Timer(Durations.extralong4, () => widget.onChanged?.call(selectedItems));
-          // } else {
-          //   selectedItems = newSelectedItems;
-          // }
-          setState(() {
-            _isFirstSegmentInvalid = _computeIsFirstSegmentInvalid();
-          });
-        },
+        onChanged: (_) => _handleTextChanged(controller),
         decoration: (widget.decoration ?? const InputDecoration(hintText: 'Enter segmented values')).copyWith(
           isDense: true,
           border: border,
@@ -184,6 +169,50 @@ class _SegmentedAutocompleteState<T extends Object> extends State<SegmentedAutoc
         ),
       ),
     );
+  }
+
+  void _handleTextChanged(TextEditingController controller) {
+    final currentText = controller.text;
+    final currentCursor = controller.selection.baseOffset;
+
+    final parts = currentText.split(widget.separator);
+    final prevParts = _previousText.split(widget.separator);
+
+    final newSelectedItems = <T>[];
+
+    for (int i = 0; i < parts.length; i++) {
+      final segment = parts[i].trim();
+      if (segment.isEmpty || i >= widget.segmentedSuggestions.length) continue;
+
+      final match = widget.segmentedSuggestions[i].firstWhereOrNull(
+            (item) => widget.itemAsString(item) == segment
+      );
+      if (match != null) {
+        newSelectedItems.add(match);
+      }
+    }
+
+    // 🔍 Emit onItemRemoved only if a segment went from non-empty to empty
+    for (int i = 0; i < prevParts.length; i++) {
+      final was = prevParts[i].trim();
+      final isNow = (i < parts.length) ? parts[i].trim() : '';
+
+      if (was.isNotEmpty && isNow.isEmpty && i < selectedItems.length) {
+        final removedItem = selectedItems[i];
+        widget.onItemRemoved?.call(removedItem, i);
+        _focusNode.unfocus();
+        break;
+      }
+    }
+
+    // selectedItems = newSelectedItems;
+    //
+    // widget.onChanged?.call(selectedItems);
+
+    setState(() {
+      _isFirstSegmentInvalid = _computeIsFirstSegmentInvalid();
+      _previousText = currentText;
+    });
   }
 
   List<Widget> _buildGroupedOptions(Iterable<T> options, AutocompleteOnSelected<T> onSelected) {
