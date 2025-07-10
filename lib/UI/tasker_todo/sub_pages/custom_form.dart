@@ -11,7 +11,7 @@ class CustomForm extends StatelessWidget {
         Row(
           spacing: 10.spMin,
           children: [
-            if (!context.watch<AddToDoBloc>().isNextTask)
+            if ((!context.watch<AddToDoBloc>().isNextTask) && context.watch<AddToDoBloc>().isRentalTask)
             Expanded(
               child: GestureDetector(
                 onTap: () => context.read<AddToDoBloc>().add(MoreEvent()),

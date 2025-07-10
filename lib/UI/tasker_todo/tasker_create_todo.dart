@@ -13,6 +13,7 @@ import 'package:fairpytasker/Component/custom_vehicle_person_field.dart';
 import 'package:fairpytasker/Component/custom_vendor_location_field.dart';
 import 'package:fairpytasker/Component/custom_weekdays_gridview.dart';
 import 'package:fairpytasker/Component/page_keep_aliver.dart';
+import 'package:fairpytasker/Component/scaffold_wrapper.dart';
 import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Parts/ui/parts_main_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Supplies/UI/supplies_main_ui.dart';
@@ -34,7 +35,6 @@ import 'package:fairpytasker/core/app/enums/task_enum.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
-import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -67,7 +67,8 @@ class TaskerAddToDo extends StatelessWidget {
     return BlocProvider(create: (context) => AddToDoBloc()..add(InitialEvent(taskType: taskType, isNextTask: isNextTask, selectedDate: selectedDate, selectedVPerson: selectedVPerson, showAppBar: showAppBar)),
     child: BlocListener<AddToDoBloc, AddToDoState>(
       listener: _listenNavigation,
-      child: Scaffold(
+      child: ScaffoldWrapper(
+        withScaffold: !isNextTask,
         appBar: CompactAppBar(
           foregroundColour: Colors.white,
           titleWidget: const CompactText("Add Todo", color: Colors.white, fontWeight: FontWeight.bold, overflow: TextOverflow.visible, styleType: TextStyleType.titleMedium),
@@ -78,7 +79,7 @@ class TaskerAddToDo extends StatelessWidget {
           top: true,
           minimum: 16.spMin.padding,
           child: ListView(
-            physics: const BouncingScrollPhysics(),
+            physics: ((showAppBar) ? const BouncingScrollPhysics() : const NeverScrollableScrollPhysics()),
             children: const [ BodyForm() ],
           ),
         ),

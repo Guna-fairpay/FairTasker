@@ -18,8 +18,11 @@ class MoreForm extends StatelessWidget {
         AnimatedCrossFade(firstChild: Row(
           spacing: 10.spMin,
           children: [
-            Utils.getCircleCheckWidget(() => context.read<AddToDoBloc>().add(PartStatusEvent()), context.watch<AddToDoBloc>().showParts, 'Parts/Services'),
-            Utils.getCircleCheckWidget(() => context.read<AddToDoBloc>().add(SupplyStatusEvent()), context.watch<AddToDoBloc>().showSupplies, 'Supplies'),
+            if (context.watch<AddToDoBloc>().isRentalTask)
+              ...[
+                Utils.getCircleCheckWidget(() => context.read<AddToDoBloc>().add(PartStatusEvent()), context.watch<AddToDoBloc>().showParts, 'Parts/Services'),
+                Utils.getCircleCheckWidget(() => context.read<AddToDoBloc>().add(SupplyStatusEvent()), context.watch<AddToDoBloc>().showSupplies, 'Supplies'),
+              ],
             if (context.watch<AddToDoBloc>().hasCleanCar)
               ...[
                 IconButton(

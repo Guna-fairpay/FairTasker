@@ -132,8 +132,9 @@ mixin AddToDoMixin {
     final hasLead = selectedTaskIdentifier[2]?['type'] == "lead";
     final hasMeetingMode = isMeeting && (selectedMeetingMode['id'] != 0);
     final task = selectedTaskIdentifier[1];
-    final isUserType3 = task?['user_type_id'] == 3;
-    final isUserType5 = task?['user_type_id'] == 5;
+    final todoUserTypeId = task?['user_type_id'] ?? 0;
+    final isUserType3 = todoUserTypeId == 3;
+    final isUserType5 = todoUserTypeId == 5;
     var baseBody = _cleanCarBody();
     baseBody['title'] = taskNameController.text;
     baseBody['identifier_id'] = (taskName.isNotEmpty && selectedName == taskName) ? "$selectedId" : "";
@@ -151,25 +152,33 @@ mixin AddToDoMixin {
     baseBody['end_after'] = (!isRecurringEndDate) ? (recurringNoOccurrenceController.text) : "";
     baseBody['end_at'] = selectedRecurringEndDate.toFormat() ?? "";
     baseBody['todo_time'] = selectedTime.toHMS().toString();
-    baseBody['platform_check'] = "${isPlatformCheck ? 1 : 0}";
-    baseBody['todo_user_type'] = "0";
+    baseBody['platform_check'] = "${isPlatformCheck ? 1 : hasPlatformCheck ? 0 : ""}";
+    baseBody['todo_user_type'] = "$todoUserTypeId";
     baseBody['comments'] = "";
     baseBody['mileage'] = "";
     baseBody['resolution_notes'] = "";
     baseBody['custom_link_id'] = "${selectedCustom['id'] ?? ""}";
     baseBody['custom_link'] = (selectedCustom['id'] == 1) ? customLinkController.text : "";
-    baseBody['reference_id'] = (selectedCustom['id'] != 1) ? customLinkController.text : "";
+    baseBody['reference_id'] = (selectedCustom['id'] == 2) ? customLinkController.text : "";
     if (baseBody['identifier_id'].toString().contains("358") && isEnquiryNotEmpty) {
       baseBody['rental_enquiry'] = QuillDeltaToHtmlConverter(enquiryController.document.toDelta().toJson(), ConverterOptions.forEmail()).convert();
     }
     baseBody['lead_id'] = hasLead ? selectedLead['id'].toString() : "";
     baseBody['channel_id'] = "";
     baseBody['meeting_mode'] = hasMeetingMode ? selectedMeetingMode['name'].toString().toLowerCase() : "";
-    baseBody['rental_booking_id'] = "";
+    baseBody['rental_booking_id'] = (selectedCustom['id'] == 3) ? customLinkController.text : "";
     baseBody['rental_booking_no'] = "";
+    if (!isRentalOnlyTask) {
+      baseBody['custom_link_id'] = "";
+      baseBody['custom_link'] = "";
+    }
     if (isUserType3 || isUserType5) {
+      baseBody['address'] = "";
       baseBody['parts'] = "";
       baseBody['supplies'] = "";
+      baseBody['custom_link_id'] = "";
+      baseBody['custom_link'] = "";
+      baseBody['reference_id'] = "";
       baseBody['rental_booking_id'] = "";
       baseBody['rental_booking_no'] = "";
     }
@@ -272,6 +281,24 @@ mixin AddToDoMixin {
   void _errorCatch(dynamic e, Emitter<AddToDoState> emit) {
     Console.of.error("Error", error: e, name: "ADD_TODO_BLOC");
     emit(ErrorState(e));
+  }
+
+  void _updateReservation(Emitter<AddToDoState> emit) async {
+    try {
+      if (hasVehicle && lasVehicleVin.isNotNullOrEmpty) {
+        final response = await _findReservation(lasVehicleVin);
+        existingRefId = response?['reference_id'] ?? "";
+        if (existingRefId.toString().trim().isNotNullOrEmpty) customLinkController.text = "${existingRefId ?? ""}";
+        reservationColor = Str.red.contains(response?['identifier_id'])
+            ?AppC.redAccent
+            :Str.green.contains(response?['identifier_id'])
+            ?AppC.green
+            :AppC.appColor;
+        emit(CommonState());
+      }
+    } catch (e) {
+      _errorCatch(e, emit);
+    }
   }
 
   void _onIdentifierEvent(IdentifierEvent event, Emitter<AddToDoState> emit) {
@@ -378,11 +405,13 @@ mixin AddToDoMixin {
       if (isUserType3 || isUserType5) {
         partsList.clear();
         suppliesList.clear();
+        selectedAddress.clear();
         showParts = showSupplies = false;
         selectedMeetingMode = ToDoConfig.meetingMode.first;
       }
     }
     emit(CommonState());
+    _updateReservation(emit);
   }
 
   void _onRemoveIdentifierEvent(RemoveIdentifierEvent event, Emitter<AddToDoState> emit) {
@@ -409,6 +438,7 @@ mixin AddToDoMixin {
     if (isVehicle) selectedTaskIdentifier[isLeadTask ? 3 : 2] = {};
     if (isVendor) selectedTaskIdentifier[3] = {};
     emit(CommonState());
+    _updateReservation(emit);
   }
 
   void _onPartStatusEvent(PartStatusEvent event, Emitter<AddToDoState> emit) {
@@ -544,6 +574,7 @@ mixin AddToDoMixin {
       }
     }
     emit(CommonState());
+    _updateReservation(emit);
   }
 
   void _onTimeSensitiveEvent(TimeSensitiveEvent event, Emitter<AddToDoState> emit) {

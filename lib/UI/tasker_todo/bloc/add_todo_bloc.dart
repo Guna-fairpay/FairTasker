@@ -99,6 +99,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> with AddToDoMixin {
         Console.of.log(selectedTaskIdentifiers);
       }
       emit(CommonState());
+      _updateReservation(emit);
     } catch (e) {
       _errorCatch(e, emit);
     }

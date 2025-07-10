@@ -6,7 +6,7 @@ class TaskRecurringForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<AddToDoBloc, AddToDoState>(builder: (context, state) => AnimatedCrossFade(firstChild: Column(
-      children: [
+      children: (context.watch<AddToDoBloc>().selectedRecurring['label'].toString().isDoesNotRepeat) ? [] : [
         if (context.watch<AddToDoBloc>().selectedRecurring['label'].toString().isDailyOrWeekly)
           ListTile(
             dense: true,
