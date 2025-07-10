@@ -5,9 +5,11 @@ import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
 import 'package:fairpytasker/Remote/downloader.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
+import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
+import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
@@ -22,6 +24,7 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState>{
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   AutovalidateMode? autoValidateMode;
   DateRange? selectedDateRange;
+  final FBroadcast _broadcast = FBroadcast.instance();
 
   TextEditingController searchController = TextEditingController();
   TextEditingController customerNameController = TextEditingController();
@@ -257,6 +260,8 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState>{
     totalCount = response?['data']?['total'] ?? 0;
     _unFilteredResponse = List.from(apiResponse);
     paginateList(data: _unFilteredResponse, currentPage: currentIndex, itemsPerPage: itemsPerPage);
+    _broadcast.broadcast(Str.addToDoRefresh);
+    _broadcast.broadcast(Str.editToDoRefresh);
   }
 
   void _onEditEvent(EditEvent event, Emitter<LeadsState> emit) async {

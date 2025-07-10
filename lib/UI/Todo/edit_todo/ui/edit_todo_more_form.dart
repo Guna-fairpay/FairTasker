@@ -1,29 +1,4 @@
-import 'package:fairpytasker/Component/custom_searcher_view.dart';
-import 'package:fairpytasker/Component/success_button.dart';
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/Parts/ui/parts_main_ui.dart';
-import 'package:fairpytasker/Component/custom_multi_selection_chips_field.dart';
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/Supplies/UI/supplies_main_ui.dart';
-import 'package:fairpytasker/UI/Todo/edit_todo/Component/ask_date_range_permission_dialog.dart';
-import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
-import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
-import 'package:fairpytasker/Utilities/appC.dart';
-import 'package:fairpytasker/Utilities/num.dart';
-import 'package:fairpytasker/core/app/extension/context_extension.dart';
-import 'package:fairpytasker/Utilities/utils.dart';
-import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
-import 'package:fairpytasker/core/app/extension/sized_extension.dart';
-import 'package:fairpytasker/core/app/extension/string_extension.dart';
-import 'package:fairpytasker/core/app/helper/warning_helper.dart';
-import 'package:flutter/gestures.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../../../Utilities/str.dart';
-import '../../../Vehicle/vehicle_history/vehicle_history_view_ui.dart';
-import '../bloc/edit_todo_bloc.dart';
-import '../bloc/edit_todo_event.dart';
-import '../bloc/edit_todo_state.dart';
+part of 'edit_todo_ui.dart';
 
 class EditTodoMoreForm extends StatelessWidget {
   const EditTodoMoreForm({super.key});
@@ -135,18 +110,21 @@ class EditTodoMoreForm extends StatelessWidget {
           ),
           Row(
             spacing: 10,
-            mainAxisSize: MainAxisSize.min,
+            //mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               GestureDetector(
                 onTap: () =>
                     context.read<EditToDoBloc>().add(EditToDoShowMoreEvent()),
                 child: Utils.getText(
+                  align: TextAlign.start,
                     '${state.isMoreEnable ? "Less" : "More"}...',
                     color: (state.isMoreEnable
                             ? Colors.lightBlue
                             : Colors.lightGreen)
                         .shade800),
               ),
+              if(state.selectedTask['user_type'] != 4)
               Flexible(
                   child: Utils.dropdownBox(
                       'Select',
@@ -160,8 +138,8 @@ class EditTodoMoreForm extends StatelessWidget {
           ),
 
           5.height,
-          if (state.selectedLinkOption != null)
-            Utils.getTextFormField("${state.selectedLinkOption!['label']}",
+          if (state.selectedLinkOption != null && state.selectedTask['user_type'] != 4)
+            Utils.getTextFormField("${state.selectedLinkOption?['label']}",
                 context.read<EditToDoBloc>().customLinkController,
                 inputAction: TextInputAction.done,
                 isDense: true,
@@ -241,7 +219,7 @@ class EditTodoMoreForm extends StatelessWidget {
                 spacing: 5,
                 children: [
                   Utils.getText('General Picture'),
-                  Icon(Icons.remove_red_eye_outlined,size: 16.sp,)
+                  Icon(Icons.remove_red_eye_outlined,size: 16.spMin,)
                 ],
               ),
             ),

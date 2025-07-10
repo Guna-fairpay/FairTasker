@@ -1,7 +1,4 @@
-
-import 'dart:math';
-import 'package:equatable/equatable.dart';
-import 'package:flutter/material.dart';
+part of 'edit_todo_bloc.dart';
 
 class EditTodoState extends Equatable {
   final bool isLoading;
