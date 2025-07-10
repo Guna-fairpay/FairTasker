@@ -110,18 +110,21 @@ class EditTodoMoreForm extends StatelessWidget {
           ),
           Row(
             spacing: 10,
-            mainAxisSize: MainAxisSize.min,
+            //mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               GestureDetector(
                 onTap: () =>
                     context.read<EditToDoBloc>().add(EditToDoShowMoreEvent()),
                 child: Utils.getText(
+                  align: TextAlign.start,
                     '${state.isMoreEnable ? "Less" : "More"}...',
                     color: (state.isMoreEnable
                             ? Colors.lightBlue
                             : Colors.lightGreen)
                         .shade800),
               ),
+              if(state.selectedTask['user_type'] != 4)
               Flexible(
                   child: Utils.dropdownBox(
                       'Select',
@@ -135,8 +138,8 @@ class EditTodoMoreForm extends StatelessWidget {
           ),
 
           5.height,
-          if (state.selectedLinkOption != null)
-            Utils.getTextFormField("${state.selectedLinkOption!['label']}",
+          if (state.selectedLinkOption != null && state.selectedTask['user_type'] != 4)
+            Utils.getTextFormField("${state.selectedLinkOption?['label']}",
                 context.read<EditToDoBloc>().customLinkController,
                 inputAction: TextInputAction.done,
                 isDense: true,

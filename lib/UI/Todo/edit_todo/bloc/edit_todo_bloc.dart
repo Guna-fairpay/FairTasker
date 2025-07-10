@@ -544,10 +544,24 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
 }
 
   Future<void> _onTaskEvent(EditToDoTaskEvent event, Emitter<EditTodoState> emit) async  {
-  showCleanCar = Str.cleanCarCheckIds.contains(event.selectedTask['id']);
-  emit(state.copyWith(
-      selectedTask: event.selectedTask, showCleanCar: showCleanCar));
-}
+    if(state.selectedTask['user_type'] != event.selectedTask['user_type']){
+      selectedLead = null;
+      leadsController.clear();
+      selectedMeetingType = null;
+    }
+    if(event.selectedTask['user_type'] == 3 || event.selectedTask['user_type'] == 5){
+      vLocationController.clear();
+      partsController.clear();
+      suppliesController.clear();
+      emit(state.copyWith(selectedVLocations: {}, selectedParts: [], selectedSupplies: []));
+      if(event.selectedTask['user_type'] == 5){
+        vPersonController.clear();
+        emit(state.copyWith(selectedVPerson: []));
+      }
+    }
+    showCleanCar = Str.cleanCarCheckIds.contains(event.selectedTask['id']);
+    emit(state.copyWith(selectedTask: event.selectedTask, showCleanCar: showCleanCar));
+  }
 
   Future<void> _onShowPartsEvent(EditToDoShowPartsEvent event, Emitter<EditTodoState> emit) async   {
   var currentStatus = state.isPartServiceEnable;
