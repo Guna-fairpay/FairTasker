@@ -200,3 +200,10 @@ class DeleteTodoEvent extends AddToDoEvent {
   @override
   List<Object?> get props => [model];
 }
+
+class DeleteAttachmentEvent extends AddToDoEvent {
+  final dynamic attachment;
+  DeleteAttachmentEvent(this.attachment);
+  @override
+  List<Object?> get props => [attachment];
+}

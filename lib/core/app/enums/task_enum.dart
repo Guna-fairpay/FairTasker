@@ -26,4 +26,12 @@ extension TaskTypeExtensionByInt on int {
         5 => "Meeting",
         _ => "Other"
       };
+  TaskType get type => switch (this) {
+        1 => TaskType.rental,
+        2 => TaskType.rental,
+        3 => TaskType.lead,
+        4 => TaskType.nonRental,
+        5 => TaskType.meeting,
+        _ => TaskType.rental
+  };
   }

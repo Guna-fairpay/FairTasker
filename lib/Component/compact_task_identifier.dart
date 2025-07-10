@@ -1,14 +1,10 @@
-import 'dart:async';
 import 'dart:collection';
-import 'dart:convert';
 
-import 'package:collection/collection.dart';
 import 'package:fairpytasker/Component/custom_text/compact_text.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
-import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -21,6 +17,7 @@ class SegmentedAutocomplete<T extends Object> extends StatefulWidget {
   final void Function(List<T>)? onChanged;
   final String separator;
   final String? hintText;
+  final void Function(String value)? onEmptyTap;
   final List<T>? selectedValues;
 
   const SegmentedAutocomplete({
@@ -34,6 +31,7 @@ class SegmentedAutocomplete<T extends Object> extends StatefulWidget {
     this.hintText,
     this.separator = '-',
     this.selectedValues,
+    this.onEmptyTap
   });
 
   @override
@@ -45,7 +43,7 @@ class _SegmentedAutocompleteState<T extends Object> extends State<SegmentedAutoc
   final FocusNode _focusNode = FocusNode();
 
   late List<T> selectedItems;
-  Timer? _debounce;
+  bool _isFirstSegmentInvalid = false;
 
   @override
   void initState() {
@@ -143,25 +141,28 @@ class _SegmentedAutocompleteState<T extends Object> extends State<SegmentedAutoc
         onTapOutside: (event) => _focusNode.unfocus(),
         style: context.textTheme.labelLarge,
         onChanged: (_) {
-          final parts = controller.text.split(widget.separator);
-          final newSelectedItems = <T>[];
-          for (int i = 0; i < parts.length; i++) {
-            final segment = parts[i].trim();
-            if (segment.isEmpty || i >= widget.segmentedSuggestions.length) continue;
-            final match = widget.segmentedSuggestions[i].firstWhereOrNull(
-                  (item) => widget.itemAsString(item) == segment,
-            );
-            if (match != null) newSelectedItems.add(match as T);
-          }
+          // final parts = controller.text.split(widget.separator);
+          // final newSelectedItems = <T>[];
+          // for (int i = 0; i < parts.length; i++) {
+          //   final segment = parts[i].trim();
+          //   if (segment.isEmpty || i >= widget.segmentedSuggestions.length) continue;
+          //   final match = widget.segmentedSuggestions[i].firstWhereOrNull(
+          //         (item) => widget.itemAsString(item) == segment,
+          //   );
+          //   if (match != null) newSelectedItems.add(match);
+          // }
 
           // Emit only when a previously selected item was removed (i.e. fewer items now)
-          if (newSelectedItems.length < selectedItems.where((element) => (element as Map).isNotEmpty).length) {
-            selectedItems = newSelectedItems;
-            // _debounce?.cancel();
-            // _debounce = Timer(Durations.extralong4, () => widget.onChanged?.call(selectedItems));
-          } else {
-            selectedItems = newSelectedItems;
-          }
+          // if (newSelectedItems.length < selectedItems.where((element) => (element as Map).isNotEmpty).length) {
+          //   selectedItems = newSelectedItems;
+          //   // _debounce?.cancel();
+          //   // _debounce = Timer(Durations.extralong4, () => widget.onChanged?.call(selectedItems));
+          // } else {
+          //   selectedItems = newSelectedItems;
+          // }
+          setState(() {
+            _isFirstSegmentInvalid = _computeIsFirstSegmentInvalid();
+          });
         },
         decoration: (widget.decoration ?? const InputDecoration(hintText: 'Enter segmented values')).copyWith(
           isDense: true,
@@ -169,6 +170,16 @@ class _SegmentedAutocompleteState<T extends Object> extends State<SegmentedAutoc
           enabledBorder: border,
           hintText: widget.hintText ?? "Task Identifier",
           hintStyle: context.textTheme.labelMedium?.copyWith(color: context.theme.hintColor),
+          suffixIconConstraints: const BoxConstraints(),
+          suffixIcon: _isFirstSegmentInvalid
+            ? IconButton(onPressed: () => widget.onEmptyTap?.call(_controller.text), icon: const Icon(Icons.add), color: AppC.appColor,
+            style: ButtonStyle(
+            backgroundColor: WidgetStatePropertyAll(AppC.blue50),
+            shape: WidgetStatePropertyAll(ContinuousRectangleBorder(
+              borderRadius: BorderRadiusGeometry.horizontal(left: Radius.circular(5.spMin)),
+              side: BorderSide.none
+            ))
+          ),) : null,
           contentPadding: 10.spMin.padding
         ),
       ),
@@ -217,5 +228,19 @@ class _SegmentedAutocompleteState<T extends Object> extends State<SegmentedAutoc
         ))
       ];
     }).toList();
+  }
+
+  bool _computeIsFirstSegmentInvalid() {
+    if (_controller.text.isEmpty || widget.segmentedSuggestions.isEmpty) return false;
+    final parts = _controller.text.split(widget.separator);
+    if (parts.isEmpty) return false;
+
+    final firstSegment = parts[0].trim();
+    if (firstSegment.isEmpty) return false;
+
+    final match = widget.segmentedSuggestions[0].any(
+          (item) => widget.itemAsString(item).toLowerCase().contains(firstSegment.toLowerCase()),
+    );
+    return !match;
   }
 }

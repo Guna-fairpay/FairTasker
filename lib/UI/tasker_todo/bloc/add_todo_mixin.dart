@@ -98,6 +98,7 @@ mixin AddToDoMixin {
   bool get hasCleanCar => Str.cleanCarCheckIds.contains(selectedTaskIdentifier[1]?['id'] ?? 0);
   bool get hasOilChange => Str.oilChangeCheckIds.contains(selectedTaskIdentifier[1]?['id'] ?? 0);
   bool get hasVehicle => (_selectedVPerson?.isNotEmpty ?? false) && (["vehicles", "g_vehicles", "vehicle", "group_vehicle"].contains(_selectedVPerson?['type']));
+  bool get hasPerson => (_selectedVPerson?.isNotEmpty ?? false) && (["person"].contains(_selectedVPerson?['type']));
   bool get showReservation => (selectedCustom.isNotEmpty) && (!isNextTask);
   bool get hasAddress => showMore && selectedTaskIdentifier[3]?['type'] == "location";
   bool get isVehicleRequired => isCleanCar || hasCleanCar || hasOilChange;
@@ -125,49 +126,31 @@ mixin AddToDoMixin {
   }
 
   Map<String, String> _addTodoBody() {
+    final taskName = taskNameController.text;
+    final selectedName = selectedTaskIdentifier[1]?['name'];
+    final selectedId = selectedTaskIdentifier[1]?['id'];
+    final recurringLabel = selectedRecurring['label'].toString();
+    final isEnquiryNotEmpty = enquiryController.document.toPlainText().trim().isNotNullOrEmpty;
+    final hasLead = selectedTaskIdentifier[2]?['type'] == "lead";
+    final hasMeetingMode = isMeeting && (selectedMeetingMode['id'] != 0);
+    final task = selectedTaskIdentifier[1];
+    final isUserType3 = task?['user_type_id'] == 3;
+    final isUserType5 = task?['user_type_id'] == 5;
     var baseBody = _cleanCarBody();
     baseBody['title'] = taskNameController.text;
-    baseBody['identifier_id'] = ((taskNameController.text.isNotEmpty) &&
-        (selectedTaskIdentifier[1]?['name'] ==
-            taskNameController.text))
-        ? "${selectedTaskIdentifier[1]?['id'] ?? ""}"
-        : "";
-    baseBody['repeatPeriod'] =
-        ((selectedRecurring['label'].toString().isDoesNotRepeat == false)
-            ? (selectedRecurring['label'].toString().toLowerCase())
-            : "");
-    baseBody['repeatDay'] =
-    (selectedRecurring['label'].toString().isDaily)
-        ? recurringEveryDayWeekController.text
-        : "";
-    baseBody['repeatWeek'] =
-    (selectedRecurring['label'].toString().isWeekly)
-        ? recurringEveryDayWeekController.text
-        : "";
-    baseBody['weekDay'] =
-    (selectedRecurring['label'].toString().isWeekly)
-        ? "${selectedRecurringDays.map((e) => jsonEncode(e.toString().toLowerCase())).toList()}"
-        : "";
+    baseBody['identifier_id'] = (taskName.isNotEmpty && selectedName == taskName) ? "$selectedId" : "";
+    baseBody['repeatPeriod'] = ((recurringLabel.isDoesNotRepeat == false) ? recurringLabel.toLowerCase() : "");
+    baseBody['repeatDay'] = (recurringLabel.isDaily) ? recurringEveryDayWeekController.text : "";
+    baseBody['repeatWeek'] = (recurringLabel.isWeekly) ? recurringEveryDayWeekController.text : "";
+    baseBody['weekDay'] = (recurringLabel.isWeekly) ? "${selectedRecurringDays.map((e) => jsonEncode(e.toString().toLowerCase())).toList()}" : "";
     baseBody['recur_monthly_type'] = "$isRecurringMonthOccurrence";
-    baseBody['repeatDateMonth'] = isRecurringMonthOccurrence
-        ? recurringMonthDateController.text
-        : "";
-    baseBody['repeatMonth'] = !isRecurringMonthOccurrence
-        ? recurringMonthDateController.text
-        : "";
-    baseBody['repeatDayMonth'] = !isRecurringMonthOccurrence
-        ? recurringMonthMonthController.text
-        : "";
-    baseBody['repeatDateYear'] =
-    (selectedRecurring['label'].toString().isYearly)
-        ? recurringYearDateController.text
-        : "";
-    baseBody['repeatMonthYear'] =
-        recurringYearlySelectedMonth?['month'].toString() ?? "";
+    baseBody['repeatDateMonth'] = isRecurringMonthOccurrence ? recurringMonthDateController.text : "";
+    baseBody['repeatMonth'] = !isRecurringMonthOccurrence ? recurringMonthDateController.text : "";
+    baseBody['repeatDayMonth'] = !isRecurringMonthOccurrence ? recurringMonthMonthController.text : "";
+    baseBody['repeatDateYear'] = (recurringLabel.isYearly) ? recurringYearDateController.text : "";
+    baseBody['repeatMonthYear'] = recurringYearlySelectedMonth?['month'].toString() ?? "";
     baseBody['end_type'] = "$isRecurringEndDate";
-    baseBody['end_after'] = (!isRecurringEndDate)
-        ? (recurringNoOccurrenceController.text)
-        : "";
+    baseBody['end_after'] = (!isRecurringEndDate) ? (recurringNoOccurrenceController.text) : "";
     baseBody['end_at'] = selectedRecurringEndDate.toFormat() ?? "";
     baseBody['todo_time'] = selectedTime.toHMS().toString();
     baseBody['platform_check'] = "${isPlatformCheck ? 1 : 0}";
@@ -176,33 +159,38 @@ mixin AddToDoMixin {
     baseBody['mileage'] = "";
     baseBody['resolution_notes'] = "";
     baseBody['custom_link_id'] = "${selectedCustom['id'] ?? ""}";
-    baseBody['custom_link'] =
-    (selectedCustom['id'] == 1) ? customLinkController.text : "";
-    baseBody['reference_id'] =
-    (selectedCustom['id'] != 1) ? customLinkController.text : "";
-    if (baseBody['identifier_id'].toString().contains("358")) {
-      if (enquiryController.document.toPlainText().trim().isNotNullOrEmpty) {
-        baseBody['rental_enquiry'] = QuillDeltaToHtmlConverter(enquiryController.document.toDelta().toJson(), ConverterOptions.forEmail()).convert();
-      }
+    baseBody['custom_link'] = (selectedCustom['id'] == 1) ? customLinkController.text : "";
+    baseBody['reference_id'] = (selectedCustom['id'] != 1) ? customLinkController.text : "";
+    if (baseBody['identifier_id'].toString().contains("358") && isEnquiryNotEmpty) {
+      baseBody['rental_enquiry'] = QuillDeltaToHtmlConverter(enquiryController.document.toDelta().toJson(), ConverterOptions.forEmail()).convert();
     }
+    baseBody['lead_id'] = hasLead ? selectedLead['id'].toString() : "";
+    baseBody['channel_id'] = "";
+    baseBody['meeting_mode'] = hasMeetingMode ? selectedMeetingMode['name'].toString().toLowerCase() : "";
+    baseBody['rental_booking_id'] = "";
+    baseBody['rental_booking_no'] = "";
+    if (isUserType3 || isUserType5) {
+      baseBody['parts'] = "";
+      baseBody['supplies'] = "";
+      baseBody['rental_booking_id'] = "";
+      baseBody['rental_booking_no'] = "";
+    }
+    if (!isUserType3) baseBody['lead_id'] = "";
+    if (!isUserType5) baseBody['meeting_mode'] = "";
     return baseBody;
   }
 
   Map<String, String> _cleanCarBody() {
-    var location = (selectedTaskIdentifier[3]?['type'] == "location")
-        ? selectedTaskIdentifier[3]
-        : null;
-    var vendor = (selectedTaskIdentifier[3]?['type'] == "vendor")
-        ? selectedTaskIdentifier[3]
-        : null;
-    var person = (selectedTaskIdentifier[2]?['type'] == "person")
-        ? selectedTaskIdentifier[2]
-        : null;
-    var vehicleGroup =
-    (selectedTaskIdentifier[2]?['type'] == "g_vehicles")
-        ? selectedTaskIdentifier[2]
-        : null;
-    var isAdd = selectedTaskIdentifier[1]?['id'] == 210;
+    final type = selectedTaskIdentifier[3]?['type'];
+    final isLocation = (type == "location");
+    final isVendor = (type == "vendor");
+    final isPerson = (type == "person");
+    final isGroupVehicles = (type == "g_vehicles");
+    final location = isLocation ? selectedTaskIdentifier[3] : null;
+    final vendor = isVendor ? selectedTaskIdentifier[3] : null;
+    final person = isPerson ? selectedTaskIdentifier[2] : null;
+    final vehicleGroup = isGroupVehicles ? selectedTaskIdentifier[2] : null;
+    final isAdd = selectedTaskIdentifier[1]?['id'] == 210;
     var date = selectedDate;
     var timeAt = selectedTime.toDateTime;
     var timeDay = selectedTime;
@@ -289,87 +277,103 @@ mixin AddToDoMixin {
   }
 
   void _onIdentifierEvent(IdentifierEvent event, Emitter<AddToDoState> emit) {
-    if (event.identifier is Map) {
-      selectedTaskIdentifier = event.identifier;
-      for (var element in selectedTaskIdentifier.entries) {
-        switch(element.key) {
-          case 1: { taskNameController.text = element.value['name'] ?? ""; } break;
-          case 2: {
-            if (element.value.isNotEmpty ?? false) {
-              selectedVPerson.add(element.value);
-            }
-            selectedVPerson = selectedVPerson.unique((element) => element['id']);
-          } break;
-        }
-      }
-    } else if (event.identifier is List) {
+    if (event.identifier is List) {
       selectedTaskIdentifiers = event.identifier;
       final result = selectedTaskIdentifiers.fold<Map<int, Map<String, dynamic>>>({}, (map, e) {
         if (e['type'] == 'task') {
           map[1] = e;
-        } else if (['lead', "vehicle", "person", "group_vehicle"].contains(e['type'])) {
-          map[(e['type'] == "lead") ? 2 : (isLeadTask) ? 3 : 2] = e;
-        } else if (["vendor", "location"].contains(e['type'])) {
+          taskType = e['user_type_id'].toString().toNumeric.toInt().type;
+        } if (['lead'].contains(e['type'])) {
+          map[2] = e;
+        } if (["vehicles", "person", "g_vehicles"].contains(e['type'])) {
           map[3] = e;
+        } if (["vendor", "location"].contains(e['type'])) {
+          map[4] = e;
         }
         return map;
       });
-      selectedTaskIdentifier = selectedTaskIdentifiers.isEmpty ? {
+      Map<int, Map<String, dynamic>> optional = {};
+      Map<int, Map<String, dynamic>> optional2 = {
         1 : {},
         2 : {},
         3 : {}
-      } : {
-        1 : result[1] ?? {},
-        2 : result[2] ?? (selectedTaskIdentifier[2] ?? {}),
-        3 : result[3] ?? (selectedTaskIdentifier[3] ?? {}),
       };
-      for (var element in selectedTaskIdentifier.entries) {
-        switch(element.key) {
+      if (!result.containsKey(1)) result[1] = {};
+      if (!result.containsKey(2)) result[2] = {};
+      if (!result.containsKey(3)) result[3] = {};
+      if (!result.containsKey(4)) result[4] = {};
+      for (var element in result.entries) {
+        final key = element.key;
+        final value = element.value;
+        switch(key) {
           case 1: {
-            taskType = switch(element.value['user_type_id']) {
-              1 => TaskType.rental,
-              2 => TaskType.rental,
-              3 => TaskType.lead,
-              4 => TaskType.nonRental,
-              5 => TaskType.meeting,
-              _ => TaskType.rental,
-            };
-            taskNameController.text = element.value['name'] ?? "";
+            optional[1] = value;
           } break;
           case 2: {
-            if (element.value.isEmpty) {
-              selectedVPerson.clear();
-              selectedLead.clear();
-            }
-            if ((element.value.isNotEmpty) && (element.value['type'] != "lead")) selectedVPerson.add(element.value);
-            if (element.value['type'] == "lead") selectedLead = element.value?['value'];
-            selectedVPerson = selectedVPerson.unique((element) => element['id']);
+            final result = taskIdentifierList.expand((element) => element).firstWhereOrNull((element) => (element['id'] == selectedLead['id']) && (["lead"].contains(element['type']))) ?? {};
+            optional[2] = (value.isEmpty) ? result : value;
           } break;
           case 3: {
-            if (element.value.isEmpty) {
-              selectedTaskIdentifier[3] = {};
-              if (isLeadTask) {
-                selectedLead.clear();
-                selectedVPerson.clear();
-              }
+            if (selectedVPerson.isNotEmpty) {
+              final last = selectedVPerson.last;
+              optional[3] = taskIdentifierList.expand((element) => element).firstWhereOrNull((element) => (element['id'] == last['id']) && (["vehicles", "g_vehicles", "person"].contains(element['type']))) ?? {};
+            } else {
+              optional[3] = value;
             }
-            if (["vehicle", "person", "group_vehicle"].contains(element.value['type'])) {
-              selectedVPerson.add(element.value);
-              selectedVPerson = selectedVPerson.unique((element) => element['id']);
-            }
+          } break;
+          case 4: {
+            final hasVendor = ["vendor", "location"].contains(selectedTaskIdentifier[3]?['type']);
+            final vendorLoc = selectedTaskIdentifier[3];
+            optional[4] = (value.isEmpty && hasVendor) ? (vendorLoc ?? {}) : value;
           } break;
         }
       }
-    }
-    if (isMeeting || isLeadTask) selectedTaskIdentifier.removeWhere((key, value) => [2,3].contains(key));
-    if (isLeadTask) {
-      if (selectedLead.isNotEmpty) {
-        selectedTaskIdentifier[2] = taskIdentifierList.expand((element) => element).firstWhereOrNull((element) => element['id'] == selectedLead['id'] && element['type'] == "lead") ?? {};
+
+      final task = optional[1];
+      final lead = optional[2];
+      final vehicle = optional[3];
+      final vendorLoc = optional[4];
+
+      final isUserType3 = task?['user_type_id'] == 3;
+      final isUserType5 = task?['user_type_id'] == 5;
+
+      optional2[1] = task ?? {};
+
+      if (isUserType3) {
+        optional2[2] = lead ?? {};
+        optional2[3] = vehicle ?? {};
+      } else {
+        optional2[2] = vehicle ?? {};
+        optional2[3] = vendorLoc ?? {};
       }
-      if (selectedVPerson.isNotEmpty) {
-        final last = selectedVPerson.lastOrNull;
-        var result = taskIdentifierList.expand((element) => element).firstWhereOrNull((element) => (element['id'] == last?['id']) && (["vehicle", "group_vehicle", "person", "lead"].contains(element['type'])));
-        selectedTaskIdentifier[3] = result ?? {};
+
+      selectedTaskIdentifier = optional2;
+
+      if (isUserType3 || isUserType5) selectedTaskIdentifier.removeWhere((key, value) => [2, 3].contains(key));
+
+      if (task != null) taskNameController.text = task['name'] ?? "";
+      if (isUserType3) {
+        if (lead?.isNotEmpty ?? false) selectedLead = lead?['value'] ?? {};
+        if (vehicle != null && (vehicle.isNotEmpty)) selectedVPerson.add(vehicle);
+        selectedTaskIdentifier[2] = lead ?? {};
+        selectedTaskIdentifier[3] = vehicle ?? {};
+      } else {
+        selectedLead.clear();
+        if (vehicle != null) selectedVPerson.add(vehicle);
+        selectedTaskIdentifier[2] = vehicle ?? {};
+        selectedTaskIdentifier[3] = vendorLoc ?? {};
+      }
+      if (isUserType5) {
+        selectedLead.clear();
+        selectedVPerson.clear();
+        selectedTaskIdentifier.removeWhere((key, value) => [2, 3].contains(key));
+      }
+      selectedVPerson = selectedVPerson.unique((element) => element['id']);
+
+      if (isUserType3 || isUserType5) {
+        partsList.clear();
+        suppliesList.clear();
+        showParts = showSupplies = false;
       }
     }
     emit(CommonState());
@@ -460,26 +464,50 @@ mixin AddToDoMixin {
 
   void _onVendorLocationEvent(VendorLocationEvent event, Emitter<AddToDoState> emit) {
     selectedTaskIdentifier[3] = event.vendorLocation;
-    var result = taskIdentifierList.expand((element) => element).firstWhereOrNull((element) => (element['id'] == event.vendorLocation['id']) && (["vendor", "location"].contains(element['type'])));
-    if (result != null) {
-      if (selectedTaskIdentifiers.isEmpty) while (selectedTaskIdentifiers.length <= 2) { selectedTaskIdentifiers.add({}); }
-      selectedTaskIdentifiers[0] = selectedTaskIdentifiers[0] ?? {};
-      selectedTaskIdentifiers[1] = selectedTaskIdentifiers[1] ?? {};
-      selectedTaskIdentifiers[2] = result;
+    final task = selectedTaskIdentifier[1];
+    final isUserType5 = task?['user_type_id'] == 5; // MEETING
+    if ((task != null) && isUserType5) {
+      selectedTaskIdentifier.removeWhere((key, value) => [2, 3].contains(key));
+      selectedVPerson.clear();
     }
+    var result = taskIdentifierList.expand((element) => element).firstWhereOrNull((element) => (element['id'] == event.vendorLocation['id']) && (["vendor", "location"].contains(element['type'])));
+    selectedTaskIdentifier[3] = result ?? {};
     emit(CommonState());
   }
 
   void _onVehiclePersonEvent(VehiclePersonEvent event, Emitter<AddToDoState> emit) {
     selectedVPerson = event.vehiclePerson;
-    if (selectedVPerson.isNotEmpty) {
-      final last = selectedVPerson.lastOrNull;
-      Console.of.log(last?['id'], name: "LAST_V");
-      var result = taskIdentifierList.expand((element) => element).firstWhereOrNull((element) => (element['id'] == last?['id']) && (["vehicle", "group_vehicle", "person"].contains(element['type'])));
-      Console.of.log(last?['id'], name: "LAST_V");
-      selectedTaskIdentifier[isLeadTask ? 3 : 2] = result ?? {};
+    final task = selectedTaskIdentifier[1];
+    final isUserType3 = task?['user_type_id'] == 3; // LEAD
+    final isUserType5 = task?['user_type_id'] == 5; // MEETING
+    if (task != null) {
+      if (selectedVPerson.isEmpty) {
+        if (isUserType3) {
+          selectedTaskIdentifier[3]?.clear();
+        } else {
+          selectedTaskIdentifier[2]?.clear();
+        }
+      } else {
+        final last = selectedVPerson.lastOrNull;
+        var result = taskIdentifierList.expand((element) => element).firstWhereOrNull((element) => (element['id'] == last?['id']) && (["vehicle", "group_vehicle", "person", "vehicles", "person"].contains(element['type'])));
+        if (isUserType3) {
+          selectedTaskIdentifier[3] = result ?? {};
+        } else {
+          selectedTaskIdentifier[2] = result ?? {};
+        }
+      }
+      if (isUserType5) {
+        selectedTaskIdentifier.removeWhere((key, value) => [2, 3].contains(key));
+        selectedVPerson.clear();
+      }
     } else {
-      selectedTaskIdentifier[isLeadTask ? 3 : 2] = {};
+      if (selectedVPerson.isEmpty) {
+        selectedTaskIdentifier[2]?.clear();
+      } else {
+        final last = selectedVPerson.lastOrNull;
+        var result = taskIdentifierList.expand((element) => element).firstWhereOrNull((element) => (element['id'] == last?['id']) && (["vehicle", "group_vehicle", "person", "vehicles", "person"].contains(element['type'])));
+        selectedTaskIdentifier[2] = result ?? {};
+      }
     }
     emit(CommonState());
   }
@@ -490,6 +518,7 @@ mixin AddToDoMixin {
   }
 
   void _onViewAttachmentEvent(ViewAttachmentEvent event, Emitter<AddToDoState> emit) {
+    if (attachments.isNotEmpty) return emit(ViewAttachmentState(attachments));
   }
 
   void _onAddAttachmentEvent(AddAttachmentEvent event, Emitter<AddToDoState> emit) async {
@@ -599,5 +628,10 @@ mixin AddToDoMixin {
         if (recurringYearlySelectedMonth == null) return emit(ErrorState("Occurrence Month is required"));
       }
     }
+  }
+
+  void _onDeleteAttachmentEvent(DeleteAttachmentEvent event, Emitter<AddToDoState> emit) {
+    attachments.remove(event.attachment);
+    emit(CommonState());
   }
 }

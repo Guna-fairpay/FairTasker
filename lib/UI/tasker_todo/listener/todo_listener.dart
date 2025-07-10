@@ -17,6 +17,7 @@ void _listenNavigation(BuildContext context, AddToDoState state) async {
         final result = await OilChangeTaskExistDialog.show(context, model: state.model);
         if (result ?? false) context.read<AddToDoBloc>().add(DeleteTodoEvent(state.model));
       } break;
+      case ViewAttachmentState(): ShowAttachmentsDialog.of.show(context, attachments: state.model, title: "Add ToDo", onDeleted: (value) => context.read<AddToDoBloc>().add(DeleteAttachmentEvent(value))); break;
     }
   }
 }

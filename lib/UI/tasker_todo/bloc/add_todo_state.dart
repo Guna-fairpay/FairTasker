@@ -62,3 +62,10 @@ class OilChangeTaskExistState extends AddToDoState {
 }
 
 class CompletedState extends AddToDoState {}
+
+class ViewAttachmentState extends AddToDoState {
+  final dynamic model;
+  ViewAttachmentState(this.model);
+  @override
+  List<Object?> get props => [model, Random().nextDouble()];
+}

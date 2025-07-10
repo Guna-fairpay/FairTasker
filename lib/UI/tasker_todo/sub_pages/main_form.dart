@@ -10,10 +10,10 @@ class MainForm extends StatelessWidget {
       children: [
         SegmentedAutocomplete<Map<String, dynamic>>(
             segmentedSuggestions: context.watch<AddToDoBloc>().taskIdentifierList,
-            itemAsString: (option) => (option.containsKey("subname")) ? "${option['name']} (${option['subname']})" : option['name'],
+            itemAsString: (option) => (option?.containsKey("subname") ?? false) ? "${option?['name'] ?? ""} (${option?['subname'] ?? ""})" : (option?['name'] ?? ""),
             itemAsStringTitle: (option) => option?['name'] ?? "",
             itemAsSearchString: (option) => option?['searchBy'] ?? [],
-            selectedValues: List<Map<String, dynamic>>.from(context.watch<AddToDoBloc>().selectedTaskIdentifier.values.toList()),
+            selectedValues: List<Map<String, dynamic>>.from(context.watch<AddToDoBloc>().selectedTaskIdentifier.values),
             onChanged: (val) => context.read<AddToDoBloc>().add(IdentifierEvent(val)),
         ),
         CompactTextField(hintText: "Task Name", controller: context.read<AddToDoBloc>().taskNameController,
@@ -34,6 +34,7 @@ class MainForm extends StatelessWidget {
           selected: context.watch<AddToDoBloc>().selectedLead,
           labelText: "Lead/Channel",
           onSelected: (value) => context.read<AddToDoBloc>().add(LeadEvent(value)),
+          onEmptyTapDetails: (details) => context.push(LeadsMainUI(customerName: context.read<AddToDoBloc>().leadController.text)),
         ),
         if (!context.watch<AddToDoBloc>().isMeeting)
         CustomVehiclePersonField(

@@ -68,7 +68,8 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> with AddToDoMixin {
     on<AddressEvent>(_onAddressEvent); /// ADDRESS EVENT
     on<CleanCarEvent>(_onCleanCarEvent); /// CLEAN CAR EVENT
     on<ReassignEvent>(_onReassignEvent); /// REASSIGN EVENT
-    on<DeleteTodoEvent>(_onDeleteTodoEvent); /// DELETE TODO EVENT
+    on<DeleteTodoEvent>(_onDeleteTodoEvent); /// DELETE TODO_EVENT
+    on<DeleteAttachmentEvent>(_onDeleteAttachmentEvent); /// DELETE ATTACHMENT EVENT
     on<SubmitEvent>(_onSubmitEvent); /// SUBMIT EVENT
   }
 

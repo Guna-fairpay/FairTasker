@@ -139,7 +139,7 @@ class CustomSearchDataConverter {
       "name" : e['vehicle_name'],
       "subname" : (e['vehicle_number'] ?? ""),
       "searchBy" : [e['vehicle_name'], e['vin'], e['vehicle_number']],
-      "type" : "vehicle",
+      "type" : "vehicles",
       "value" : e
     }).toList();
     var resource = resources?.map((e) => {
@@ -153,7 +153,7 @@ class CustomSearchDataConverter {
       "id" : e['id'],
       "name" : e['name'],
       "searchBy" : [e['name']],
-      "type" : "group_vehicle",
+      "type" : "g_vehicles",
       "value" : e
     }).toList();
     var vendor = vendors?.map((e) => {

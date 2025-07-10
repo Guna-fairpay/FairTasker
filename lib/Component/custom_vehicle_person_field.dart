@@ -136,7 +136,7 @@ class CustomVehiclePersonField extends StatelessWidget {
                       SimplePopUpMenu.instance.show(
                         context,
                         position: details.globalPosition,
-                        items: ["Vehicle", "Person", "Leads"],
+                        items: ["Vehicle", "Person"],
                         onTap: (item) async {
                           if (onEmptyAsync != null) {
                             onEmptyAsync?.call();
@@ -144,7 +144,6 @@ class CustomVehiclePersonField extends StatelessWidget {
                           }
                           context.push(switch(item) {
                             "Person" => const EmployeeMainPage(),
-                            "Leads" => LeadsMainUI(customerName: controller?.text ?? ""),
                             _ => const VehicleMainViewUi(),
                           });
                         },
