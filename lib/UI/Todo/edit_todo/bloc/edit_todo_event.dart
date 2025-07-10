@@ -1,7 +1,4 @@
-
-import 'dart:math';
-import 'package:equatable/equatable.dart';
-import 'package:flutter/material.dart';
+part of 'edit_todo_bloc.dart';
 
 abstract class EditToDoEvent extends Equatable {
   @override
@@ -308,5 +305,12 @@ class EditToDoMeetingTypeEvent extends EditToDoEvent {
   EditToDoMeetingTypeEvent(this.meetingType);
   @override
   List<Object?> get props => [meetingType];
+}
+
+class LeadsEvent extends EditToDoEvent {
+  final dynamic leads;
+  LeadsEvent(this.leads);
+  @override
+  List<Object?> get props => [leads];
 }
 

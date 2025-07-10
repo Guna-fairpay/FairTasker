@@ -1,32 +1,4 @@
-
-import 'package:fairpytasker/Component/custom_quill_editor.dart';
-import 'package:fairpytasker/Component/custom_searcher_view.dart';
-import 'package:fairpytasker/Component/custom_vehicle_person_field.dart';
-import 'package:fairpytasker/Component/custom_vendor_location_field.dart';
-import 'package:fairpytasker/Component/page_keep_aliver.dart';
-import 'package:fairpytasker/Component/custom_checkbox.dart';
-import 'package:fairpytasker/Component/success_button.dart';
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/Task/UI/task_main_page.dart';
-import 'package:fairpytasker/UI/Todo/edit_todo/Component/ask_date_range_permission_dialog.dart';
-import 'package:fairpytasker/UI/Todo/edit_todo/Component/resource_popup.dart';
-import 'package:fairpytasker/UI/Todo/edit_todo/ui/edit_todo_update_button.dart';
-import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
-import 'package:fairpytasker/Utilities/appC.dart';
-import 'package:fairpytasker/Utilities/utils.dart';
-import 'package:fairpytasker/core/app/extension/context_extension.dart';
-import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
-import 'package:fairpytasker/core/app/extension/sized_extension.dart';
-import 'package:fairpytasker/core/app/helper/warning_helper.dart';
-import 'package:fairpytasker/core/initializer/common_initializer.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../../../Component/custom_date_time_picker.dart';
-import '../bloc/edit_todo_bloc.dart';
-import '../bloc/edit_todo_event.dart';
-import '../bloc/edit_todo_state.dart';
-import 'edit_todo_bottom_tabs.dart';
-import 'edit_todo_more_form.dart';
+part of'edit_todo_ui.dart';
 
 class EditTodoBody extends StatelessWidget {
   const EditTodoBody({super.key});
@@ -35,8 +7,8 @@ class EditTodoBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<EditToDoBloc, EditTodoState>(
         builder: (context, state) => Form(
-                child: ListView(
-                  shrinkWrap: true,
+            child: ListView(
+              shrinkWrap: true, 
               physics: const BouncingScrollPhysics(),
               children: [
                 Row(
@@ -46,9 +18,8 @@ class EditTodoBody extends StatelessWidget {
                   children: [
                     CustomDateTimePicker<DateTime>(
                       controller: context.read<EditToDoBloc>().dateController,
-                      format: "MM-dd-yyyy",
-                      suffixIcon: Icon(Icons.calendar_month_rounded,
-                          size: 15, color: context.theme.hintColor),
+                      format: "MM-dd-yyyy", 
+                      suffixIcon: Icon(Icons.calendar_month_rounded, size: 15.spMin, color: context.theme.hintColor),
                       textAlign: TextAlign.center,
                       value: state.selectedDate,
                       onChanged: (value) => context.read<EditToDoBloc>().add(EditToDoDateChangeEvent(value)),
@@ -59,7 +30,7 @@ class EditTodoBody extends StatelessWidget {
                       value: state.selectedTime,
                       use24HourFormat: true,
                       format: "HH:mm",
-                      suffixIcon: Icon(Icons.access_time_rounded, size: 15, color: context.theme.hintColor),
+                      suffixIcon: Icon(Icons.access_time_rounded, size: 15.spMin, color: context.theme.hintColor),
                       onChanged: (value) => context.read<EditToDoBloc>().add(EditToDoTimeChangeEvent(value)),
                     ),
                     Expanded(
@@ -77,16 +48,14 @@ class EditTodoBody extends StatelessWidget {
                       children: [
                         GestureDetector(
                           onTapDown:  (getIt<CommonService>().departmentId == 9) ? null : (TapDownDetails details) {
-                           ResourceSelection.showResourceSelection(
-                              context,
-                              details,
-                              state.resources,
-                              state.selectedResource,
-                              (value, name) => context.read<EditToDoBloc>().add(
-                                UserSelectionEvent(selectedResource: value, resourceName: name),
+                            ResourceSelection.showResourceSelection(
+                              context:  context,
+                              details:  details,
+                              resourceList:  state.resources,
+                              selectedValues:  state.selectedResource,
+                              onSelectionChanged: (value, name) => context.read<EditToDoBloc>().add(UserSelectionEvent(selectedResource: value, resourceName: name),
                               ),
-                            );
-                          },
+                            );},
                           child: Utils.getText(
                               state.resourceName.length > 1
                                   ? state.resourceName.join(',\n')
@@ -114,96 +83,106 @@ class EditTodoBody extends StatelessWidget {
                   hintText: "Select Task",
                 ),
                 10.height,
-                if(!["Check In", "Check Out"].contains(state.apiResponse['title']) && state.selectedTask['id'] != 80)
-                  ...[
-                    CustomVehiclePersonField(
-                      vehiclesList: context.watch<EditToDoBloc>().vehicles,
-                      personsList: context.watch<EditToDoBloc>().persons,
-                      groupVehicles: context.watch<EditToDoBloc>().groupVehicleList,
-                      selected: state.selectedVPerson,
-                      onDeleted: (val)=> context.read<EditToDoBloc>().add(EditToDoDeleteVehicleEvent(data: val)),
-                      //onDeleted: (val)=> context.read<EditToDoBloc>().add(EditToDoDeleteVehicleEvent(vehicleId: val?['value']?['vin'])),
-                      onSelected: (val) => context
-                          .read<EditToDoBloc>()
-                          .add(EditToDoVPersonEvent(val)),
-                      controller: context.read<EditToDoBloc>().vPersonController,
-
-                    ),
-                    10.height,
-                    CustomVendorLocationField(
-                      vendorsList: context.watch<EditToDoBloc>().vendor,
-                      locationsList: context.watch<EditToDoBloc>().location,
-                      selected: {3: state.selectedVLocations},
-                      onSelected: (val) => context
-                          .read<EditToDoBloc>()
-                          .add(EditToDoVLocationEvent(val)),
-                      controller: context.read<EditToDoBloc>().vLocationController,
-                    ),
-                    10.height,
-                  ],
-               if(state.selectedTask['id'] == 80)...[
-                 Utils.dropdownBox(
-                    'Select Mode',
-                    context.read<EditToDoBloc>().meetingType,
-                    (value) => context.read<EditToDoBloc>().add(EditToDoMeetingTypeEvent(value)),
-                    initialSelection: context.watch<EditToDoBloc>().selectedMeetingType,
-                    labelKey: 'name'),
-                 10.height,
-               ],
-                Utils.getTextFormField(
-                    'Notes', context.read<EditToDoBloc>().notesController,
-                    isDense: true,
-                    contentPadding: 10.padding,
-                    labelStyle: context.textTheme.labelMedium
-                        ?.copyWith(color: context.theme.hintColor),
-                    style: context.textTheme.labelLarge
-                        ?.copyWith(fontFamily: "Lato"),
-                    ),
-                10.height,
-                if(state.selectedTask['id'] == 358)...[
-                  CustomQuillEditor(
-                    controller: context.read<EditToDoBloc>().quillController,
+                if(state.selectedTask['user_type'] == 3)...[
+                  SearchViewField(
+                    controller: context.read<EditToDoBloc>().leadsController,
+                    suggestions: context.watch<EditToDoBloc>().leads,
+                    itemAsString: (item) => item['customer_name'] ?? '',
+                    onSelected: (value) => context.read<EditToDoBloc>().add(LeadsEvent(value)),
+                    selectedItem: (context.watch<EditToDoBloc>().selectedLead != null) ? null : context.watch<EditToDoBloc>().selectedLead,
+                    onEmptyTap: () => context.push(LeadsMainUI(customerName: context.read<EditToDoBloc>().leadsController.text,)),
+                    showEmpty: true,
+                    alwayShowSuffix: true,
+                    labelText: 'Lead/Channel',
+                    hintText: "Select Lead",
                   ),
                   10.height,
                 ],
-
+                if(!Str.checkInCheckOut.contains(state.apiResponse['title']) && state.selectedTask['user_type'] != 5)...[
+                  CustomVehiclePersonField(
+                    vehiclesList: context.watch<EditToDoBloc>().vehicles,
+                    personsList: context.watch<EditToDoBloc>().persons,
+                    groupVehicles: context.watch<EditToDoBloc>().groupVehicleList,
+                    selected: state.selectedVPerson,
+                    onDeleted: (val)=> context.read<EditToDoBloc>().add(EditToDoDeleteVehicleEvent(data: val)),
+                    onSelected: (val) => context.read<EditToDoBloc>().add(EditToDoVPersonEvent(val)),
+                    controller: context.read<EditToDoBloc>().vPersonController,
+                  ),
+                  10.height,
+                ],
+                if(!Str.checkInCheckOut.contains(state.apiResponse['title']) && (!Str.userTypeId.contains(state.selectedTask['user_type'])))...[
+                  CustomVendorLocationField(
+                    vendorsList: context.watch<EditToDoBloc>().vendor,
+                    locationsList: context.watch<EditToDoBloc>().location,
+                    selected: {3: state.selectedVLocations},
+                    onSelected: (val) => context.read<EditToDoBloc>().add(EditToDoVLocationEvent(val)),
+                    controller: context.read<EditToDoBloc>().vLocationController,
+                  ),
+                  10.height,
+                ],
+                if(state.selectedTask['user_type'] == 5)...[
+                  Utils.dropdownBox(
+                      'Select Mode',
+                      context.read<EditToDoBloc>().meetingType,
+                          (value) => context.read<EditToDoBloc>().add(EditToDoMeetingTypeEvent(value)),
+                      initialSelection: context.watch<EditToDoBloc>().selectedMeetingType,
+                      labelKey: 'name'
+                  ),
+                  10.height,
+                ],
+                Utils.getTextFormField(
+                  'Notes',
+                  context.read<EditToDoBloc>().notesController,
+                  isDense: true,
+                  contentPadding: 10.padding,
+                  labelStyle: context.textTheme.labelMedium?.copyWith(color: context.theme.hintColor),
+                  style: context.textTheme.labelLarge?.copyWith(fontFamily: "Lato"),
+                ),
+                10.height,
+                if(state.selectedTask['id'] == 358)...[
+                  CustomQuillEditor(controller: context.read<EditToDoBloc>().quillController,),
+                  10.height,
+                ],
                 if(state.apiResponse['maintenance_task_id'] != null && state.apiResponse['comments'] != null)...[
                   Utils.getTextFormField(
                     'Comments', context.read<EditToDoBloc>().commentsController,
                     isDense: true,
                     contentPadding: 10.padding,
-                    labelStyle: context.textTheme.labelMedium
-                        ?.copyWith(color: context.theme.hintColor),
-                    style: context.textTheme.labelLarge
-                        ?.copyWith(fontFamily: "Lato"),
+                    labelStyle: context.textTheme.labelMedium?.copyWith(color: context.theme.hintColor),
+                    style: context.textTheme.labelLarge?.copyWith(fontFamily: "Lato"),
                     minLines: 3,
                     maxLines: 3,
                   ),
                   10.height,
                 ],
                 if((state.apiResponse['title']).toString().toLowerCase().contains('fix'))...[
-                    Utils.getTextFormField(
-                        'Resolution Notes', context.read<EditToDoBloc>().resolutionNotesController,
-                        isDense: true,
-                        contentPadding: 10.padding,
-                        labelStyle: context.textTheme.labelMedium
-                            ?.copyWith(color: context.theme.hintColor),
-                        style: context.textTheme.labelLarge
-                            ?.copyWith(fontFamily: "Lato"),
-                        readOnly: false,
-                        onChangeCallback: (value) {}),
-                    10.height,
-                  ],
+                  Utils.getTextFormField(
+                      'Resolution Notes',
+                      context.read<EditToDoBloc>().resolutionNotesController,
+                      isDense: true,
+                      contentPadding: 10.padding,
+                      labelStyle: context.textTheme.labelMedium?.copyWith(color: context.theme.hintColor),
+                      style: context.textTheme.labelLarge?.copyWith(fontFamily: "Lato"),
+                      readOnly: false,
+                      onChangeCallback: (value) {}
+                  ),
+                  10.height,
+                ],
+                if(!Str.checkInCheckOut.contains(state.apiResponse['title']) && (!Str.userTypeId.contains(state.selectedTask['user_type'])))...[
+                  const EditTodoMoreForm(),
+                  10.height,
+                ],
                 const EditTodoUpdateButton(),
                 10.height,
-                if(!["Check In", "Check Out"].contains(state.apiResponse['title']) && state.selectedTask['id'] != 80)
-                const EditTodoMoreForm(),
-                10.height,
-                 if (state.apiResponse.isNotEmpty)
+                if (state.apiResponse.isNotEmpty)
                   const PageKeepAliver(
-                    key:PageStorageKey("EditTodoBottomTabs"),
+                      key:PageStorageKey("EditTodoBottomTabs"),
                       child: EditTodoBottomTabs()),
               ],
-            )));
+            )
+        )
+    );
   }
+
+
 }

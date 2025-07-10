@@ -70,6 +70,7 @@ class ShareNotesEditDialogBloc extends Bloc<ShareNotesEditDialogEvent, ShareNote
   }
 
   Future<void> _onSaveEvent(SaveEvent event, Emitter<ShareNotesEditDialogState> emit) async {
+    if(model == null && editProductController.text.isEmpty) return emit(ErrorState('Product name is required'));
     try {
       emit(LoadingState());
       dynamic response;

@@ -1,16 +1,4 @@
-import 'package:fairpytasker/Component/success_button.dart';
-import 'package:fairpytasker/UI/Todo/edit_todo/Component/ask_date_range_permission_dialog.dart';
-import 'package:fairpytasker/UI/Todo/edit_todo/bloc/edit_todo_bloc.dart';
-import 'package:fairpytasker/UI/Todo/edit_todo/bloc/edit_todo_event.dart';
-import 'package:fairpytasker/UI/Todo/edit_todo/bloc/edit_todo_state.dart';
-import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
-import 'package:fairpytasker/Utilities/appC.dart';
-import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
-import 'package:fairpytasker/core/app/extension/sized_extension.dart';
-import 'package:fairpytasker/core/app/helper/warning_helper.dart';
-import 'package:fairpytasker/utilities/utils.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+part of 'edit_todo_ui.dart';
 
 class EditTodoUpdateButton extends StatelessWidget {
   const EditTodoUpdateButton({super.key});

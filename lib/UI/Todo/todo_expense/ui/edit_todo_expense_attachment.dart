@@ -1,4 +1,3 @@
-
 import 'dart:io';
 import 'package:fairpytasker/Component/close_badge.dart';
 import 'package:fairpytasker/Component/image_viewer.dart';
@@ -6,9 +5,7 @@ import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
-import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
-import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter/material.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
@@ -86,7 +83,14 @@ class EditTodoExpenseAttachment extends StatelessWidget {
                     ShowAttachmentsDialog.of.show(context,
                         attachments: attachments,
                         title: "",
-                        currentAttachment: attachments[index]);
+                        currentAttachment: attachments[index],
+                      onDownload: (v){
+                        var data = (attachments[index] is File) ? (attachments[index] as File).path : attachments[index];
+                    Console.of.log(data);
+                    Utils.openURL(data, isFile: (attachments[index] is File));
+                      },
+                    );
+
                   },
                   onTapDelete: () {
                     AskPermissionDialog.show(context,
@@ -112,27 +116,25 @@ class EditTodoExpenseAttachment extends StatelessWidget {
                           fit: BoxFit.cover,
                           imageInput: attachments[index],
                           isNotImage:
-                          !((attachments[index] as Object)
-                              .isImage),
+                          !((attachments[index] as Object).isImage),
                         ),
                       ),
-                      if ((attachments[index] as Object).isPDF)
-                        Container(
-                          decoration: BoxDecoration(
-                            color: AppC.green,
-                            borderRadius: BorderRadius.circular(16),
-
-                          ),
-                          child: InkWell(
-                            onTap: () {
-                              var data = (attachments[index] is File) ? (attachments[index] as File).path : attachments[index];
-                              Console.of.log(data);
-                              Utils.openURL(data, isFile: (attachments[index] is File));
-                            },child:Padding(
-                            padding: 4.padding,
-                            child: const Icon(Icons.remove_red_eye_outlined,color: AppC.white,size: 15,),
-                          ),),
-                        ),
+                     // if ((attachments[index] as Object).isPDF)
+                     //    Container(
+                     //      decoration: BoxDecoration(
+                     //        color: AppC.green,
+                     //        borderRadius: BorderRadius.circular(16),
+                     //      ),
+                     //      child: InkWell(
+                     //        onTap: () {
+                     //          var data = (attachments[index] is File) ? (attachments[index] as File).path : attachments[index];
+                     //          Console.of.log(data);
+                     //          Utils.openURL(data, isFile: (attachments[index] is File));
+                     //        },child:Padding(
+                     //        padding: 4.padding,
+                     //        child: const Icon(Icons.remove_red_eye_outlined,color: AppC.white,size: 15,),
+                     //      ),),
+                     //    ),
                     ],
                   ),
               ),
