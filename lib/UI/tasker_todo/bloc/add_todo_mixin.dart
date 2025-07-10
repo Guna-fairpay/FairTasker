@@ -35,11 +35,7 @@ mixin AddToDoMixin {
   TimeOfDay selectedTime = TimeOfDay.now();
   DateTime? selectedRecurringEndDate;
   dynamic recurringYearlySelectedMonth;
-  Map<int, Map<String, dynamic>> selectedTaskIdentifier = {
-    1 : {},
-    2 : {},
-    3 : {}
-  };
+  Map<int, Map<String, dynamic>> selectedTaskIdentifier = {};
   Map<String, dynamic> selectedRecurring = ToDoConfig.recurringOptions.first, selectedCustom = ToDoConfig.customOptions.first, selectedClearDuration = ToDoConfig.cleanCarDurations.first, selectedLead = {}, selectedMeetingMode = ToDoConfig.meetingMode.firstWhere((element) => element['id'] == 1);
   List<String> selectedRecurringDays = [];
   List<Map<String, dynamic>> selectedVPerson = [];
@@ -102,6 +98,8 @@ mixin AddToDoMixin {
   bool get showReservation => (selectedCustom.isNotEmpty) && (!isNextTask);
   bool get hasAddress => showMore && selectedTaskIdentifier[3]?['type'] == "location";
   bool get isVehicleRequired => isCleanCar || hasCleanCar || hasOilChange;
+  bool get canShowParts => showParts && showMore && (!isNextTask);
+  bool get canShowSupplies => showSupplies && showMore && (!isNextTask);
 
   List<Map<String, dynamic>> get addresses => List.from(selectedTaskIdentifier[3]?['value']?['addresses'] ?? []);
 
@@ -359,7 +357,7 @@ mixin AddToDoMixin {
         selectedTaskIdentifier[3] = vehicle ?? {};
       } else {
         selectedLead.clear();
-        if (vehicle != null) selectedVPerson.add(vehicle);
+        if ((vehicle != null) && (vehicle.isNotEmpty)) selectedVPerson.add(vehicle);
         selectedTaskIdentifier[2] = vehicle ?? {};
         selectedTaskIdentifier[3] = vendorLoc ?? {};
       }
@@ -463,6 +461,7 @@ mixin AddToDoMixin {
   }
 
   void _onVendorLocationEvent(VendorLocationEvent event, Emitter<AddToDoState> emit) {
+    if (selectedTaskIdentifier.isEmpty) selectedTaskIdentifier = {1 : {}, 2: {}, 3: {}};
     selectedTaskIdentifier[3] = event.vendorLocation;
     final task = selectedTaskIdentifier[1];
     final isUserType5 = task?['user_type_id'] == 5; // MEETING
@@ -476,6 +475,7 @@ mixin AddToDoMixin {
   }
 
   void _onVehiclePersonEvent(VehiclePersonEvent event, Emitter<AddToDoState> emit) {
+    if (selectedTaskIdentifier.isEmpty) selectedTaskIdentifier = {1 : {}, 2: {}, 3: {}};
     selectedVPerson = event.vehiclePerson;
     final task = selectedTaskIdentifier[1];
     final isUserType3 = task?['user_type_id'] == 3; // LEAD

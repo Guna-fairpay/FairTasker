@@ -49,7 +49,7 @@ class MoreForm extends StatelessWidget {
             labelText: "Parts",
             itemAsString: (item) => item['name'].toString(),
             onChanged: (isChecked, value) => context.read<AddToDoBloc>().add(PartsEvent(isChecked, value)),
-            onEmptyTap: () => context.read<AddToDoBloc>().add(NewPartsEvent())), secondChild: const SizedBox.shrink(), crossFadeState: (context.watch<AddToDoBloc>().showParts) ? CrossFadeState.showFirst : CrossFadeState.showSecond, duration: Durations.long3),
+            onEmptyTap: () => context.read<AddToDoBloc>().add(NewPartsEvent())), secondChild: const SizedBox.shrink(), crossFadeState: (context.watch<AddToDoBloc>().canShowParts) ? CrossFadeState.showFirst : CrossFadeState.showSecond, duration: Durations.long3),
         AnimatedCrossFade(firstChild: CustomMultiSelectionChipsField<Map<String, dynamic>>(
             selectedPartsList: context.watch<AddToDoBloc>().selectedSupplies,
             suggestionsList: context.watch<AddToDoBloc>().suppliesList,
@@ -57,7 +57,7 @@ class MoreForm extends StatelessWidget {
             labelText: "Supplies",
             itemAsString: (item) => item['name'].toString(),
             onChanged: (isChecked, value) => context.read<AddToDoBloc>().add(SuppliesEvent(isChecked, value)),
-            onEmptyTap: () => context.read<AddToDoBloc>().add(NewSuppliesEvent())), secondChild: const SizedBox.shrink(), crossFadeState: (context.watch<AddToDoBloc>().showSupplies) ? CrossFadeState.showFirst : CrossFadeState.showSecond, duration: Durations.long3),
+            onEmptyTap: () => context.read<AddToDoBloc>().add(NewSuppliesEvent())), secondChild: const SizedBox.shrink(), crossFadeState: (context.watch<AddToDoBloc>().canShowSupplies) ? CrossFadeState.showFirst : CrossFadeState.showSecond, duration: Durations.long3),
         AnimatedCrossFade(firstChild: Utils.getCircleCheckWidget(() => context.read<AddToDoBloc>().add(PlatformCheckEvent()), context.watch<AddToDoBloc>().isPlatformCheck, 'Platform Check'), secondChild: const SizedBox.shrink(), crossFadeState: (context.watch<AddToDoBloc>().hasPlatformCheck) ? CrossFadeState.showFirst : CrossFadeState.showSecond, duration: Durations.long3),
       ],
     ));
