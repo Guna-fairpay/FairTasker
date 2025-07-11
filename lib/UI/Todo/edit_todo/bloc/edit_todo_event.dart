@@ -314,3 +314,10 @@ class LeadsEvent extends EditToDoEvent {
   List<Object?> get props => [leads];
 }
 
+class MeetingTimeEvent extends EditToDoEvent {
+  final dynamic meetingTime;
+  MeetingTimeEvent(this.meetingTime);
+  @override
+  List<Object?> get props => [meetingTime];
+}
+

@@ -129,6 +129,25 @@ class EditTodoBody extends StatelessWidget {
                       labelKey: 'name'
                   ),
                   10.height,
+                  if(context.watch<EditToDoBloc>().selectedMeetingType['id'] == 1)...[
+                    Utils.getTextFormField(
+                      'Meeting Link',
+                      context.read<EditToDoBloc>().meetingLinkController,
+                      isDense: true,
+                      contentPadding: 10.padding,
+                      labelStyle: context.textTheme.labelMedium?.copyWith(color: context.theme.hintColor),
+                      style: context.textTheme.labelLarge?.copyWith(fontFamily: "Lato"),
+                    ),
+                    10.height,
+                  ],
+                  Utils.dropdownBox(
+                      '',
+                      context.read<EditToDoBloc>().meetingTime,
+                    (v) => context.read<EditToDoBloc>().add(MeetingTimeEvent(v)),
+                      labelKey: 'time',
+                    initialSelection: context.watch<EditToDoBloc>().selectedMeetingTime,
+                  ),
+                  10.height,
                 ],
                 Utils.getTextFormField(
                   'Notes',
