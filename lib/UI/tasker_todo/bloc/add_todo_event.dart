@@ -183,6 +183,13 @@ class MeetingEvent extends AddToDoEvent {
   List<Object?> get props => [meetingMode];
 }
 
+class MeetingDurationEvent extends AddToDoEvent {
+  final dynamic meetingDuration;
+  MeetingDurationEvent(this.meetingDuration);
+  @override
+  List<Object?> get props => [meetingDuration];
+}
+
 class OpenCustomLinkEvent extends AddToDoEvent {}
 
 class AddressEvent extends AddToDoEvent {

@@ -21,12 +21,21 @@ class MainForm extends StatelessWidget {
           validator: (value) => (value?.trim().isNullOrEmpty ?? false) ? "Task Name is required" : null,
         ),
         if (context.watch<AddToDoBloc>().isMeeting)
-          CompactDropDown<Map<String, dynamic>>(
-            items: ToDoConfig.meetingMode,
-            initialSelection: context.watch<AddToDoBloc>().selectedMeetingMode,
-            itemAsString: (item) => item['name'] ?? "",
-            onChanged: (value) => context.read<AddToDoBloc>().add(MeetingEvent(value)),
-          ),
+          ...[
+            CompactDropDown<Map<String, dynamic>>(
+              items: ToDoConfig.meetingMode,
+              initialSelection: context.watch<AddToDoBloc>().selectedMeetingMode,
+              itemAsString: (item) => item['name'] ?? "",
+              onChanged: (value) => context.read<AddToDoBloc>().add(MeetingEvent(value)),
+            ),
+            CompactTextField(hintText: "Link", controller: context.read<AddToDoBloc>().meetingLinkController),
+            CompactDropDown<Map<String, dynamic>>(
+              items: ToDoConfig.meetingDuration,
+              initialSelection: context.watch<AddToDoBloc>().selectedMeetingDuration,
+              itemAsString: (item) => item['name'] ?? "",
+              onChanged: (value) => context.read<AddToDoBloc>().add(MeetingDurationEvent(value)),
+            ),
+          ],
         if (context.watch<AddToDoBloc>().isLeadTask)
         CompactSingleChannelField<Map<String, dynamic>>(
           items: context.watch<AddToDoBloc>().leads,

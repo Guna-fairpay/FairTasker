@@ -26,6 +26,7 @@ mixin AddToDoMixin {
   final TextEditingController reasonController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
   final TextEditingController leadController = TextEditingController();
+  final TextEditingController meetingLinkController = TextEditingController();
   final QuillController enquiryController = QuillController.basic();
 
   final List<Map<String, dynamic>> selectedParts = [], selectedSupplies = [], selectedTaskManagers = [], selectedAddress = [];
@@ -36,7 +37,7 @@ mixin AddToDoMixin {
   DateTime? selectedRecurringEndDate;
   dynamic recurringYearlySelectedMonth;
   Map<int, Map<String, dynamic>> selectedTaskIdentifier = {};
-  Map<String, dynamic> selectedRecurring = ToDoConfig.recurringOptions.first, selectedCustom = ToDoConfig.customOptions.first, selectedClearDuration = ToDoConfig.cleanCarDurations.first, selectedLead = {}, selectedMeetingMode = ToDoConfig.meetingMode.firstWhere((element) => element['id'] == 1);
+  Map<String, dynamic> selectedRecurring = ToDoConfig.recurringOptions.first, selectedCustom = ToDoConfig.customOptions.first, selectedClearDuration = ToDoConfig.cleanCarDurations.first, selectedLead = {}, selectedMeetingMode = ToDoConfig.meetingMode.firstWhere((element) => element['id'] == 1), selectedMeetingDuration = ToDoConfig.defaultMeetingDuration;
   List<String> selectedRecurringDays = [];
   List<Map<String, dynamic>> selectedVPerson = [];
   TaskType taskType = TaskType.rental;
@@ -409,6 +410,11 @@ mixin AddToDoMixin {
         showParts = showSupplies = false;
         selectedMeetingMode = ToDoConfig.meetingMode.first;
       }
+      if (!isUserType5) {
+        selectedMeetingMode = ToDoConfig.meetingMode.first;
+        selectedMeetingDuration = ToDoConfig.defaultMeetingDuration;
+        meetingLinkController.clear();
+      }
     }
     emit(CommonState());
     _updateReservation(emit);
@@ -428,6 +434,11 @@ mixin AddToDoMixin {
         selectedLead.clear();
         selectedTaskIdentifier[2] = selectedTaskIdentifier[3] ?? {};
         selectedTaskIdentifier[3] = {};
+      }
+      if (isMeeting) {
+        selectedMeetingMode = ToDoConfig.meetingMode.first;
+        selectedMeetingDuration = ToDoConfig.defaultMeetingDuration;
+        meetingLinkController.clear();
       }
       taskType = TaskType.rental;
     }
@@ -697,6 +708,11 @@ mixin AddToDoMixin {
 
   void _onDeleteAttachmentEvent(DeleteAttachmentEvent event, Emitter<AddToDoState> emit) {
     attachments.remove(event.attachment);
+    emit(CommonState());
+  }
+
+  void _onMeetingDurationEvent(MeetingDurationEvent event, Emitter<AddToDoState> emit) {
+    selectedMeetingDuration = event.meetingDuration;
     emit(CommonState());
   }
 }

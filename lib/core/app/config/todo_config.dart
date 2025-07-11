@@ -55,4 +55,20 @@ mixin ToDoConfig {
     {'id': 2, 'name': 'Person'},
   ];
 
+  static const List<Map<String, dynamic>> meetingDuration = [
+    {'id': 0, 'name': 'Select Duration'},
+    {'id': 1, 'name': '00:15'},
+    {'id': 2, 'name': '00:30'},
+    {'id': 3, 'name': '00:45'},
+    {'id': 4, 'name': '01:00'},
+    {'id': 5, 'name': '01:15'},
+    {'id': 6, 'name': '01:30'},
+    {'id': 7, 'name': '01:45'},
+    {'id': 8, 'name': '02:00'},
+    {'id': 9, 'name': '02:15'},
+    {'id': 10, 'name': '02:30'},
+  ];
+
+  static Map<String, dynamic> defaultMeetingDuration = meetingDuration.firstWhere((element) => element['id'] == 2);
+
 }
