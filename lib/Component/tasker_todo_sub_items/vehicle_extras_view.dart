@@ -39,7 +39,7 @@ class VehicleExtrasView extends StatelessWidget {
                 // size: (vehicleName == "MV") ? 16.spMin : 14.spMin,
                 overflow: TextOverflow.ellipsis,
                 fontWeight: FontWeight.bold,
-                styleType: TextStyleType.titleSmall
+                styleType: TextStyleType.labelLarge
               ),
             ),
           ),

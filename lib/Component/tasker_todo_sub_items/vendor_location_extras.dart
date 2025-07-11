@@ -35,7 +35,7 @@ class VendorLocationExtras extends StatelessWidget {
                   children: [
                     TextSpan(text: "($parsedNotes)", recognizer: TapGestureRecognizer()..onTapDown = onNotes),
                     if (hasTimeChangeReason) TextSpan(text: "\t$timeChangeReason", style: context.textTheme.labelMedium?.copyWith(color: null), recognizer: hasEllipsis ? (TapGestureRecognizer()..onTap = ()=> onMore?.call(timeChangeReason)) : null)
-                  ], style: context.textTheme.labelMedium?.copyWith(overflow: TextOverflow.ellipsis, color: AppC.appColor))),
+                  ], style: context.textTheme.labelLarge?.copyWith(overflow: TextOverflow.ellipsis, color: AppC.appColor))),
         ),
         if (hasAddress) Flexible(child: GestureDetector(onTapDown: onAddress, child: const CompactText("A", fontWeight: FontWeight.bold, styleType: TextStyleType.labelLarge))),
         const SizedBox.shrink(),
