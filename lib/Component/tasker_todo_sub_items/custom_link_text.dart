@@ -17,9 +17,13 @@ class CustomLinkText extends StatelessWidget {
         onTap: onCustomLink,
         child: Utils.getText(
           customLinkText,
-          color: customLinkColor,
+         // color: customLinkColor,
           weight: FontWeight.w900,
-          size: 14.sp,
+          //size: 14.spMin,
+          style: context.textTheme.titleMedium?.copyWith(
+            color: customLinkColor,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       );
     }

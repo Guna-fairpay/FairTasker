@@ -32,8 +32,8 @@ class TitleRow extends StatelessWidget {
           size: 13.spMin,
         ),
       ),
-      if (hasCompletedTime) GestureDetector(onTap: onCompletedTimeChange, child: Utils.getText(completedTime, size: 13.spMin)),
-      GestureDetector(onTap: onTimeChange, child: Utils.getText(Utils.convertString24HTo12H(taskTime), size: 13.spMin)),
+      if (hasCompletedTime) GestureDetector(onTap: onCompletedTimeChange, child: Utils.getText(completedTime, style: context.textTheme.titleSmall?.copyWith(),)),
+      GestureDetector(onTap: onTimeChange, child: Utils.getText(Utils.convertString24HTo12H(taskTime), style: context.textTheme.titleSmall?.copyWith(),)),
       const SizedBox.shrink()
     ];
     Widget firstChild = Expanded(child: Row(

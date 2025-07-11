@@ -16,6 +16,7 @@ class TaskerViewVehicleHistoryDialog {
   TaskerViewVehicleHistoryDialog._();
 
   static void show(BuildContext context, Map<String, dynamic>? model) async {
+    if (model == null || model.isEmpty) return;
     await showDialog(
       context: context,
       barrierDismissible: true,
@@ -71,7 +72,7 @@ class _TaskerViewVehicleHistoryView extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Utils.getText(
-                      model?['display']?['vehicle_name'],
+                      model?['display']?['vehicle_name'] ?? '',
                       size: 12.spMin,
                       weight: FontWeight.bold
                     ),

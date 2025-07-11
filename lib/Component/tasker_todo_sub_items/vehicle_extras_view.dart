@@ -34,11 +34,12 @@ class VehicleExtrasView extends StatelessWidget {
           Flexible(
             child: GestureDetector(
               onTapDown: onVehicleOrPerson,
-              child: Utils.getText(
+              child: CompactText(
                 vehicleName,
-                size: (vehicleName == "MV") ? 14.spMin : 11.spMin,
-                overFlow: TextOverflow.ellipsis,
-                weight: FontWeight.bold,
+                // size: (vehicleName == "MV") ? 16.spMin : 14.spMin,
+                overflow: TextOverflow.ellipsis,
+                fontWeight: FontWeight.bold,
+                styleType: TextStyleType.titleSmall
               ),
             ),
           ),
@@ -50,23 +51,23 @@ class VehicleExtrasView extends StatelessWidget {
               color: (vehicleHistoryColorCode?.isNotEmpty ?? false)
                   ? Color(int.parse("0xff$vehicleHistoryColorCode"))
                   : AppC.blue,
-              size: 16.spMin,
+              size: 10.sp,
             ),
           ),
         if (hasG)
           GestureDetector(
             onTapDown: onVehicleGroup,
-            child: Utils.getText("G", weight: FontWeight.bold, size: 14.spMin),
+            child: const CompactText("G", fontWeight: FontWeight.bold, styleType: TextStyleType.titleSmall),
           ),
         if (hasParts)
           GestureDetector(
             onTapDown: onParts,
-            child: Utils.getText("P", weight: FontWeight.bold, size: 14.spMin),
+            child: const CompactText("P", fontWeight: FontWeight.bold, styleType: TextStyleType.titleSmall),
           ),
         if (hasSupplies)
           GestureDetector(
             onTapDown: onSupplies,
-            child: Utils.getText("S", weight: FontWeight.bold, size: 14.spMin),
+            child: const CompactText("S", fontWeight: FontWeight.bold, styleType: TextStyleType.titleSmall),
           ),
       ],
     );

@@ -17,7 +17,7 @@ class TaskTitleView extends StatelessWidget {
     spans.add(
       TextSpan(
         text: display['task_title'] ?? '',
-        style: context.textTheme.labelMedium?.copyWith(
+        style: context.textTheme.titleMedium?.copyWith(
           color: hasTimeSensitive ? AppC.red : AppC.appColor,
           fontWeight: FontWeight.bold,
         ),

@@ -1,3 +1,4 @@
+import 'package:fairpytasker/Component/custom_text/compact_text.dart';
 import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';

@@ -23,7 +23,7 @@ class BouncieDistanceView extends StatelessWidget {
       color: (vehicleDistance.isEmpty)
           ? AppC.redAccent
           : AppC.green,
-      size: 17.spMin,
+      size: 10.sp,
     );
     return GestureDetector(
       onTap: onBouncie,
@@ -33,10 +33,10 @@ class BouncieDistanceView extends StatelessWidget {
         children: [
           icon,
           if (hasDistance)
-            Utils.getText(
+            CompactText(
               vehicleDistance,
-              weight: FontWeight.normal,
-              size: 13.spMin,
+              fontWeight: FontWeight.normal,
+              styleType: TextStyleType.titleMedium,
               color: (vehicleDistance.isNullOrEmpty)
                   ? AppC.redAccent
                   : AppC.green,
