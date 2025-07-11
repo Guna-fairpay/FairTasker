@@ -1,22 +1,54 @@
 
+import 'package:fairpytasker/Component/custom_checkbox.dart';
+import 'package:fairpytasker/Component/custom_date_time_picker.dart';
+import 'package:fairpytasker/Component/custom_multi_selection_chips_field.dart';
+import 'package:fairpytasker/Component/custom_quill_editor.dart';
+import 'package:fairpytasker/Component/custom_searcher_view.dart';
+import 'package:fairpytasker/Component/custom_vehicle_person_field.dart';
+import 'package:fairpytasker/Component/custom_vendor_location_field.dart';
+import 'package:fairpytasker/Component/feedback_tab_button.dart';
+import 'package:fairpytasker/Component/page_keep_aliver.dart';
+import 'package:fairpytasker/Component/success_button.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Parts/ui/parts_main_ui.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Supplies/UI/supplies_main_ui.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/Task/UI/task_main_page.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/leads/ui/leads_main_ui.dart';
+import 'package:fairpytasker/UI/Todo/Odometer/odometer_view.dart';
+import 'package:fairpytasker/UI/Todo/add_todo_ui.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/Component/ask_date_range_permission_dialog.dart';
+import 'package:fairpytasker/UI/Todo/edit_todo/Component/resource_popup.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/bloc/edit_todo_bloc.dart';
-import 'package:fairpytasker/UI/Todo/edit_todo/bloc/edit_todo_event.dart';
-import 'package:fairpytasker/UI/Todo/edit_todo/bloc/edit_todo_state.dart';
-import 'package:fairpytasker/UI/Todo/edit_todo/ui/edit_todo_body.dart';
+import 'package:fairpytasker/UI/Todo/maintenance_check/maintenance_check_ui.dart';
+import 'package:fairpytasker/UI/Todo/pre_checks/ui/precheck_main_ui.dart';
+import 'package:fairpytasker/UI/Todo/private_rental/UI/private_rental_check_list_page.dart';
+import 'package:fairpytasker/UI/Todo/set_vehicles/ui/set_vehicles_main_ui.dart';
+import 'package:fairpytasker/UI/Todo/todo_expense/ui/edit_todo_expense.dart';
+import 'package:fairpytasker/UI/Vehicle/vehicle_history/vehicle_history_view_ui.dart';
 import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
 import 'package:fairpytasker/UI/dialog/tasker_check_pickup_reason_dialog.dart';
+import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
+import 'package:fairpytasker/Utilities/num.dart';
+import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/warning_helper.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+part 'edit_todo_body.dart';
+part 'edit_todo_more_form.dart';
+part 'edit_todo_update_button.dart';
+part 'edit_todo_bottom_tabs.dart';
 
 
 class EditTodoUI extends StatelessWidget {

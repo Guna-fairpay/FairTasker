@@ -8,15 +8,15 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../utilities/appC.dart';
 
 class ResourceSelection {
-  static Future<void> showResourceSelection(
-      BuildContext context,
-      TapDownDetails? details,
-      List<dynamic> resourceList,
-      List<String> selectedValues,
-      Function(List<String> val, List<dynamic> name) onSelectionChanged,
-      ) async {
+  static Future<void> showResourceSelection({
+    required BuildContext context,
+    TapDownDetails? details,
+    required List<dynamic> resourceList,
+    required List<String> selectedValues,
+    required Function(List<String> val, List<dynamic> name) onSelectionChanged,
+  }) async {
     ValueNotifier<List<String>> selectedIdsNotifier = ValueNotifier(List.from(selectedValues));
-    final ScrollController _scrollController = ScrollController();
+    final ScrollController scrollController = ScrollController();
     if (details != null) {
 
       await showMenu(
@@ -58,13 +58,13 @@ class ResourceSelection {
                     ConstrainedBox(
                       constraints: BoxConstraints(maxHeight: 200.sp),
                       child: Scrollbar(
-                        controller: _scrollController,
+                        controller: scrollController,
                         thumbVisibility: true,
                         trackVisibility: true,
                         thickness: 3.sp,
                         radius: const Radius.circular(Num.borderRadiusLarge),
                         child: ListView.builder(
-                          controller: _scrollController,
+                          controller: scrollController,
                           shrinkWrap: true,
                           physics: const BouncingScrollPhysics(),
                           itemCount: resourceList.length,

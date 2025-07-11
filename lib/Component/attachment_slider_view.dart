@@ -12,8 +12,10 @@ class AttachmentSliderView extends StatefulWidget {
   final List<dynamic> attachments;
   final Object? currentAttachment;
   final ValueChanged<dynamic>? onDeleted;
+  final ValueChanged<dynamic>? onDownload;
   final VoidCallback? onClose;
-  const AttachmentSliderView({super.key, required this.attachments, this.currentAttachment, this.onDeleted, this.onClose});
+  final bool showDownload;
+  const AttachmentSliderView({super.key, required this.attachments, this.currentAttachment, this.onDeleted, this.onClose, this.onDownload, this.showDownload = false});
 
   @override
   State<AttachmentSliderView> createState() => _AttachmentSliderViewState();
@@ -132,6 +134,14 @@ class _AttachmentSliderViewState extends State<AttachmentSliderView> {
                     icon: const Icon(Icons.delete_outline_rounded, color: Colors.red,)),
                 const Spacer()
               ],
+            if(widget.showDownload)...[
+              IconButton(
+                  onPressed: () {
+                    widget.onDownload?.call(currentAttachment);
+                  },
+                  icon: const Icon(Icons.download_rounded, color: Colors.green,)),
+              const Spacer()
+            ],
             if (attachments.length > 1)
             IconButton(
                 onPressed: (currentIndex == attachments.length - 1) ? null :  _nextAttachment,

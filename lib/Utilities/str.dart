@@ -105,5 +105,11 @@ class Str{
 
     static const List<int> oilChangeCheckIds = [126, 294, 35];
 
+    static const List<int> userTypeId = [5,3];
+
+    static const List<String> checkInCheckOut = ['Check In','Check Out'];
+
+
+
 
 }
