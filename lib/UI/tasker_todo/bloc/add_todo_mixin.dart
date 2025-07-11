@@ -650,6 +650,12 @@ mixin AddToDoMixin {
 
   void _onMeetingEvent(MeetingEvent event, Emitter<AddToDoState> emit) {
     selectedMeetingMode = event.meetingMode;
+    if (selectedMeetingMode['id'] != 1) {
+      selectedMeetingDuration = ToDoConfig.meetingDuration.first;
+      meetingLinkController.clear();
+    } else {
+      selectedMeetingDuration = ToDoConfig.defaultMeetingDuration;
+    }
     emit(CommonState());
   }
 
