@@ -43,7 +43,8 @@ class SubmitVehicleForm extends StatelessWidget {
             )
           ],
         ),
-        AnimatedCrossFade(firstChild: PageKeepAliver(
+        if (context.watch<AddToDoBloc>().hasVehicle && !context.watch<AddToDoBloc>().isNextTask)
+        PageKeepAliver(
             key: const PageStorageKey("vehicle_history"),
             child: VehicleHistoryViewUI(
                 showSameTask: true,
@@ -54,7 +55,7 @@ class SubmitVehicleForm extends StatelessWidget {
                 vin: context.watch<AddToDoBloc>().lasVehicleVin,
                 vehicleName: context.watch<AddToDoBloc>().lasVehicleName,
                 groupId: context.watch<AddToDoBloc>().lasVehicleGroupId,
-                showHeader: false)), secondChild: const SizedBox.shrink(), crossFadeState: (context.watch<AddToDoBloc>().hasVehicle) ? CrossFadeState.showFirst : CrossFadeState.showSecond, duration: Durations.long3),
+                showHeader: false)),
       ],
     );
   }

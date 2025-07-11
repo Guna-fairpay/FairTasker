@@ -11,12 +11,11 @@ class CustomForm extends StatelessWidget {
         Row(
           spacing: 10.spMin,
           children: [
-            if ((!context.watch<AddToDoBloc>().isNextTask) && context.watch<AddToDoBloc>().isRentalTask)
             Expanded(
-              child: GestureDetector(
+              child: ((!context.watch<AddToDoBloc>().isNextTask) && context.watch<AddToDoBloc>().isRentalTask) ? GestureDetector(
                 onTap: () => context.read<AddToDoBloc>().add(MoreEvent()),
                 child: CompactText('${context.watch<AddToDoBloc>().showMore ? "Less" : "More"}...', color: Colors.lightBlue.shade800),
-              ),
+              ) : const SizedBox.shrink(),
             ),
             if (context.watch<AddToDoBloc>().isRentalOnlyTask)
             Flexible(

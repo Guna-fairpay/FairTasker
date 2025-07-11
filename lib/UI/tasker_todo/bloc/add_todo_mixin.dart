@@ -105,7 +105,7 @@ mixin AddToDoMixin {
   List<Map<String, dynamic>> get addresses => List.from(selectedTaskIdentifier[3]?['value']?['addresses'] ?? []);
 
   String? get lasVehicleVin => (["vehicles", "vehicle"].contains(_selectedVPerson?['type'])) ? (_selectedVPerson?['value']?['vin']) : null;
-  String? get lasVehicleGroupId => (["g_vehicles", "group_vehicle"].contains(_selectedVPerson?['type'])) ? (_selectedVPerson?['id']) : null;
+  String? get lasVehicleGroupId => (["g_vehicles", "group_vehicle"].contains(_selectedVPerson?['type'])) ? (_selectedVPerson?['id'].toString()) : null;
   String? get lasVehicleName => _selectedVPerson?['name'];
 
   List<List<Map<String, dynamic>>> get taskIdentifierList => CustomSearchDataConverter.convertTaskIdentifier(

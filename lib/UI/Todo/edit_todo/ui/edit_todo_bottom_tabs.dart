@@ -6,6 +6,7 @@ import 'package:fairpytasker/UI/Todo/edit_todo/bloc/edit_todo_event.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/bloc/edit_todo_state.dart';
 import 'package:fairpytasker/UI/Todo/pre_checks/ui/precheck_main_ui.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/bloc/edit_todo_bloc.dart';
+import 'package:fairpytasker/UI/tasker_todo/tasker_create_todo.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/UI/Todo/Odometer/odometer_view.dart';
 import 'package:fairpytasker/Component/feedback_tab_button.dart';
@@ -56,7 +57,7 @@ class EditTodoBottomTabs extends StatelessWidget {
                   selectedParts: state.selectedParts,
                   selectedSupplies: state.selectedSupplies,
                   selectedVendor: state.selectedVLocations),
-              2 => CreateTodoUI(
+              2 => TaskerAddToDo(
                   showHeader: false,
                   isNextTask: true,
                   selectedDate: state.selectedDate,

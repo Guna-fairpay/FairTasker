@@ -59,12 +59,12 @@ class TaskerAddToDo extends StatelessWidget {
   final TaskType taskType;
   final DateTime? selectedDate;
   final dynamic selectedVPerson;
-  final bool isNextTask, showAppBar;
-  const TaskerAddToDo({super.key, this.taskType = TaskType.rental, this.isNextTask = false, this.showAppBar = true, this.selectedDate, this.selectedVPerson});
+  final bool isNextTask, showHeader;
+  const TaskerAddToDo({super.key, this.taskType = TaskType.rental, this.isNextTask = false, this.showHeader = true, this.selectedDate, this.selectedVPerson});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(create: (context) => AddToDoBloc()..add(InitialEvent(taskType: taskType, isNextTask: isNextTask, selectedDate: selectedDate, selectedVPerson: selectedVPerson, showAppBar: showAppBar)),
+    return BlocProvider(create: (context) => AddToDoBloc()..add(InitialEvent(taskType: taskType, isNextTask: isNextTask, selectedDate: selectedDate, selectedVPerson: selectedVPerson, showAppBar: showHeader)),
     child: BlocListener<AddToDoBloc, AddToDoState>(
       listener: _listenNavigation,
       child: ScaffoldWrapper(
@@ -79,7 +79,8 @@ class TaskerAddToDo extends StatelessWidget {
           top: true,
           minimum: 16.spMin.padding,
           child: ListView(
-            physics: ((showAppBar) ? const BouncingScrollPhysics() : const NeverScrollableScrollPhysics()),
+            shrinkWrap: !showHeader,
+            physics: ((showHeader) ? const BouncingScrollPhysics() : const NeverScrollableScrollPhysics()),
             children: const [ BodyForm() ],
           ),
         ),

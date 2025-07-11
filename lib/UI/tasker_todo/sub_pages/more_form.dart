@@ -8,6 +8,7 @@ class MoreForm extends StatelessWidget {
     return BlocBuilder<AddToDoBloc, AddToDoState>(builder: (context, state) => Column(
       spacing: 10.spMin,
       children: [
+        if (context.watch<AddToDoBloc>().hasAddress)
         AnimatedCrossFade(firstChild: CustomMultiSelectionChipsField<Map<String, dynamic>>(
             selectedPartsList: context.watch<AddToDoBloc>().selectedAddress,
             suggestionsList: context.watch<AddToDoBloc>().addresses,
@@ -15,6 +16,7 @@ class MoreForm extends StatelessWidget {
             labelText: "Address",
             showEmpty: false,
             itemAsString: (item) => item['address'] ?? "", onChanged: (isChecked, value) => context.read<AddToDoBloc>().add(AddressEvent(isChecked, value))), secondChild: const SizedBox.shrink(), crossFadeState: (context.watch<AddToDoBloc>().hasAddress) ? CrossFadeState.showFirst : CrossFadeState.showSecond, duration: Durations.long3),
+        if (context.watch<AddToDoBloc>().showMore)
         AnimatedCrossFade(firstChild: Row(
           spacing: 10.spMin,
           children: [
