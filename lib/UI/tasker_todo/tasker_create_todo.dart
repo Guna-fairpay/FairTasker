@@ -60,7 +60,8 @@ class TaskerAddToDo extends StatelessWidget {
   final DateTime? selectedDate;
   final dynamic selectedVPerson;
   final bool isNextTask, showHeader;
-  const TaskerAddToDo({super.key, this.taskType = TaskType.rental, this.isNextTask = false, this.showHeader = true, this.selectedDate, this.selectedVPerson});
+  final dynamic leadId;
+  const TaskerAddToDo({super.key, this.taskType = TaskType.rental, this.isNextTask = false, this.showHeader = true, this.selectedDate, this.selectedVPerson, this.leadId});
 
   @override
   Widget build(BuildContext context) {

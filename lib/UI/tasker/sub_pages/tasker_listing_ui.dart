@@ -40,6 +40,7 @@ class TaskerListingUi extends StatelessWidget {
                       return TodoTaskItemCard(
                         model: model,
                         key: Key(model['id'].toString()),
+                        onMeetingView: () => context.read<ToDoTaskerBloc>().add(MeetingViewEvent(model)),
                         onTap: () => context
                             .read<ToDoTaskerBloc>()
                             .add(ToDoTaskerEditEvent(model['id'].toString(), model: model)),

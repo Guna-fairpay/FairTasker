@@ -134,8 +134,8 @@ mixin AddToDoMixin {
     final hasMeetingMode = isMeeting;
     final task = selectedTaskIdentifier[1];
     final todoUserTypeId = task?['user_type_id'] ?? 0;
-    final isUserType3 = todoUserTypeId == 3;
-    final isUserType5 = todoUserTypeId == 5;
+    final isUserType3 = (todoUserTypeId == 3) || isLeadTask;
+    final isUserType5 = (todoUserTypeId == 5) || isMeeting;
     var baseBody = _cleanCarBody();
     baseBody['title'] = taskNameController.text;
     baseBody['identifier_id'] = (taskName.isNotEmpty && selectedName == taskName) ? "$selectedId" : "";
@@ -646,6 +646,7 @@ mixin AddToDoMixin {
   }
 
   void _onLeadEvent(LeadEvent event, Emitter<AddToDoState> emit) {
+    if (selectedTaskIdentifier.isEmpty) selectedTaskIdentifier = {1 : {}, 2: {}, 3: {}};
     selectedLead = event.lead;
     if (["vehicle", "group_vehicle", "person"].contains(selectedTaskIdentifier[2]?['type'])) {
       selectedTaskIdentifier[3] = selectedTaskIdentifier[2] ?? {};

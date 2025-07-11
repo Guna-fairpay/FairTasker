@@ -128,6 +128,8 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     on<ToDoTaskerViewBouncieEvent>(_onViewBouncieEvent);
     on<ToDoTaskerRemoveVehiclePersonEvent>(_onRemoveVehiclePersonEvent);
     on<ToDoTaskerYesterdayEvent>(_onYesterdayEvent);
+    on<MeetingViewEvent>(_onMeetingViewEvent);
+    on<FollowupTaskEvent>(_onFollowupTaskEvent);
   }
 
   bool _isCheckInOutTask(Map<String, dynamic>? model) => _checkInOutTask.contains(model?['title']);
@@ -437,6 +439,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     var hasMileage = (mileage > 0);
     var hasMandatory = ( mandatory == 0);
     var isAbleMaintenanceComplete = (hasMileage && hasMandatory);
+    var hasLead = (model?['lead_id'].toString().isNotNullOrEmpty ?? false);
     Console.of.log("TASK COMPLETE ${identifierId} $taskTitle MILEAGE $hasMileage ($mileage) MANDATORY $hasMandatory ($mandatory) ${hasMileage && hasMandatory}");
     if (identifierId.toString().isNullOrEmpty) {
       /// CUSTOM TASK
@@ -494,6 +497,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
         default: _callCompleteApi(model); break; // CALL API TO COMPLETE TASK
       }
     }
+    if (hasLead) return emit(FollowupTaskState(model));
   }
 
   void _onMoveTomorrowEvent(
@@ -1191,5 +1195,16 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     selectedDate = event.selectedDate;
     isCompleted = false;
     _reFetchToDos();
+  }
+
+  void _onMeetingViewEvent(MeetingViewEvent event, Emitter<ToDoTaskerState> emit) {
+    final model = event.model;
+    final hasMeeting = ((model?['meeting_mode'] == "online") && (model?['meeting_link'].toString().isNotNullOrEmpty ?? false));
+    final meetingLink = model?['meeting_link'].toString();
+    if (hasMeeting) return emit(ViewCustomLinkState(model, meetingLink));
+  }
+
+  void _onFollowupTaskEvent(FollowupTaskEvent event, Emitter<ToDoTaskerState> emit) {
+    emit(AddToDoState(selectedDate,leadId: event.model?['lead_id'], taskType: TaskType.lead));
   }
 }
