@@ -405,7 +405,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         .where((e) => addressIds.contains(e['id']))
         .toList();
     if(vinList.isNotEmpty){
-      previousOdometer = List.from(todoResponse?['previousOdometer']).firstOrNull;
+      previousOdometer = List.from(todoResponse?['previousOdometer'] ?? []).firstOrNull;
       /*previousOdometer = await _getPreviousOdometer(
           date: todoResponse?['todo_date'],
           vin: List.from(vinList).firstOrNull ?? '',
