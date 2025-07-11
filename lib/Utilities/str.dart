@@ -7,6 +7,7 @@ class Str{
     static String get TASKER_STORAGE_BASE_URL => flavor.taskerStorageUrl;
     static String get LIST_BASE_URL => flavor.returnsUrl;
     static String get TODO_ATTACHMENTS_URL => flavor.attachmentUrl;
+    static String get FAIRENTAL_BOOKING_SUMMARY => flavor.fairRentalBookingSummary;
 
     static const String TURO_RESERV_URL = "https://turo.com/us/en/reservation/";
     static const String GETAROUND_RESERV_URL = "https://getaround.com/dashboard/rentals/";

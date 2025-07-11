@@ -72,4 +72,6 @@ static const redAccent = Color(0xffd01601);
 
   static const lightBlues = Color(0xff3FA7D6);
 
+  static const fairental = Color(0xff299cbd);
+
 }
