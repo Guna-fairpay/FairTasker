@@ -2,8 +2,6 @@ import 'package:fairpytasker/UI/Todo/todo_view_components/todo_top_header.dart';
 import 'package:fairpytasker/UI/Todo/todo_view_components/todo_top_hours_view.dart';
 import 'package:fairpytasker/UI/Todo/todo_view_components/todo_top_search_bar.dart';
 import 'package:fairpytasker/UI/tasker/bloc/tasker_todo_bloc.dart';
-import 'package:fairpytasker/UI/tasker/bloc/tasker_todo_events.dart';
-import 'package:fairpytasker/UI/tasker/bloc/tasker_todo_states.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -40,7 +38,7 @@ class TaskerHeader extends StatelessWidget {
             focusNode: context.read<ToDoTaskerBloc>().searchFocusNode,
             controller: context.read<ToDoTaskerBloc>().searchController,
             onChanged: (value) => context.read<ToDoTaskerBloc>().add(ToDoTaskerSearchEvent(value)),
-            onAdd: () => context.read<ToDoTaskerBloc>().add(ToDoTaskerOnAddToDoEvent()),
+            onAdd: (details) => context.read<ToDoTaskerBloc>().add(ToDoTaskerOnAddToDoEvent(offset: details.globalPosition)),
             onMic: () => context.read<ToDoTaskerBloc>().add(ToDoTaskerOnMicEvent()),
           ),
         ],

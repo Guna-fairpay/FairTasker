@@ -1,8 +1,4 @@
-import 'dart:io';
-
-import 'package:equatable/equatable.dart';
-import 'package:flutter/gestures.dart' show TapDownDetails;
-import 'package:flutter/material.dart';
+part of 'tasker_todo_bloc.dart';
 
 abstract class ToDoTaskerEvent extends Equatable {
   @override
@@ -27,7 +23,13 @@ class ToDoTaskerShowCompleteEvent extends ToDoTaskerEvent {
   List<Object?> get props => [showCompleted];
 }
 
-class ToDoTaskerOnAddToDoEvent extends ToDoTaskerEvent {}
+class ToDoTaskerOnAddToDoEvent extends ToDoTaskerEvent {
+  final Offset? offset;
+  final TaskType? taskType;
+  ToDoTaskerOnAddToDoEvent({this.offset, this.taskType});
+  @override
+  List<Object?> get props => [offset, taskType];
+}
 class ToDoTaskerOnMicEvent extends ToDoTaskerEvent {}
 class ToDoTaskerSearchEvent extends ToDoTaskerEvent {
   final String search;

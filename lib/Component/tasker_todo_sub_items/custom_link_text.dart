@@ -8,9 +8,13 @@ class CustomLinkText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final display = model['display'] ?? {};
-    final hasCustomLink = display['hasCustomLink'] ?? false;
-    final customLinkText = display['customLinkText']?.toString() ?? 'T';
-    final customLinkColor = display['customColor'] ?? Colors.black;
+    var hasCustomLink = display['hasCustomLink'] ?? false;
+    var customLinkText = display['customLinkText']?.toString() ?? 'T';
+    var customLinkColor = display['customColor'] ?? Colors.black;
+    final hasFairental = (model['custom_link_id'] == 3 && model['rental_booking_id'] != null);
+    hasCustomLink = hasCustomLink || hasFairental;
+    customLinkText = (hasFairental) ? "F" : customLinkText;
+    customLinkColor = (hasFairental) ? AppC.fairental : customLinkColor;
     Widget? child;
     if (hasCustomLink) {
       child = GestureDetector(
