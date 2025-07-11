@@ -96,8 +96,10 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> with AddToDoMixin {
       emit(LoadingState());
       await _fetchAllApis();
       if (isMeeting) {
-        selectedTaskIdentifiers.insert(0, taskIdentifierList.expand((element) => element).firstWhere((element) => element['id'] == 80));
-        Console.of.log(selectedTaskIdentifiers);
+        final task = taskIdentifierList.expand((element) => element).firstWhereOrNull((element) => element['id'] == 80);
+        selectedTaskIdentifier[1] = task ?? {};
+        selectedTaskIdentifiers.insert(0, task ?? {});
+        taskNameController.text = task?['name'] ?? "";
       }
       emit(CommonState());
       _updateReservation(emit);

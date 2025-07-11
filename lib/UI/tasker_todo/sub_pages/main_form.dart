@@ -29,15 +29,13 @@ class MainForm extends StatelessWidget {
               onChanged: (value) => context.read<AddToDoBloc>().add(MeetingEvent(value)),
             ),
             if (context.watch<AddToDoBloc>().selectedMeetingMode['id'] == 1)
-            ...[
-              CompactTextField(hintText: "Link", controller: context.read<AddToDoBloc>().meetingLinkController),
-              CompactDropDown<Map<String, dynamic>>(
-                items: ToDoConfig.meetingDuration,
-                initialSelection: context.watch<AddToDoBloc>().selectedMeetingDuration,
-                itemAsString: (item) => item['name'] ?? "",
-                onChanged: (value) => context.read<AddToDoBloc>().add(MeetingDurationEvent(value)),
-              ),
-            ],
+            CompactTextField(hintText: "Link", controller: context.read<AddToDoBloc>().meetingLinkController),
+            CompactDropDown<Map<String, dynamic>>(
+              items: ToDoConfig.meetingDuration,
+              initialSelection: context.watch<AddToDoBloc>().selectedMeetingDuration,
+              itemAsString: (item) => item['name'] ?? "",
+              onChanged: (value) => context.read<AddToDoBloc>().add(MeetingDurationEvent(value)),
+            ),
           ],
         if (context.watch<AddToDoBloc>().isLeadTask)
         CompactSingleChannelField<Map<String, dynamic>>(

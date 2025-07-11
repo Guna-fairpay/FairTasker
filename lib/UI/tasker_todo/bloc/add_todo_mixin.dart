@@ -131,7 +131,7 @@ mixin AddToDoMixin {
     final recurringLabel = selectedRecurring['label'].toString();
     final isEnquiryNotEmpty = enquiryController.document.toPlainText().trim().isNotNullOrEmpty;
     final hasLead = selectedTaskIdentifier[2]?['type'] == "lead";
-    final hasMeetingMode = isMeeting && (selectedMeetingMode['id'] != 0);
+    final hasMeetingMode = isMeeting;
     final task = selectedTaskIdentifier[1];
     final todoUserTypeId = task?['user_type_id'] ?? 0;
     final isUserType3 = todoUserTypeId == 3;
@@ -169,6 +169,8 @@ mixin AddToDoMixin {
     baseBody['meeting_mode'] = hasMeetingMode ? selectedMeetingMode['name'].toString().toLowerCase() : "";
     baseBody['rental_booking_id'] = (selectedCustom['id'] == 3) ? customLinkController.text : "";
     baseBody['rental_booking_no'] = "";
+    baseBody['meeting_link'] = hasMeetingMode ? meetingLinkController.text : "";
+    baseBody['meeting_duration'] = hasMeetingMode ? selectedMeetingDuration['value'] : "";
     if (!isRentalOnlyTask) {
       baseBody['custom_link_id'] = "";
       baseBody['custom_link'] = "";
@@ -184,7 +186,11 @@ mixin AddToDoMixin {
       baseBody['rental_booking_no'] = "";
     }
     if (!isUserType3) baseBody['lead_id'] = "";
-    if (!isUserType5) baseBody['meeting_mode'] = "";
+    if ((!isUserType5) && !hasMeetingMode) {
+      baseBody['meeting_mode'] = "";
+      baseBody['meeting_link'] = "";
+      baseBody['meeting_duration'] = "";
+    }
     return baseBody;
   }
 
@@ -651,7 +657,7 @@ mixin AddToDoMixin {
   void _onMeetingEvent(MeetingEvent event, Emitter<AddToDoState> emit) {
     selectedMeetingMode = event.meetingMode;
     if (selectedMeetingMode['id'] != 1) {
-      selectedMeetingDuration = ToDoConfig.meetingDuration.first;
+      selectedMeetingDuration = ToDoConfig.defaultMeetingDuration;
       meetingLinkController.clear();
     } else {
       selectedMeetingDuration = ToDoConfig.defaultMeetingDuration;
