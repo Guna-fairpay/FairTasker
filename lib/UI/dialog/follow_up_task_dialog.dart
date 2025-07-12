@@ -19,8 +19,10 @@ class _FollowUpTaskDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return CompactAlertDialog(
       titleText: "Follow-up Task",
+      titleTextStyle: context.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
       onCloseDialog: context.pop,
       content: Column(
+        mainAxisSize: MainAxisSize.min,
         spacing: 10,
         children: [
           const CompactText("Do you want to create another task for the same customer?"),

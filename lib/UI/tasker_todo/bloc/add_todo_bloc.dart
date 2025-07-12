@@ -104,6 +104,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> with AddToDoMixin {
       }
       if (isLeadTask && event.leadId != null) {
         final lead = taskIdentifierList.expand((element) => element).firstWhereOrNull((element) => (element['id'] == event.leadId) && (element['type'] == "lead"));
+        selectedLead = lead?['value'] ?? {};
         selectedTaskIdentifier[1] = {};
         selectedTaskIdentifier[2] = lead ?? {};
         selectedTaskIdentifier[3] = {};
