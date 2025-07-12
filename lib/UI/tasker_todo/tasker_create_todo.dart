@@ -66,7 +66,7 @@ class TaskerAddToDo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(create: (context) => AddToDoBloc()..add(InitialEvent(taskType: taskType, isNextTask: isNextTask, selectedDate: selectedDate, selectedVPerson: selectedVPerson, showAppBar: showHeader)),
+    return BlocProvider(create: (context) => AddToDoBloc()..add(InitialEvent(taskType: taskType, isNextTask: isNextTask, selectedDate: selectedDate, selectedVPerson: selectedVPerson, showAppBar: showHeader, leadId: leadId)),
     child: BlocListener<AddToDoBloc, AddToDoState>(
       listener: _listenNavigation,
       child: ScaffoldWrapper(
