@@ -83,7 +83,7 @@ class EditTodoBody extends StatelessWidget {
                   hintText: "Select Task",
                 ),
                 10.height,
-                if(state.selectedTask['user_type'] == 3)...[
+                if(state.selectedTask['user_type'] == 3 || state.apiResponse['lead_id'] != null)...[
                   SearchViewField(
                     controller: context.read<EditToDoBloc>().leadsController,
                     suggestions: context.watch<EditToDoBloc>().leads,
@@ -98,7 +98,7 @@ class EditTodoBody extends StatelessWidget {
                   ),
                   10.height,
                 ],
-                if(!Str.checkInCheckOut.contains(state.apiResponse['title']) && state.selectedTask['user_type'] != 5)...[
+                if((!Str.checkInCheckOut.contains(state.apiResponse['title']) && state.selectedTask['user_type'] != 5))...[
                   CustomVehiclePersonField(
                     vehiclesList: context.watch<EditToDoBloc>().vehicles,
                     personsList: context.watch<EditToDoBloc>().persons,
@@ -110,7 +110,7 @@ class EditTodoBody extends StatelessWidget {
                   ),
                   10.height,
                 ],
-                if(!Str.checkInCheckOut.contains(state.apiResponse['title']) && (!Str.userTypeId.contains(state.selectedTask['user_type'])))...[
+                if((!Str.checkInCheckOut.contains(state.apiResponse['title']) && (!Str.userTypeId.contains(state.selectedTask['user_type']))) && state.apiResponse['lead_id'] == null)...[
                   CustomVendorLocationField(
                     vendorsList: context.watch<EditToDoBloc>().vendor,
                     locationsList: context.watch<EditToDoBloc>().location,
@@ -129,7 +129,7 @@ class EditTodoBody extends StatelessWidget {
                       labelKey: 'name'
                   ),
                   10.height,
-                  if(context.watch<EditToDoBloc>().selectedMeetingType['id'] == 1)...[
+                  if(context.watch<EditToDoBloc>().selectedMeetingType?['id'] == 1)...[
                     Utils.getTextFormField(
                       'Meeting Link',
                       context.read<EditToDoBloc>().meetingLinkController,
@@ -144,7 +144,7 @@ class EditTodoBody extends StatelessWidget {
                       '',
                       context.read<EditToDoBloc>().meetingTime,
                     (v) => context.read<EditToDoBloc>().add(MeetingTimeEvent(v)),
-                      labelKey: 'time',
+                      labelKey: 'name',
                     initialSelection: context.watch<EditToDoBloc>().selectedMeetingTime,
                   ),
                   10.height,
@@ -187,7 +187,7 @@ class EditTodoBody extends StatelessWidget {
                   ),
                   10.height,
                 ],
-                if(!Str.checkInCheckOut.contains(state.apiResponse['title']) && (!Str.userTypeId.contains(state.selectedTask['user_type'])))...[
+                if(!Str.checkInCheckOut.contains(state.apiResponse['title']) && (!Str.userTypeId.contains(state.selectedTask['user_type'])) && state.apiResponse['lead_id'] == null)...[
                   const EditTodoMoreForm(),
                   10.height,
                 ],

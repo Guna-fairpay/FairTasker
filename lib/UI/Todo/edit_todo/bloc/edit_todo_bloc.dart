@@ -90,7 +90,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     {'id': 1, 'name': 'Online'},
     {'id': 2, 'name': 'Person'},
   ];
-  List<dynamic> meetingTime = [];
+  List<Map<String, dynamic>> get meetingTime  => ToDoConfig.meetingDuration;
 
   Map<String, dynamic> selectionTaps = {};
 
@@ -450,6 +450,9 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
 
     selectedMeetingType = meetingType.firstWhereOrNull((element) => element['name'].toString().toLowerCase() == todoResponse?['meeting_mode'].toString().toLowerCase());
     selectedMeetingType ??= meetingType.first;
+
+    selectedMeetingTime = meetingTime.firstWhereOrNull((element) => element['name'].toString().toLowerCase() == todoResponse?['meeting_time'].toString().toLowerCase());
+    selectedMeetingTime ??= ToDoConfig.defaultMeetingDuration;
 
     emit(state.copyWith(
       isLoading: false,
@@ -1236,7 +1239,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     // baseBody['meeting_mode'] = selectedMeetingType?['name'] ?? '';
     baseBody['meeting_mode'] = selectedMeetingType?['id'] != 0 ? ( selectedMeetingType?['name'] ?? '') : '';
     baseBody['lead_id'] = "${selectedLead?['id'] ?? ''}";
-    baseBody['meeting_duration'] = "${selectedMeetingTime?['time'] ?? ''}";
+    baseBody['meeting_duration'] = "${selectedMeetingTime?['value'] ?? ''}";
     baseBody['meeting_link'] = meetingLinkController.text;
     baseBody['type'] = "inline";
 
