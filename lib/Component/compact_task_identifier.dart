@@ -59,6 +59,11 @@ class _SegmentedAutocompleteState<T extends Object> extends State<SegmentedAutoc
     selectedItems = List<T>.from(widget.selectedValues ?? []);
     _controller = (widget.controller) ?? TextEditingController();
     _controller.text = selectedItems.map(widget.itemAsStringTitle).join(widget.separator);
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      _controller.addListener(() {
+        setState(() {});
+      });
+    });
   }
 
 
@@ -85,7 +90,7 @@ class _SegmentedAutocompleteState<T extends Object> extends State<SegmentedAutoc
     final parts = text.split(widget.separator);
     final index = currentSegmentIndex;
     if (index < parts.length) {
-      return parts[index].trim();
+      return parts[index];
     }
     return '';
   }
@@ -115,6 +120,7 @@ class _SegmentedAutocompleteState<T extends Object> extends State<SegmentedAutoc
       focusNode: _focusNode,
       optionsBuilder: (TextEditingValue textEditingValue) {
         final index = currentSegmentIndex;
+        Console.of.log("Index $index");
         if (index >= widget.segmentedSuggestions.length) return const Iterable.empty();
 
         final currentSearch = currentSegmentText.toLowerCase();
@@ -139,7 +145,7 @@ class _SegmentedAutocompleteState<T extends Object> extends State<SegmentedAutoc
               padding: EdgeInsets.zero,
               physics: const BouncingScrollPhysics(),
               shrinkWrap: true,
-              children: _buildGroupedOptions(options, onSelected),
+              children: (currentSegmentText.isEmpty) ? [] : _buildGroupedOptions(options, onSelected),
             ),
           ),
         ),
