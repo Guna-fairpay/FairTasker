@@ -16,6 +16,7 @@ class MainForm extends StatelessWidget {
             selectedValues: List<Map<String, dynamic>>.from(context.watch<AddToDoBloc>().selectedTaskIdentifier.values),
             onChanged: (val) => context.read<AddToDoBloc>().add(IdentifierEvent(val)),
           onItemRemoved: (removedItem, index) => context.read<AddToDoBloc>().add(RemoveIdentifierEvent(removedItem, index)),
+          onEmptyTap: (value) => context.read<AddToDoBloc>().add(NavigateTaskEvent(value)),
         ),
         CompactTextField(hintText: "Task Name", controller: context.read<AddToDoBloc>().taskNameController,
           validator: (value) => (value?.trim().isNullOrEmpty ?? false) ? "Task Name is required" : null,

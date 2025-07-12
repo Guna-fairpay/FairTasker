@@ -72,6 +72,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> with AddToDoMixin {
     on<DeleteAttachmentEvent>(_onDeleteAttachmentEvent); /// DELETE ATTACHMENT EVENT
     on<RemoveIdentifierEvent>(_onRemoveIdentifierEvent); /// REMOVE IDENTIFIER EVENT
     on<MeetingDurationEvent>(_onMeetingDurationEvent); /// MEETING DURATION EVENT
+    on<NavigateTaskEvent>(_onNavigateTaskEvent); /// NAVIGATE TASK EVENT
     on<SubmitEvent>(_onSubmitEvent); /// SUBMIT EVENT
   }
 

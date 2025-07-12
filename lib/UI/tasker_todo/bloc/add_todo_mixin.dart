@@ -728,4 +728,8 @@ mixin AddToDoMixin {
     selectedMeetingDuration = event.meetingDuration;
     emit(CommonState());
   }
+
+  void _onNavigateTaskEvent(NavigateTaskEvent event, Emitter<AddToDoState> emit) {
+    emit(NavigateTaskState(event.task));
+  }
 }

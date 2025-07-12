@@ -223,3 +223,10 @@ class DeleteAttachmentEvent extends AddToDoEvent {
   @override
   List<Object?> get props => [attachment];
 }
+
+class NavigateTaskEvent extends AddToDoEvent {
+  final dynamic task;
+  NavigateTaskEvent(this.task);
+  @override
+  List<Object?> get props => [task];
+}

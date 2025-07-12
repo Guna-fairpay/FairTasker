@@ -17,6 +17,7 @@ import 'package:fairpytasker/Component/scaffold_wrapper.dart';
 import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Parts/ui/parts_main_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Supplies/UI/supplies_main_ui.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/Task/UI/task_main_page.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/leads/ui/leads_main_ui.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/add_todo_const.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/component/add_todo_recurring_end_after_field.dart';
