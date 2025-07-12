@@ -69,3 +69,10 @@ class ViewAttachmentState extends AddToDoState {
   @override
   List<Object?> get props => [model, Random().nextDouble()];
 }
+
+class NavigateTaskState extends AddToDoState {
+  final dynamic model;
+  NavigateTaskState(this.model);
+  @override
+  List<Object?> get props => [model, Random().nextDouble()];
+}

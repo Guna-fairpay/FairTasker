@@ -18,6 +18,7 @@ void _listenNavigation(BuildContext context, AddToDoState state) async {
         if (result ?? false) context.read<AddToDoBloc>().add(DeleteTodoEvent(state.model));
       } break;
       case ViewAttachmentState(): ShowAttachmentsDialog.of.show(context, attachments: state.model, title: "Add ToDo", onDeleted: (value) => context.read<AddToDoBloc>().add(DeleteAttachmentEvent(value))); break;
+      case NavigateTaskState(): context.push(TaskMainPage(title: state.model)); break;
     }
   }
 }

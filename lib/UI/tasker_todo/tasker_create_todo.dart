@@ -17,6 +17,7 @@ import 'package:fairpytasker/Component/scaffold_wrapper.dart';
 import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Parts/ui/parts_main_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Supplies/UI/supplies_main_ui.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/Task/UI/task_main_page.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/leads/ui/leads_main_ui.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/add_todo_const.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/component/add_todo_recurring_end_after_field.dart';
@@ -60,11 +61,12 @@ class TaskerAddToDo extends StatelessWidget {
   final DateTime? selectedDate;
   final dynamic selectedVPerson;
   final bool isNextTask, showHeader;
-  const TaskerAddToDo({super.key, this.taskType = TaskType.rental, this.isNextTask = false, this.showHeader = true, this.selectedDate, this.selectedVPerson});
+  final dynamic leadId;
+  const TaskerAddToDo({super.key, this.taskType = TaskType.rental, this.isNextTask = false, this.showHeader = true, this.selectedDate, this.selectedVPerson, this.leadId});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(create: (context) => AddToDoBloc()..add(InitialEvent(taskType: taskType, isNextTask: isNextTask, selectedDate: selectedDate, selectedVPerson: selectedVPerson, showAppBar: showHeader)),
+    return BlocProvider(create: (context) => AddToDoBloc()..add(InitialEvent(taskType: taskType, isNextTask: isNextTask, selectedDate: selectedDate, selectedVPerson: selectedVPerson, showAppBar: showHeader, leadId: leadId)),
     child: BlocListener<AddToDoBloc, AddToDoState>(
       listener: _listenNavigation,
       child: ScaffoldWrapper(

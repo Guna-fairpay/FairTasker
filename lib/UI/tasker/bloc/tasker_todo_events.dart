@@ -370,3 +370,17 @@ class ToDoTaskerYesterdayEvent extends ToDoTaskerEvent {
   @override
   List<Object?> get props => [selectedDate];
 }
+
+class MeetingViewEvent extends ToDoTaskerEvent {
+  final Map<String, dynamic>? model;
+  MeetingViewEvent(this.model);
+  @override
+  List<Object?> get props => [model];
+}
+
+class FollowupTaskEvent extends ToDoTaskerEvent {
+  final Map<String, dynamic>? model;
+  FollowupTaskEvent(this.model);
+  @override
+  List<Object?> get props => [model];
+}
