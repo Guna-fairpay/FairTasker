@@ -287,12 +287,13 @@ mixin AddToDoMixin {
 
   void _errorCatch(dynamic e, Emitter<AddToDoState> emit) {
     Console.of.error("Error", error: e, name: "ADD_TODO_BLOC");
-    emit(ErrorState(e));
+    if (!emit.isDone) emit(ErrorState(e));
   }
 
   void _updateReservation(Emitter<AddToDoState> emit) async {
     try {
       if (hasVehicle && lasVehicleVin.isNotNullOrEmpty) {
+        if (!emit.isDone) emit(LoadingState());
         final response = await _findReservation(lasVehicleVin);
         existingRefId = response?['reference_id'] ?? "";
         if (existingRefId.toString().trim().isNotNullOrEmpty) customLinkController.text = "${existingRefId ?? ""}";
@@ -301,7 +302,7 @@ mixin AddToDoMixin {
             :Str.green.contains(response?['identifier_id'])
             ?AppC.green
             :AppC.appColor;
-        emit(CommonState());
+        if (!emit.isDone) emit(CommonState());
       }
     } catch (e) {
       _errorCatch(e, emit);
@@ -428,7 +429,7 @@ mixin AddToDoMixin {
 
   void _onRemoveIdentifierEvent(RemoveIdentifierEvent event, Emitter<AddToDoState> emit) {
     final model = event.identifier;
-    final index = event.index;
+    // final index = event.index;
     final isTask = model?['type'] == 'task';
     final isLead = model?['type'] == "lead";
     final isVehicle = ["vehicles", "person", "g_vehicles"].contains(model?['type']);
