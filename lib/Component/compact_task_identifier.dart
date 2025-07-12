@@ -21,6 +21,7 @@ class SegmentedAutocomplete<T extends Object> extends StatefulWidget {
   final String? hintText;
   final void Function(String value)? onEmptyTap;
   final void Function(T removedItem, int index)? onItemRemoved;
+  final TextEditingController? controller;
   final List<T>? selectedValues;
 
   const SegmentedAutocomplete({
@@ -29,6 +30,7 @@ class SegmentedAutocomplete<T extends Object> extends StatefulWidget {
     required this.itemAsString,
     required this.itemAsStringTitle,
     required this.itemAsSearchString,
+    this.controller,
     this.decoration,
     this.onChanged,
     this.hintText,
@@ -55,9 +57,8 @@ class _SegmentedAutocompleteState<T extends Object> extends State<SegmentedAutoc
   void initState() {
     super.initState();
     selectedItems = List<T>.from(widget.selectedValues ?? []);
-    _controller = TextEditingController(
-      text: selectedItems.map(widget.itemAsStringTitle).join(widget.separator),
-    );
+    _controller = (widget.controller) ?? TextEditingController();
+    _controller.text = selectedItems.map(widget.itemAsStringTitle).join(widget.separator);
   }
 
 
@@ -157,7 +158,12 @@ class _SegmentedAutocompleteState<T extends Object> extends State<SegmentedAutoc
           hintStyle: context.textTheme.labelMedium?.copyWith(color: context.theme.hintColor),
           suffixIconConstraints: const BoxConstraints(),
           suffixIcon: _isFirstSegmentInvalid
-            ? IconButton(onPressed: () => widget.onEmptyTap?.call(_controller.text), icon: const Icon(Icons.add), color: AppC.appColor,
+            ? IconButton(onPressed: () {
+            widget.onEmptyTap?.call(_controller.text);
+            _controller.clear();
+            _focusNode.unfocus();
+            setState(() { _isFirstSegmentInvalid = _computeIsFirstSegmentInvalid(); });
+          }, icon: const Icon(Icons.add), color: AppC.appColor,
             style: ButtonStyle(
             backgroundColor: WidgetStatePropertyAll(AppC.blue50),
             shape: WidgetStatePropertyAll(ContinuousRectangleBorder(

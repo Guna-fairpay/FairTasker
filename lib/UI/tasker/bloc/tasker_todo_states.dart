@@ -36,9 +36,10 @@ class DatePickerState extends ToDoTaskerState {
 class AddToDoState extends ToDoTaskerState {
   final DateTime? date;
   final TaskType? taskType;
-  AddToDoState(this.date, {this.taskType});
+  final dynamic leadId;
+  AddToDoState(this.date, {this.taskType, this.leadId});
   @override
-  List<Object?> get props => [date, taskType, Random().nextDouble()];
+  List<Object?> get props => [date, taskType, leadId, Random().nextDouble()];
 }
 class MicState extends ToDoTaskerState {
   @override
@@ -293,5 +294,11 @@ class TaskerTypeState extends ToDoTaskerState {
   TaskerTypeState(this.offset);
   @override
   List<Object?> get props => [offset, Random().nextDouble()];
+}
 
+class FollowupTaskState extends ToDoTaskerState {
+  final Map<String, dynamic>? model;
+  FollowupTaskState(this.model);
+  @override
+  List<Object?> get props => [model, Random().nextDouble()];
 }

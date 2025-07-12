@@ -11,7 +11,7 @@ void navigation(BuildContext context, ToDoTaskerState state) {
       case ErrorState(): Toaster.showError("${state.message}"); break;
       case DatePickerState(): Utils.showPickerDate(context, value: context.read<ToDoTaskerBloc>().selectedDate, onChanged: (val) => context.read<ToDoTaskerBloc>().add(ToDoTaskerDateFilterEvent(val))); break;
       // case AddToDoState(): context.push(CreateTodoUI(selectedDate: state.date), fullscreenDialog: true); break;
-      case AddToDoState(): context.push(TaskerAddToDo(taskType: state.taskType ?? TaskType.rental, selectedDate: state.date), fullscreenDialog: true); break;
+      case AddToDoState(): context.push(TaskerAddToDo(taskType: state.taskType ?? TaskType.rental, selectedDate: state.date, leadId: state.leadId), fullscreenDialog: true); break;
       case MicState(): RecordAudioDialog.show(context, onRecorded: (file) => context.read<ToDoTaskerBloc>().add(ToDoTaskerSaveRecordEvent(file))); break;
       case CompleteMaintenanceCheckState(): context.push(EditTodoUI(todoId: state.model?['id'].toString(), model: state.model),fullscreenDialog: true); break;
       case EditState(): context.push(EditTodoUI(todoId: state.toDoId, model: state.model,)); break;
@@ -48,6 +48,7 @@ void navigation(BuildContext context, ToDoTaskerState state) {
       case CompleteTransportCarState(): if (kDebugMode) TaskerToDoCompleteDialog.show(context, state.model); break; // HOLD DUE TO FLOW INCOMPLETE
       case MaintenanceCheckTasksCompleteState(): TaskerMaintenanceCompleteDialog.show(context, model: state.model); break;
       case TaskerTypeState(): SimplePopUpMenu.instance.show<TaskType>(context, items: TaskType.values, position: state.offset, itemAsString: (item) => item.name,  onTap: (item) => context.read<ToDoTaskerBloc>().add(ToDoTaskerOnAddToDoEvent(taskType: item)), height: 0); break;
+      case FollowupTaskState(): TaskerFollowupTaskDialog.show(context, onPositive: () => context.read<ToDoTaskerBloc>().add(FollowupTaskEvent(state.model))); break;
       default: break;
     }
   }

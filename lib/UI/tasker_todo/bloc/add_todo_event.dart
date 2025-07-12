@@ -11,10 +11,11 @@ class InitialEvent extends AddToDoEvent {
   final bool isNextTask;
   final TaskType taskType;
   final List<Map<String, dynamic>>? selectedVPerson;
+  final dynamic leadId;
 
-  InitialEvent({this.showAppBar = true, this.selectedDate, this.isNextTask = false, this.selectedVPerson, this.taskType = TaskType.rental});
+  InitialEvent({this.showAppBar = true, this.selectedDate, this.isNextTask = false, this.selectedVPerson, this.taskType = TaskType.rental, this.leadId});
   @override
-  List<Object?> get props => [showAppBar, selectedDate, isNextTask, selectedVPerson, taskType];
+  List<Object?> get props => [showAppBar, selectedDate, isNextTask, selectedVPerson, taskType, leadId];
 }
 
 class RefreshEvent extends AddToDoEvent {}
@@ -221,4 +222,11 @@ class DeleteAttachmentEvent extends AddToDoEvent {
   DeleteAttachmentEvent(this.attachment);
   @override
   List<Object?> get props => [attachment];
+}
+
+class NavigateTaskEvent extends AddToDoEvent {
+  final dynamic task;
+  NavigateTaskEvent(this.task);
+  @override
+  List<Object?> get props => [task];
 }

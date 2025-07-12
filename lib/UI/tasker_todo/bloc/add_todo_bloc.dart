@@ -72,6 +72,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> with AddToDoMixin {
     on<DeleteAttachmentEvent>(_onDeleteAttachmentEvent); /// DELETE ATTACHMENT EVENT
     on<RemoveIdentifierEvent>(_onRemoveIdentifierEvent); /// REMOVE IDENTIFIER EVENT
     on<MeetingDurationEvent>(_onMeetingDurationEvent); /// MEETING DURATION EVENT
+    on<NavigateTaskEvent>(_onNavigateTaskEvent); /// NAVIGATE TASK EVENT
     on<SubmitEvent>(_onSubmitEvent); /// SUBMIT EVENT
   }
 
@@ -96,10 +97,19 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> with AddToDoMixin {
       emit(LoadingState());
       await _fetchAllApis();
       if (isMeeting) {
-        final task = taskIdentifierList.expand((element) => element).firstWhereOrNull((element) => element['id'] == 80);
+        final task = taskIdentifierList.expand((element) => element).firstWhereOrNull((element) => (element['id'] == 80) && (element['type'] == "task"));
         selectedTaskIdentifier[1] = task ?? {};
         selectedTaskIdentifiers.insert(0, task ?? {});
         taskNameController.text = task?['name'] ?? "";
+      }
+      if (isLeadTask && event.leadId != null) {
+        final lead = taskIdentifierList.expand((element) => element).firstWhereOrNull((element) => (element['id'] == event.leadId) && (element['type'] == "lead"));
+        selectedTaskIdentifier[1] = {};
+        selectedTaskIdentifier[2] = lead ?? {};
+        selectedTaskIdentifier[3] = {};
+        selectedTaskIdentifiers.insert(0, {});
+        selectedTaskIdentifiers.insert(1, lead ?? {});
+        selectedTaskIdentifiers.insert(2, {});
       }
       emit(CommonState());
       _updateReservation(emit);
