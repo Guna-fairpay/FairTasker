@@ -2,7 +2,7 @@ part of '../todo_task_item_card.dart';
 
 class VehicleExtrasView extends StatelessWidget {
   final Map model;
-  final GestureTapDownCallback? onVehicleOrPerson;
+  final GestureTapDownCallback? onVehicleOrPerson, onMeeting;
   final VoidCallback? onVehicleHistory;
   final GestureTapDownCallback? onVehicleGroup;
   final GestureTapDownCallback? onParts;
@@ -10,6 +10,7 @@ class VehicleExtrasView extends StatelessWidget {
   const VehicleExtrasView({super.key,
     required this.model,
     this.onVehicleOrPerson,
+    this.onMeeting,
     this.onVehicleHistory,
     this.onVehicleGroup,
     this.onParts,
@@ -25,6 +26,8 @@ class VehicleExtrasView extends StatelessWidget {
     final hasG = display['hasG'] ?? false;
     final hasParts = display['hasParts'] ?? false;
     final hasSupplies = display['hasSupplies'] ?? false;
+    final hasMeeting = model['meeting_mode'].toString().isNotNullOrEmpty;
+    final meetingType = model['meeting_mode'].toString().toTitleCase();
     return Row(
       spacing: 10,
       mainAxisAlignment: MainAxisAlignment.start,
@@ -43,6 +46,18 @@ class VehicleExtrasView extends StatelessWidget {
               ),
             ),
           ),
+        if (hasMeeting)
+        Flexible(
+          child: GestureDetector(
+            onTapDown: onMeeting,
+            child: Utils.getText(
+              meetingType,
+              size: 11.sp,
+              overFlow: TextOverflow.ellipsis,
+              weight: FontWeight.w600,
+            ),
+          ),
+        ),
         if (hasVehicleHistory)
           GestureDetector(
             onTap: onVehicleHistory,

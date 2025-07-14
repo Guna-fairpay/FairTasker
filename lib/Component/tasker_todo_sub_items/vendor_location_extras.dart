@@ -2,10 +2,10 @@ part of '../todo_task_item_card.dart';
 
 class VendorLocationExtras extends StatelessWidget {
   final Map<String, dynamic> model;
-  final GestureTapDownCallback? onVendorOrLocation, onNotes, onAddress;
+  final GestureTapDownCallback? onVendorOrLocation, onNotes, onAddress, onLead;
   final VoidCallback? onVendorInfo;
   final void Function(String? value)? onMore; // SHOW MORE TEXT WITH THIS FUNCTION
-  const VendorLocationExtras({super.key, required this.model, this.onVendorOrLocation, this.onVendorInfo, this.onNotes, this.onMore, this.onAddress});
+  const VendorLocationExtras({super.key, required this.model, this.onVendorOrLocation, this.onVendorInfo, this.onNotes, this.onMore, this.onAddress, this.onLead});
 
   @override
   Widget build(BuildContext context) {
@@ -20,13 +20,16 @@ class VendorLocationExtras extends StatelessWidget {
     final hasNotes = notes.toString().isNotNullOrEmpty;
     final parsedNotes = parse(notes.toString().removeNextLines).body?.text;
     final hasEllipsis = timeChangeReason.length > 10;
+    final hasLead = model['lead_id'].toString().isNotNullOrEmpty;
+    final leadName = model['lead']?['customer_name'] ?? "";
     return Expanded(child: Row(
       spacing: 10,
       mainAxisAlignment: MainAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (hasVendorLocation) Flexible(child: GestureDetector(onTapDown: onVendorOrLocation, child: CompactText(vendorLocation, overflow: TextOverflow.ellipsis, styleType: TextStyleType.labelLarge))),
-        if (hasVendorInfo) GestureDetector(onTap: onVendorInfo, child: Icon(Icons.info, size: 8.sp, color: Colors.blue)),
+        if (hasVendorLocation) Flexible(child: GestureDetector(onTapDown: onVendorOrLocation, child: Utils.getText(vendorLocation, size: 12.sp, overFlow: TextOverflow.ellipsis))),
+        if (hasLead) Flexible(child: GestureDetector(onTapDown: onLead, child: Utils.getText(leadName, size: 12.sp, overFlow: TextOverflow.ellipsis))),
+        if (hasVendorInfo) GestureDetector(onTap: onVendorInfo, child: Icon(Icons.info, size: 14.sp, color: Colors.blue)),
         if (hasNotes) Flexible(
           child: RichText(
               maxLines: 1,

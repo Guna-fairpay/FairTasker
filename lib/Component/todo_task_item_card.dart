@@ -1,21 +1,19 @@
-import 'package:fairpytasker/Component/custom_text/compact_text.dart';
-import 'package:fairpytasker/Utilities/prefs.dart';
-import 'package:fairpytasker/core/app/extension/context_extension.dart';
-import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
+import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
+import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
-import 'package:fairpytasker/core/app/helper/console.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fairpytasker/Component/custom_loader.dart';
 import 'package:fairpytasker/Utilities/assets.dart';
+import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
-import 'package:flutter/material.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:remixicon/remixicon.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
 
 part 'tasker_todo_sub_items/vehicle_plate_view.dart';
 part 'tasker_todo_sub_items/task_title_view.dart';
@@ -36,8 +34,8 @@ class TodoTaskItemCard extends StatelessWidget {
   final ValueChanged<bool?>? onChecked;
   final void Function(String? value)? onMore; // SHOW MORE TEXT WITH THIS FUNCTION
   final VoidCallback? onTap, onPlateNumTap, onVendorInfo, onBouncie, onCustomLink, onViewAttachment, onDateChange, onCompletedTimeChange, onTimeChange, onVehicleHistory, onReasonAttachmentView, onMeetingView;
-  final GestureTapDownCallback? onVehicleOrPerson, onVehicleGroup, onParts, onSupplies, onVendorOrLocation, onAddress, onResource, onNotes;
-  const TodoTaskItemCard({super.key, required this.model, this.onTap, this.onPlateNumTap, this.onVendorInfo, this.onBouncie, this.onCustomLink, this.onViewAttachment, this.onDateChange, this.onCompletedTimeChange, this.onTimeChange, this.onVehicleOrPerson, this.onVehicleHistory, this.onVehicleGroup, this.onParts, this.onSupplies, this.onVendorOrLocation, this.onAddress, this.onResource, this.onNotes, this.onComplete, this.onPrevious, this.showCheckbox = false, this.value = false, this.onChecked, this.onInProgress, this.onReasonAttachmentView, this.onMore, this.onMeetingView});
+  final GestureTapDownCallback? onVehicleOrPerson, onVehicleGroup, onParts, onSupplies, onVendorOrLocation, onAddress, onResource, onNotes, onLead, onMeeting;
+  const TodoTaskItemCard({super.key, required this.model, this.onTap, this.onPlateNumTap, this.onVendorInfo, this.onBouncie, this.onCustomLink, this.onViewAttachment, this.onDateChange, this.onCompletedTimeChange, this.onTimeChange, this.onVehicleOrPerson, this.onVehicleHistory, this.onVehicleGroup, this.onParts, this.onSupplies, this.onVendorOrLocation, this.onAddress, this.onResource, this.onNotes, this.onComplete, this.onPrevious, this.showCheckbox = false, this.value = false, this.onChecked, this.onInProgress, this.onReasonAttachmentView, this.onMore, this.onMeetingView, this.onLead, this.onMeeting});
 
   @override
   Widget build(BuildContext context) {
@@ -120,12 +118,12 @@ class TodoTaskItemCard extends StatelessWidget {
                       VehicleBouncieRow(
                         model: model,
                         onParts: onParts,
+                        onBouncie: onBouncie,
+                        onMeeting: onMeeting,
                         onSupplies: onSupplies,
                         onVehicleGroup: onVehicleGroup,
                         onVehicleHistory: onVehicleHistory,
-                        onVehicleOrPerson: onVehicleOrPerson,
-                        onBouncie: onBouncie,
-                      ),
+                        onVehicleOrPerson: onVehicleOrPerson),
                       VendorNotesResourceView(
                         model: model,
                         onVendorOrLocation: onVendorOrLocation,
@@ -137,6 +135,7 @@ class TodoTaskItemCard extends StatelessWidget {
                         showCheckbox: showCheckbox,
                         value: value,
                         onChecked: onChecked,
+                        onLead: onLead,
                       )
                     ],
                   ),

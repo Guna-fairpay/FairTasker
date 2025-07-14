@@ -117,6 +117,8 @@ class TaskerListingUi extends StatelessWidget {
                             .read<ToDoTaskerBloc>()
                             .add(ToDoTaskerViewBouncieEvent(model)),
                         onMore: (value) => NotesDialog.show(context, message: value),
+                        onMeeting: (details) => context.read<ToDoTaskerBloc>().add(MeetingTapEvent(model)),
+                        onLead: (details) => context.read<ToDoTaskerBloc>().add(TaskerLeadTapEvent(model)),
                       );
                     },
                     onReorder: (oldIndex, newIndex) {
