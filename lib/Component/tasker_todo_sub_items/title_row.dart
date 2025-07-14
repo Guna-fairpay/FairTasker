@@ -2,8 +2,8 @@ part of '../todo_task_item_card.dart';
 
 class TitleRow extends StatelessWidget {
   final Map<String, dynamic> model;
-  final VoidCallback? onTap, onReasonAttachmentView, onCustomLink, onViewAttachment, onDateChange, onCompletedTimeChange, onTimeChange;
-  const TitleRow({super.key, required this.model, this.onTap, this.onReasonAttachmentView, this.onCustomLink, this.onViewAttachment, this.onDateChange, this.onCompletedTimeChange, this.onTimeChange});
+  final VoidCallback? onTap, onReasonAttachmentView, onCustomLink, onViewAttachment, onDateChange, onCompletedTimeChange, onTimeChange, onMeetingView;
+  const TitleRow({super.key, required this.model, this.onTap, this.onReasonAttachmentView, this.onCustomLink, this.onViewAttachment, this.onDateChange, this.onCompletedTimeChange, this.onTimeChange, this.onMeetingView});
 
   @override
   Widget build(BuildContext context) {
@@ -15,6 +15,7 @@ class TitleRow extends StatelessWidget {
       Flexible(child: TaskTitleView(
         model: model,
         onTap: onTap,
+        onMeetingView: onMeetingView,
         onReasonAttachmentView: onReasonAttachmentView,
       )),
       CustomLinkText(

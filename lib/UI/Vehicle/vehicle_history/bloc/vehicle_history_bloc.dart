@@ -99,6 +99,7 @@ class VehicleHistoryBloc
     vehicleGroupId = event.groupId;
     vinName = event.vehicleName;
     itemsPerPage = event.itemPerPage;
+    if (vinName.toString().isNullOrEmpty && vehicleGroupId.toString().isNullOrEmpty && vinName.toString().isNullOrEmpty) return;
     try {
       emit(VehicleHistoryLoadingState());
       var response = await Future.wait([

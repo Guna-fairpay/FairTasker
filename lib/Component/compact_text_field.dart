@@ -22,11 +22,11 @@ class CompactTextField extends StatelessWidget {
   final bool obscureText;
   final int? maxLines;
   final int? minLines;
-  const CompactTextField({super.key, this.controller, this.hintText = "Type here", this.labelText, this.prefixIcon, this.autoValidateMode, this.textInputAction, this.keyboardType, this.validator, this.maxLines = 1, this.minLines, this.inputFormatters, this.borderColor = AppC.fieldBase, this.focusNode, this.suffixIcon, this.obscureText = false});
+  const CompactTextField({super.key, this.controller, this.hintText = "Type here", this.labelText, this.prefixIcon, this.autoValidateMode, this.textInputAction, this.keyboardType, this.validator, this.maxLines = 1, this.minLines, this.inputFormatters, this.borderColor = AppC.borderColor, this.focusNode, this.suffixIcon, this.obscureText = false});
 
   @override
   Widget build(BuildContext context) {
-    var border = OutlineInputBorder(borderRadius: BorderRadius.circular(Num.borderRadius), borderSide: BorderSide(color: borderColor ?? AppC.borderColor, width: Num.borderWidthField));
+    var border = OutlineInputBorder(borderRadius: BorderRadius.circular(Num.borderRadius), borderSide: BorderSide(color: borderColor ?? AppC.borderColor));
     return TextFormField(
       key: key,
       controller: controller,
@@ -56,7 +56,7 @@ class CompactTextField extends StatelessWidget {
         border: border,
         enabledBorder: border,
         focusedBorder: border,
-        hintStyle: context.textTheme.labelLarge?.copyWith(color: AppC.fieldBase),
+        hintStyle: context.textTheme.labelMedium?.copyWith(color: context.theme.hintColor),
         prefixIcon: (prefixIcon == null) ? null : Padding(padding: 10.horizontalPadding, child: const Icon(Icons.search_rounded, color: AppC.text)),
         suffixIcon: suffixIcon,
         suffixIconConstraints: const BoxConstraints(),

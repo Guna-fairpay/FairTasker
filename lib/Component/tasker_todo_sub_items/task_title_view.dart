@@ -2,8 +2,8 @@ part of '../todo_task_item_card.dart';
 
 class TaskTitleView extends StatelessWidget {
   final Map<String, dynamic> model;
-  final VoidCallback? onTap, onReasonAttachmentView;
-  const TaskTitleView({super.key, required this.model, this.onTap, this.onReasonAttachmentView});
+  final VoidCallback? onTap, onReasonAttachmentView, onMeetingView;
+  const TaskTitleView({super.key, required this.model, this.onTap, this.onReasonAttachmentView, this.onMeetingView});
 
   @override
   Widget build(BuildContext context) {
@@ -13,6 +13,7 @@ class TaskTitleView extends StatelessWidget {
     final hasReasonAttachments = display['hasReasonAttachments'] ?? false;
     final hasRelatedTask = display['hasRelatedTask'] ?? false;
     final List<InlineSpan> spans = [];
+    final hasMeeting = ((model['meeting_mode'] == "online") && (model['meeting_link'].toString().isNotNullOrEmpty));
     // Prebuild spans
     spans.add(
       TextSpan(
@@ -36,6 +37,13 @@ class TaskTitleView extends StatelessWidget {
           )),
         TextSpan(text: "\t)\t", style: context.textTheme.labelMedium?.copyWith(color: Colors.red, fontSize: 12.sp)),
       ]);
+    }
+
+    if (hasMeeting) {
+      spans.addAll([WidgetSpan(child: 5.spMin.width), WidgetSpan(child: GestureDetector(
+        onTap: onMeetingView,
+        child: Icon(Remix.links_line, color: AppC.bouncieButtonColor, size: 14.sp),
+      ))]);
     }
 
     if (hasRelatedTask) {

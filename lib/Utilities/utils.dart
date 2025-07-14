@@ -16,6 +16,7 @@ import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/helper.dart';
+import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -2848,11 +2849,11 @@ class Utils {
           mode: LaunchMode.externalApplication,
         );
       } else {
-        showMobileToast("Could not launch $uri");
+        Toaster.showInfo("Oops! That doesn’t look like a proper link.\n\"${uri.toString()}\"", title: "Invalid URL");
       }
     } catch (e) {
       log('Error launching URL: $e');
-      showMobileToast(e.toString());
+      Toaster.showError(e.toString());
     }
   }
 

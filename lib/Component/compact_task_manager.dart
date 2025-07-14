@@ -8,12 +8,13 @@ import 'package:flutter/material.dart';
 class CompactTaskManager<T extends Object> extends StatelessWidget {
   final String? label;
   final List<T>? items;
+  final int? showMaxItems;
   final List<T>? selectedItems;
   final ItemAsString<T>? itemAsString;
   final AutovalidateMode? autoValidateMode;
   final FormFieldValidator<List<T>>? validator;
   final void Function(bool isChecked, T value)? onChanged;
-  const CompactTaskManager({super.key, this.selectedItems, this.items, this.label, this.validator, this.autoValidateMode, this.itemAsString, this.onChanged});
+  const CompactTaskManager({super.key, this.selectedItems, this.items, this.label, this.validator, this.autoValidateMode, this.itemAsString, this.onChanged, this.showMaxItems});
 
   @override
   Widget build(BuildContext context) {
@@ -36,6 +37,7 @@ class CompactTaskManager<T extends Object> extends StatelessWidget {
                 items: items ?? [],
                 itemAsString: itemAsString,
                 selectedItems: selectedItems,
+                showMaxItems: showMaxItems,
                 onChanged: (isChecked, value) {
                   field.didChange(isChecked ? ((selectedItems ?? [])..add(value)) : ((selectedItems ?? [])..remove(value)));
                   onChanged?.call(isChecked, value);

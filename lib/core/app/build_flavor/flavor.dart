@@ -30,12 +30,19 @@ class Flavor {
     FlavorType.production => "https://fairreturns.com/",
   };
 
+  String get _fairental => switch(type){
+    FlavorType.local => "https://apirental.fairreturns.in/",
+    FlavorType.debug => "https://apirental.fairreturns.in/",
+    FlavorType.production => "https://api.fairental.com/",
+  };
+
   String get _baseUrl => "${_tasker}api/";
   String get _orgUrl => "${_portalUrl}api/";
   String get _storageUrl => "${_devReturns}storage/";
   String get _fairReturnsUrl => "${_devReturns}api/";
   String get _attachmentUrl => _tasker;
   String get _taskerStorage => "${_tasker}storage/";
+  String get _fairentalBooking => "${_fairental}admin/booking-summary/";
 
   bool get isDebug => type == FlavorType.debug;
   bool get isProduction => type == FlavorType.production;
@@ -46,4 +53,5 @@ class Flavor {
   String get returnsUrl => _fairReturnsUrl;
   String get attachmentUrl => _attachmentUrl;
   String get taskerStorageUrl => _taskerStorage;
+  String get fairRentalBookingSummary => _fairentalBooking;
 }

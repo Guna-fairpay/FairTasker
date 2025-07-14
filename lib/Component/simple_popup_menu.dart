@@ -3,6 +3,7 @@ import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class SimplePopUpMenu<T extends Object> {
   SimplePopUpMenu._();
@@ -12,6 +13,7 @@ class SimplePopUpMenu<T extends Object> {
   void show<T extends Object>(BuildContext context,
           {required List<T> items,
           required Offset position,
+          double? height,
           ItemAsString<T>? itemAsString,
           void Function(T item)? onTap}) async =>
       await showMenu(
@@ -29,7 +31,8 @@ class SimplePopUpMenu<T extends Object> {
           elevation: 5,
           items: items
               .map((item) => PopupMenuItem(
-                  padding: 10.padding,
+                  padding: 10.spMin.padding,
+                  height: height ?? kMinInteractiveDimension,
                   textStyle: context.textTheme.labelMedium,
                   value: item,
                   onTap: () {

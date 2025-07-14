@@ -1,8 +1,4 @@
-import 'dart:math';
-
-import 'package:equatable/equatable.dart';
-import 'package:flutter/gestures.dart' show TapDownDetails;
-import 'package:flutter/material.dart' show TimeOfDay;
+part of 'tasker_todo_bloc.dart';
 
 abstract class ToDoTaskerState extends Equatable {
   @override
@@ -18,275 +14,291 @@ class ToDoTaskerCommonState extends ToDoTaskerState {
   List<Object?> get props => [Random().nextDouble()];
 }
 
-class ToDoTaskerErrorState extends ToDoTaskerState {
+class ErrorState extends ToDoTaskerState {
   final dynamic message;
-  ToDoTaskerErrorState(this.message);
+  ErrorState(this.message);
   @override
   List<Object?> get props => [message];
 }
 
-class ToDoTaskerSuccessState extends ToDoTaskerState {
+class SuccessState extends ToDoTaskerState {
   final dynamic message;
-  ToDoTaskerSuccessState(this.message);
+  SuccessState(this.message);
   @override
   List<Object?> get props => [message];
 }
 
-class ToDoTaskerDatePickerState extends ToDoTaskerState {
+class DatePickerState extends ToDoTaskerState {
   @override
   List<Object?> get props => [Random().nextDouble()];
 }
 
-class ToDoTaskerAddToDoState extends ToDoTaskerState {
+class AddToDoState extends ToDoTaskerState {
   final DateTime? date;
-  ToDoTaskerAddToDoState(this.date);
+  final TaskType? taskType;
+  final dynamic leadId;
+  AddToDoState(this.date, {this.taskType, this.leadId});
   @override
-  List<Object?> get props => [date, Random().nextDouble()];
+  List<Object?> get props => [date, taskType, leadId, Random().nextDouble()];
 }
-class ToDoTaskerMicState extends ToDoTaskerState {
+class MicState extends ToDoTaskerState {
   @override
   List<Object?> get props => [Random().nextDouble()];
 }
 
-class ToDoTaskerEditState extends ToDoTaskerState {
+class EditState extends ToDoTaskerState {
   final dynamic toDoId;
   final dynamic model;
-  ToDoTaskerEditState(this.toDoId, {this.model});
+  EditState(this.toDoId, {this.model});
   @override
   List<Object?> get props => [toDoId, model, Random().nextDouble()];
 }
 
-class ToDoTaskerTapUserFilterState extends ToDoTaskerState {
+class UserFilterState extends ToDoTaskerState {
   final TapDownDetails? details;
-  ToDoTaskerTapUserFilterState(this.details);
+  UserFilterState(this.details);
   @override
   List<Object?> get props => [details];
 }
 
-class ToDoTaskerTapVehicleFilterState extends ToDoTaskerState {
+class VehicleFilterState extends ToDoTaskerState {
   final TapDownDetails? details;
 
-  ToDoTaskerTapVehicleFilterState(this.details);
+  VehicleFilterState(this.details);
 
   @override
   List<Object?> get props => [details];
 }
 
-class ToDoTaskerVendorInfoState extends ToDoTaskerState {
+class VendorInfoState extends ToDoTaskerState {
   final Map<String, dynamic>? model;
-  ToDoTaskerVendorInfoState(this.model);
+  VendorInfoState(this.model);
   @override
   List<Object?> get props => [model, Random().nextDouble()];
 }
 
-class ToDoTaskerNotesTapState extends ToDoTaskerState {
+class NotesTapState extends ToDoTaskerState {
   final Map<String, dynamic>? model;
-  ToDoTaskerNotesTapState(this.model);
+  NotesTapState(this.model);
   @override
   List<Object?> get props => [model, Random().nextDouble()];
 }
 
-class ToDoTaskerVehiclePersonTapState extends ToDoTaskerState {
+class VehiclePersonTapState extends ToDoTaskerState {
   final Map<String, dynamic>? model;
-  ToDoTaskerVehiclePersonTapState(this.model);
+  VehiclePersonTapState(this.model);
   @override
   List<Object?> get props => [model, Random().nextDouble()];
 }
 
-class ToDoTaskerResourceTapState extends ToDoTaskerState {
+class ResourceTapState extends ToDoTaskerState {
   final Map<String, dynamic>? model;
-  ToDoTaskerResourceTapState(this.model);
+  ResourceTapState(this.model);
   @override
   List<Object?> get props => [model, Random().nextDouble()];
 }
 
-class ToDoTaskerAddressTapState extends ToDoTaskerState {
+class AddressTapState extends ToDoTaskerState {
   final Map<String, dynamic>? model;
-  ToDoTaskerAddressTapState(this.model);
+  AddressTapState(this.model);
   @override
   List<Object?> get props => [model, Random().nextDouble()];
 }
 
-class ToDoTaskerPartsTapState extends ToDoTaskerState {
+class PartsTapState extends ToDoTaskerState {
   final Map<String, dynamic>? model;
-  ToDoTaskerPartsTapState(this.model);
+  PartsTapState(this.model);
   @override
   List<Object?> get props => [model, Random().nextDouble()];
 }
 
-class ToDoTaskerSuppliesTapState extends ToDoTaskerState {
+class SuppliesTapState extends ToDoTaskerState {
   final Map<String, dynamic>? model;
-  ToDoTaskerSuppliesTapState(this.model);
+  SuppliesTapState(this.model);
   @override
   List<Object?> get props => [model, Random().nextDouble()];
 }
 
-class ToDoTaskerTaskCompletedState extends ToDoTaskerState {
+class TaskCompletedState extends ToDoTaskerState {
   final Map<String, dynamic>? model;
-  ToDoTaskerTaskCompletedState(this.model);
+  TaskCompletedState(this.model);
   @override
   List<Object?> get props => [model, Random().nextDouble()];
 }
 
-class ToDoTaskerMoveTomorrowState extends ToDoTaskerState {
+class MoveTomorrowState extends ToDoTaskerState {
   final Map<String, dynamic>? model;
   final List<Map<String, dynamic>>? models;
-  ToDoTaskerMoveTomorrowState(this.model, this.models);
+  MoveTomorrowState(this.model, this.models);
   @override
   List<Object?> get props => [model, models, Random().nextDouble()];
 }
 
-class ToDoTaskerDateChangeTapState extends ToDoTaskerState {
+class DateChangeTapState extends ToDoTaskerState {
   final Map<String, dynamic>? model;
-  ToDoTaskerDateChangeTapState(this.model);
+  DateChangeTapState(this.model);
   @override
   List<Object?> get props => [model, Random().nextDouble()];
 }
 
-class ToDoTaskerCompletedTimeTapState extends ToDoTaskerState {
+class CompletedTimeTapState extends ToDoTaskerState {
   final Map<String, dynamic>? model;
-  ToDoTaskerCompletedTimeTapState(this.model);
+  CompletedTimeTapState(this.model);
   @override
   List<Object?> get props => [model, Random().nextDouble()];
 }
 
-class ToDoTaskerTimePickerTapState extends ToDoTaskerState {
+class TimePickerTapState extends ToDoTaskerState {
   final Map<String, dynamic>? model;
-  ToDoTaskerTimePickerTapState(this.model);
+  TimePickerTapState(this.model);
   @override
   List<Object?> get props => [model, Random().nextDouble()];
 }
 
-class ToDoTaskerVendorLocationTapState extends ToDoTaskerState {
+class VendorLocationTapState extends ToDoTaskerState {
   final Map<String, dynamic>? model;
-  ToDoTaskerVendorLocationTapState(this.model);
+  VendorLocationTapState(this.model);
   @override
   List<Object?> get props => [model, Random().nextDouble()];
 }
 
-class ToDoTaskerVehicleGroupTapState extends ToDoTaskerState {
+class VehicleGroupTapState extends ToDoTaskerState {
   final Map<String, dynamic>? model;
-  ToDoTaskerVehicleGroupTapState(this.model);
+  VehicleGroupTapState(this.model);
   @override
   List<Object?> get props => [model, Random().nextDouble()];
 }
 
-class ToDoTaskerCompleteOilChangeState extends ToDoTaskerState {
+class CompleteOilChangeState extends ToDoTaskerState {
   final Map<String, dynamic>? model;
-  ToDoTaskerCompleteOilChangeState(this.model);
+  CompleteOilChangeState(this.model);
   @override
   List<Object?> get props => [model, Random().nextDouble()];
 }
 
-class ToDoTaskerCompleteCheckInState extends ToDoTaskerState {
+class CompleteCheckInState extends ToDoTaskerState {
   final Map<String, dynamic>? model;
-  ToDoTaskerCompleteCheckInState(this.model);
+  CompleteCheckInState(this.model);
   @override
   List<Object?> get props => [model, Random().nextDouble()];
 }
 
-class ToDoTaskerCompleteCheckOutState extends ToDoTaskerState {
+class CompleteCheckOutState extends ToDoTaskerState {
   final Map<String, dynamic>? model;
-  ToDoTaskerCompleteCheckOutState(this.model);
+  CompleteCheckOutState(this.model);
   @override
   List<Object?> get props => [model, Random().nextDouble()];
 }
 
-class ToDoTaskerCompleteMaintenanceCheckState extends ToDoTaskerState {
+class CompleteMaintenanceCheckState extends ToDoTaskerState {
   final Map<String, dynamic>? model;
-  ToDoTaskerCompleteMaintenanceCheckState(this.model);
+  CompleteMaintenanceCheckState(this.model);
   @override
   List<Object?> get props => [model, Random().nextDouble()];
 }
 
-class ToDoTaskerCompleteRentalCheckOutState extends ToDoTaskerState {
+class CompleteRentalCheckOutState extends ToDoTaskerState {
   final Map<String, dynamic>? model;
-  ToDoTaskerCompleteRentalCheckOutState(this.model);
+  CompleteRentalCheckOutState(this.model);
   @override
   List<Object?> get props => [model, Random().nextDouble()];
 }
 
-class ToDoTaskerCompleteRentalPickupState extends ToDoTaskerState {
+class CompleteRentalPickupState extends ToDoTaskerState {
   final Map<String, dynamic>? model;
-  ToDoTaskerCompleteRentalPickupState(this.model);
+  CompleteRentalPickupState(this.model);
   @override
   List<Object?> get props => [model, Random().nextDouble()];
 }
 
-class ToDoTaskerCompleteDropCarState extends ToDoTaskerState {
+class CompleteDropCarState extends ToDoTaskerState {
   final Map<String, dynamic>? model;
-  ToDoTaskerCompleteDropCarState(this.model);
+  CompleteDropCarState(this.model);
   @override
   List<Object?> get props => [model, Random().nextDouble()];
 }
 
-class ToDoTaskerVehicleHistoryTapState extends ToDoTaskerState {
+class VehicleHistoryTapState extends ToDoTaskerState {
   final Map<String, dynamic>? model;
-  ToDoTaskerVehicleHistoryTapState(this.model);
+  VehicleHistoryTapState(this.model);
   @override
   List<Object?> get props => [model, Random().nextDouble()];
 }
 
-class ToDoTaskerViewVehicleState extends ToDoTaskerState {
+class ViewVehicleState extends ToDoTaskerState {
   final Map<String, dynamic>? model;
-  ToDoTaskerViewVehicleState(this.model);
+  ViewVehicleState(this.model);
   @override
   List<Object?> get props => [model, Random().nextDouble()];
 }
 
-class ToDoTaskerFilterTaskState extends ToDoTaskerState {
+class FilterTaskState extends ToDoTaskerState {
   @override
   List<Object?> get props => [Random().nextDouble()];
 }
 
-class ToDoTaskerViewCustomLinkState extends ToDoTaskerState {
+class ViewCustomLinkState extends ToDoTaskerState {
   final Map<String, dynamic>? model;
   final String? link;
-  ToDoTaskerViewCustomLinkState(this.model, this.link);
+  ViewCustomLinkState(this.model, this.link);
   @override
   List<Object?> get props => [model, link, Random().nextDouble()];
 }
 
-class ToDOTaskerViewAttachmentState extends ToDoTaskerState {
+class ViewAttachmentState extends ToDoTaskerState {
   final Map<String, dynamic>? model;
-  ToDOTaskerViewAttachmentState(this.model);
+  ViewAttachmentState(this.model);
   @override
   List<Object?> get props => [model, Random().nextDouble()];
 }
 
-class ToDoTaskerViewReasonAttachmentState extends ToDoTaskerState {
+class ViewReasonAttachmentState extends ToDoTaskerState {
   final Map<String, dynamic>? model;
-  ToDoTaskerViewReasonAttachmentState(this.model);
+  ViewReasonAttachmentState(this.model);
   @override
   List<Object?> get props => [model, Random().nextDouble()];
 }
 
-class ToDoTaskerShowDropCheckInPopupState extends ToDoTaskerState {
+class ShowDropCheckInPopupState extends ToDoTaskerState {
   final Map<String, dynamic>? model;
   final TimeOfDay selectedTime;
   final String type; // PICKUP / DROP
-  ToDoTaskerShowDropCheckInPopupState(this.model, this.selectedTime, this.type);
+  ShowDropCheckInPopupState(this.model, this.selectedTime, this.type);
   @override
   List<Object?> get props => [model, selectedTime, type, Random().nextDouble()];
 }
 
-class ToDoTaskerViewBouncieState extends ToDoTaskerState {
+class ViewBouncieState extends ToDoTaskerState {
   final Map<String, dynamic>? model;
-  ToDoTaskerViewBouncieState(this.model);
+  ViewBouncieState(this.model);
   @override
   List<Object?> get props => [model, Random().nextDouble()];
 }
 
-class ToDoTaskerCompleteTransportCarState extends ToDoTaskerState {
+class CompleteTransportCarState extends ToDoTaskerState {
   final Map<String, dynamic>? model;
-  ToDoTaskerCompleteTransportCarState(this.model);
+  CompleteTransportCarState(this.model);
   @override
   List<Object?> get props => [model, Random().nextDouble()];
 }
 
-class ToDoTaskerMaintenanceCheckTasksCompleteState extends ToDoTaskerState {
+class MaintenanceCheckTasksCompleteState extends ToDoTaskerState {
   final Map<String, dynamic>? model;
-  ToDoTaskerMaintenanceCheckTasksCompleteState(this.model);
+  MaintenanceCheckTasksCompleteState(this.model);
+  @override
+  List<Object?> get props => [model, Random().nextDouble()];
+}
+
+class TaskerTypeState extends ToDoTaskerState {
+  final Offset offset;
+  TaskerTypeState(this.offset);
+  @override
+  List<Object?> get props => [offset, Random().nextDouble()];
+}
+
+class FollowupTaskState extends ToDoTaskerState {
+  final Map<String, dynamic>? model;
+  FollowupTaskState(this.model);
   @override
   List<Object?> get props => [model, Random().nextDouble()];
 }
