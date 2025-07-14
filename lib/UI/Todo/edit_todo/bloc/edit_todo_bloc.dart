@@ -55,6 +55,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   final TextEditingController resolutionNotesController = TextEditingController();
   final TextEditingController commentsController = TextEditingController();
   final TextEditingController leadsController = TextEditingController();
+  final TextEditingController meetingLinkController = TextEditingController();
   QuillController quillController = QuillController.basic();
 
   int? get branchId => Session.of.getInt(Str.branchIdPrefText);
@@ -85,9 +86,11 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   List<dynamic> partsIdList = [];
   List<dynamic> suppliesIdList = [];
   List<dynamic> meetingType = [
+    {'id': 0, 'name': 'Selected Mode'},
     {'id': 1, 'name': 'Online'},
     {'id': 2, 'name': 'Person'},
   ];
+  List<Map<String, dynamic>> get meetingTime  => ToDoConfig.meetingDuration;
 
   Map<String, dynamic> selectionTaps = {};
 
@@ -95,6 +98,8 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   dynamic previousOdometer = {};
   dynamic selectedDate;
   dynamic selectedMeetingType;
+  dynamic selectedMeetingTime;
+
   Map<String, dynamic>? selectedLead;
 
   Map<String, dynamic>? todoResponse = {};
@@ -220,6 +225,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     on<EditToDoCleanCarEvent>(_onCleanCarEvent);
     on<EditToDoMeetingTypeEvent>(_onMeetingTypeEvent);
     on<LeadsEvent>(_onLeadsEvent);
+    on<MeetingTimeEvent>(_onMeetingTimeEvent);
   }
 
   Future<void>_onInitialEvent(GetEditTodoInitialEvent event, Emitter<EditTodoState> emit) async  {
@@ -399,7 +405,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         .where((e) => addressIds.contains(e['id']))
         .toList();
     if(vinList.isNotEmpty){
-      previousOdometer = List.from(todoResponse?['previousOdometer']).firstOrNull;
+      previousOdometer = List.from(todoResponse?['previousOdometer'] ?? []).firstOrNull;
       /*previousOdometer = await _getPreviousOdometer(
           date: todoResponse?['todo_date'],
           vin: List.from(vinList).firstOrNull ?? '',
@@ -443,6 +449,10 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     isRecurring = todoResponse?['recurring_id'] != null;
 
     selectedMeetingType = meetingType.firstWhereOrNull((element) => element['name'].toString().toLowerCase() == todoResponse?['meeting_mode'].toString().toLowerCase());
+    selectedMeetingType ??= meetingType.first;
+
+    selectedMeetingTime = meetingTime.firstWhereOrNull((element) => element['name'].toString().toLowerCase() == todoResponse?['meeting_time'].toString().toLowerCase());
+    selectedMeetingTime ??= ToDoConfig.defaultMeetingDuration;
 
     emit(state.copyWith(
       isLoading: false,
@@ -1102,6 +1112,9 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   void _onMeetingTypeEvent(EditToDoMeetingTypeEvent event, Emitter<EditTodoState> emit) {
     try{
       selectedMeetingType = event.meetingType;
+      if(selectedMeetingType?['id'] != 1){
+        meetingLinkController.clear();
+      }
       emit(state.copyWith());
     }catch(e){
       Toaster.showError("$e");
@@ -1113,6 +1126,16 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       selectedLead = event.leads;
       emit(state.copyWith());
     }catch(e){
+      Console.of.error(e.toString(), name: 'ERROR');
+      Toaster.showError("$e");
+    }
+  }
+
+  void _onMeetingTimeEvent(MeetingTimeEvent event, Emitter<EditTodoState> emit) {
+    try{
+      selectedMeetingTime = event.meetingTime;
+      emit(state.copyWith());
+    }catch(e) {
       Console.of.error(e.toString(), name: 'ERROR');
       Toaster.showError("$e");
     }
@@ -1213,8 +1236,11 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     baseBody['rental_enquiry'] = QuillDeltaToHtmlConverter(
       (quillController).document.toDelta().toJson(),
       ConverterOptions.forEmail(),).convert();
-    baseBody['meeting_mode'] = selectedMeetingType?['name'] ?? '';
+    // baseBody['meeting_mode'] = selectedMeetingType?['name'] ?? '';
+    baseBody['meeting_mode'] = selectedMeetingType?['id'] != 0 ? ( selectedMeetingType?['name'] ?? '') : '';
     baseBody['lead_id'] = "${selectedLead?['id'] ?? ''}";
+    baseBody['meeting_duration'] = "${selectedMeetingTime?['value'] ?? ''}";
+    baseBody['meeting_link'] = meetingLinkController.text;
     baseBody['type'] = "inline";
 
     var groupVehicleList = state.selectedVPerson
