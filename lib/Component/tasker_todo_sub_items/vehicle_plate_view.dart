@@ -61,10 +61,10 @@ class VehiclePlateView extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             CircleAvatar(
-              radius: 30,
+              radius: 32,
               backgroundColor: avatarColor,
               child: CircleAvatar(
-                radius: model.isEmpty ? 30 : 28,
+                radius: model.isEmpty ? 32 : 30,
                 backgroundColor: AppC.white,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(28),
@@ -76,7 +76,7 @@ class VehiclePlateView extends StatelessWidget {
             if (hasVehiclePlate)
               Utils.getText(
                 vehiclePlate,
-                size: 10.spMin,
+                size: 12.spMin,
                 weight: FontWeight.w900,
                 color: plateColor,
               ),

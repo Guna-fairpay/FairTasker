@@ -4,6 +4,7 @@ import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class NotesDialog {
   NotesDialog._();
@@ -29,8 +30,8 @@ class _NotesDialogView extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       titlePadding: EdgeInsets.zero,
-      alignment: Alignment.topCenter,
-      insetPadding: 10.horizontalPadding,
+      alignment: Alignment.center,
+      insetPadding: 15.sp.horizontalPadding,
       backgroundColor: Colors.white,
       shape: ContinuousRectangleBorder(borderRadius: BorderRadius.circular(Num.borderRadiusXLarge)),
       title: ListTile(

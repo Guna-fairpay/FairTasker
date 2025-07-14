@@ -66,7 +66,7 @@ class VehicleExtrasView extends StatelessWidget {
               color: (vehicleHistoryColorCode?.isNotEmpty ?? false)
                   ? Color(int.parse("0xff$vehicleHistoryColorCode"))
                   : AppC.blue,
-              size: 10.sp,
+              size: 16.spMin,
             ),
           ),
         if (hasG)
