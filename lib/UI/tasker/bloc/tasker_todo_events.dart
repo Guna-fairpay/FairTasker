@@ -384,3 +384,33 @@ class FollowupTaskEvent extends ToDoTaskerEvent {
   @override
   List<Object?> get props => [model];
 }
+
+class TaskerLeadTapEvent extends ToDoTaskerEvent {
+  final Map<String, dynamic>? model;
+  TaskerLeadTapEvent(this.model);
+  @override
+  List<Object?> get props => [model];
+}
+
+class TaskerLeadUpdateEvent extends ToDoTaskerEvent {
+  final Map<String, dynamic>? model;
+  final Map<String, dynamic>? selectedModel;
+  TaskerLeadUpdateEvent(this.model, this.selectedModel);
+  @override
+  List<Object?> get props => [model, selectedModel];
+}
+
+class MeetingTapEvent extends ToDoTaskerEvent {
+  final Map<String, dynamic>? model;
+  MeetingTapEvent(this.model);
+  @override
+  List<Object?> get props => [model];
+}
+
+class MeetingUpdateEvent extends ToDoTaskerEvent {
+  final Map<String, dynamic>? model;
+  final Map<String, dynamic>? selectedModel;
+  MeetingUpdateEvent(this.model, this.selectedModel);
+  @override
+  List<Object?> get props => [model, selectedModel];
+}

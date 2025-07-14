@@ -302,3 +302,17 @@ class FollowupTaskState extends ToDoTaskerState {
   @override
   List<Object?> get props => [model, Random().nextDouble()];
 }
+
+class LeadChangeState extends ToDoTaskerState {
+  final Map<String, dynamic>? model;
+  LeadChangeState(this.model);
+  @override
+  List<Object?> get props => [model, Random().nextDouble()];
+}
+
+class MeetingChangeState extends ToDoTaskerState {
+  final Map<String, dynamic>? model;
+  MeetingChangeState(this.model);
+  @override
+  List<Object?> get props => [model, Random().nextDouble()];
+}
