@@ -130,6 +130,10 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     on<ToDoTaskerYesterdayEvent>(_onYesterdayEvent);
     on<MeetingViewEvent>(_onMeetingViewEvent);
     on<FollowupTaskEvent>(_onFollowupTaskEvent);
+    on<TaskerLeadTapEvent>(_onTaskerLeadTapEvent);
+    on<TaskerLeadUpdateEvent>(_onTaskerLeadUpdateEvent);
+    on<MeetingTapEvent>(_onMeetingTapEvent);
+    on<MeetingUpdateEvent>(_onMeetingUpdateEvent);
   }
 
   bool _isCheckInOutTask(Map<String, dynamic>? model) => _checkInOutTask.contains(model?['title']);
@@ -1206,5 +1210,43 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
 
   void _onFollowupTaskEvent(FollowupTaskEvent event, Emitter<ToDoTaskerState> emit) {
     emit(AddToDoState(selectedDate,leadId: event.model?['lead_id'], taskType: TaskType.lead));
+  }
+
+  void _onTaskerLeadTapEvent(TaskerLeadTapEvent event, Emitter<ToDoTaskerState> emit) {
+    if (event.model?['lead_id'].toString().isNotNullOrEmpty ?? false) return emit(LeadChangeState(event.model));
+  }
+
+  void _onTaskerLeadUpdateEvent(TaskerLeadUpdateEvent event, Emitter<ToDoTaskerState> emit) async {
+    try {
+      var model = event.model;
+      var lead = event.selectedModel;
+      if (lead != null) {
+        var mapData = {"lead_id": lead['id']};
+        emit(ToDoTaskerLoadingState());
+        var response = await _updateToDo(body: mapData, todoId: model?['id']);
+        if (response != null) _reFetchToDos();
+      }
+    } catch (e) {
+      emit(ErrorState(e));
+    }
+  }
+
+  void _onMeetingTapEvent(MeetingTapEvent event, Emitter<ToDoTaskerState> emit) {
+    if (event.model?['meeting_mode'].toString().isNotNullOrEmpty ?? false) return emit(MeetingChangeState(event.model));
+  }
+
+  void _onMeetingUpdateEvent(MeetingUpdateEvent event, Emitter<ToDoTaskerState> emit) async {
+    try {
+      var model = event.model;
+      var meetingMode = event.selectedModel;
+      if (meetingMode != null) {
+        var mapData = {"meeting_mode": meetingMode['name'].toString().toLowerCase()};
+        emit(ToDoTaskerLoadingState());
+        var response = await _updateToDo(body: mapData, todoId: model?['id']);
+        if (response != null) _reFetchToDos();
+      }
+    } catch (e) {
+      emit(ErrorState(e));
+    }
   }
 }

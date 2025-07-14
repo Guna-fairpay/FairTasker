@@ -9,6 +9,7 @@ class VendorNotesResourceView extends StatelessWidget {
       onMore; // SHOW MORE TEXT WITH THIS FUNCTION
   final GestureTapDownCallback? onVendorOrLocation,
       onNotes,
+      onLead,
       onAddress,
       onResource;
 
@@ -18,6 +19,7 @@ class VendorNotesResourceView extends StatelessWidget {
       this.onVendorOrLocation,
       this.onVendorInfo,
       this.onNotes,
+      this.onLead,
       this.onMore,
       this.onAddress,
       this.onResource,
@@ -36,6 +38,7 @@ class VendorNotesResourceView extends StatelessWidget {
             onNotes: onNotes,
             onVendorInfo: onVendorInfo,
             onVendorOrLocation: onVendorOrLocation,
+            onLead: onLead,
             onMore: onMore),
         ResourceExtras(
             model: model,

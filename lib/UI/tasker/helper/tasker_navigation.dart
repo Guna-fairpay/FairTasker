@@ -49,6 +49,8 @@ void navigation(BuildContext context, ToDoTaskerState state) {
       case MaintenanceCheckTasksCompleteState(): TaskerMaintenanceCompleteDialog.show(context, model: state.model); break;
       case TaskerTypeState(): SimplePopUpMenu.instance.show<TaskType>(context, items: TaskType.values, position: state.offset, itemAsString: (item) => item.name,  onTap: (item) => context.read<ToDoTaskerBloc>().add(ToDoTaskerOnAddToDoEvent(taskType: item)), height: 0); break;
       case FollowupTaskState(): TaskerFollowupTaskDialog.show(context, onPositive: () => context.read<ToDoTaskerBloc>().add(FollowupTaskEvent(state.model))); break;
+      case LeadChangeState(): LeadChangeDialog.show(context, model: state.model, onSelected: (value, {model}) => context.read<ToDoTaskerBloc>().add(TaskerLeadUpdateEvent(model, value))); break;
+      case MeetingChangeState(): MeetingChangeDialog.show(context, state.model, onChanged: (value, {model}) => context.read<ToDoTaskerBloc>().add(MeetingUpdateEvent(model, value))); break;
       default: break;
     }
   }

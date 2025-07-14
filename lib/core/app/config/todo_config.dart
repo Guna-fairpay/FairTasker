@@ -70,5 +70,6 @@ mixin ToDoConfig {
   ];
 
   static Map<String, dynamic> defaultMeetingDuration = meetingDuration.firstWhere((element) => element['id'] == 2);
+  static Map<String, dynamic> defaultMeetingMode = meetingMode.firstWhere((element) => element['id'] == 1);
 
 }
