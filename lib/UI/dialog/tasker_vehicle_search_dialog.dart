@@ -86,6 +86,7 @@ class _TaskerVehicleSearchBodyView extends StatelessWidget {
                 child: Column(
                   spacing: 10,
                   mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox.shrink(),
                     SearchViewField<Map<String, dynamic>>(

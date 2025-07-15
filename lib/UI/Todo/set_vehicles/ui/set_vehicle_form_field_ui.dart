@@ -291,9 +291,12 @@ class SetVehicleFormFieldUI extends StatelessWidget {
                     logName: "InsuranceImageEvent",
                   ),
                   10.height,
-                  SuccessButton(
-                    text: 'Save',
-                    onPressed:()=> context.read<SetVehiclesBloc>().add(SaveVehicle()),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: SuccessButton(
+                      text: 'Save',
+                      onPressed:()=> context.read<SetVehiclesBloc>().add(SaveVehicle()),
+                    ),
                   ),
                 ],
               ),

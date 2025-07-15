@@ -9,7 +9,7 @@ class EditTodoMoreForm extends StatelessWidget {
       builder: (context, state) => Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.end,
-        spacing: 5,
+        spacing: 10,
         children: [
           if (state.selectedVLocations['type'] == 'location' && (state.isMoreEnable))
             SearchViewField<Map<String, dynamic>>(
@@ -136,8 +136,6 @@ class EditTodoMoreForm extends StatelessWidget {
                       initialSelection: state.selectedLinkOption))
             ],
           ),
-
-          5.height,
           if (state.selectedLinkOption != null && state.selectedTask['user_type'] != 4)
             Utils.getTextFormField("${state.selectedLinkOption?['label']}",
                 context.read<EditToDoBloc>().customLinkController,
@@ -296,7 +294,6 @@ class EditTodoMoreForm extends StatelessWidget {
                     decorationColor: AppC.appColor),
               ),
             ),
-
         ],
       ),
     );
