@@ -292,6 +292,7 @@ mixin AddToDoMixin {
 
   void _updateReservation(Emitter<AddToDoState> emit) async {
     try {
+      if (isNextTask) return;
       if (hasVehicle && lasVehicleVin.isNotNullOrEmpty) {
         if (!emit.isDone) emit(LoadingState());
         final response = await _findReservation(lasVehicleVin);
