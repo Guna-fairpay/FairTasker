@@ -42,7 +42,7 @@ class VehicleExtrasView extends StatelessWidget {
                 // size: (vehicleName == "MV") ? 16.spMin : 14.spMin,
                 overflow: TextOverflow.ellipsis,
                 fontWeight: FontWeight.bold,
-                styleType: TextStyleType.labelLarge
+                styleType: TextStyleType.labelMedium
               ),
             ),
           ),
@@ -50,11 +50,12 @@ class VehicleExtrasView extends StatelessWidget {
         Flexible(
           child: GestureDetector(
             onTapDown: onMeeting,
-            child: Utils.getText(
+            child: CompactText(
               meetingType,
-              size: 11.sp,
-              overFlow: TextOverflow.ellipsis,
-              weight: FontWeight.w600,
+              overflow: TextOverflow.ellipsis,
+              fontWeight: FontWeight.w800,
+              styleType: TextStyleType.bodySmall,
+              color: Colors.grey.shade900,
             ),
           ),
         ),

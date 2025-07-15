@@ -28,7 +28,7 @@ class ResourceExtras extends StatelessWidget {
         spacing: (showCheckbox ?? false) ? 10 : 5,
         mainAxisSize: MainAxisSize.min,
         children: [
-          GestureDetector(onTapDown: onResource, child: CompactText(resourcesName, fontWeight: FontWeight.bold, styleType: TextStyleType.titleSmall, color: AppC().base)),
+          GestureDetector(onTapDown: onResource, child: CompactText(resourcesName, fontWeight: FontWeight.bold, styleType: TextStyleType.titleMedium, color: AppC().base)),
           if (showCheckbox ?? false) SizedBox.fromSize(
               size: const Size.fromRadius(0.8),
               child: Checkbox(value: value,

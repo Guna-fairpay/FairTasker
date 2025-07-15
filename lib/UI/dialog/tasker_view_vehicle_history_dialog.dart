@@ -85,6 +85,7 @@ class _TaskerViewVehicleHistoryView extends StatelessWidget {
                 ],
               ),
             ),
+            5.sp.height,
             CompactRotationView(prefixChild: GestureDetector(
               onTap: () async {
                 String imageUrl = model?['display']?['vehicle_image'];

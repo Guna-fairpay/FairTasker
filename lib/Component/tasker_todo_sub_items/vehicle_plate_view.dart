@@ -61,10 +61,10 @@ class VehiclePlateView extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             CircleAvatar(
-              radius: 32,
+              radius: 30,
               backgroundColor: avatarColor,
               child: CircleAvatar(
-                radius: model.isEmpty ? 32 : 30,
+                radius: model.isEmpty ? 30 : 28,
                 backgroundColor: AppC.white,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(28),

@@ -146,6 +146,7 @@ class SetVehicleFormFieldUI extends StatelessWidget {
                   10.height,
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: 10,
                     children: [
                       Expanded(
                         child: ImageUploadSection(
@@ -157,7 +158,6 @@ class SetVehicleFormFieldUI extends StatelessWidget {
                           logName: "TireImageEvent",
                         ),
                       ),
-                      10.width,
                       Expanded(
                         child: Utils.getTextFormField(
                           'Number Plate',
@@ -272,9 +272,9 @@ class SetVehicleFormFieldUI extends StatelessWidget {
                   ),
                   //10.height,
                   Row(
+                    spacing: 10 ,
                     children: [
                       Expanded(child: Utils.getTextFormField("Insurance Agent", context.read<SetVehiclesBloc>().insuranceAgentController),),
-                      10.width,
                       Expanded(child: Utils.getTextFormField("Insurance Cost", context.read<SetVehiclesBloc>().insuranceCostController,
                         textType: const TextInputType.numberWithOptions(decimal: true),
                         textInputFormatter: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*'))],

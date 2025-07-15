@@ -27,9 +27,9 @@ class VendorLocationExtras extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (hasVendorLocation) Flexible(child: GestureDetector(onTapDown: onVendorOrLocation, child: Utils.getText(vendorLocation, size: 12.sp, overFlow: TextOverflow.ellipsis))),
-        if (hasLead) Flexible(child: GestureDetector(onTapDown: onLead, child: Utils.getText(leadName, size: 12.sp, overFlow: TextOverflow.ellipsis))),
-        if (hasVendorInfo) GestureDetector(onTap: onVendorInfo, child: Icon(Icons.info, size: 14.sp, color: Colors.blue)),
+        if (hasVendorLocation) Flexible(child: GestureDetector(onTapDown: onVendorOrLocation, child: Utils.getText(vendorLocation, style: context.textTheme.labelMedium?.copyWith(), overFlow: TextOverflow.ellipsis))),
+        if (hasLead) Flexible(child: GestureDetector(onTapDown: onLead, child: Utils.getText(leadName, style: context.textTheme.bodySmall, overFlow: TextOverflow.ellipsis))),
+        if (hasVendorInfo) GestureDetector(onTap: onVendorInfo, child: Icon(Icons.info, size: 16.spMin, color: Colors.blue)),
         if (hasNotes) Flexible(
           child: RichText(
               maxLines: 1,
@@ -37,10 +37,10 @@ class VendorLocationExtras extends StatelessWidget {
               text: TextSpan(
                   children: [
                     TextSpan(text: "($parsedNotes)", recognizer: TapGestureRecognizer()..onTapDown = onNotes),
-                    if (hasTimeChangeReason) TextSpan(text: "\t$timeChangeReason", style: context.textTheme.labelMedium?.copyWith(color: null), recognizer: hasEllipsis ? (TapGestureRecognizer()..onTap = ()=> onMore?.call(timeChangeReason)) : null)
-                  ], style: context.textTheme.labelLarge?.copyWith(overflow: TextOverflow.ellipsis, color: AppC.appColor))),
+                    if (hasTimeChangeReason) TextSpan(text: "\t$timeChangeReason", style: context.textTheme.bodySmall?.copyWith(color: null), recognizer: hasEllipsis ? (TapGestureRecognizer()..onTap = ()=> onMore?.call(timeChangeReason)) : null)
+                  ], style: context.textTheme.bodySmall?.copyWith(overflow: TextOverflow.ellipsis, color: AppC.appColor))),
         ),
-        if (hasAddress) Flexible(child: GestureDetector(onTapDown: onAddress, child: const CompactText("A", fontWeight: FontWeight.bold, styleType: TextStyleType.labelLarge))),
+        if (hasAddress) Flexible(child: GestureDetector(onTapDown: onAddress, child: const CompactText("A", fontWeight: FontWeight.bold, styleType: TextStyleType.bodySmall))),
         const SizedBox.shrink(),
       ],
     ));

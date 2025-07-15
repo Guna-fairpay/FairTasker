@@ -18,7 +18,7 @@ class TaskTitleView extends StatelessWidget {
     spans.add(
       TextSpan(
         text: display['task_title'] ?? '',
-        style: context.textTheme.titleSmall?.copyWith(
+        style: context.textTheme.labelLarge?.copyWith(
           color: hasTimeSensitive ? AppC.red : AppC.appColor,
           fontWeight: FontWeight.bold,
         ),
@@ -28,14 +28,14 @@ class TaskTitleView extends StatelessWidget {
 
     if (hasReason || hasReasonAttachments) {
       spans.addAll([
-        TextSpan(text: "\t(\t", style: context.textTheme.labelMedium?.copyWith(color: Colors.red, fontSize: 12.sp)),
-        if (hasReason) TextSpan(text: display['reason'] ?? '', style: context.textTheme.labelMedium?.copyWith(color: Colors.red, fontSize: 12.sp)),
+        TextSpan(text: "\t(\t", style: context.textTheme.labelSmall?.copyWith(color: Colors.red, fontSize: 12.sp)),
+        if (hasReason) TextSpan(text: display['reason'] ?? '', style: context.textTheme.labelSmall?.copyWith(color: Colors.red, fontSize: 12.sp)),
         if (hasReasonAttachments)
           WidgetSpan(child: GestureDetector(
             onTap: onReasonAttachmentView,
             child: Icon(Icons.remove_red_eye_rounded, color: Colors.red, size: 14.sp),
           )),
-        TextSpan(text: "\t)\t", style: context.textTheme.labelMedium?.copyWith(color: Colors.red, fontSize: 12.sp)),
+        TextSpan(text: "\t)\t", style: context.textTheme.labelSmall?.copyWith(color: Colors.red, fontSize: 12.sp)),
       ]);
     }
 
@@ -48,7 +48,7 @@ class TaskTitleView extends StatelessWidget {
 
     if (hasRelatedTask) {
       spans.addAll([
-        TextSpan(text: "\t>>\t", style: context.textTheme.labelMedium?.copyWith(color: Colors.red)),
+        TextSpan(text: "\t>>\t", style: context.textTheme.labelSmall?.copyWith(color: Colors.red)),
         TextSpan(text: display['relatedTaskName'] ?? ''),
       ]);
     }
@@ -57,7 +57,7 @@ class TaskTitleView extends StatelessWidget {
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
       textAlign: TextAlign.center,
-      style: context.textTheme.labelMedium?.copyWith(color: AppC.appColor, fontSize: 12.sp),
+      style: context.textTheme.labelSmall?.copyWith(color: AppC.appColor, fontSize: 12.sp),
     );
   }
 }
