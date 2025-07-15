@@ -29,7 +29,6 @@ class _LeadChangeDialogView extends StatelessWidget {
   Widget build(BuildContext context) {
     return CompactAlertDialog(
       titleText: model?['display']?['task_title'],
-      onCloseDialog: context.pop,
       content: BlocProvider(create: (context) => LeadChangeBloc()..initialize(model: model),
         child: BlocConsumer<LeadChangeBloc, LeadChangeState>(
           builder: (context, state) => SizedBox(

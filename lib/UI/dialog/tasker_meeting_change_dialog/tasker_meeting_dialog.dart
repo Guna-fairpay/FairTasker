@@ -25,7 +25,6 @@ class _MeetingChangeDialogView extends StatelessWidget {
   Widget build(BuildContext context) {
     return CompactAlertDialog(
       titleText: model?['display']?['task_title'],
-      onCloseDialog: context.pop,
       content: BlocProvider(create: (context) => MeetingChangeBloc()..initialize(model: model),
         child: BlocConsumer<MeetingChangeBloc, MeetingState>(
             builder: (context, state) => SizedBox(
