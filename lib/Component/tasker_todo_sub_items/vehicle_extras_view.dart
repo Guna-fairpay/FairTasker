@@ -49,11 +49,11 @@ class VehicleExtrasView extends StatelessWidget {
         Flexible(
           child: GestureDetector(
             onTapDown: onMeeting,
-            child: Utils.getText(
+            child: CompactText(
               meetingType,
-              size: 11.sp,
-              overFlow: TextOverflow.ellipsis,
-              weight: FontWeight.w600,
+              styleType: TextStyleType.labelLarge,
+              overflow: TextOverflow.ellipsis,
+              fontWeight: FontWeight.bold,
             ),
           ),
         ),
