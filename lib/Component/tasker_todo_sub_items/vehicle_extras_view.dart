@@ -54,7 +54,7 @@ class VehicleExtrasView extends StatelessWidget {
               meetingType,
               overflow: TextOverflow.ellipsis,
               fontWeight: FontWeight.w800,
-              styleType: TextStyleType.bodySmall,
+              styleType: TextStyleType.labelLarge,
               color: Colors.grey.shade900,
             ),
           ),
