@@ -1,3 +1,4 @@
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/leads/ui/leads_main_ui.dart';
 import 'package:fairpytasker/UI/dialog/tasker_lead_change_dialog/bloc/lead_change_bloc.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/Component/compact_alert_dialog.dart';
@@ -40,10 +41,12 @@ class _LeadChangeDialogView extends StatelessWidget {
               children: [
                 Expanded(
                   child: SearchViewField<Map<String, dynamic>>(
+                    showEmpty: true,
                     controller: context.read<LeadChangeBloc>().controller,
                     suggestions: context.watch<LeadChangeBloc>().leads,
                     itemAsString: (item) => item['customer_name'] ?? "",
                     onSelected: context.read<LeadChangeBloc>().onChanged,
+                    onEmptyTap: context.read<LeadChangeBloc>().onEmptyTap,
                   ),
                 ),
                 SuccessButton(
@@ -61,6 +64,8 @@ class _LeadChangeDialogView extends StatelessWidget {
               if ((state is CompleteState) || (state is CloseState)) {
                 if (state is CompleteState) onSelected?.call(state.model, model: model);
                 context.pop();
+              } else if (state is EmptyLeadState) {
+                context.push(LeadsMainUI(customerName: state.message));
               }
             }
           }),

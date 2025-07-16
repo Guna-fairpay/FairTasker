@@ -24,6 +24,6 @@ class LeaveListViewItem extends TableRow{
         child: model?['status'] == 'Pending' ? const Icon(Icons.hourglass_empty_outlined,color: Color(0xffff4500),size: 15,)
             : model?['status'] == 'Approved' ? const Icon(Icons.thumb_up_off_alt_rounded,color: AppC.green,size: 15,)
             : model?['status'] == 'Rejected' ? const Icon(Icons.thumb_down,color: AppC.redAccent,size: 15,):null)),
-    TableCell(child: GestureDetector(onTapDown: onTapDown,child: Padding(padding: 5.spMin.padding, child: const Icon(Icons.more_horiz,color: AppC.blue,size: 15,)))),
+    TableCell(child: InkWell(onTapDown: onTapDown,child: Padding(padding: 5.spMin.padding, child: const Icon(Icons.more_horiz,color: AppC.blue,size: 15,)))),
   ];
 }

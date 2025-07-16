@@ -79,6 +79,7 @@ class CommonService {
   List<Map<String, dynamic>> _leavelistType = [];
   List<Map<String, dynamic>> expensesCategory = [];
   List<Map<String, dynamic>> leads = [];
+  List<Map<String, dynamic>> channels = [];
 
   PackageInfo? packageInfo;
 
@@ -692,6 +693,7 @@ class CommonService {
     try {
       var response = await _apiRepository.getLeads(type: "all");
       leads = List<Map<String, dynamic>>.from(response?['data'] ?? []);
+      channels = List<Map<String, dynamic>>.from(response?['channel'] ?? []);
       return [...leads];
     } catch (e) {
       Toaster.showError(e.toString());

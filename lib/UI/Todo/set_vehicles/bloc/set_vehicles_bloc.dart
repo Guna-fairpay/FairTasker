@@ -401,7 +401,7 @@ class SetVehiclesBloc extends Bloc<SetVehiclesEvent, SetVehiclesState> {
           // _broadcast.stickyBroadcast("todo_view", value: true);
           TaskerHelper.instance.refresh();
           emit(SuccessState("SpareKey Task Added"));
-        } else { // TRIGGER ADD TODO
+        } else {
           emit(CommonState());
         }
       }else{

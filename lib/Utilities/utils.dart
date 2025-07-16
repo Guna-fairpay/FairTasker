@@ -198,6 +198,9 @@ class Utils {
                   return  DropdownMenuEntry<Map<String, dynamic>>(
                     value: value,
                     label: '${value[labelKey]??''} ${value[labelKey2]??''}'.trim(),
+                    style: ButtonStyle(
+                      backgroundColor: WidgetStateProperty.all<Color>(Colors.white),
+                    ),
                   );
                 },
               ).toList(),

@@ -27,3 +27,10 @@ class CompleteState extends LeadChangeState {
 }
 
 class CloseState extends LeadChangeState {}
+
+class EmptyLeadState extends LeadChangeState {
+  final String message;
+  EmptyLeadState(this.message);
+  @override
+  List<Object?> get props => [message, Random().nextDouble()];
+}

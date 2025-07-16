@@ -108,7 +108,8 @@ class LeadsTextFormFieldUI extends StatelessWidget {
                       flex: 3,
                       child: CompactSearchView(
                         controller: context.read<LeadsBloc>().searchController,
-                        onChanged: (value) => context.read<LeadsBloc>().debounce(value),
+                        //onChanged: (value) => context.read<LeadsBloc>().debounce(value),
+                        onChanged: (value) => context.read<LeadsBloc>().add(SearchEvent(value)),
                       ),
                     )
                   ],

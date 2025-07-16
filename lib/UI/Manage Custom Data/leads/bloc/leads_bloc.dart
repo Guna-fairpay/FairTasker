@@ -8,7 +8,9 @@ import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -73,7 +75,8 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState>{
 
   Timer? _debouncer;
 
-  Future<Map<String, dynamic>?> _getLeads({dynamic page, dynamic search, dynamic type}) async => await apiRepository.getLeads(page: page, search: search, type: type);
+  // Future<Map<String, dynamic>?> _getLeads({dynamic page, dynamic search, dynamic type}) async => await apiRepository.getLeads(page: page, search: search, type: type);
+  Future<List<Map<String, dynamic>>> _getLeads() async => await getIt<CommonService>().fetchLeads(reset: true);
   Future<Map<String, dynamic>?> _addEditLeads({dynamic body, dynamic id}) async => await apiRepository.addEditLeads(body: body, id: id);
   Future<Map<String, dynamic>?> _getEditLeads({dynamic id}) async => await apiRepository.getEditLeads(id: id);
   Future<Map<String, dynamic>?> _deleteLeads({dynamic id}) async => await apiRepository.deleteLeads(id: id);
@@ -137,18 +140,19 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState>{
 
   Future<void> _onSearchEvent(SearchEvent event, Emitter<LeadsState> emit) async {
     try{
-      emit(LoadingState());
-      var query = event.query;
-      searchText = query;
-      var response = await _getLeads(page: 1, search: query, type: '');
-      if(response?['status'] == true){
-        apiResponse = List.from(response?['data']?['data'] ?? []);
-        totalCount = response?['data']?['total'] ?? 0;
-        _unFilteredResponse = List.from(apiResponse);
-        paginateList(data: _unFilteredResponse, currentPage: 1, itemsPerPage: itemsPerPage);
-      }else{
-        emit(ErrorState(response?['message']));
-      }
+      // emit(LoadingState());
+      // var query = event.query;
+      // searchText = query;
+      // var response = await _getLeads(page: 1, search: query, type: '');
+      // if(response?['status'] == true){
+      //   apiResponse = List.from(response?['data']?['data'] ?? []);
+      //   totalCount = response?['data']?['total'] ?? 0;
+      //   _unFilteredResponse = List.from(apiResponse);
+      //   paginateList(data: _unFilteredResponse, currentPage: 1, itemsPerPage: itemsPerPage);
+      // }else{
+      //   emit(ErrorState(response?['message']));
+      // }
+      _search();
       emit(CommonState());
     }catch (e){
       _onError(e, emit);
@@ -164,6 +168,8 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState>{
       var response = await _addEditLeads(body: _saveData(), id: editModel?['id']);
       if(response?['status'] == true){
         await fetchData();
+        _broadcast.broadcast(Str.addToDoRefresh);
+        _broadcast.broadcast(Str.editToDoRefresh);
         clearAll();
         emit(SuccessState(response?['message']));
       }else{
@@ -189,6 +195,8 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState>{
       var response = await _deleteLeads(id: event.data?['id']);
       if(response?['status'] == true){
         await fetchData();
+        _broadcast.broadcast(Str.addToDoRefresh);
+        _broadcast.broadcast(Str.editToDoRefresh);
         if(event.data?['id'] == editModel?['id']){
           clearAll();
         }
@@ -203,9 +211,8 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState>{
 
   Future<void> _onPaginationEvent(PaginationEvent event, Emitter<LeadsState> emit) async {
     try{
-      emit(LoadingState());
       currentIndex = event.page;
-      await fetchData();
+      filteredResponse = paginateList(data: _unFilteredResponse, currentPage: currentIndex, itemsPerPage: itemsPerPage,);
       emit(CommonState());
     }catch (e){
       _onError(e, emit);
@@ -254,14 +261,22 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState>{
     }
   }
 
+  // Future<void> fetchData() async {
+  //   var response = await _getLeads(page: currentIndex, search: searchText, type: '');
+  //   apiResponse = List.from(response?['data']?['data'] ?? []);
+  //   totalCount = response?['data']?['total'] ?? 0;
+  //   _unFilteredResponse = List.from(apiResponse);
+  //   paginateList(data: _unFilteredResponse, currentPage: currentIndex, itemsPerPage: itemsPerPage);
+  //   _broadcast.broadcast(Str.addToDoRefresh);
+  //   _broadcast.broadcast(Str.editToDoRefresh);
+  // }
+
   Future<void> fetchData() async {
-    var response = await _getLeads(page: currentIndex, search: searchText, type: '');
-    apiResponse = List.from(response?['data']?['data'] ?? []);
-    totalCount = response?['data']?['total'] ?? 0;
+    var response = await _getLeads();
+    apiResponse = List.from(response);
     _unFilteredResponse = List.from(apiResponse);
-    paginateList(data: _unFilteredResponse, currentPage: currentIndex, itemsPerPage: itemsPerPage);
-    _broadcast.broadcast(Str.addToDoRefresh);
-    _broadcast.broadcast(Str.editToDoRefresh);
+    filteredResponse = paginateList(data: _unFilteredResponse, currentPage: currentIndex, itemsPerPage: itemsPerPage);
+    totalCount = _unFilteredResponse.length;
   }
 
   void _onEditEvent(EditEvent event, Emitter<LeadsState> emit) async {
@@ -284,6 +299,24 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState>{
   void _onError(dynamic error, Emitter<LeadsState> emit){
     Console.of.error(error);
     emit(ErrorState(error));
+  }
+
+  void _search(){
+    var query = searchController.text.toLowerCase();
+    List<dynamic> filteredData = [];
+    if (query.trim().isNotNullOrEmpty) {
+      filteredData = apiResponse.where((element) {
+        return [
+          element['customer_name'],
+        ].any((value) => value?.toString().toLowerCase().contains(query) ?? false);
+      }).toList();
+    } else {
+      filteredData = apiResponse;
+    }
+    _unFilteredResponse = filteredData;
+    currentIndex=1;
+    totalCount = filteredData.length;
+    filteredResponse = paginateList(data: _unFilteredResponse, currentPage: currentIndex, itemsPerPage: itemsPerPage,);
   }
 
   Map<String, dynamic> _saveData(){

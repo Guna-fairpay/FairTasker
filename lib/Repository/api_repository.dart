@@ -4496,6 +4496,7 @@ Future<Map<String, dynamic>?> getLocations() async {
     try{
       String apiUrl = "${Str.BASE_URL}$_leads";
       var parms = {'page' : page, 'search' : search, 'type' : type,};
+      parms.removeWhere((key, value) => value == null);
       final http.Response? response = await _apiClient.callGetMethod(apiUrl, params: parms);
       if (response?.isSuccess == true) {
         return await response.mapData;

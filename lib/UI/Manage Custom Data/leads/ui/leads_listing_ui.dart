@@ -46,7 +46,7 @@ class LeadsListingUI extends StatelessWidget {
                       bottomLeft: Radius.circular(0),
                       bottomRight: Radius.circular(0)),
                 ),
-                ...context.watch<LeadsBloc>().apiResponse.map((e) => TableRow(
+                ...context.watch<LeadsBloc>().filteredResponse.map((e) => TableRow(
                   children: [
                     TableRowInkWell(
                       onTap: ()=> context.read<LeadsBloc>().add(EditEvent(e)),
@@ -75,12 +75,8 @@ class LeadsListingUI extends StatelessWidget {
             ),
             CompactPagination(
               currentPage: context.watch<LeadsBloc>().currentIndex,
-              totalPages: (context.watch<LeadsBloc>().totalCount /
-                  context.watch<LeadsBloc>().itemsPerPage)
-                  .ceil(),
-              onPageChanged: (value) => context
-                  .read<LeadsBloc>()
-                  .add(PaginationEvent(value)),
+              totalPages: (context.watch<LeadsBloc>().totalCount / context.watch<LeadsBloc>().itemsPerPage).ceil(),
+              onPageChanged: (value) => context.read<LeadsBloc>().add(PaginationEvent(value)),
             ),
           ],
         );
