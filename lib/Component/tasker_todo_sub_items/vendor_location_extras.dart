@@ -21,14 +21,17 @@ class VendorLocationExtras extends StatelessWidget {
     final parsedNotes = parse(notes.toString().removeNextLines).body?.text;
     final hasEllipsis = timeChangeReason.length > 10;
     final hasLead = model['lead_id'].toString().isNotNullOrEmpty;
+    final hasChannel = model['channel_id'].toString().isNotNullOrEmpty;
     final leadName = model['lead']?['customer_name'] ?? "";
+    final channelName = model['channel']?['channel_name'] ?? (getIt<CommonService>().channels.firstWhereOrNull((element) => element['id'] == model['channel_id'])?['channel_name'] ?? "");
+    final String? leadChannelName = hasLead ? leadName : hasChannel ? channelName : null;
     return Expanded(child: Row(
       spacing: 10,
       mainAxisAlignment: MainAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
         if (hasVendorLocation) Flexible(child: GestureDetector(onTapDown: onVendorOrLocation, child: Utils.getText(vendorLocation, size: 12.sp, overFlow: TextOverflow.ellipsis))),
-        if (hasLead) Flexible(child: GestureDetector(onTapDown: onLead, child: Utils.getText(leadName, size: 12.sp, overFlow: TextOverflow.ellipsis))),
+        if (leadChannelName.isNotNullOrEmpty) Flexible(child: GestureDetector(onTapDown: onLead, child: Utils.getText(leadChannelName ?? "", size: 12.sp, overFlow: TextOverflow.ellipsis))),
         if (hasVendorInfo) GestureDetector(onTap: onVendorInfo, child: Icon(Icons.info, size: 14.sp, color: Colors.blue)),
         if (hasNotes) Flexible(
           child: RichText(

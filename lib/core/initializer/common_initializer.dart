@@ -174,8 +174,9 @@ class CommonService {
       List<Map<String, dynamic>>? cohortsData = List.from(response['cohortsData'] ?? []);
       List<Map<String, dynamic>>? expenseCategories = List.from(response['expenseCategories'] ?? []);
       List<Map<String, dynamic>>? leads = List.from(response['leads'] ?? []);
+      List<Map<String, dynamic>>? channels = List.from(response['channels'] ?? []);
       List<Map<String, dynamic>>? branchs = List.from(response['branchs'] ?? []);
-      updateValues(userList: users, groupPersonList: userGroup, taskExpenseDataList: taskExpenseData, locationsList: locations, vendorsList: vendors, groupVehicleList: vehicleGroups, activeVehicleList: vehicles, resourcesList: resources, partsList: parts, suppliesList: supplies, vehicleCategories: vehicleStatusCategories, taskCategoryGroupList: taskCategoryGroupList, cohortsList: cohortsData, expenseCategoriesList: expenseCategories, leads: leads, branchList: branchs);
+      updateValues(userList: users, groupPersonList: userGroup, taskExpenseDataList: taskExpenseData, locationsList: locations, vendorsList: vendors, groupVehicleList: vehicleGroups, activeVehicleList: vehicles, resourcesList: resources, partsList: parts, suppliesList: supplies, vehicleCategories: vehicleStatusCategories, taskCategoryGroupList: taskCategoryGroupList, cohortsList: cohortsData, expenseCategoriesList: expenseCategories, leads: leads, branchList: branchs, channels: channels);
       Console.of.debug("⌛Response is settled", name: "CommonService");
     }
   }
@@ -710,7 +711,7 @@ class CommonService {
     return result;
   }
 
-  void updateValues({List<Map<String, dynamic>>? userList, List<Map<String, dynamic>>? cohortsList, List<Map<String, dynamic>>? vendorsList, List<Map<String, dynamic>>? locationsList, List<Map<String, dynamic>>? partsList, List<Map<String, dynamic>>? suppliesList, List<Map<String, dynamic>>? groupVehicleList, List<Map<String, dynamic>>? activeVehicleList, List<Map<String, dynamic>>? activeVehicleCountList, List<Map<String, dynamic>>? bouncieVehicles, List<Map<String, dynamic>>? groupPersonList, List<Map<String, dynamic>>? taskExpenseDataList, List<Map<String, dynamic>>? expenseCategoriesList, List<Map<String, dynamic>>? paymentTypesList, List<Map<String, dynamic>>? resourcesList, List<Map<String, dynamic>>? branchList, List<Map<String, dynamic>>? toDoList, List<Map<String, dynamic>>? maintenanceCheckList, List<Map<String, dynamic>>? checkList, Map<String, dynamic>? vehicleStatus, List<Map<String, dynamic>>? vehicleCategories, List<Map<String, dynamic>>? taskCategoryGroupList, List<Map<String, dynamic>>? leads}) {
+  void updateValues({List<Map<String, dynamic>>? userList, List<Map<String, dynamic>>? cohortsList, List<Map<String, dynamic>>? vendorsList, List<Map<String, dynamic>>? locationsList, List<Map<String, dynamic>>? partsList, List<Map<String, dynamic>>? suppliesList, List<Map<String, dynamic>>? groupVehicleList, List<Map<String, dynamic>>? activeVehicleList, List<Map<String, dynamic>>? activeVehicleCountList, List<Map<String, dynamic>>? bouncieVehicles, List<Map<String, dynamic>>? groupPersonList, List<Map<String, dynamic>>? taskExpenseDataList, List<Map<String, dynamic>>? expenseCategoriesList, List<Map<String, dynamic>>? paymentTypesList, List<Map<String, dynamic>>? resourcesList, List<Map<String, dynamic>>? branchList, List<Map<String, dynamic>>? toDoList, List<Map<String, dynamic>>? maintenanceCheckList, List<Map<String, dynamic>>? checkList, Map<String, dynamic>? vehicleStatus, List<Map<String, dynamic>>? vehicleCategories, List<Map<String, dynamic>>? taskCategoryGroupList, List<Map<String, dynamic>>? leads, List<Map<String, dynamic>>? channels}) {
     this.usersList = userList ?? usersList;
     this.cohortsList = cohortsList ?? this.cohortsList;
     this.vendorsList = vendorsList ?? this.vendorsList;
@@ -730,6 +731,7 @@ class CommonService {
     this._vehicleStatus = vehicleStatus ?? _vehicleStatus;
     this.branchList = branchList ?? this.branchList;
     this.leads = leads ?? this.leads;
+    this.channels = channels ?? this.channels;
     _vehicleCategories = vehicleCategories ?? _vehicleCategories;
     _toDoList = toDoList ?? _toDoList;
     _maintenanceCheckList = maintenanceCheckList ?? _maintenanceCheckList;
