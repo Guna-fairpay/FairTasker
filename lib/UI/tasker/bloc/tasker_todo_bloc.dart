@@ -184,7 +184,9 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     List<Map<String, dynamic>>? resources = List.from(model?['resources'] ?? []);
     List<Map<String, dynamic>>? parts = List.from(model?['parts'] ?? []);
     List<Map<String, dynamic>>? supplies = List.from(model?['supplies'] ?? []);
-    getIt<CommonService>().updateValues(userList: users, groupPersonList: userGroup, taskExpenseDataList: taskExpenseData, locationsList: locations, vendorsList: vendors, groupVehicleList: vehicleGroups, activeVehicleList: vehicles, resourcesList: resources, partsList: parts, suppliesList: supplies, vehicleCategories: vehicleStatusCategories);
+    List<Map<String, dynamic>>? leads = List.from(model?['leads'] ?? []);
+    List<Map<String, dynamic>>? channels = List.from(model?['channels'] ?? []);
+    getIt<CommonService>().updateValues(userList: users, groupPersonList: userGroup, taskExpenseDataList: taskExpenseData, locationsList: locations, vendorsList: vendors, groupVehicleList: vehicleGroups, activeVehicleList: vehicles, resourcesList: resources, partsList: parts, suppliesList: supplies, vehicleCategories: vehicleStatusCategories, leads: leads, channels: channels);
   }
 
   // INITIAL EVENT PROCESSOR
