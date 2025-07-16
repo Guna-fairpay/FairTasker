@@ -60,6 +60,7 @@ mixin AddToDoMixin {
   List<Map<String, dynamic>> get partsList => getIt<CommonService>().partsList;
   List<Map<String, dynamic>> get suppliesList => getIt<CommonService>().suppliesList;
   List<Map<String, dynamic>> get leads => getIt<CommonService>().leads;
+  List<Map<String, dynamic>> get channels => getIt<CommonService>().channels;
 
   String? get taskName {
     var selectedTask = selectedTaskIdentifier[1];
@@ -111,12 +112,15 @@ mixin AddToDoMixin {
   List<List<Map<String, dynamic>>> get taskIdentifierList => CustomSearchDataConverter.convertTaskIdentifier(
     taskExpense: tasks,
     leads: isLeadTask ? leads : null,
+    channels: isLeadTask ? channels : null,
     vehicles: isMeeting ? null : vehicles,
     resources: isMeeting ? null : persons,
     groupVehicles: isMeeting ? null : groupVehicleList,
     vendors: isRentalTask ? vendors : null,
     locations: isRentalTask ? locations : null
   );
+
+  List<Map<String, dynamic>> get leadChannels => CustomSearchDataConverter.convertLeadChannel(leads: leads, channels: channels);
 
   // PICK MULTI IMAGES / FILES
   Future<List<File>?> _pickFiles() async {
@@ -131,12 +135,15 @@ mixin AddToDoMixin {
     final recurringLabel = selectedRecurring['label'].toString();
     final isEnquiryNotEmpty = enquiryController.document.toPlainText().trim().isNotNullOrEmpty;
     final hasLead = selectedTaskIdentifier[2]?['type'] == "lead";
+    final hasChannel = selectedTaskIdentifier[2]?['type'] == "channel";
     final hasMeetingMode = isMeeting;
     final task = selectedTaskIdentifier[1];
     final todoUserTypeId = task?['user_type_id'] ?? 0;
     final isUserType3 = (todoUserTypeId == 3) || isLeadTask;
     final isUserType5 = (todoUserTypeId == 5) || isMeeting;
     var baseBody = _cleanCarBody();
+    final String? leadId = hasLead ? (selectedTaskIdentifier[2]?['id']).toString() : null;
+    final String? channelId = hasChannel ? (selectedTaskIdentifier[2]?['id']).toString() : null;
     baseBody['title'] = taskNameController.text;
     baseBody['identifier_id'] = (taskName.isNotEmpty && selectedName == taskName) ? "$selectedId" : "";
     baseBody['repeatPeriod'] = ((recurringLabel.isDoesNotRepeat == false) ? recurringLabel.toLowerCase() : "");
@@ -164,8 +171,8 @@ mixin AddToDoMixin {
     if (baseBody['identifier_id'].toString().contains("358") && isEnquiryNotEmpty) {
       baseBody['rental_enquiry'] = QuillDeltaToHtmlConverter(enquiryController.document.toDelta().toJson(), ConverterOptions.forEmail()).convert();
     }
-    baseBody['lead_id'] = hasLead ? selectedLead['id'].toString() : "";
-    baseBody['channel_id'] = "";
+    baseBody['lead_id'] = leadId ?? "";
+    baseBody['channel_id'] = channelId ?? "";
     baseBody['meeting_mode'] = hasMeetingMode ? selectedMeetingMode['name'].toString().toLowerCase() : "";
     baseBody['rental_booking_id'] = (selectedCustom['id'] == 3) ? customLinkController.text : "";
     baseBody['rental_booking_no'] = "";
@@ -185,7 +192,10 @@ mixin AddToDoMixin {
       baseBody['rental_booking_id'] = "";
       baseBody['rental_booking_no'] = "";
     }
-    if (!isUserType3) baseBody['lead_id'] = "";
+    if (!isUserType3) {
+      baseBody['lead_id'] = "";
+      baseBody['channel_id'] = "";
+    }
     if ((!isUserType5) && !hasMeetingMode) {
       baseBody['meeting_mode'] = "";
       baseBody['meeting_link'] = "";
@@ -317,7 +327,7 @@ mixin AddToDoMixin {
         if (e['type'] == 'task') {
           map[1] = e;
           taskType = e['user_type_id'].toString().toNumeric.toInt().type;
-        } if (['lead'].contains(e['type'])) {
+        } if (['lead', 'channel'].contains(e['type'])) {
           map[2] = e;
         } if (["vehicles", "person", "g_vehicles"].contains(e['type'])) {
           map[3] = e;
@@ -344,7 +354,7 @@ mixin AddToDoMixin {
             optional[1] = value;
           } break;
           case 2: {
-            final result = taskIdentifierList.expand((element) => element).firstWhereOrNull((element) => (element['id'] == selectedLead['id']) && (["lead"].contains(element['type']))) ?? {};
+            final result = taskIdentifierList.expand((element) => element).firstWhereOrNull((element) => (element['id'] == selectedLead['id']) && (["lead", "channel"].contains(element['type']))) ?? {};
             optional[2] = (value.isEmpty) ? result : value;
             if (value.isEmpty && result.isNotEmpty) {
               optional[2] = {};
@@ -375,8 +385,8 @@ mixin AddToDoMixin {
       final vehicle = optional[3];
       final vendorLoc = optional[4];
 
-      final isUserType3 = task?['user_type_id'] == 3;
-      final isUserType5 = task?['user_type_id'] == 5;
+      final isUserType3 = (task?['user_type_id'] == 3) || isLeadTask;
+      final isUserType5 = (task?['user_type_id'] == 5) || isMeeting;
 
       optional2[1] = task ?? {};
 
@@ -394,7 +404,7 @@ mixin AddToDoMixin {
 
       if (task != null) taskNameController.text = task['name'] ?? "";
       if (isUserType3) {
-        if (lead?.isNotEmpty ?? false) selectedLead = lead?['value'] ?? {};
+        if (lead?.isNotEmpty ?? false) selectedLead = lead ?? {};
         if (vehicle != null && (vehicle.isNotEmpty)) selectedVPerson.add(vehicle);
         selectedTaskIdentifier[2] = lead ?? {};
         selectedTaskIdentifier[3] = vehicle ?? {};
@@ -432,7 +442,7 @@ mixin AddToDoMixin {
     final model = event.identifier;
     // final index = event.index;
     final isTask = model?['type'] == 'task';
-    final isLead = model?['type'] == "lead";
+    final isLead = ["lead", "channel"].contains(model?['type']);
     final isVehicle = ["vehicles", "person", "g_vehicles"].contains(model?['type']);
     final isVendor = ["vendor", "location"].contains(model?['type']);
     if (isTask) {
@@ -653,7 +663,7 @@ mixin AddToDoMixin {
     if (["vehicle", "group_vehicle", "person"].contains(selectedTaskIdentifier[2]?['type'])) {
       selectedTaskIdentifier[3] = selectedTaskIdentifier[2] ?? {};
     }
-    selectedTaskIdentifier[2] = taskIdentifierList.expand((element) => element).firstWhereOrNull((element) => element['id'] == selectedLead['id'] && element['type'] == "lead") ?? {};
+    selectedTaskIdentifier[2] = selectedLead;
     emit(CommonState());
   }
 

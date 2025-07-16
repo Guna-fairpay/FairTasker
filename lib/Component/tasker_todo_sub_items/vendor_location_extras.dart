@@ -21,14 +21,17 @@ class VendorLocationExtras extends StatelessWidget {
     final parsedNotes = parse(notes.toString().removeNextLines).body?.text;
     final hasEllipsis = timeChangeReason.length > 10;
     final hasLead = model['lead_id'].toString().isNotNullOrEmpty;
+    final hasChannel = model['channel_id'].toString().isNotNullOrEmpty;
     final leadName = model['lead']?['customer_name'] ?? "";
+    final channelName = model['channel']?['channel_name'] ?? (getIt<CommonService>().channels.firstWhereOrNull((element) => element['id'] == model['channel_id'])?['channel_name'] ?? "");
+    final String? leadChannelName = hasLead ? leadName : hasChannel ? channelName : null;
     return Expanded(child: Row(
       spacing: 10,
       mainAxisAlignment: MainAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
         if (hasVendorLocation) Flexible(child: GestureDetector(onTapDown: onVendorOrLocation, child: Utils.getText(vendorLocation, style: context.textTheme.labelMedium?.copyWith(), overFlow: TextOverflow.ellipsis))),
-        if (hasLead) Flexible(child: GestureDetector(onTapDown: onLead, child: Utils.getText(leadName, style: context.textTheme.bodySmall, overFlow: TextOverflow.ellipsis))),
+        if (leadChannelName.isNotNullOrEmpty) Flexible(child: GestureDetector(onTapDown: onLead, child: Utils.getText(leadChannelName ?? "", style: context.textTheme.bodySmall, overFlow: TextOverflow.ellipsis))),
         if (hasVendorInfo) GestureDetector(onTap: onVendorInfo, child: Icon(Icons.info, size: 16.spMin, color: Colors.blue)),
         if (hasNotes) Flexible(
           child: RichText(

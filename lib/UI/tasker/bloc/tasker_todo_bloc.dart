@@ -184,7 +184,9 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     List<Map<String, dynamic>>? resources = List.from(model?['resources'] ?? []);
     List<Map<String, dynamic>>? parts = List.from(model?['parts'] ?? []);
     List<Map<String, dynamic>>? supplies = List.from(model?['supplies'] ?? []);
-    getIt<CommonService>().updateValues(userList: users, groupPersonList: userGroup, taskExpenseDataList: taskExpenseData, locationsList: locations, vendorsList: vendors, groupVehicleList: vehicleGroups, activeVehicleList: vehicles, resourcesList: resources, partsList: parts, suppliesList: supplies, vehicleCategories: vehicleStatusCategories);
+    List<Map<String, dynamic>>? leads = List.from(model?['leads'] ?? []);
+    List<Map<String, dynamic>>? channels = List.from(model?['channels'] ?? []);
+    getIt<CommonService>().updateValues(userList: users, groupPersonList: userGroup, taskExpenseDataList: taskExpenseData, locationsList: locations, vendorsList: vendors, groupVehicleList: vehicleGroups, activeVehicleList: vehicles, resourcesList: resources, partsList: parts, suppliesList: supplies, vehicleCategories: vehicleStatusCategories, leads: leads, channels: channels);
   }
 
   // INITIAL EVENT PROCESSOR
@@ -1213,7 +1215,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
   }
 
   void _onTaskerLeadTapEvent(TaskerLeadTapEvent event, Emitter<ToDoTaskerState> emit) {
-    if (event.model?['lead_id'].toString().isNotNullOrEmpty ?? false) return emit(LeadChangeState(event.model));
+    if ((event.model?['lead_id'].toString().isNotNullOrEmpty ?? false) || (event.model?['channel_id'].toString().isNotNullOrEmpty ?? false)) return emit(LeadChangeState(event.model));
   }
 
   void _onTaskerLeadUpdateEvent(TaskerLeadUpdateEvent event, Emitter<ToDoTaskerState> emit) async {
@@ -1221,7 +1223,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       var model = event.model;
       var lead = event.selectedModel;
       if (lead != null) {
-        var mapData = {"lead_id": lead['id']};
+        var mapData = { (lead['type'] == "lead" ? "lead_id" : "channel_id"): lead['id']};
         emit(ToDoTaskerLoadingState());
         var response = await _updateToDo(body: mapData, todoId: model?['id']);
         if (response != null) _reFetchToDos();

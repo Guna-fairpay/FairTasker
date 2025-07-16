@@ -40,8 +40,8 @@ class MainForm extends StatelessWidget {
           ],
         if (context.watch<AddToDoBloc>().isLeadTask)
         CompactSingleChannelField<Map<String, dynamic>>(
-          items: context.watch<AddToDoBloc>().leads,
-          itemAsString: (item) => item['customer_name'] ?? "",
+          items: context.watch<AddToDoBloc>().leadChannels,
+          itemAsString: (item) => item['name'] ?? "",
           controller: context.read<AddToDoBloc>().leadController,
           selected: context.watch<AddToDoBloc>().selectedLead,
           labelText: "Lead/Channel",

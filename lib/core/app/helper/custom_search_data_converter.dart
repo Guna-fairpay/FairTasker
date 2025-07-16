@@ -109,9 +109,35 @@ class CustomSearchDataConverter {
     return taskList;
   }
 
+  static List<Map<String, dynamic>> convertLeadChannel({List<dynamic>? leads, List<dynamic>? channels}) {
+    var lead = leads?.map((e) => {
+      "id" : e['id'],
+      "name" : e['customer_name'],
+      "searchBy" : [e['customer_name']],
+      "type" : "lead",
+      "value" : e
+    }).toList();
+    var channel = channels?.map((e) => {
+      "id" : e['id'],
+      "name" : e['channel_name'],
+      "searchBy" : [e['channel_name']],
+      "type" : "channel",
+      "value" : e
+    }).toList();
+    List<Map<String, dynamic>>? leadChannel = (leads == null) ? null : [];
+    if (leads != null) {
+      leadChannel = [
+        ...(lead ?? []),
+        ...(channel ?? [])
+      ];
+    }
+    return leadChannel ?? [];
+  }
+
   static List<List<Map<String, dynamic>>> convertTaskIdentifier({
     List<Map<String, dynamic>>? taskExpense,
     List<Map<String, dynamic>>? leads,
+    List<Map<String, dynamic>>? channels,
     List<Map<String, dynamic>>? vehicles,
     List<Map<String, dynamic>>? resources,
     List<Map<String, dynamic>>? groupVehicles,
@@ -132,6 +158,13 @@ class CustomSearchDataConverter {
       "name" : e['customer_name'],
       "searchBy" : [e['customer_name']],
       "type" : "lead",
+      "value" : e
+    }).toList();
+    var channel = channels?.map((e) => {
+      "id" : e['id'],
+      "name" : e['channel_name'],
+      "searchBy" : [e['channel_name']],
+      "type" : "channel",
       "value" : e
     }).toList();
     var vehicle = vehicles?.map((e) => {
@@ -185,9 +218,16 @@ class CustomSearchDataConverter {
         ...(location ?? []),
       ];
     }
+    List<Map<String, dynamic>>? leadChannel = (leads == null) ? null : [];
+    if (leads != null) {
+      leadChannel = [
+        ...(lead ?? []),
+        ...(channel ?? [])
+      ];
+    }
     result = [
       if (tasks != null) tasks,
-      if (lead != null) lead,
+      if (leadChannel != null) leadChannel,
       if (vehiclePerson != null) vehiclePerson,
       if (vendorLocation != null) vendorLocation,
     ];
