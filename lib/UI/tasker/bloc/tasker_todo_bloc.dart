@@ -1215,7 +1215,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
   }
 
   void _onTaskerLeadTapEvent(TaskerLeadTapEvent event, Emitter<ToDoTaskerState> emit) {
-    if (event.model?['lead_id'].toString().isNotNullOrEmpty ?? false) return emit(LeadChangeState(event.model));
+    if ((event.model?['lead_id'].toString().isNotNullOrEmpty ?? false) || (event.model?['channel_id'].toString().isNotNullOrEmpty ?? false)) return emit(LeadChangeState(event.model));
   }
 
   void _onTaskerLeadUpdateEvent(TaskerLeadUpdateEvent event, Emitter<ToDoTaskerState> emit) async {
@@ -1223,7 +1223,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       var model = event.model;
       var lead = event.selectedModel;
       if (lead != null) {
-        var mapData = {"lead_id": lead['id']};
+        var mapData = { (lead['type'] == "lead" ? "lead_id" : "channel_id"): lead['id']};
         emit(ToDoTaskerLoadingState());
         var response = await _updateToDo(body: mapData, todoId: model?['id']);
         if (response != null) _reFetchToDos();

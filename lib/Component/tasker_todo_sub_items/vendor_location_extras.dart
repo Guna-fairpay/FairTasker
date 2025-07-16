@@ -31,7 +31,7 @@ class VendorLocationExtras extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         if (hasVendorLocation) Flexible(child: GestureDetector(onTapDown: onVendorOrLocation, child: Utils.getText(vendorLocation, size: 12.sp, overFlow: TextOverflow.ellipsis))),
-        if (hasLead || hasChannel) Flexible(child: GestureDetector(onTapDown: onLead, child: Utils.getText(leadChannelName ?? "", size: 12.sp, overFlow: TextOverflow.ellipsis))),
+        if (leadChannelName.isNotNullOrEmpty) Flexible(child: GestureDetector(onTapDown: onLead, child: Utils.getText(leadChannelName ?? "", size: 12.sp, overFlow: TextOverflow.ellipsis))),
         if (hasVendorInfo) GestureDetector(onTap: onVendorInfo, child: Icon(Icons.info, size: 14.sp, color: Colors.blue)),
         if (hasNotes) Flexible(
           child: RichText(

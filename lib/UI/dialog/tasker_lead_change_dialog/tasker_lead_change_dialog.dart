@@ -44,7 +44,7 @@ class _LeadChangeDialogView extends StatelessWidget {
                     showEmpty: true,
                     controller: context.read<LeadChangeBloc>().controller,
                     suggestions: context.watch<LeadChangeBloc>().leads,
-                    itemAsString: (item) => item['customer_name'] ?? "",
+                    itemAsString: (item) => item['name'] ?? "",
                     onSelected: context.read<LeadChangeBloc>().onChanged,
                     onEmptyTap: context.read<LeadChangeBloc>().onEmptyTap,
                   ),
