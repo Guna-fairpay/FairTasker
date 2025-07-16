@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:equatable/equatable.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:flutter/material.dart';
@@ -48,5 +49,9 @@ class LeadChangeBloc extends Cubit<LeadChangeState> {
   void onSave() {
     var state = ((selectedLead.isNotEmpty && _isNewLead) ? CompleteState(selectedLead) : CloseState());
     return emit(state);
+  }
+
+  void onEmptyTap() {
+    if (controller.text.isNotNullOrEmpty) return emit(EmptyLeadState(controller.text));
   }
 }
