@@ -1,4 +1,3 @@
-import 'dart:developer';
 
 import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/Components/image_upload_selection.dart';
@@ -6,19 +5,14 @@ import 'package:fairpytasker/UI/Vehicle/vehicle_expense_history/ui/vehicle_expen
 import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
-import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import '../../../../Component/close_badge.dart';
 import '../../../../Component/custom_date_time_picker.dart';
 import '../../../../Component/custom_single_selection_field.dart';
-import '../../../../Component/image_viewer.dart';
 import '../../../../Utilities/Utils.dart';
-import '../../../../Utilities/num.dart';
-import '../../../dialog/show_attachments_dialog.dart';
 import '../bloc/vehicle_expense_history_bloc.dart';
 import '../event/vehicle_expense_history_event.dart';
 import '../state/vehicle_expense_history_state.dart';
@@ -163,7 +157,7 @@ class VehicleExpenseHistoryEditPage extends StatelessWidget {
                             context
                                 .read<VehicleExpenseHistoryBloc>()
                                 .amountController,
-                            textType: TextInputType.numberWithOptions(decimal: true),
+                            textType: const TextInputType.numberWithOptions(decimal: true),
                             inputAction: TextInputAction.done,
                             textInputFormatter:[
                               FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))
