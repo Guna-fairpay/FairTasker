@@ -140,18 +140,6 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState>{
 
   Future<void> _onSearchEvent(SearchEvent event, Emitter<LeadsState> emit) async {
     try{
-      // emit(LoadingState());
-      // var query = event.query;
-      // searchText = query;
-      // var response = await _getLeads(page: 1, search: query, type: '');
-      // if(response?['status'] == true){
-      //   apiResponse = List.from(response?['data']?['data'] ?? []);
-      //   totalCount = response?['data']?['total'] ?? 0;
-      //   _unFilteredResponse = List.from(apiResponse);
-      //   paginateList(data: _unFilteredResponse, currentPage: 1, itemsPerPage: itemsPerPage);
-      // }else{
-      //   emit(ErrorState(response?['message']));
-      // }
       _search();
       emit(CommonState());
     }catch (e){
@@ -170,6 +158,7 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState>{
         await fetchData();
         _broadcast.broadcast(Str.addToDoRefresh);
         _broadcast.broadcast(Str.editToDoRefresh);
+        _search();
         clearAll();
         emit(SuccessState(response?['message']));
       }else{
@@ -197,6 +186,7 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState>{
         await fetchData();
         _broadcast.broadcast(Str.addToDoRefresh);
         _broadcast.broadcast(Str.editToDoRefresh);
+        _search();
         if(event.data?['id'] == editModel?['id']){
           clearAll();
         }
@@ -260,16 +250,6 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState>{
       _onError(e, emit);
     }
   }
-
-  // Future<void> fetchData() async {
-  //   var response = await _getLeads(page: currentIndex, search: searchText, type: '');
-  //   apiResponse = List.from(response?['data']?['data'] ?? []);
-  //   totalCount = response?['data']?['total'] ?? 0;
-  //   _unFilteredResponse = List.from(apiResponse);
-  //   paginateList(data: _unFilteredResponse, currentPage: currentIndex, itemsPerPage: itemsPerPage);
-  //   _broadcast.broadcast(Str.addToDoRefresh);
-  //   _broadcast.broadcast(Str.editToDoRefresh);
-  // }
 
   Future<void> fetchData() async {
     var response = await _getLeads();
