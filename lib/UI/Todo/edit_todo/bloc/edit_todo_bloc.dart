@@ -129,7 +129,9 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   Future<List<Map<String, dynamic>>> _getGroupPersons() async => await getIt<CommonService>().getGroupPersons();
   Future<List<Map<String, dynamic>>> _getResources() async => await getIt<CommonService>().getResources();
   Future<List<Map<String, dynamic>>> _groupVehicles() async => await getIt<CommonService>().groupVehicles();
-  Future<List<Map<String, dynamic>>> _getLeads() async => getIt<CommonService>().leads;
+  List<Map<String, dynamic>> get leads => getIt<CommonService>().leads;
+  List<Map<String, dynamic>> get channels => getIt<CommonService>().channels;
+  List<Map<String, dynamic>> get leadChannels => CustomSearchDataConverter.convertLeadChannel(leads: leads, channels: channels);
 
   EditToDoBloc() : super(EditTodoState(
     isLoading: false,
@@ -242,9 +244,18 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     var userGroupResponse = await _getGroupPersons();
     var assignedToResponse = await _getResources();
     var groupVehiclesResponse = await _groupVehicles();
-    var leadsData = await _getLeads();
-    selectedLead = leadsData.firstWhereOrNull((e) => e['id'].toString() == todoResponse?['lead_id'].toString());
-    leadsController.text = selectedLead?['customer_name'] ?? '';
+    var leadsData = leadChannels;
+    Console.of.log("leadsData $leadsData");
+    if(todoResponse?['lead_id'] != null){
+      Console.of.log("Lead Id ${todoResponse?['lead_id']}");
+      selectedLead = leadsData.firstWhereOrNull((e) => (e['type'] == 'lead') && (e['id'].toString()) == todoResponse?['lead_id'].toString(),);
+    }
+    if(todoResponse?['lead_id'] == null && todoResponse?['channel_id'] != null){
+      Console.of.log("Channel Id ${todoResponse?['channel_id']}");
+      selectedLead = leadsData.firstWhereOrNull((e) => e['type'] == 'channel' && e['id'].toString() == todoResponse?['channel_id'].toString(),);
+    }
+    //selectedLead = leadsData.firstWhereOrNull((e) => e['id'].toString() == todoResponse?['lead_id'].toString());
+    leadsController.text = selectedLead?['name'] ?? '';
     var resources = assignedToResponse;
     resources.removeWhere((resource) => resource['id'] == 2);
     resources.removeWhere((resource) =>
@@ -1085,7 +1096,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       var taskResponse = await _getTaskExpenseData();
       var userGroupResponse = await _getGroupPersons();
       var assignedToResponse = await _getResources();
-      var leadResponse = await _getLeads();
+      var leadResponse = leadChannels;
       var resources = assignedToResponse;
       resources.removeWhere((resource) => resource['id'] == 2);
       resources.removeWhere((resource) =>
@@ -1172,7 +1183,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     baseBody['resolution_notes'] = resolutionNotesController.text;
     baseBody['platform_check'] = state.isSelectedPlatformCheck ? "1" : "0";
     baseBody['time_sensitive'] = state.isTimeSensitive ? '1' : '0';
-    baseBody['todo_user_type'] = "${state.selectedTask['user_type'] ?? ''}";
+    baseBody['todo_user_type'] = "${state.selectedTask['user_type'] ?? '0'}";
     baseBody['mileage'] = odometerController.text;
     baseBody['address'] = "${state.addresses.map((e) => e['id']).toList()}";
     baseBody['custom_link_id'] = "${state.selectedLinkOption?['id'] ?? ""}";
@@ -1238,9 +1249,19 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       ConverterOptions.forEmail(),).convert();
     // baseBody['meeting_mode'] = selectedMeetingType?['name'] ?? '';
     baseBody['meeting_mode'] = selectedMeetingType?['id'] != 0 ? ( selectedMeetingType?['name'] ?? '') : '';
-    baseBody['lead_id'] = "${selectedLead?['id'] ?? ''}";
+    // baseBody['lead_id'] = "${selectedLead?['id'] ?? ''}";
     baseBody['meeting_duration'] = "${selectedMeetingTime?['value'] ?? ''}";
     baseBody['meeting_link'] = meetingLinkController.text;
+    if(selectedLead != null){
+      if(selectedLead?['type'] == 'lead'){
+        baseBody['lead_id'] = "${selectedLead?['id'] ?? ''}";
+        baseBody['channel_id'] = "";
+      }
+      if(selectedLead?['type'] == 'channel'){
+        baseBody['channel_id'] = "${selectedLead?['id'] ?? ''}";
+        baseBody['lead_id'] = "";
+      }
+    }
     baseBody['type'] = "inline";
 
     var groupVehicleList = state.selectedVPerson
@@ -1386,8 +1407,6 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   List<Map<String, dynamic>> get partsList => getIt<CommonService>().partsList;
 
   List<Map<String, dynamic>> get suppliesLists => getIt<CommonService>().suppliesList;
-
-  List<Map<String, dynamic>> get leads => getIt<CommonService>().leads;
 
   List<Map<String, dynamic>> get persons {
     List<Map<String, dynamic>> resources = List.from(getIt<CommonService>().resourcesList);

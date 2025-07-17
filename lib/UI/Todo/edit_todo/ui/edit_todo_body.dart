@@ -83,11 +83,11 @@ class EditTodoBody extends StatelessWidget {
                   hintText: "Select Task",
                 ),
                 10.height,
-                if(state.selectedTask['user_type'] == 3 || state.apiResponse['lead_id'] != null)...[
+                if(state.selectedTask['user_type'] == 3 || state.apiResponse['lead_id'] != null || state.apiResponse['channel_id'] != null)...[
                   SearchViewField(
                     controller: context.read<EditToDoBloc>().leadsController,
-                    suggestions: context.watch<EditToDoBloc>().leads,
-                    itemAsString: (item) => item['customer_name'] ?? '',
+                    suggestions: context.watch<EditToDoBloc>().leadChannels,
+                    itemAsString: (item) => item['name'] ?? '',
                     onSelected: (value) => context.read<EditToDoBloc>().add(LeadsEvent(value)),
                     selectedItem: (context.watch<EditToDoBloc>().selectedLead != null) ? null : context.watch<EditToDoBloc>().selectedLead,
                     onEmptyTap: () => context.push(LeadsMainUI(customerName: context.read<EditToDoBloc>().leadsController.text,)),
@@ -110,7 +110,7 @@ class EditTodoBody extends StatelessWidget {
                   ),
                   10.height,
                 ],
-                if((!Str.checkInCheckOut.contains(state.apiResponse['title']) && (!Str.userTypeId.contains(state.selectedTask['user_type']))) && state.apiResponse['lead_id'] == null)...[
+                if((!Str.checkInCheckOut.contains(state.apiResponse['title']) && (!Str.userTypeId.contains(state.selectedTask['user_type']))) && (state.apiResponse['lead_id'] == null && state.apiResponse['channel_id'] == null))...[
                   CustomVendorLocationField(
                     vendorsList: context.watch<EditToDoBloc>().vendor,
                     locationsList: context.watch<EditToDoBloc>().location,
@@ -187,7 +187,7 @@ class EditTodoBody extends StatelessWidget {
                   ),
                   10.height,
                 ],
-                if(!Str.checkInCheckOut.contains(state.apiResponse['title']) && (!Str.userTypeId.contains(state.selectedTask['user_type'])) && state.apiResponse['lead_id'] == null)...[
+                if(!Str.checkInCheckOut.contains(state.apiResponse['title']) && (!Str.userTypeId.contains(state.selectedTask['user_type'])) && (state.apiResponse['lead_id'] == null && state.apiResponse['channel_id'] == null))...[
                   const EditTodoMoreForm(),
                   10.height,
                 ],

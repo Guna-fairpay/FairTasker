@@ -459,6 +459,8 @@ class APiRepository {
 
   String get _taskExport => "task-export";
 
+  String get _getArchive => "archive-list";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
