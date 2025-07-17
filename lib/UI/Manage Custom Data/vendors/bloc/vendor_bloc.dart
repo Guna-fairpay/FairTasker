@@ -86,7 +86,7 @@ class VendorBloc extends Bloc<VendorEvent, VendorState> {
   Future<void> _onRefreshEvent(RefreshEvent event, Emitter<VendorState> emit) async {
     try {
       var response = await _getVendorType();
-      vendorType = List.from(response ?? []);
+      vendorType = List.from(response);
       emit(CommonState());
     } catch (e) {
       _onError(e, emit);
@@ -163,6 +163,7 @@ class VendorBloc extends Bloc<VendorEvent, VendorState> {
        _broadcast.broadcast(Str.refetchVendorLocation);
        emit(SuccessState(response?['message']));
        clearAll();
+       _search();
       }else{
        emit(ErrorState(response?['message']));       }
     } catch (e) {
