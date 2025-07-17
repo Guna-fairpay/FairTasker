@@ -256,6 +256,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     }
     //selectedLead = leadsData.firstWhereOrNull((e) => e['id'].toString() == todoResponse?['lead_id'].toString());
     leadsController.text = selectedLead?['name'] ?? '';
+    meetingLinkController.text = todoResponse?['meeting_link'] ?? '';
     var resources = assignedToResponse;
     resources.removeWhere((resource) => resource['id'] == 2);
     resources.removeWhere((resource) =>
@@ -1248,7 +1249,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       (quillController).document.toDelta().toJson(),
       ConverterOptions.forEmail(),).convert();
     // baseBody['meeting_mode'] = selectedMeetingType?['name'] ?? '';
-    baseBody['meeting_mode'] = selectedMeetingType?['id'] != 0 ? ( selectedMeetingType?['name'] ?? '') : '';
+    baseBody['meeting_mode'] = selectedMeetingType?['id'] != 0 ? ( selectedMeetingType?['name'] ?? '').toString().toLowerCase() : '';
     // baseBody['lead_id'] = "${selectedLead?['id'] ?? ''}";
     baseBody['meeting_duration'] = "${selectedMeetingTime?['value'] ?? ''}";
     baseBody['meeting_link'] = meetingLinkController.text;
