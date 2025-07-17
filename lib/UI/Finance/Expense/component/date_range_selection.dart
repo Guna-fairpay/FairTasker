@@ -50,7 +50,7 @@ class DateRangePicker extends StatelessWidget {
               child: Text(
                ((selectedDateRange?.start == null) && (selectedDateRange?.end == null))
                    ? "Select Date Range"
-                   : ((selectedDateRange?.start) == (selectedDateRange?.end))
+                   : ((selectedDateRange?.start.toFormat()) == (selectedDateRange?.end.toFormat()))
                    ? selectedDateRange?.start.toFormat() ?? ""
                    : "${selectedDateRange?.start.toFormat() ?? ""} $splitter ${selectedDateRange?.end.toFormat() ?? ""}",
                 overflow: TextOverflow.ellipsis,

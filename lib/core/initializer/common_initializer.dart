@@ -6,7 +6,6 @@ import 'package:fairpytasker/Response/authentication_response.dart';
 import 'package:fairpytasker/core/app/helper/work_manager_helper.dart';
 import 'package:fairpytasker/core/initializer/receive_intent.dart';
 import 'package:fairpytasker/core/initializer/todo_supporter.dart';
-import 'package:flutter/foundation.dart' show ValueNotifier, kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:timezone/timezone.dart' as tz;
@@ -71,7 +70,7 @@ class CommonService {
   List<Map<String, dynamic>> _maintenanceCheckList = [];
   List<Map<String, dynamic>> _checkList = [];
   List<Map<String, dynamic>> _vehicleCategories = [];
-  List<Map<String, dynamic>> FairTechProjects = [];
+  List<Map<String, dynamic>> fairTechProjects = [];
   Map<String, dynamic> employeesList = {};
   List<Map<String, dynamic>> taskCategoryGroupList = [];
   Map<String, dynamic>? _vehicleStatus;
@@ -105,7 +104,7 @@ class CommonService {
 
   bool get hasReport => userPermissions?.map((e) => e.toLowerCase()).contains("report") ?? false;
   bool get hasFinance => userPermissions?.map((e) => e.toLowerCase()).contains("finance") ?? false;
-  bool get hasFairTechEOD => (userPermissions?.map((e) => e.toLowerCase()).contains("fairtech-eod") ?? false) || (kDebugMode);
+  bool get hasFairTechEOD => (userPermissions?.map((e) => e.toLowerCase()).contains("fairtech-eod") ?? false);
 
   List<dynamic> get freelancerHrmIds {
     if (departmentId != 9) return [];
@@ -620,8 +619,8 @@ class CommonService {
   Future<Map<String, dynamic>?> findVehicleReservation({required String vin}) async {
     try {
       var response = await _apiRepository.getVehicleHistory(vin: vin);
-      var _vehileHisory = List<Map<String, dynamic>>.from(response?['todo']?['data'] ?? []);
-      return _vehileHisory.where((element) => element['todo_date'] == (DateTime.now().toFormat())).firstOrNull;
+      var vehicleHistory = List<Map<String, dynamic>>.from(response?['todo']?['data'] ?? []);
+      return vehicleHistory.where((element) => element['todo_date'] == (DateTime.now().toFormat())).firstOrNull;
     }catch (e) {
       Toaster.showError(e.toString());
       return null;
@@ -663,12 +662,12 @@ class CommonService {
   }
 
   Future<List<Map<String, dynamic>>> getTechProjects({bool reset = false}) async {
-    if (reset) FairTechProjects.clear();
-    if (FairTechProjects.isNotEmpty) return FairTechProjects;
+    if (reset) fairTechProjects.clear();
+    if (fairTechProjects.isNotEmpty) return fairTechProjects;
     try {
       var response = await _apiRepository.getFairTechProjects();
-      FairTechProjects = List<Map<String, dynamic>>.from(response?['data']?['data'] ?? []);
-      return FairTechProjects;
+      fairTechProjects = List<Map<String, dynamic>>.from(response?['data']?['data'] ?? []);
+      return fairTechProjects;
     } catch (e) {
       Toaster.showError(e.toString());
       return [];
@@ -712,7 +711,7 @@ class CommonService {
   }
 
   void updateValues({List<Map<String, dynamic>>? userList, List<Map<String, dynamic>>? cohortsList, List<Map<String, dynamic>>? vendorsList, List<Map<String, dynamic>>? locationsList, List<Map<String, dynamic>>? partsList, List<Map<String, dynamic>>? suppliesList, List<Map<String, dynamic>>? groupVehicleList, List<Map<String, dynamic>>? activeVehicleList, List<Map<String, dynamic>>? activeVehicleCountList, List<Map<String, dynamic>>? bouncieVehicles, List<Map<String, dynamic>>? groupPersonList, List<Map<String, dynamic>>? taskExpenseDataList, List<Map<String, dynamic>>? expenseCategoriesList, List<Map<String, dynamic>>? paymentTypesList, List<Map<String, dynamic>>? resourcesList, List<Map<String, dynamic>>? branchList, List<Map<String, dynamic>>? toDoList, List<Map<String, dynamic>>? maintenanceCheckList, List<Map<String, dynamic>>? checkList, Map<String, dynamic>? vehicleStatus, List<Map<String, dynamic>>? vehicleCategories, List<Map<String, dynamic>>? taskCategoryGroupList, List<Map<String, dynamic>>? leads, List<Map<String, dynamic>>? channels}) {
-    this.usersList = userList ?? usersList;
+    usersList = userList ?? usersList;
     this.cohortsList = cohortsList ?? this.cohortsList;
     this.vendorsList = vendorsList ?? this.vendorsList;
     this.locationsList = locationsList ?? this.locationsList;
@@ -728,7 +727,7 @@ class CommonService {
     this.paymentTypesList = paymentTypesList ?? this.paymentTypesList;
     this.resourcesList = resourcesList ?? this.resourcesList;
     this.taskCategoryGroupList = taskCategoryGroupList ?? this.taskCategoryGroupList;
-    this._vehicleStatus = vehicleStatus ?? _vehicleStatus;
+    _vehicleStatus = vehicleStatus ?? _vehicleStatus;
     this.branchList = branchList ?? this.branchList;
     this.leads = leads ?? this.leads;
     this.channels = channels ?? this.channels;
