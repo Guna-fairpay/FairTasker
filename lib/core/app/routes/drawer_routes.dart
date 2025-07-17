@@ -5,6 +5,7 @@ import 'package:fairpytasker/UI/Manage%20Custom%20Data/reports/reports_view.dart
 import 'package:fairpytasker/UI/Manage%20Employees/manage_employees.dart';
 import 'package:fairpytasker/UI/Settings/google_authenticator.dart';
 import 'package:fairpytasker/UI/approve_task/ui/approve_task_main_ui.dart';
+import 'package:fairpytasker/UI/archive_task/archive_task_main/ui/archive_task_main_ui.dart';
 import 'package:fairpytasker/UI/authentication/authentication_ui.dart';
 import 'package:fairpytasker/UI/bouncie/bouncie_main_ui.dart';
 import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
@@ -38,6 +39,7 @@ mixin DrawerRoutes {
     "Manage Custom Data's" : const ManageCustomDataMenuUI(),
     if (getIt<CommonService>().isAdmin) "Manage Employees" : const ManageEmployees(),
     if(approveTask.contains(Session.of.getString(Str.userIdPrefText))) "Approve Task" : const ApproveTaskMainUI(),
+    "Archive Task" : const ArchiveTaskMainUI(),
     "Leave Management" : const LeaveViewMainPage(),
     "Reports" : const ReportsView(),
     if (getIt<CommonService>().hasFairTechEOD) "Offshore Report" : const OffshoreReportBasePage(),
@@ -51,6 +53,7 @@ mixin DrawerRoutes {
     "Manage Custom Data's" : Remix.honour_line,
     "Manage Employees" : Remix.user_community_line,
     "Approve Task" : RIcon.Checklist_Minimalistic,
+    "Archive Task" : RIcon.Archive_Minimalistic,
     "Leave Management" : RIcon.History_2,
     "Reports" : RIcon.Chart_Square,
     "Offshore Report" : RIcon.Pie_Chart_3,
