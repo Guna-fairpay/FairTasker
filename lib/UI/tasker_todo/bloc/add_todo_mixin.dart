@@ -302,9 +302,8 @@ mixin AddToDoMixin {
 
   void _updateReservation(Emitter<AddToDoState> emit) async {
     try {
-      if (isNextTask) return;
+      if (isNextTask || isLeadTask) return;
       if (hasVehicle && lasVehicleVin.isNotNullOrEmpty) {
-        if (!emit.isDone) emit(LoadingState());
         final response = await _findReservation(lasVehicleVin);
         existingRefId = response?['reference_id'] ?? "";
         if (existingRefId.toString().trim().isNotNullOrEmpty) customLinkController.text = "${existingRefId ?? ""}";
