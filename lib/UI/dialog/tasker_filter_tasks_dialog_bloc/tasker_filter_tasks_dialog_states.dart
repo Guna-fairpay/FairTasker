@@ -1,7 +1,4 @@
-import 'dart:math';
-
-import 'package:equatable/equatable.dart';
-
+part of 'tasker_filter_tasks_dialog_bloc.dart';
 abstract class TFTDStates extends Equatable {
   @override
   List<Object?> get props => [];
@@ -29,6 +26,13 @@ class TFTDCommonState extends TFTDStates {
 class TFTDTriggerSelectedState extends TFTDStates {
   final List<dynamic>? value;
   TFTDTriggerSelectedState(this.value);
+  @override
+  List<Object?> get props => [value, Random().nextDouble()];
+}
+
+class TimeSensitiveState extends TFTDStates {
+  final bool value;
+  TimeSensitiveState(this.value);
   @override
   List<Object?> get props => [value, Random().nextDouble()];
 }
