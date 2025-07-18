@@ -39,7 +39,7 @@ void navigation(BuildContext context, ToDoTaskerState state) {
       case VehicleHistoryTapState(): TaskerViewVehicleHistoryDialog.show(context, state.model); break;
       case ViewVehicleState(): context.push(VehicleMainViewUi(vin: List.from(state.model?['display']?['vins']).lastOrNull), fullscreenDialog: true); break;
       case VehicleGroupTapState(): TaskerGroupVehicleDialog.show(context, state.model); break;
-      case FilterTaskState(): TaskerFilterTasksDialog.show(context, toDos: context.read<ToDoTaskerBloc>().unfiltered, selected: context.read<ToDoTaskerBloc>().selectedTasks, onChanged: (value) => context.read<ToDoTaskerBloc>().add(ToDoTaskerTaskFilterEvent(value))); break;
+      case FilterTaskState(): TaskerFilterTasksDialog.show(context, toDos: context.read<ToDoTaskerBloc>().unfiltered, selected: context.read<ToDoTaskerBloc>().selectedTasks, onChanged: (value) => context.read<ToDoTaskerBloc>().add(ToDoTaskerTaskFilterEvent(value)), isTimeSensitive: state.isTimeSensitive, onTimeSensitive: (value) => context.read<ToDoTaskerBloc>().add(ToDoTaskerTimeSensitiveEvent(value))); break;
       case ViewAttachmentState(): ShowAttachmentsDialog.of.show(context, attachments: (List<Map<String, dynamic>>.from(state.model?['todoimages']).map((e) => e['path'].toString().toAttachmentURL).toList()), title: state.model?['title']); break;
       case ViewReasonAttachmentState(): ShowAttachmentsDialog.of.show(context, attachments: (List<Map<String, dynamic>>.from(state.model?['reason_images']).map((e) => e['images'].toString().toAttachmentURL).toList()), title: state.model?['title']); break;
       case ViewCustomLinkState(): Utils.openURL(state.link ?? ""); break;

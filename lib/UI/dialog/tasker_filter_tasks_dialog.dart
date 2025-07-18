@@ -1,9 +1,7 @@
 import 'package:fairpytasker/Component/custom_checkbox.dart';
+import 'package:fairpytasker/Component/custom_text/compact_text.dart';
 import 'package:fairpytasker/UI/dialog/tasker_filter_tasks_dialog_bloc/tasker_filter_tasks_dialog_bloc.dart';
-import 'package:fairpytasker/UI/dialog/tasker_filter_tasks_dialog_bloc/tasker_filter_tasks_dialog_events.dart';
-import 'package:fairpytasker/UI/dialog/tasker_filter_tasks_dialog_bloc/tasker_filter_tasks_dialog_states.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
-import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:collection/collection.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
@@ -20,14 +18,15 @@ class TaskerFilterTasksDialog {
   static void show(BuildContext context,
       {List<Map<String, dynamic>>? toDos,
       List<dynamic>? selected,
+      required bool isTimeSensitive,
+      ValueChanged<bool>? onTimeSensitive,
       void Function(List<dynamic>? value)? onChanged}) async {
     await showDialog(
       context: context,
       useSafeArea: true,
       barrierDismissible: false,
       barrierColor: Colors.transparent,
-      builder: (context) => _TaskerFilterTasksDialogView(
-          toDos: toDos, selected: selected, onChanged: onChanged),
+      builder: (context) => _TaskerFilterTasksDialogView(toDos: toDos, selected: selected, onChanged: onChanged, isTimeSensitive: isTimeSensitive, onTimeSensitive: onTimeSensitive),
     );
   }
 }
@@ -35,10 +34,12 @@ class TaskerFilterTasksDialog {
 class _TaskerFilterTasksDialogView extends StatelessWidget {
   final List<Map<String, dynamic>>? toDos;
   final List<dynamic>? selected;
+  final bool isTimeSensitive;
+  final ValueChanged<bool>? onTimeSensitive;
   final void Function(List<dynamic>? value)? onChanged;
 
   const _TaskerFilterTasksDialogView(
-      {this.toDos, this.selected, this.onChanged});
+      {this.toDos, this.selected, this.onChanged, required this.isTimeSensitive, this.onTimeSensitive});
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +67,7 @@ class _TaskerFilterTasksDialogView extends StatelessWidget {
       contentPadding: 10.horizontalPadding,
       content: BlocProvider(
         create: (context) =>
-            TFTDBloc()..add(TFTDInitialEvent(toDos: toDos, selected: selected)),
+            TFTDBloc()..add(InitialEvent(toDos: toDos, selected: selected, isTimeSensitive: isTimeSensitive)),
         child: BlocListener<TFTDBloc, TFTDStates>(
             listener: (context, state) {
               if (state is TFTDLoadingState) {
@@ -74,12 +75,9 @@ class _TaskerFilterTasksDialogView extends StatelessWidget {
               } else {
                 if (EasyLoading.isShow) EasyLoading.dismiss();
                 switch (state) {
-                  case TFTDErrorState():
-                    Toaster.showError(state.message);
-                    break;
-                  case TFTDTriggerSelectedState():
-                    onChanged?.call(state.value);
-                    break;
+                  case TFTDErrorState(): Toaster.showError(state.message); break;
+                  case TFTDTriggerSelectedState(): onChanged?.call(state.value); break;
+                  case TimeSensitiveState(): onTimeSensitive?.call(state.value); break;
                 }
               }
             },
@@ -97,27 +95,53 @@ class _TaskerFilterTasksDialogContentView extends StatelessWidget {
     return BlocBuilder<TFTDBloc, TFTDStates>(
         builder: (context, state) => SizedBox(
               width: context.width,
-              child: ListView(shrinkWrap: true,
+              child: ListView(
+                  shrinkWrap: true,
                   physics: const BouncingScrollPhysics(),
                   padding: EdgeInsets.only(bottom: 20.sp),
                   children: [
-                CustomCheckboxListTile(
-                  title: Text("All Todo",style: TextStyle(fontSize: 12.sp),),
+                Row(
                   mainAxisSize: MainAxisSize.min,
-                  padding: 10.horizontalPadding,
-                  value: context.watch<TFTDBloc>().isSelectedAll,
-                  onChanged: (value) =>
-                      context.read<TFTDBloc>().add(TFTDAllSelectEvent()),
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CustomCheckboxListTile(
+                      useExpand: false,
+                      title: const CompactText("All", fontWeight: FontWeight.w600, color: AppC.lightDark),
+                      mainAxisSize: MainAxisSize.min,
+                      padding: 10.horizontalPadding,
+                      value: context.watch<TFTDBloc>().isSelectedAll,
+                      onChanged: (value) =>
+                          context.read<TFTDBloc>().add(SelectAllEvent()),
+                    ),
+                    CustomCheckboxListTile(
+                      useExpand: false,
+                      isCheckboxOnRight: true,
+                      title: const CompactText("Time Sensitive", fontWeight: FontWeight.w600, color: AppC.lightDark),
+                      mainAxisSize: MainAxisSize.min,
+                      padding: 10.horizontalPadding,
+                      value: context.watch<TFTDBloc>().isTimeSensitive,
+                      onChanged: (value) =>
+                          context.read<TFTDBloc>().add(TimeSensitiveEvent(value)),
+                    ),
+                  ],
                 ),
-                Wrap(
-                  children: context
-                      .watch<TFTDBloc>()
-                      .processedCategories
-                      .map((mainModel) {
-                    var childTasks =
-                        List<Map<String, dynamic>>.from(mainModel['tasks']);
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                /*SingleChildScrollView(
+                  child: GridView.builder(
+                    shrinkWrap: true,
+                      clipBehavior: Clip.antiAliasWithSaveLayer,
+                      dragStartBehavior: DragStartBehavior.down,
+                      primary: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+                      itemBuilder: (context, index) {
+                    var mainModel = context.watch<TFTDBloc>().processedCategories[index];
+                    var childTasks = List<Map<String, dynamic>>.from(mainModel['tasks']);
+                    return ListView(
+                      // mainAxisSize: MainAxisSize.min,
+                      // crossAxisAlignment: CrossAxisAlignment.start,
+                      physics: const NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+
                       children: [
                         CustomCheckboxListTile(
                           isCheckboxOnRight: true,
@@ -131,6 +155,58 @@ class _TaskerFilterTasksDialogContentView extends StatelessWidget {
                             weight: FontWeight.w700,
                           ),
                           value: (mainModel['related_sub_names']?.every((e) =>
+                              context
+                                  .watch<TFTDBloc>()
+                                  .selected
+                                  .contains(e)) ??
+                              false),
+                          onChanged: (value) => context.read<TFTDBloc>().add(
+                              TFTDMultiSelectEvent(
+                                  mainModel['related_sub_names'])),
+                        ),
+                        ...childTasks
+                            .map((e) => CustomCheckboxListTile(
+                          padding: 10.padding,
+                          title: Utils.getText(
+                              "${e['task_name'] ?? ""}",
+                              weight: FontWeight.w400,
+                              size: 12.sp),
+                          value: context
+                              .watch<TFTDBloc>()
+                              .selected
+                              .contains(e['task_name']),
+                          suffix: Utils.getText('${e['count'] ?? 0}',
+                              weight: FontWeight.bold, size: 12.sp),
+                          mainAxisSize: MainAxisSize.min,
+                          useExpand: false,
+                          useFlexible: true,
+                          onChanged: (value) => context
+                              .read<TFTDBloc>()
+                              .add(TFTDSingleSelectEvent(
+                              e['task_name'])),
+                        ))
+                            .toList(),
+                      ],
+                    );
+                  }, itemCount: context.watch<TFTDBloc>().processedCategories.length),
+                ),*/
+                Wrap(
+                  children: context
+                      .watch<TFTDBloc>()
+                      .processedCategories
+                      .map((mainModel) {
+                    var childTasks = List<Map<String, dynamic>>.from(mainModel['tasks']);
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CustomCheckboxListTile(
+                          isCheckboxOnRight: true,
+                          mainAxisSize: MainAxisSize.min,
+                          padding: 10.padding,
+                          title: CompactText(mainModel['name'] ?? '', fontWeight: FontWeight.w600, color: AppC.lightDark),
+                          suffix: CompactText(
+                            ' ${childTasks.map<num>((e) => num.tryParse((e['count'] ?? 0).toString()) ?? 0).sum}', fontWeight: FontWeight.w600, color: AppC.lightDark),
+                          value: (mainModel['related_sub_names']?.every((e) =>
                                   context
                                       .watch<TFTDBloc>()
                                       .selected
@@ -143,16 +219,14 @@ class _TaskerFilterTasksDialogContentView extends StatelessWidget {
                         ...childTasks
                             .map((e) => CustomCheckboxListTile(
                                   padding: 10.padding,
-                                  title: Utils.getText(
+                                  title: CompactText(
                                       "${e['task_name'] ?? ""}",
-                                      weight: FontWeight.w400,
-                                      size: 12.sp),
+                                      fontWeight: FontWeight.w400),
                                   value: context
                                       .watch<TFTDBloc>()
                                       .selected
                                       .contains(e['task_name']),
-                                  suffix: Utils.getText('${e['count'] ?? 0}',
-                                      weight: FontWeight.bold, size: 12.sp),
+                                  suffix: CompactText('${e['count'] ?? 0}', fontWeight: FontWeight.w800),
                                   mainAxisSize: MainAxisSize.min,
                                   useExpand: false,
                                   onChanged: (value) => context

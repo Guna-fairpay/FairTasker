@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 part 'compact_text_style_types.dart';
 
 class CompactText extends StatelessWidget {
@@ -9,6 +10,7 @@ class CompactText extends StatelessWidget {
   final TextOverflow? overflow;
   final int? maxLines;
   final bool? softWrap;
+  final String? fontFamily;
   final FontWeight? fontWeight;
   final TextDecoration? decoration;
   final TextDirection? textDirection;
@@ -25,6 +27,7 @@ class CompactText extends StatelessWidget {
         this.fontWeight,
         this.decoration,
         this.textDirection,
+        this.fontFamily,
       });
 
   TextStyle? _resolveStyle(BuildContext context) {
@@ -52,6 +55,7 @@ class CompactText extends StatelessWidget {
       color: color,
       fontWeight: fontWeight,
       decoration: decoration,
+      fontFamily: fontFamily ?? GoogleFonts.poppins().fontFamily,
     );
 
     return Text(

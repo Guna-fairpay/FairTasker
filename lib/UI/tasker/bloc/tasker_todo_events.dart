@@ -350,6 +350,13 @@ class ToDoTaskerTimeSensitiveEvent extends ToDoTaskerEvent {
   List<Object?> get props => [isTimeSensitive];
 }
 
+class ToDoTaskerMeetingFilterEvent extends ToDoTaskerEvent {
+  final bool isMeetingFilter;
+  ToDoTaskerMeetingFilterEvent(this.isMeetingFilter);
+  @override
+  List<Object?> get props => [isMeetingFilter];
+}
+
 class ToDoTaskerViewBouncieEvent extends ToDoTaskerEvent {
   final Map<String, dynamic>? model;
   ToDoTaskerViewBouncieEvent(this.model);

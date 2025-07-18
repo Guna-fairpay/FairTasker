@@ -54,7 +54,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
 
   final FocusNode searchFocusNode = FocusNode();
 
-  bool isTimeSensitive = false;
+  bool isTimeSensitive = false, isMeetingFilter = false;
 
   final Map<dynamic, GlobalObjectKey> _todoKeyMaps = {};
   final debounce = Debouncer(duration: Durations.extralong1);
@@ -125,6 +125,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     on<ToDoTaskerViewReasonAttachmentEvent>(_onViewReasonAttachmentEvent);
     on<ToDoTaskerSaveRecordEvent>(_onSaveRecordEvent);
     on<ToDoTaskerTimeSensitiveEvent>(_onTimeSensitiveEvent);
+    on<ToDoTaskerMeetingFilterEvent>(_onMeetingFilterEvent);
     on<ToDoTaskerViewBouncieEvent>(_onViewBouncieEvent);
     on<ToDoTaskerRemoveVehiclePersonEvent>(_onRemoveVehiclePersonEvent);
     on<ToDoTaskerYesterdayEvent>(_onYesterdayEvent);
@@ -1074,7 +1075,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
   }
 
   void _onFilterTaskEvent(ToDoTaskerFilterTaskEvent event, Emitter<ToDoTaskerState> emit) {
-    emit(FilterTaskState());
+    emit(FilterTaskState(isTimeSensitive));
   }
 
   void _filterTimeSensitiveTasks() {
@@ -1093,6 +1094,9 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       results = unfiltered.where((element) => element['time_sensitive'] == 1).toList();
     } else {
       results = unfiltered;
+    }
+    if (isMeetingFilter) {
+      results = results.where((element) => element['todo_user_type'] == 5).toList();
     }
     toDos = (tasks.isNotEmpty) ? results.where((element) => tasks.contains(element['title'].toString().toLowerCase())).toList() : results;
     toDos = toDos
@@ -1178,6 +1182,12 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
 
   void _onTimeSensitiveEvent(ToDoTaskerTimeSensitiveEvent event, Emitter<ToDoTaskerState> emit) {
     isTimeSensitive = event.isTimeSensitive;
+    _searchTasks();
+    emit(ToDoTaskerCommonState());
+  }
+
+  void _onMeetingFilterEvent(ToDoTaskerMeetingFilterEvent event, Emitter<ToDoTaskerState> emit) {
+    isMeetingFilter = event.isMeetingFilter;
     _searchTasks();
     emit(ToDoTaskerCommonState());
   }
