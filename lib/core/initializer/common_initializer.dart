@@ -769,12 +769,23 @@ class CommonService {
         var vehicle = activeVehicleList.firstWhereOrNull((element) => element['vin'].toString() == vinList.first.toString())?['vehicle_name'] ?? '';
         return vehicle.toString();
       }else{
-        Console.of.log(vinList);
         return 'MV';
       }
     }else{
       var vehicle = groupVehicleList.firstWhereOrNull((element) => element['id'].toString() == vehicleGroupId.toString())?['name'];
       return vehicle.toString();
+    }
+  }
+
+  /// Retrieve the lead or channel name using the lead ID or channel ID.
+  String findLeadName({dynamic leadId, dynamic channelId}){
+    if((leadId == null) && (channelId == null)) return '';
+    if(leadId != null){
+      var lead = leads.firstWhereOrNull((element) => element['id'].toString() == leadId.toString());
+      return lead?['customer_name'] ?? '';
+    }else{
+      var channel = channels.firstWhereOrNull((element) => element['id'].toString() == channelId.toString());
+      return channel?['channel_name'] ?? '';
     }
   }
 

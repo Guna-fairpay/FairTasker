@@ -464,7 +464,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     selectedMeetingType = meetingType.firstWhereOrNull((element) => element['name'].toString().toLowerCase() == todoResponse?['meeting_mode'].toString().toLowerCase());
     selectedMeetingType ??= meetingType.first;
 
-    selectedMeetingTime = meetingTime.firstWhereOrNull((element) => element['name'].toString().toLowerCase() == todoResponse?['meeting_time'].toString().toLowerCase());
+    selectedMeetingTime = meetingTime.firstWhereOrNull((element) => element['value'].toString().toLowerCase() == todoResponse?['meeting_duration'].toString().toLowerCase());
     selectedMeetingTime ??= ToDoConfig.defaultMeetingDuration;
 
     showLead = selectedTask?['user_type'] == 3 || (todoResponse?['lead_id'] != null || todoResponse?['channel_id'] != null);
