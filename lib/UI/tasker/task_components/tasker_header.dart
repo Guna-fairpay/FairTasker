@@ -30,8 +30,8 @@ class TaskerHeader extends StatelessWidget {
             onVehicleSearchPressed: (details) => context.read<ToDoTaskerBloc>().add(ToDoTaskerTapVehicleFilterEvent(details)),
             isUserSelected: context.watch<ToDoTaskerBloc>().isUserSelected,
             isFilterSelected: context.watch<ToDoTaskerBloc>().isFilterSelected,
-            isTimeSensitive: context.watch<ToDoTaskerBloc>().isTimeSensitive,
-            onChangeTimeSensitive: (value) => context.read<ToDoTaskerBloc>().add(ToDoTaskerTimeSensitiveEvent(value)),
+            isMeetingSensitive: context.watch<ToDoTaskerBloc>().isMeetingFilter,
+            onChangeMeetingSensitive: (value) => context.read<ToDoTaskerBloc>().add(ToDoTaskerMeetingFilterEvent(value)),
           ),
           TodoTopHoursView(model: context.watch<ToDoTaskerBloc>().processedWorkingHours),
           TodoTopSearchBar(

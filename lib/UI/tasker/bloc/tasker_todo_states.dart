@@ -233,8 +233,10 @@ class ViewVehicleState extends ToDoTaskerState {
 }
 
 class FilterTaskState extends ToDoTaskerState {
+  final bool isTimeSensitive;
+  FilterTaskState(this.isTimeSensitive);
   @override
-  List<Object?> get props => [Random().nextDouble()];
+  List<Object?> get props => [isTimeSensitive, Random().nextDouble()];
 }
 
 class ViewCustomLinkState extends ToDoTaskerState {

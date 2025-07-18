@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:date_time/date_time.dart';
 import 'package:fairpytasker/Response/authentication_response.dart';
+import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/helper/work_manager_helper.dart';
 import 'package:fairpytasker/core/initializer/receive_intent.dart';
 import 'package:fairpytasker/core/initializer/todo_supporter.dart';
@@ -735,6 +736,23 @@ class CommonService {
     _toDoList = toDoList ?? _toDoList;
     _maintenanceCheckList = maintenanceCheckList ?? _maintenanceCheckList;
     Console.of.log("Value resetted", name: "CommonInitializer");
+  }
+
+  /// Find users based on UserGroup Id, userId, or both
+  List<Map<String, dynamic>> findUsers({int? userGroupId, int? userId}) {
+    if ((userGroupId == null) && (userId == null)) return [];
+    List<Map<String, dynamic>> userList = [];
+    userList.addAll(userByGroupId(userGroupId));
+    userList.addAll(usersList.where((element) => element['id'] == userId).toList());
+    userList = userList.unique((element) => element['id']);
+    return userList;
+  }
+
+  /// Find users as String based on UserGroup Id, userId, or both
+  String findUsersAsString({int? userGroupId, int? userId}) {
+    if ((userGroupId == null) && (userId == null)) return "";
+    List<Map<String, dynamic>> users = findUsers(userGroupId: userGroupId, userId: userId);
+    return users.map((e) => <String>[(e['first_name'] ?? ""), (e['last_name'] ?? "")].toInitial).join(", ");
   }
 
   Future<void> clearAll() async {
