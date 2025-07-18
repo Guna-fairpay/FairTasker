@@ -35,11 +35,11 @@ class TFTDBloc extends Bloc<TFTDEvents, TFTDStates> {
     try {
       toDos = event.toDos;
       selected = event.selected ?? [];
+      isTimeSensitive = event.isTimeSensitive;
       emit(TFTDLoadingState());
       await _fetchTaskCategoryGroup();
       taskCategoryGroup = _taskCategoryGroup;
       processedCategories = _processedMapMod() ?? [];
-      isTimeSensitive = event.isTimeSensitive;
       for (var element in processedCategories) {
         element['related_sub_names'].forEach((e)=> allRelateds.add(e));
       }
@@ -58,7 +58,7 @@ class TFTDBloc extends Bloc<TFTDEvents, TFTDStates> {
     Map<String, dynamic> mapData = {};
     List<Map<String, dynamic>> listMapData = [];
     var addedTitles = <dynamic>{};
-    var todosNames = toDos?.map((e) => e['title'].toString().toLowerCase()).toSet().toList();
+    var todosNames = toDos?.where((element) => [(isTimeSensitive ? 1 : 0), 1].contains(element['time_sensitive'])).map((e) => e['title'].toString().toLowerCase()).toSet().toList();
     taskCategoryGroup?.forEach((element) {
       final parentName = element['name'].toString().toLowerCase();
       mapData[element['name']] = [];
@@ -140,6 +140,7 @@ class TFTDBloc extends Bloc<TFTDEvents, TFTDStates> {
 
   void _onTimeSensitiveEvent(TimeSensitiveEvent event, Emitter<TFTDStates> emit) {
     isTimeSensitive = event.value ?? false;
+    processedCategories = _processedMapMod() ?? [];
     emit(TimeSensitiveState(isTimeSensitive));
   }
 }
