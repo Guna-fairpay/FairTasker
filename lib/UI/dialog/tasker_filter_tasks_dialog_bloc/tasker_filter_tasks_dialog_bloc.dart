@@ -1,7 +1,9 @@
+import 'dart:convert';
 import 'dart:math';
 import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 
@@ -39,7 +41,7 @@ class TFTDBloc extends Bloc<TFTDEvents, TFTDStates> {
       emit(TFTDLoadingState());
       await _fetchTaskCategoryGroup();
       taskCategoryGroup = _taskCategoryGroup;
-      processedCategories = _processedMapMod() ?? [];
+      processedCategories = _processedMapMod();
       for (var element in processedCategories) {
         element['related_sub_names'].forEach((e)=> allRelateds.add(e));
       }
@@ -54,7 +56,73 @@ class TFTDBloc extends Bloc<TFTDEvents, TFTDStates> {
     isSelectedAll = (selected.isEmpty) ? false : (selected.length == allRelateds.length);
   }
 
-  List<Map<String, dynamic>>? _processedMapMod() {
+  Future<List<Map<String, dynamic>>> _processMap() async {
+    Map<String, dynamic> value = {
+      "todos" : (toDos ?? []).map((e) => jsonEncode(e)).toList(),
+      "taskCategoryGroup" : (taskCategoryGroup ?? []).map((e) => jsonEncode(e)).toList(),
+      "isTimeSensitive" : isTimeSensitive ? 1 : 0
+    };
+    return await compute(_processCallback, jsonEncode(value));
+  }
+
+  Future<List<Map<String, dynamic>>> _processCallback(dynamic value) async {
+    Map<String, dynamic> input = jsonDecode(value);
+    List<Map<String, dynamic>> todos = input['todos'];
+    List<Map<String, dynamic>> taskCategoryGroup = input['taskCategoryGroup'];
+    int isTimeSensitive = input['isTimeSensitive'];
+    Map<String, dynamic> mapData = {};
+    List<Map<String, dynamic>> listMapData = [];
+    var addedTitles = <dynamic>{};
+    var todosNames = todos.where((element) => [isTimeSensitive, 1].contains(element['time_sensitive'])).map((e) => e['title'].toString().toLowerCase()).toSet().toList();
+    for (var element in taskCategoryGroup) {
+      final parentName = element['name'].toString().toLowerCase();
+      mapData[element['name']] = [];
+      if (element['subcategories'] is List) {
+        element['subcategories'].forEach((e) {
+          final subName = e['name'].toString().toLowerCase();
+          for (var lowercaseTile in todosNames) {
+            if (lowercaseTile == subName && !addedTitles.contains(lowercaseTile)) {
+              mapData[element['name']].add(lowercaseTile);
+              addedTitles.add(lowercaseTile);
+            }
+          }
+        });
+      }
+      for (var lowercaseTile in todosNames) {
+        if (lowercaseTile == parentName && !addedTitles.contains(lowercaseTile)) {
+          mapData[element['name']].add(lowercaseTile);
+          addedTitles.add(lowercaseTile);
+        }
+      }
+    }
+    mapData.removeWhere((key, value) => (value as List).isEmpty);
+    for (var element in todosNames) {
+      if (!addedTitles.contains(element) && !(['check out', 'check in'].contains(element))) {
+        if (!mapData.containsKey("Others")) mapData['Others'] = [];
+        mapData['Others'].add(element);
+      }
+    }
+    for (var element in mapData.entries) {
+      var key = element.key;
+      var value = List.from(element.value ?? []);
+      var id = taskCategoryGroup.firstWhereOrNull((e) => e['name'] == key)?['id'] ?? -1;
+      var tasks = todos.where((e) => value.contains(e['title'].toString().toLowerCase())).map((e) => e['title'].toString()).toList();
+      var map = {
+        "id" : id,
+        "name" : key,
+        "related_sub_names": tasks,
+        "task_count" : tasks.length,
+        "tasks" : value.map((e) => {
+          "task_name" : toDos?.firstWhereOrNull((task) => task['title'].toString().toLowerCase() == e)?['title'],
+          "count" : toDos?.where((task) => task['title'].toString().toLowerCase() == e).length ?? 0
+        }).toList()
+      };
+      listMapData.add(map);
+    }
+    return listMapData;
+  }
+
+  List<Map<String, dynamic>> _processedMapMod() {
     Map<String, dynamic> mapData = {};
     List<Map<String, dynamic>> listMapData = [];
     var addedTitles = <dynamic>{};
@@ -138,9 +206,9 @@ class TFTDBloc extends Bloc<TFTDEvents, TFTDStates> {
     emit(TFTDTriggerSelectedState(selected));
   }
 
-  void _onTimeSensitiveEvent(TimeSensitiveEvent event, Emitter<TFTDStates> emit) {
+  void _onTimeSensitiveEvent(TimeSensitiveEvent event, Emitter<TFTDStates> emit) async {
     isTimeSensitive = event.value ?? false;
-    processedCategories = _processedMapMod() ?? [];
+    processedCategories = _processedMapMod();
     emit(TimeSensitiveState(isTimeSensitive));
   }
 }
