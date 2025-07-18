@@ -461,6 +461,8 @@ class APiRepository {
 
   String get _getArchive => "archive-list";
 
+  String get _updateArchive => "update-archive";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -4572,5 +4574,39 @@ Future<Map<String, dynamic>?> getLocations() async {
       rethrow;
     }
   }
+
+  Future<Map<String, dynamic>?> getArchive({dynamic from, dynamic to, dynamic archiveStatus}) async {
+    try{
+      String apiUrl = "${Str.BASE_URL}$_getArchive";
+      var params = {
+        "from" : from,
+        "to" : to,
+        "archive_status" : archiveStatus,
+      };
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl, params: params);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      }else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    }catch (e){
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> updateArchive({dynamic body}) async {
+    try{
+      String apiUrl = "${Str.BASE_URL}$_updateArchive";
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      }else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    }catch(e){
+      rethrow;
+    }
+  }
+
 
 }
