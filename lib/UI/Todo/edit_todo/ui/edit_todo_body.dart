@@ -71,6 +71,15 @@ class EditTodoBody extends StatelessWidget {
                   Utils.getText("Reason : ${context.watch<EditToDoBloc>().reason ?? ''}",size: 10.spMin,overFlow: TextOverflow.visible,color: AppC.grey),
                 ],
                 10.height,
+                /*SegmentedAutocomplete<Map<String, dynamic>>(
+                  segmentedSuggestions: [context.watch<EditToDoBloc>().tasks],
+                  itemAsString: (option) => (option['task'] ?? ""),
+                  itemAsStringTitle: (option) => option['task'] ?? "",
+                  itemAsSearchString: (option) => option['task'] ?? [],
+                  selectedValues: [state.selectedTask],
+                  onChanged: (val) => context.read<EditToDoBloc>().add(EditToDoTaskEvent(selectedTask: val)),
+                  onEmptyTap: (value) => context.push(TaskMainPage(title: context.read<EditToDoBloc>().taskNameController.text,)),
+                ),*/
                 SearchViewField(
                   controller: context.read<EditToDoBloc>().taskNameController,
                   suggestions: context.watch<EditToDoBloc>().tasks,
@@ -83,7 +92,7 @@ class EditTodoBody extends StatelessWidget {
                   hintText: "Select Task",
                 ),
                 10.height,
-                if(state.selectedTask['user_type'] == 3 || state.apiResponse['lead_id'] != null || state.apiResponse['channel_id'] != null)...[
+                if(context.watch<EditToDoBloc>().showLead)...[
                   SearchViewField(
                     controller: context.read<EditToDoBloc>().leadsController,
                     suggestions: context.watch<EditToDoBloc>().leadChannels,
