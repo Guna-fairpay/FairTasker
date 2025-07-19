@@ -1,4 +1,5 @@
 
+import 'package:fairpytasker/Component/compact_task_identifier.dart';
 import 'package:fairpytasker/Component/custom_checkbox.dart';
 import 'package:fairpytasker/Component/custom_date_time_picker.dart';
 import 'package:fairpytasker/Component/custom_multi_selection_chips_field.dart';

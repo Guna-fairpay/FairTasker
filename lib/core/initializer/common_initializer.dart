@@ -705,7 +705,8 @@ class CommonService {
   List<Map<String, dynamic>> userByGroupId(int? userGroupId) {
     if ((userGroupId == null) || (userGroupId == 0)) return [];
     final groupPerson =  groupPersonList.firstWhereOrNull((element) => element['id'] == userGroupId);
-    final userIds = List<int>.from(jsonDecode(groupPerson?['userId'] ?? ""));
+    if (groupPerson == null || (groupPerson['userId'] == null)) return [];
+    final userIds = List<int>.from(jsonDecode(groupPerson['userId'] ?? ""));
     final result = List<Map<String, dynamic>>.from(usersList.where((element) => userIds.contains(element['id'])).toList());
     result.sort((a, b) => a['id'].toString().compareTo(b['id'].toString()));
     return result;
@@ -743,7 +744,7 @@ class CommonService {
     if ((userGroupId == null) && (userId == null)) return [];
     List<Map<String, dynamic>> userList = [];
     userList.addAll(userByGroupId(userGroupId));
-    userList.addAll(usersList.where((element) => element['id'] == userId).toList());
+    if (userId != null && userId != 0) userList.addAll(usersList.where((element) => element['id'] == userId).toList());
     userList = userList.unique((element) => element['id']);
     return userList;
   }
@@ -753,6 +754,39 @@ class CommonService {
     if ((userGroupId == null) && (userId == null)) return "";
     List<Map<String, dynamic>> users = findUsers(userGroupId: userGroupId, userId: userId);
     return users.map((e) => <String>[(e['first_name'] ?? ""), (e['last_name'] ?? "")].toInitial).join(", ");
+  }
+
+  /// Find vehicle name or group name based on vehicle group id and vin
+  String findVehicle({dynamic vin, dynamic vehicleGroupId, List<dynamic>? vehicleLis}){
+    if(vehicleGroupId == null){
+      List<dynamic> vinList = [vin];
+      var vehicleListVin = List.from(vehicleLis ?? []).map((e) => e['vin']);
+      vinList.addAll(vehicleListVin);
+      vinList.removeWhere((element) => element.toString().isNullOrEmpty);
+      vinList = vinList.unique((element) => element);
+      if(vinList.isEmpty) return '';
+      if(vinList.length == 1){
+        var vehicle = activeVehicleList.firstWhereOrNull((element) => element['vin'].toString() == vinList.first.toString())?['vehicle_name'] ?? '';
+        return vehicle.toString();
+      }else{
+        return 'MV';
+      }
+    }else{
+      var vehicle = groupVehicleList.firstWhereOrNull((element) => element['id'].toString() == vehicleGroupId.toString())?['name'];
+      return vehicle.toString();
+    }
+  }
+
+  /// Retrieve the lead or channel name using the lead ID or channel ID.
+  String findLeadName({dynamic leadId, dynamic channelId}){
+    if((leadId == null) && (channelId == null)) return '';
+    if(leadId != null){
+      var lead = leads.firstWhereOrNull((element) => element['id'].toString() == leadId.toString());
+      return lead?['customer_name'] ?? '';
+    }else{
+      var channel = channels.firstWhereOrNull((element) => element['id'].toString() == channelId.toString());
+      return channel?['channel_name'] ?? '';
+    }
   }
 
   Future<void> clearAll() async {

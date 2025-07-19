@@ -108,6 +108,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   bool cleanCarIsActive = false;
   bool showOdometer = false;
   bool isRecurring = false;
+  bool showLead = false;
 
   DateTime? selectedStartDate;
   DateTime? selectedEndDate;
@@ -463,8 +464,10 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     selectedMeetingType = meetingType.firstWhereOrNull((element) => element['name'].toString().toLowerCase() == todoResponse?['meeting_mode'].toString().toLowerCase());
     selectedMeetingType ??= meetingType.first;
 
-    selectedMeetingTime = meetingTime.firstWhereOrNull((element) => element['name'].toString().toLowerCase() == todoResponse?['meeting_time'].toString().toLowerCase());
+    selectedMeetingTime = meetingTime.firstWhereOrNull((element) => element['value'].toString().toLowerCase() == todoResponse?['meeting_duration'].toString().toLowerCase());
     selectedMeetingTime ??= ToDoConfig.defaultMeetingDuration;
+
+    showLead = selectedTask?['user_type'] == 3 || (todoResponse?['lead_id'] != null || todoResponse?['channel_id'] != null);
 
     emit(state.copyWith(
       isLoading: false,
@@ -581,6 +584,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         emit(state.copyWith(selectedVPerson: []));
       }
     }
+    showLead = selectedLead?['user_type'] == 3;
     showCleanCar = Str.cleanCarCheckIds.contains(event.selectedTask['id']);
     emit(state.copyWith(selectedTask: event.selectedTask, showCleanCar: showCleanCar));
   }

@@ -2,6 +2,7 @@ import 'package:fairpytasker/Component/compact_app_bar.dart';
 import 'package:fairpytasker/Component/custom_tab_button.dart';
 import 'package:fairpytasker/UI/archive_task/archive_task_main/bloc/archive_task_main_bloc.dart';
 import 'package:fairpytasker/UI/archive_task/archived_task/ui/archived_task_main_ui.dart';
+import 'package:fairpytasker/UI/archive_task/unarchived_task/ui/unarchive_task_main_ui.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
@@ -61,7 +62,7 @@ class ArchiveTaskMainUI extends StatelessWidget {
                       child: switch(context.watch<ArchiveTaskMainBloc>().selectedTabValue)
                       {
                         1 => const ArchivedTaskMainUI(),
-                        2 => const Placeholder(),
+                        2 => const UnarchiveTaskMainUI(),
                         _ => const Placeholder(color: Colors.brown,)
                       },
                     )
