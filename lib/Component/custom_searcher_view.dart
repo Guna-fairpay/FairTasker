@@ -3,7 +3,6 @@ import 'package:fairpytasker/Component/compact_search_auto_field.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter/material.dart';
 import 'package:fairpytasker/Component/custom_search_field.dart';
-import 'package:fairpytasker/Component/custom_auto_search_field.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 
 class SearchViewField<T extends Object> extends StatelessWidget {
@@ -22,6 +21,7 @@ class SearchViewField<T extends Object> extends StatelessWidget {
   final Function(FocusNode focusNode)? onFieldFocusCreated;
   final Function(TapDownDetails details)? onEmptyTapDetails;
   final Function(T value, {FocusNode? focusNode})? onSelectedFocus;
+  final bool showTaskType;
 
   SearchViewField(
       {super.key,
@@ -40,6 +40,7 @@ class SearchViewField<T extends Object> extends StatelessWidget {
       this.onCleared,
       this.onSelected,
       this.alwayShowSuffix = false,
+      this.showTaskType = false,
       this.onSelectedFocus}) {
     if (selectedItem != null) {
       controller.text = itemAsString(selectedItem!);
@@ -67,6 +68,7 @@ class SearchViewField<T extends Object> extends StatelessWidget {
               onEmptyWidgetTap: onEmptyTap,
               alwaysShowSuffix: alwayShowSuffix,
               onEmptyWidgetTapDown: onEmptyTapDetails,
+              showTaskType: showTaskType,
             ));
   }
 
@@ -85,9 +87,10 @@ class SearchViewField<T extends Object> extends StatelessWidget {
             .contains(searchQuery));
     Console.of.log(
         "result: ${result.isEmpty} ${omitting.isEmpty} ${omitted == null}");
-    if (showEmpty)
+    if (showEmpty){
       _showEmptyWidget.value =
           (result.isEmpty) && ((omitting.isEmpty) && (omitted == null));
+    }
     return result;
   }
 }
