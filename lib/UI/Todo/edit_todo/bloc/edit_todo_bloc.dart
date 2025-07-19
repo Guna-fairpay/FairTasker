@@ -248,11 +248,9 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     var leadsData = leadChannels;
     Console.of.log("leadsData $leadsData");
     if(todoResponse?['lead_id'] != null){
-      Console.of.log("Lead Id ${todoResponse?['lead_id']}");
       selectedLead = leadsData.firstWhereOrNull((e) => (e['type'] == 'lead') && (e['id'].toString()) == todoResponse?['lead_id'].toString(),);
     }
     if(todoResponse?['lead_id'] == null && todoResponse?['channel_id'] != null){
-      Console.of.log("Channel Id ${todoResponse?['channel_id']}");
       selectedLead = leadsData.firstWhereOrNull((e) => e['type'] == 'channel' && e['id'].toString() == todoResponse?['channel_id'].toString(),);
     }
     //selectedLead = leadsData.firstWhereOrNull((e) => e['id'].toString() == todoResponse?['lead_id'].toString());

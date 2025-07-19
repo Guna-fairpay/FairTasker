@@ -1,11 +1,14 @@
 import 'dart:async';
+import 'dart:collection';
 import 'package:fairpytasker/Component/custom_search_field.dart';
+import 'package:fairpytasker/Component/custom_text/compact_text.dart';
 import 'package:fairpytasker/Component/focus_node_wrapper.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter/material.dart';
 
@@ -26,6 +29,7 @@ class CompactSearchAutoField<T extends Object> extends StatefulWidget {
   final AutovalidateMode autoValidateMode;
   final T? value;
   final bool alwaysShowSuffix;
+  final bool showTaskType;
 
   const CompactSearchAutoField({
     super.key,
@@ -44,7 +48,8 @@ class CompactSearchAutoField<T extends Object> extends StatefulWidget {
     this.onEmptyWidgetTapDown,
     this.validator,
     this.autoValidateMode = AutovalidateMode.disabled,
-    this.alwaysShowSuffix = false
+    this.alwaysShowSuffix = false,
+    this.showTaskType = false
   });
 
   @override
@@ -89,6 +94,16 @@ class _CompactSearchAutoFieldState<T extends Object> extends State<CompactSearch
                 } catch (e) {
                   fieldWidth = (context.width - 40);
                 }
+
+                final grouped = SplayTreeMap<String, List<T>>();
+                for (final option in options) {
+                  if (option is Map && option.containsKey('user_type')) {
+                    final groupKey = '${option['user_type']}';
+                    grouped.putIfAbsent(groupKey, () => []).add(option);
+                  } else {
+                    grouped.putIfAbsent('', () => []).add(option);
+                  }
+                }
                 return Align(
                   alignment: Alignment.topLeft,
                   child: Container(
@@ -99,7 +114,37 @@ class _CompactSearchAutoFieldState<T extends Object> extends State<CompactSearch
                         borderRadius: const BorderRadius.vertical(
                             bottom: Radius.circular(Num.borderRadius)),
                         border: Border.all(width: 0.5, color: AppC.borderColor)),
-                    child: ListView.separated(
+                    child: widget.showTaskType
+                        ? ListView(
+                      padding: EdgeInsets.zero,
+                      physics: const BouncingScrollPhysics(),
+                      shrinkWrap: true,
+                      children: grouped.entries.expand((entry) {
+                        return [
+                          if (entry.key.isNotNullOrEmpty)
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              color: Colors.grey[200],
+                              child: CompactText(
+                                 entry.key == '1' ? 'Support'
+                                : entry.key == '2' ? 'Rental'
+                                : entry.key == '3' ? 'Lead'
+                                : entry.key == '4' ? 'Non-Rental'
+                                : entry.key == '5' ? 'Meeting'
+                                :'Other',
+                                fontWeight: FontWeight.bold,
+                                styleType: TextStyleType.titleMedium,
+                              ),
+                            ),
+                          ...entry.value.map((option) => ListTile(
+                            dense: true,
+                            minVerticalPadding: 0,
+                            title: Text(widget.itemAsString!(option)),
+                            onTap: () => onSelected.call(option),
+                          ))
+                        ];
+                      }).toList(),
+                    ) : ListView.separated(
                         shrinkWrap: true,
                         itemBuilder: (context, index) => ListTile(
                           onTap: () =>
