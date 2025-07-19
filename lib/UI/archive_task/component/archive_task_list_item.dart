@@ -1,6 +1,7 @@
 import 'package:fairpytasker/Component/custom_checkbox.dart';
 import 'package:fairpytasker/Component/custom_text/compact_text.dart';
 import 'package:fairpytasker/UI/Finance/Expense/Component/date_range_selection.dart';
+import 'package:fairpytasker/UI/dialog/show_notes_dialog.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
@@ -91,14 +92,22 @@ class ArchiveTaskListItem extends StatelessWidget {
                           children: [
                             CompactText(item['title'] ?? '', fontWeight: FontWeight.bold, color: AppC.appColor,overflow: TextOverflow.ellipsis,),
                             //if((item['vin'].toString().isNotNullOrEmpty) || List.from(item['vehicles'] ?? []).isNotEmpty)
-                            CompactText(getIt<CommonService>().findVehicle(vin: item['vin'],vehicleLis: List.from(item['vehicles'] ?? []), vehicleGroupId: item['vehicle_group_id'],),overflow: TextOverflow.ellipsis,),
+                            CompactText(
+                              getIt<CommonService>().findVehicle(vin: item['vin'],vehicleLis: List.from(item['vehicles'] ?? []),
+                              vehicleGroupId: item['vehicle_group_id'],),
+                              overflow: TextOverflow.ellipsis,
+                              fontWeight: getIt<CommonService>().findVehicle(vin: item['vin'],vehicleLis: List.from(item['vehicles'] ?? [])) == 'MV' ? FontWeight.w900 : FontWeight.normal,
+                            ),
                               Row(
                                 spacing: 5,
                                 children: [
                                   if(item['lead_id'].toString().isNotNullOrEmpty || item['channel_id'].toString().isNotNullOrEmpty)
                                   CompactText(getIt<CommonService>().findLeadName(leadId: item?['lead_id'], channelId: item['channel_id'])),
                                   if(item['notes'].toString().isNotNullOrEmpty)
-                                    Expanded(child: CompactText("(${(item['notes'] ?? '').toString().replaceAll("\n", "")})", color: AppC.grey, overflow: TextOverflow.ellipsis, maxLines: 1,)),
+                                    Expanded(
+                                        child: InkWell(
+                                          onTap:()=> NotesDialog.show(context, message: item['notes'] ?? '',),
+                                        child: CompactText("(${(item['notes'] ?? '').toString().replaceAll("\n", "")})", color: AppC.grey, overflow: TextOverflow.ellipsis, maxLines: 1,))),
                                 ]),
                              ]),
                     ),
