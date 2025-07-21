@@ -56,6 +56,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   final TextEditingController commentsController = TextEditingController();
   final TextEditingController leadsController = TextEditingController();
   final TextEditingController meetingLinkController = TextEditingController();
+  final TextEditingController customerNameController = TextEditingController();
   QuillController quillController = QuillController.basic();
 
   int? get branchId => Session.of.getInt(Str.branchIdPrefText);
@@ -246,14 +247,13 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     var assignedToResponse = await _getResources();
     var groupVehiclesResponse = await _groupVehicles();
     var leadsData = leadChannels;
-    Console.of.log("leadsData $leadsData");
     if(todoResponse?['lead_id'] != null){
       selectedLead = leadsData.firstWhereOrNull((e) => (e['type'] == 'lead') && (e['id'].toString()) == todoResponse?['lead_id'].toString(),);
     }
     if(todoResponse?['lead_id'] == null && todoResponse?['channel_id'] != null){
       selectedLead = leadsData.firstWhereOrNull((e) => e['type'] == 'channel' && e['id'].toString() == todoResponse?['channel_id'].toString(),);
     }
-    //selectedLead = leadsData.firstWhereOrNull((e) => e['id'].toString() == todoResponse?['lead_id'].toString());
+    //customerNameController.text = todoResponse?['bookingDetails']?['user']?['name'] ?? 'Select Customer';
     leadsController.text = selectedLead?['name'] ?? '';
     meetingLinkController.text = todoResponse?['meeting_link'] ?? '';
     var resources = assignedToResponse;
@@ -372,12 +372,13 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         List.from(todoResponse?['todo_mileage_attachments']).map((e) => e['path'].toString().toAttachmentURL).toList();
     final title = todoResponse?['title'];
     var selectedTask = taskResponse.firstWhereOrNull(
-            (element) => element['id'] == todoResponse?['identifier_id']);
+            (element) => element['id'].toString() == todoResponse?['identifier_id'].toString());
     final vehicleExists = todoResponse?['vehicle_name'] != null ||
         todoResponse?['vin'] != null ||
         (todoResponse?['vehicles']?.isNotEmpty ?? false);
+    Console.of.log(selectedTask.toString(), name: "selectedTask");
     final List<Map<String, dynamic>> tabs = [
-      if (!Str.checkInCheckOut.contains(title)  && selectedTask?['user_type'] != 5)
+      if (!Str.checkInCheckOut.contains(title)  && selectedTask?['user_type'].toString() != '5')
         {"id": 1, "title": "Expense"},
       {"id": 2, "title": "Next Task"},
       if ([268,219].contains(todoResponse?['identifier_id'])) {"id": 3, "title": "Check List"},
@@ -582,7 +583,8 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         emit(state.copyWith(selectedVPerson: []));
       }
     }
-    showLead = selectedLead?['user_type'] == 3;
+
+    showLead = (event.selectedTask?['user_type'].toString()) == '3' ? true : false;
     showCleanCar = Str.cleanCarCheckIds.contains(event.selectedTask['id']);
     emit(state.copyWith(selectedTask: event.selectedTask, showCleanCar: showCleanCar));
   }
