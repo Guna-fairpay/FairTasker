@@ -8,6 +8,7 @@ class CustomTabButton<T> extends StatelessWidget {
   final Function(T val)? onPressed;
   final EdgeInsets? padding;
   final String buttonText;
+  final String? subText;
   final TextStyle? textStyle;
   final BorderRadius? tapBorderRaius;
   final T value, selectedValue;
@@ -27,6 +28,7 @@ class CustomTabButton<T> extends StatelessWidget {
       this.selectedBorderColor,
       this.overrideTextColor,
       required this.buttonText,
+      this.subText,
       required this.value,
       required this.selectedValue});
 
@@ -52,23 +54,30 @@ class CustomTabButton<T> extends StatelessWidget {
                     borderRadius: const BorderRadius.only(
                         topRight: Radius.circular(5),
                         topLeft: Radius.circular(5))),
-        child: Text.rich(TextSpan(
+        child: Column(
           children: [
-            if (icon != null)
-              WidgetSpan(child: Icon(icon, size: 16.spMin, color: (selectedValue != value) ? null : AppC.appColor)),
-            if (icon != null)
-              WidgetSpan(child: 4.width),
-            TextSpan(text: buttonText)
-          ]
+            Text.rich(TextSpan(
+              children: [
+                if (icon != null)
+                  WidgetSpan(child: Icon(icon, size: 16.spMin, color: (selectedValue != value) ? null : AppC.appColor)),
+                if (icon != null)
+                  WidgetSpan(child: 4.width),
+                TextSpan(text: buttonText)
+              ]
+            ),
+                style: textStyle ??
+                    context.textTheme.labelLarge?.copyWith(
+                      fontSize: 14.spMin,
+                        color: overrideTextColor ?? ((selectedValue != value) ? null : AppC.appColor),
+                        fontWeight: (selectedValue != value)
+                            ? FontWeight.normal
+                            : FontWeight.bold,
+                        fontFamily: "Lato")),
+            if(subText != null)...[
+              Text(subText ?? ''),
+            ]
+          ],
         ),
-            style: textStyle ??
-                context.textTheme.labelLarge?.copyWith(
-                  fontSize: 14.spMin,
-                    color: overrideTextColor ?? ((selectedValue != value) ? null : AppC.appColor),
-                    fontWeight: (selectedValue != value)
-                        ? FontWeight.normal
-                        : FontWeight.bold,
-                    fontFamily: "Lato")),
       ),
     );
   }

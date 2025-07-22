@@ -1,7 +1,7 @@
 import 'package:fairpytasker/Component/custom_tab_button.dart';
+import 'package:fairpytasker/UI/Todo/edit_todo/ui/verification/component/verification_listing_page.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
-import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
 
 class VerificationMainUI extends StatelessWidget {
@@ -67,7 +67,7 @@ class VerificationMainUI extends StatelessWidget {
         ),
         switch(1)
         {
-          1 => const Placeholder(color: Colors.brown,),
+          1 => const VerificationListingPage(),
           2 => const Placeholder(color: Colors.brown,),
           3 => const Placeholder(color: Colors.brown,),
           4 => const Placeholder(color: Colors.brown,),

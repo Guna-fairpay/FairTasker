@@ -211,10 +211,14 @@ class EditTodoBody extends StatelessWidget {
                   const PageKeepAliver(
                       key:PageStorageKey("EditTodoBottomTabs"),
                       child: EditTodoBottomTabs()),
-                if(state.apiResponse['identifier_id'] == 393)
+                if(state.apiResponse['identifier_id'] == 393)...[
+                  const AgreementStatusList(),
+                  10.height,
                   const PageKeepAliver(
                       key:PageStorageKey("VerificationTabs"),
                       child: VerificationMainUI()),
+                ],
+
               ],
             )
         )

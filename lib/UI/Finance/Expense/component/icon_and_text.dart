@@ -8,6 +8,9 @@ class IconAndText extends StatelessWidget {
   final IconData? icon;
   final Color labelColor;
   final VoidCallback? onTap;
+  final Color iconColor;
+  final EdgeInsets padding;
+  final bool isExpanded;
 
   const IconAndText({
     Key? key,
@@ -15,20 +18,29 @@ class IconAndText extends StatelessWidget {
     required this.icon,
     this.labelColor = AppC.text,
     this.onTap,
+    this.iconColor = AppC.text,
+    this.padding = const EdgeInsets.symmetric(vertical: 5),
+    this.isExpanded = true,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5.0),
+      padding: padding,
       child: Row(
         spacing: 10,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: AppC.text, size: 20),
-          Expanded(child: InkWell(
+          Icon(icon, color: iconColor, size: 20),
+          isExpanded? Flexible(
+              child: InkWell(
               onTap: onTap,
-              child: Utils.getText(label,color: labelColor,))),
+              child: Utils.getText(label, color: labelColor, overFlow: TextOverflow.ellipsis)
+              ),
+          ): InkWell(
+              onTap: onTap,
+              child: Utils.getText(label, color: labelColor, overFlow: TextOverflow.ellipsis)
+          ),
         ],
       ),
     );
