@@ -11,6 +11,7 @@ class IconAndText extends StatelessWidget {
   final Color iconColor;
   final EdgeInsets padding;
   final bool isExpanded;
+  final TextOverflow? overFlow;
 
   const IconAndText({
     Key? key,
@@ -21,6 +22,7 @@ class IconAndText extends StatelessWidget {
     this.iconColor = AppC.text,
     this.padding = const EdgeInsets.symmetric(vertical: 5),
     this.isExpanded = true,
+    this.overFlow = TextOverflow.ellipsis,
   }) : super(key: key);
 
   @override
@@ -35,11 +37,11 @@ class IconAndText extends StatelessWidget {
           isExpanded? Flexible(
               child: InkWell(
               onTap: onTap,
-              child: Utils.getText(label, color: labelColor, overFlow: TextOverflow.ellipsis)
+              child: Utils.getText(label, color: labelColor, overFlow: overFlow)
               ),
           ): InkWell(
               onTap: onTap,
-              child: Utils.getText(label, color: labelColor, overFlow: TextOverflow.ellipsis)
+              child: Utils.getText(label, color: labelColor, overFlow: overFlow)
           ),
         ],
       ),

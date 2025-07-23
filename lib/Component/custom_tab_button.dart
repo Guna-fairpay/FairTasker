@@ -1,3 +1,4 @@
+import 'package:fairpytasker/Component/custom_text/compact_text.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
@@ -16,6 +17,7 @@ class CustomTabButton<T> extends StatelessWidget {
   final Color? selectedBorderColor;
   final Color? overrideTextColor;
   final IconData? icon;
+  final Color? subTextColor;
 
   const CustomTabButton(
       {super.key,
@@ -30,7 +32,9 @@ class CustomTabButton<T> extends StatelessWidget {
       required this.buttonText,
       this.subText,
       required this.value,
-      required this.selectedValue});
+      required this.selectedValue,
+        this.subTextColor,
+      });
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +78,7 @@ class CustomTabButton<T> extends StatelessWidget {
                             : FontWeight.bold,
                         fontFamily: "Lato")),
             if(subText != null)...[
-              Text(subText ?? ''),
+              Text(subText ?? '',style: TextStyle(fontWeight: FontWeight.bold, color: subTextColor ?? AppC.text, fontSize: 12.spMin), ),
             ]
           ],
         ),

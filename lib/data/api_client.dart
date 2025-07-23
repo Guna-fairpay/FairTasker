@@ -95,12 +95,12 @@ class ApiClient {
   }
 
   Future<http.Response?> callPostMethodWithRawBody(String url,
-      {Map<String, dynamic>? body, String method = "POST"}) async {
+      {Map<String, dynamic>? body, String method = "POST", String? token}) async {
     if (await Utils.connection()) {
       http.Response response = await compute(_postRawJsonCompute, {
         "url": Uri.parse(url),
         "method" : method,
-        "token": Utils.getHeadersWithToken(url: url),
+        "token": token ?? Utils.getHeadersWithToken(url: url),
         "fields": body,
       });
       Console.of.log(jsonEncode(body));

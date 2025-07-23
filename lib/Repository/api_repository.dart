@@ -463,6 +463,12 @@ class APiRepository {
 
   String get _updateArchive => "update-archive";
 
+  String get _rentalCheckList => "rental-checklist";
+
+  String get _getRentalToken => "getRentalToken";
+
+  String get _verificationStatus => "verification-status";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -4608,5 +4614,49 @@ Future<Map<String, dynamic>?> getLocations() async {
     }
   }
 
+  Future<Map<String, dynamic>?> rentalCheckList({dynamic bookingId}) async {
+    try {
+      String apiUrl = '${Str.BASE_URL}$_rentalCheckList/$bookingId';
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(
+            response?.body ?? "")?['message'] ??
+            jsonDecode(response?.body ?? "")?['error'] ??
+            "Some thing went wrong, try again later!..."}");
+      }
+    }catch(e){
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getRentalToken() async {
+    try {
+      String apiUrl = '${Str.BASE_URL}$_getRentalToken';
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    }catch(e){
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> verificationStatusUpdate({dynamic body, String? token}) async{
+    try {
+      String apiUrl = '${Str.FAIRENTAL_URL}admin/$_verificationStatus/update';
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body, token: token);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    }catch(e) {
+      rethrow;
+    }
+  }
 
 }

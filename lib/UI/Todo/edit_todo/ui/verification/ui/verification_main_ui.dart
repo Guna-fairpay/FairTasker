@@ -1,79 +1,39 @@
 import 'package:fairpytasker/Component/custom_tab_button.dart';
+import 'package:fairpytasker/Component/custom_text/compact_text.dart';
+import 'package:fairpytasker/UI/Todo/edit_todo/ui/verification/bloc/verification_bloc.dart';
+import 'package:fairpytasker/UI/Todo/edit_todo/ui/verification/component/verification_enum.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/ui/verification/component/verification_listing_page.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+
+part 'tab_bar_ui.dart';
+part 'license_page.dart';
+part 'address_page.dart';
+part 'agreement_page.dart';
+part 'payment_page.dart';
 
 class VerificationMainUI extends StatelessWidget {
-  const VerificationMainUI({super.key});
+  final dynamic data;
+  const VerificationMainUI({super.key, required this.data});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      spacing: 10,
-      children: [
-        Container(
-          decoration:  const BoxDecoration(
-              border: Border(bottom: BorderSide(width: Num.borderWidthButton,color: AppC.borderColor))
-          ),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            physics: const BouncingScrollPhysics(),
-            child: Row(
-              children: [
-                CustomTabButton(
-                  buttonText: 'License',
-                  value: 1,
-                  selectedValue: 1,
-                  onPressed: (v){},
-                  decoration:  BoxDecoration(
-                    border: Border.all(color: AppC.grey, width: Num.borderWidthButton),
-                    borderRadius: const BorderRadius.only(topLeft: Radius.circular(Num.borderRadius), topRight: Radius.circular(Num.borderRadius)),
-                  ),
-                ),
-                CustomTabButton(
-                  buttonText: 'Address',
-                  value: 2,
-                  selectedValue: 1,
-                  onPressed: (v){},
-                  decoration:  BoxDecoration(
-                    border: Border.all(color: AppC.grey, width: Num.borderWidthButton),
-                    borderRadius: const BorderRadius.only(topLeft: Radius.circular(Num.borderRadius), topRight: Radius.circular(Num.borderRadius)),
-                  ),
-                ),
-                CustomTabButton(
-                  buttonText: 'Agreement',
-                  value: 2,
-                  selectedValue: 1,
-                  onPressed: (v){},
-                  decoration:  BoxDecoration(
-                    border: Border.all(color: AppC.grey, width: Num.borderWidthButton),
-                    borderRadius: const BorderRadius.only(topLeft: Radius.circular(Num.borderRadius), topRight: Radius.circular(Num.borderRadius)),
-                  ),
-                ),
-                CustomTabButton(
-                  buttonText: 'Payment',
-                  value: 2,
-                  selectedValue: 1,
-                  onPressed: (v){},
-                  decoration:  BoxDecoration(
-                    border: Border.all(color: AppC.grey, width: Num.borderWidthButton),
-                    borderRadius: const BorderRadius.only(topLeft: Radius.circular(Num.borderRadius), topRight: Radius.circular(Num.borderRadius)),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        switch(1)
-        {
-          1 => const VerificationListingPage(),
-          2 => const Placeholder(color: Colors.brown,),
-          3 => const Placeholder(color: Colors.brown,),
-          4 => const Placeholder(color: Colors.brown,),
-          _ => const Placeholder(color: Colors.brown,)
-        }
-      ],
+    return BlocProvider(
+      create: (context) => VerificationBloc()..add(InitialEvent(data: data)),
+      child: BlocListener<VerificationBloc, VerificationState>(
+        listener: (context, state) {
+          if(state is LoadingState){
+            EasyLoading.show();
+          }else{
+            if(EasyLoading.isShow) EasyLoading.dismiss();
+          }
+        },
+        child: const TabBarUI(),
+      ),
     );
   }
 }

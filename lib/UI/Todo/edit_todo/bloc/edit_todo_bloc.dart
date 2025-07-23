@@ -253,7 +253,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     if(todoResponse?['lead_id'] == null && todoResponse?['channel_id'] != null){
       selectedLead = leadsData.firstWhereOrNull((e) => e['type'] == 'channel' && e['id'].toString() == todoResponse?['channel_id'].toString(),);
     }
-    //customerNameController.text = todoResponse?['bookingDetails']?['user']?['name'] ?? 'Select Customer';
+    customerNameController.text = todoResponse?['bookingDetails']?['user']?['name'] ?? 'Select Customer';
     leadsController.text = selectedLead?['name'] ?? '';
     meetingLinkController.text = todoResponse?['meeting_link'] ?? '';
     var resources = assignedToResponse;

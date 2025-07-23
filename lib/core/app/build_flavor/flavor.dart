@@ -43,6 +43,7 @@ class Flavor {
   String get _attachmentUrl => _tasker;
   String get _taskerStorage => "${_tasker}storage/";
   String get _fairentalBooking => "${_fairental}admin/booking-summary/";
+  String get _fairentalUrl => "${_fairental}/api/";
 
   bool get isDebug => type == FlavorType.debug;
   bool get isProduction => type == FlavorType.production;
@@ -54,4 +55,5 @@ class Flavor {
   String get attachmentUrl => _attachmentUrl;
   String get taskerStorageUrl => _taskerStorage;
   String get fairRentalBookingSummary => _fairentalBooking;
+  String get fairRentalUrl => _fairentalUrl;
 }
