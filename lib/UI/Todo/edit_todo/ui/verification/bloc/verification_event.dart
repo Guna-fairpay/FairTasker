@@ -62,3 +62,24 @@ class RemovePaymentAttachmentEvent extends VerificationEvent{
 class AddPaymentEvent extends VerificationEvent{}
 
 class SavePaymentEvent extends VerificationEvent{}
+
+class GenerateAgreementEvent extends VerificationEvent{
+  final bool isChecked;
+  GenerateAgreementEvent({this.isChecked = false});
+  @override
+  List<Object?> get props => [isChecked];
+}
+
+class ViewAgreementEvent extends VerificationEvent{
+  final dynamic data;
+  ViewAgreementEvent(this.data);
+  @override
+  List<Object?> get props => [data];
+}
+
+class UpdatePaymentMethodEvent extends VerificationEvent{
+  final dynamic data;
+  UpdatePaymentMethodEvent(this.data);
+  @override
+  List<Object?> get props => [data];
+}

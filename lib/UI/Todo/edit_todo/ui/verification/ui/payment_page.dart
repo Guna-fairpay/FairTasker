@@ -22,12 +22,13 @@ class PaymentPage extends StatelessWidget {
         var transactionNo = payments.firstOrNull?['transaction_no'] ?? '';
         List<dynamic>paymentAttachments = context.read<VerificationBloc>().paymentAttachments;
 
-        return context.read<VerificationBloc>().bookingDetails['payment_status'] == "pending"
-            ? const CompactText('Payment status is pending.Please wait for the payment process to be initiated.')
-            : Column(
+        return Column(
           spacing: 10,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if(context.read<VerificationBloc>().bookingDetails['payment_status'] == "pending")
+                const CompactText('Payment status is pending.\n\nPlease wait for the payment process to be initiated.'),
+
             if(context.read<VerificationBloc>().bookingDetails['payment_status'] == "pending_request")...[
               List.from(context.read<VerificationBloc>().bookingDetails['payments']).isEmpty
                   ? SuccessButton(text: 'Add payment', onPressed: ()=> context.read<VerificationBloc>().add(AddPaymentEvent()),)

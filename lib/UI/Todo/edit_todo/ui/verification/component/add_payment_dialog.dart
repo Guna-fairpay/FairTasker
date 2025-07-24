@@ -64,7 +64,7 @@ class _AddPaymentDialog extends StatelessWidget {
                 const CompactText('Payment type', fontWeight: FontWeight.bold,),
                 Utils.dropdownBox('',
                     context.read<VerificationBloc>().paymentTypes,
-                        (v){},
+                        (v)=> context.read<VerificationBloc>().add(PaymentTypeEvent(v)),
                     initialSelection: context.read<VerificationBloc>().selectedPaymentType,
                     labelKey: 'name'),
                 const CompactText('Payment Method', fontWeight: FontWeight.bold,),
@@ -90,7 +90,10 @@ class _AddPaymentDialog extends StatelessWidget {
                   logName: "AddPaymentEvent",
                   isRequired: false,
                 ),
-                SuccessButton(onPressed: (){},),
+                SuccessButton(onPressed: (){
+                  context.read<VerificationBloc>().add(SavePaymentEvent());
+                  context.popDialog();
+                } ),
               ],
             ),
           );

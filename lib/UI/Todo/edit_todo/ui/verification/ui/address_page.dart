@@ -18,6 +18,8 @@ class AddressPage extends StatelessWidget {
             attachments: context.read<VerificationBloc>().addressAttachments,
             checkListOnChange:(v)=> context.read<VerificationBloc>().add(CheckListEvent(v)),
             forceAction: context.watch<VerificationBloc>().forceAction,
+            viewAgreement: (v)=> context.read<VerificationBloc>().add(ViewAgreementEvent(v)),
+            generateAgreement: ()=> context.read<VerificationBloc>().add(GenerateAgreementEvent()),
           );
         });
   }

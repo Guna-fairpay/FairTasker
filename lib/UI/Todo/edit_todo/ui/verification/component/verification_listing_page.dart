@@ -24,6 +24,8 @@ class VerificationListingPage extends StatelessWidget {
   final Function(dynamic value) approveOnTap;
   final Function(dynamic value) rejectOnTap;
   final Function(dynamic value) checkListOnChange;
+  final Function(dynamic value) viewAgreement;
+  final Function() generateAgreement;
   final dynamic model;
   final List<dynamic> attachments;
   final bool isPdf;
@@ -41,6 +43,8 @@ class VerificationListingPage extends StatelessWidget {
     this.isPdf = false,
     required this.checkListOnChange,
     this.forceAction = false,
+    required this.viewAgreement,
+    required this.generateAgreement,
   });
 
   @override
@@ -51,7 +55,7 @@ class VerificationListingPage extends StatelessWidget {
       children: [
         if(attachments.isNotEmpty)
           SizedBox(
-            height: context.height * 0.6,
+            height: context.height * 0.65,
             child: Container(
               padding: 5.padding,
               decoration: BoxDecoration(
@@ -86,6 +90,16 @@ class VerificationListingPage extends StatelessWidget {
                     spacing: 10,
                     children: [
                       Expanded(child:isPdf?DocumentViewer(input: attachment['file_url'], ratio: 0.5,): ImagePreview(imageInput: attachment['file_url'])),
+                  if(showPDFButtons)...[
+                    Row(
+                      spacing: 10,
+                      children: [
+                        SuccessButton(text: 'View', backgroundColor: AppC.appColor, onPressed:()=> viewAgreement(attachment),),
+                        SuccessButton(text: 'Regenerate', backgroundColor: AppC.appColor, onPressed:()=> generateAgreement(),),
+                      ],
+                    ),
+                  ],
+                      if(!showPDFButtons)
                       Row(
                         children: [
                           Expanded(child: Text.rich(TextSpan(
@@ -139,67 +153,7 @@ class VerificationListingPage extends StatelessWidget {
 
               ),
             ),
-          ),  /*Row(
-            children: [
-              ...attachments.map((e) => Container(
-                constraints: BoxConstraints(
-                    minWidth: MediaQuery.sizeOf(context).width,
-                    maxHeight: MediaQuery.sizeOf(context).height * 0.6),
-                padding: 15.padding,
-                child: Image.network(e['file_url']),
-              ),),
-            ],
-          )*/
-          // Column(
-          //   children: [
-          //     ...attachments.map((e) => Container(
-          //       constraints: BoxConstraints(
-          //           minWidth: MediaQuery.sizeOf(context).width,
-          //           maxHeight: MediaQuery.sizeOf(context).height * 0.6),
-          //       padding: 15.padding,
-          //       child: SfPdfViewer.network(e),
-          //     ),),
-          //   ],
-          // ),
-        if(showPDFButtons)...[
-          Row(
-            spacing: 10,
-            children: [
-              const SuccessButton(text: 'View', backgroundColor: AppC.appColor,),
-              SuccessButton(text: 'Regenerate', backgroundColor: AppC.appColor, onPressed:(){},),
-             // const SuccessButton(text: 'Generate', backgroundColor: AppC.appColor,),
-            ],
           ),
-        ],
-        /*Row(
-          spacing: 20,
-          children: [
-            Flexible(child: Utils.getTextFormField('Notes', controller, minLines: 2, maxLines: 2,)),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CustomCheckboxListTile(
-                  title: const Text('Force Action'),
-                  value: forceAction,
-                  onChanged: (value) => forceOnChanged(value),
-                  padding: 0.padding,
-                  useExpand: false,
-                  mainAxisSize: MainAxisSize.min,
-                  radius: 8,
-                  borderColor: AppC.appColor,
-                ),
-                 Row(
-                  spacing: 10,
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    SuccessButton(text: 'Approve', onPressed: ()=> approveOnTap,),
-                    SuccessButton(text: 'Reject', backgroundColor: AppC.redAccent, onPressed: ()=> rejectOnTap,),
-                  ],
-                ),
-              ],
-            ),
-          ],
-        ),*/
         const Divider(color: AppC.grey, height: 5, thickness: 1,),
         const CompactText('Checklist', fontWeight: FontWeight.bold, color: AppC.lightDark,),
         ...?checkList?.map((e) =>

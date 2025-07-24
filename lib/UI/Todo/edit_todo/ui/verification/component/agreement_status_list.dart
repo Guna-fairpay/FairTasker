@@ -1,6 +1,7 @@
 import 'package:fairpytasker/UI/Finance/Expense/component/icon_and_text.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/ui/verification/component/verification_enum.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
+import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:flutter/material.dart';
@@ -36,9 +37,9 @@ class AgreementStatusList extends StatelessWidget {
           title: Text.rich(
             TextSpan(
               children: [
-                TextSpan(text: '#$bookingId', style: const TextStyle(fontWeight: FontWeight.w500)),
+                TextSpan(text: '#$bookingId', style: context.textTheme.titleMedium?.copyWith()),
                 WidgetSpan(child: 10.width),
-                TextSpan(text: status, style: TextStyle(fontWeight: FontWeight.bold, color: statusName.type?.color, overflow: TextOverflow.visible)),
+                TextSpan(text: status, style: context.textTheme.titleMedium?.copyWith( color: statusName.type?.color, overflow: TextOverflow.visible)),
               ],
             )
           ),

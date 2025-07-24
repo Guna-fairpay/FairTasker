@@ -15,7 +15,7 @@ class AgreementPage extends StatelessWidget {
                 spacing: 10,
                 children: [
                   const CompactText('No agreement documents available. Generate one below'),
-                  SuccessButton(text: 'Generate Agreement', onPressed: (){}, backgroundColor: AppC.appColor,),
+                  SuccessButton(text: 'Generate Agreement', onPressed: ()=> context.read<VerificationBloc>().add(GenerateAgreementEvent()), backgroundColor: AppC.appColor,),
                 ],
               )
               :VerificationListingPage(
@@ -29,6 +29,8 @@ class AgreementPage extends StatelessWidget {
             showPDFButtons: true,
             checkListOnChange:(v)=> context.read<VerificationBloc>().add(CheckListEvent(v)),
             forceAction: context.watch<VerificationBloc>().forceAction,
+            viewAgreement: (v)=> context.read<VerificationBloc>().add(ViewAgreementEvent(v)),
+            generateAgreement: ()=> context.read<VerificationBloc>().add(GenerateAgreementEvent()),
           );
         });
   }

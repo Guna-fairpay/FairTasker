@@ -79,11 +79,11 @@ class ApiClient {
 
   /// InfusedFiles must be one type "List<Map<String, String?>>" / Map<String, String?>
   /// Value always file path
-  Future<http.Response?> callPostMethodWithBodyDynamic(String url, {Map<String, dynamic>? body, dynamic infusedFiles}) async {
+  Future<http.Response?> callPostMethodWithBodyDynamic(String url, {Map<String, dynamic>? body, dynamic infusedFiles,  String? token}) async {
     if (await Utils.connection()) {
       http.Response response = await compute(_postMultiPartComputeDynamic, {
         "url": Uri.parse(url),
-        "token": Utils.getHeadersWithToken(url: url),
+        "token": Utils.getHeadersWithToken(url: url, token: token),
         "fields": body,
         "infusedFiles": infusedFiles,
       });

@@ -5,6 +5,7 @@ import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/ui/verification/bloc/verification_bloc.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/ui/verification/component/add_payment_dialog.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/ui/verification/component/address_approve_warning_dialog.dart';
+import 'package:fairpytasker/UI/Todo/edit_todo/ui/verification/component/update_payment_model_dialog.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/ui/verification/component/verification_enum.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/ui/verification/component/verification_listing_page.dart';
 import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
@@ -43,6 +44,7 @@ class VerificationMainUI extends StatelessWidget {
               case ErrorState(): Toaster.showError(state.message); break;
               case AddManualPaymentState(): AddPaymentDialog.show(context,);
               case ApproveWarningState(): AddressApproveWarningDialog.show(context, model: state.data);
+              case UpdatePaymentModelState(): UpdatePaymentModelDialog.show(context, model: state.data);
               default: break;
             }
           }

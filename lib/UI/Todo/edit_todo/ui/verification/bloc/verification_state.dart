@@ -37,3 +37,10 @@ class ApproveWarningState extends VerificationState{
   @override
   List<Object?> get props => [data, Random().nextDouble()];
 }
+
+class UpdatePaymentModelState extends VerificationState{
+  final dynamic data;
+  UpdatePaymentModelState({this.data});
+  @override
+  List<Object?> get props => [data, Random().nextDouble()];
+}
