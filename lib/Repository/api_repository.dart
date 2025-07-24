@@ -469,6 +469,12 @@ class APiRepository {
 
   String get _verificationStatus => "verification-status";
 
+  String get _licenseVerify => "booking/license/verify";
+
+  String get _addressVerify => "booking/address-proof/verify";
+
+  String get _agreementVerify => "booking/contract/verify";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -4648,6 +4654,48 @@ Future<Map<String, dynamic>?> getLocations() async {
   Future<Map<String, dynamic>?> verificationStatusUpdate({dynamic body, String? token}) async{
     try {
       String apiUrl = '${Str.FAIRENTAL_URL}admin/$_verificationStatus/update';
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body, token: token);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    }catch(e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> licenseVerify({dynamic body, String? token}) async{
+    try {
+      String apiUrl = '${Str.FAIRENTAL_URL}admin/$_licenseVerify';
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body, token: token);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    }catch(e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> addressVerify({dynamic body, String? token}) async{
+    try {
+      String apiUrl = '${Str.FAIRENTAL_URL}admin/$_addressVerify';
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body, token: token);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    }catch(e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> agreementVerify({dynamic body, String? token}) async{
+    try {
+      String apiUrl = '${Str.FAIRENTAL_URL}admin/$_agreementVerify';
       final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body, token: token);
       if (response?.isSuccess == true) {
         return await response.mapData;

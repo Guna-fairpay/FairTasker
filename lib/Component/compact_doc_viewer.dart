@@ -10,8 +10,8 @@ import 'package:html_to_flutter_kit/html_to_flutter_kit.dart';
 class DocumentViewer extends StatelessWidget {
   final dynamic input;
   final bool enableDownload;
-
-  const DocumentViewer({super.key, this.input, this.enableDownload = true});
+  final double ratio;
+  const DocumentViewer({super.key, this.input, this.enableDownload = true, this.ratio = 0.63});
 
   @override
   Widget build(BuildContext context) {
@@ -19,38 +19,18 @@ class DocumentViewer extends StatelessWidget {
     <iframe src="https://docs.google.com/gview?url=$input&embedded=true"/>
     """;
     return (input is String)
-        ? Stack(
-            // spacing: 5,
-            children: [
-              Html(
-                config: HtmlConfig(styleOverrides: {
-                  "iframe": Style(height: context.height * 0.63, width: 411)
-                }, extensions: const [
-                  TableExtension(),
-                  IframeExtextion()
-                ], onTap: (url, [attributes, element]) {
-                  element?.text = fileHtml;
-                },),
-                data: fileHtml,
-                key: UniqueKey(),
-              ),
-             /* if (enableDownload)
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: TextButton(
-                    onPressed: () =>
-                        Downloader.instance.start(input, openFile: true),
-                    style: ButtonStyle(
-                      shape: WidgetStatePropertyAll(RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20.sp))),
-                      backgroundColor:
-                          WidgetStatePropertyAll(Colors.grey.shade200),
-                    ),
-                    child: const Text("Download attachment!"),
-                  ),
-                )*/
-            ],
-          )
+        ? Html(
+          config: HtmlConfig(styleOverrides: {
+            "iframe": Style(height: context.height * ratio, width: 411)
+          }, extensions: const [
+            TableExtension(),
+            IframeExtextion()
+          ], onTap: (url, [attributes, element]) {
+            element?.text = fileHtml;
+          },),
+          data: fileHtml,
+          key: UniqueKey(),
+        )
         : Column(
             spacing: 10.sp,
             mainAxisSize: MainAxisSize.min,

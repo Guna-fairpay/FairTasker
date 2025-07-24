@@ -1157,12 +1157,12 @@ class Utils {
     };
   }
 
-  static Map<String, String> getHeadersWithToken({required String url}) {
+  static Map<String, String> getHeadersWithToken({required String url, String? token}) {
     return {
       'accept': 'application/json',
       'Content-Type': 'application/json',
       'Accept-Encoding': 'gzip',
-      'Authorization': (url.isFairReturns) ? returnBearerToken : bearerToken
+      'Authorization': (token.isNotNullOrEmpty) ? token.toBearer : ((url.isFairReturns) ? returnBearerToken : bearerToken)
     };
   }
 

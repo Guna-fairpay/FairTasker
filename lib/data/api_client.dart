@@ -100,7 +100,7 @@ class ApiClient {
       http.Response response = await compute(_postRawJsonCompute, {
         "url": Uri.parse(url),
         "method" : method,
-        "token": token ?? Utils.getHeadersWithToken(url: url),
+        "token": Utils.getHeadersWithToken(url: url, token: token),
         "fields": body,
       });
       Console.of.log(jsonEncode(body));

@@ -25,3 +25,40 @@ class CheckListEvent extends VerificationEvent{
   @override
   List<Object?> get props => [data];
 }
+
+class ApproveEvent extends VerificationEvent{
+  final dynamic data;
+  final bool isDialog;
+  ApproveEvent({this.data, this.isDialog = false});
+  @override
+  List<Object?> get props => [data, isDialog];
+}
+
+class RejectEvent extends VerificationEvent{
+  final dynamic data;
+  RejectEvent({this.data});
+  @override
+  List<Object?> get props => [data];
+}
+
+class ForceActionEvent extends VerificationEvent{}
+
+class PaymentTypeEvent extends VerificationEvent{
+  final dynamic data;
+  PaymentTypeEvent(this.data);
+  @override
+  List<Object?> get props => [data];
+}
+
+class PaymentAttachmentEvent extends VerificationEvent{}
+
+class RemovePaymentAttachmentEvent extends VerificationEvent{
+  final dynamic data;
+  RemovePaymentAttachmentEvent(this.data);
+  @override
+  List<Object?> get props => [data];
+}
+
+class AddPaymentEvent extends VerificationEvent{}
+
+class SavePaymentEvent extends VerificationEvent{}

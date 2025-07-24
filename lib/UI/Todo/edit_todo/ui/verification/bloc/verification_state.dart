@@ -25,3 +25,15 @@ class SuccessState extends VerificationState{
   @override
   List<Object?> get props => [message, Random().nextDouble()];
 }
+
+class AddManualPaymentState extends VerificationState{
+  @override
+  List<Object?> get props => [Random().nextDouble()];
+}
+
+class ApproveWarningState extends VerificationState{
+  final dynamic data;
+  ApproveWarningState(this.data);
+  @override
+  List<Object?> get props => [data, Random().nextDouble()];
+}

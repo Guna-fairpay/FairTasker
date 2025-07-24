@@ -13,17 +13,39 @@ class PaymentPage extends StatelessWidget {
         var securityDeposit = List.from(context.read<VerificationBloc>().model?['bookingDetails']?['cost_summary']?['feeTypes'] ?? []).firstOrNull?['amount'] ?? '';
         var subTotal = context.read<VerificationBloc>().model?['bookingDetails']?['cost_summary']?['subTotal'] ?? '';
         var initialRentalCost = context.read<VerificationBloc>().model?['bookingDetails']?['cost_summary']?['initialRentalCost'] ?? '';
+        var paymentType = context.read<VerificationBloc>().bookingDetails?['payment_request']?['payout_account']?['payment_method'] ?? '';
+        List<dynamic> payments = List.from(context.read<VerificationBloc>().bookingDetails?['payments'] ?? []);
+        var type = payments.firstOrNull?['payment_type'] ?? '';
+        var status = payments.firstOrNull?['status'] ?? '';
+        var date = payments.firstOrNull?['created_at'] ?? '';
+        var amount = payments.firstOrNull?['amount'] ?? '';
+        var transactionNo = payments.firstOrNull?['transaction_no'] ?? '';
+        List<dynamic>paymentAttachments = context.read<VerificationBloc>().paymentAttachments;
 
-        return Column(
+        return context.read<VerificationBloc>().bookingDetails['payment_status'] == "pending"
+            ? const CompactText('Payment status is pending.Please wait for the payment process to be initiated.')
+            : Column(
+          spacing: 10,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if(context.read<VerificationBloc>().bookingDetails['payment_status'] == "pending_request")...[
+              List.from(context.read<VerificationBloc>().bookingDetails['payments']).isEmpty
+                  ? SuccessButton(text: 'Add payment', onPressed: ()=> context.read<VerificationBloc>().add(AddPaymentEvent()),)
+                  :const SuccessButton(text: 'Generate',)
+            ],
+            if(context.read<VerificationBloc>().bookingDetails['payment_status'] == "awaiting_payment")
+               SuccessButton(
+                text: 'Add payment',
+                onPressed: ()=> context.read<VerificationBloc>().add(AddPaymentEvent()),
+                backgroundColor: AppC.appColor,),
            ExpansionTile(
              key: const PageStorageKey<String>("breakdown"),
-               title: const Row(
+               title:  Row(
                  spacing: 10,
                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                  children: [
-                   FittedBox(child: CompactText('Upfront & Breakdown', fontWeight: FontWeight.bold,)),
-                   FittedBox(child: CompactText('case app', fontWeight: FontWeight.bold,)),
+                   const FittedBox(child: CompactText('Upfront & Breakdown', fontWeight: FontWeight.bold,)),
+                   FittedBox(child: CompactText(paymentType, fontWeight: FontWeight.bold,)),
                  ],
                ),
              tilePadding: 0.padding,
@@ -58,21 +80,53 @@ class PaymentPage extends StatelessWidget {
                )
              ],
            ),
-            Container(
-              width: double.maxFinite,
-              child: Row(
-                children: [
-                  Column(
-                    children: [
+            if(List.from(context.read<VerificationBloc>().bookingDetails?['payments'] ?? []).isNotEmpty)...[
+              Container(
+                padding: 10.padding,
+                width: double.maxFinite,
 
-                    ],
-                  ),
-                  Column(
-                    children: [],
-                  ),
-                ],
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(4),
+                  color: AppC.chipBackgroundUnselected,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        CompactText('Type: $type'),
+                        CompactText('${date.toString().toFormat(format: 'MM-dd-yyyy', inputFormat: 'yyyy-MM-dd HH:mm')}'),
+                        if(transactionNo != null)CompactText("#$transactionNo"),
+                      ],
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Container(
+                          padding: 2.padding,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(4),
+                            color: status.toString().status.color,
+                          ),
+                            child: CompactText(status, color: AppC.white, fontWeight: FontWeight.bold, styleType: TextStyleType.bodySmall,)
+                        ),
+                        CompactText('\$$amount'),
+                        if(paymentAttachments.isNotEmpty) InkWell(
+                          onTap: ()=> ShowAttachmentsDialog.of.show(context,
+                              attachments: paymentAttachments,
+                              title: 'Preview'),
+                            child: Icon(Icons.remove_red_eye_outlined, color:AppC.appColor, size: 18.spMin,)
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
+            ],
           ],
         );
       }
