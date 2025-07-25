@@ -463,6 +463,24 @@ class APiRepository {
 
   String get _updateArchive => "update-archive";
 
+  String get _rentalCheckList => "rental-checklist";
+
+  String get _getRentalToken => "getRentalToken";
+
+  String get _verificationStatus => "verification-status";
+
+  String get _licenseVerify => "booking/license/verify";
+
+  String get _addressVerify => "booking/address-proof/verify";
+
+  String get _agreementVerify => "booking/contract/verify";
+
+  String get _getAgreementPdf => "get-agreement-pdf";
+
+  String get _createPayment => "admin/create-payment/manual";
+
+  String get _updatePayment => "admin/bookings/update/payment-model";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -4608,5 +4626,138 @@ Future<Map<String, dynamic>?> getLocations() async {
     }
   }
 
+  Future<Map<String, dynamic>?> rentalCheckList({dynamic bookingId}) async {
+    try {
+      String apiUrl = '${Str.BASE_URL}$_rentalCheckList/$bookingId';
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(
+            response?.body ?? "")?['message'] ??
+            jsonDecode(response?.body ?? "")?['error'] ??
+            "Some thing went wrong, try again later!..."}");
+      }
+    }catch(e){
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getRentalToken() async {
+    try {
+      String apiUrl = '${Str.BASE_URL}$_getRentalToken';
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    }catch(e){
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> verificationStatusUpdate({dynamic body, String? token}) async{
+    try {
+      String apiUrl = '${Str.FAIRENTAL_URL}admin/$_verificationStatus/update';
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body, token: token);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    }catch(e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> licenseVerify({dynamic body, String? token}) async{
+    try {
+      String apiUrl = '${Str.FAIRENTAL_URL}admin/$_licenseVerify';
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body, token: token);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    }catch(e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> addressVerify({dynamic body, String? token}) async{
+    try {
+      String apiUrl = '${Str.FAIRENTAL_URL}admin/$_addressVerify';
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body, token: token);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    }catch(e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> agreementVerify({dynamic body, String? token}) async{
+    try {
+      String apiUrl = '${Str.FAIRENTAL_URL}admin/$_agreementVerify';
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body, token: token);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    }catch(e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getAgreementPdf({dynamic id, String? token})async{
+    try{
+      String apiUrl = '${Str.FAIRENTAL_URL}$_getAgreementPdf';
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: {'booking_id': id}, token: token);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    }catch(e){
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> updatePayment({dynamic body, String? token})async{
+    try{
+      String apiUrl = '${Str.FAIRENTAL_URL}$_updatePayment';
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body, token: token);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    }catch(e){
+      rethrow;
+    }
+  }
+
+Future<Map<String, dynamic>?> createPayment({dynamic body, String? token, List<dynamic>? images})async{
+    try{
+      String apiUrl = '${Str.FAIRENTAL_URL}$_createPayment';
+      final http.Response? response = await _apiClient.callPostMethodWithBodyDynamic(
+          apiUrl,
+          body: body,
+          infusedFiles: images,
+          token: token,
+      );
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    }catch(e){
+      rethrow;
+    }
+  }
 
 }

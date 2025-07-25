@@ -1,18 +1,9 @@
-import 'package:fairpytasker/Component/custom_checkbox.dart';
-import 'package:fairpytasker/Component/custom_text/compact_text.dart';
-import 'package:fairpytasker/UI/Finance/Expense/Component/date_range_selection.dart';
 import 'package:fairpytasker/UI/archive_task/archived_task/bloc/archived_bloc.dart';
 import 'package:fairpytasker/UI/archive_task/component/archive_task_list_item.dart';
-import 'package:fairpytasker/UI/dialog/show_notes_dialog.dart';
-import 'package:fairpytasker/Utilities/appC.dart';
-import 'package:fairpytasker/core/app/extension/sized_extension.dart';
-import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
-import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 part 'archived_task_listing_ui.dart';
 

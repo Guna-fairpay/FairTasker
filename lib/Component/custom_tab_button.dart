@@ -1,3 +1,4 @@
+import 'package:fairpytasker/Component/custom_text/compact_text.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
@@ -8,6 +9,7 @@ class CustomTabButton<T> extends StatelessWidget {
   final Function(T val)? onPressed;
   final EdgeInsets? padding;
   final String buttonText;
+  final String? subText;
   final TextStyle? textStyle;
   final BorderRadius? tapBorderRaius;
   final T value, selectedValue;
@@ -15,6 +17,7 @@ class CustomTabButton<T> extends StatelessWidget {
   final Color? selectedBorderColor;
   final Color? overrideTextColor;
   final IconData? icon;
+  final Color? subTextColor;
 
   const CustomTabButton(
       {super.key,
@@ -27,8 +30,11 @@ class CustomTabButton<T> extends StatelessWidget {
       this.selectedBorderColor,
       this.overrideTextColor,
       required this.buttonText,
+      this.subText,
       required this.value,
-      required this.selectedValue});
+      required this.selectedValue,
+        this.subTextColor,
+      });
 
   @override
   Widget build(BuildContext context) {
@@ -52,23 +58,30 @@ class CustomTabButton<T> extends StatelessWidget {
                     borderRadius: const BorderRadius.only(
                         topRight: Radius.circular(5),
                         topLeft: Radius.circular(5))),
-        child: Text.rich(TextSpan(
+        child: Column(
           children: [
-            if (icon != null)
-              WidgetSpan(child: Icon(icon, size: 16.spMin, color: (selectedValue != value) ? null : AppC.appColor)),
-            if (icon != null)
-              WidgetSpan(child: 4.width),
-            TextSpan(text: buttonText)
-          ]
+            Text.rich(TextSpan(
+              children: [
+                if (icon != null)
+                  WidgetSpan(child: Icon(icon, size: 16.spMin, color: (selectedValue != value) ? null : AppC.appColor)),
+                if (icon != null)
+                  WidgetSpan(child: 4.width),
+                TextSpan(text: buttonText)
+              ]
+            ),
+                style: textStyle ??
+                    context.textTheme.labelLarge?.copyWith(
+                      fontSize: 14.spMin,
+                        color: overrideTextColor ?? ((selectedValue != value) ? null : AppC.appColor),
+                        fontWeight: (selectedValue != value)
+                            ? FontWeight.normal
+                            : FontWeight.bold,
+                        fontFamily: "Lato")),
+            if(subText != null)...[
+              Text(subText ?? '',style: TextStyle(fontWeight: FontWeight.bold, color: subTextColor ?? AppC.text, fontSize: 12.spMin), ),
+            ]
+          ],
         ),
-            style: textStyle ??
-                context.textTheme.labelLarge?.copyWith(
-                  fontSize: 14.spMin,
-                    color: overrideTextColor ?? ((selectedValue != value) ? null : AppC.appColor),
-                    fontWeight: (selectedValue != value)
-                        ? FontWeight.normal
-                        : FontWeight.bold,
-                    fontFamily: "Lato")),
       ),
     );
   }

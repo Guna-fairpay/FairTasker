@@ -19,9 +19,9 @@ class AddToDoConfig {
   ];
 
   static const List<Map<String, dynamic>> customOptions = [
-    {'id': 1, 'label': "Custom Link"},
-    {'id': 3, 'label': "Fairental ReservationID"},
-    {'id': 2, 'label': "Turo Reservation ID"},
+    {'id': 1, 'label': "Custom Link", 'value': "Link"},
+    {'id': 3, 'label': "Fairental ReservationID", 'value': "Booking Id"},
+    {'id': 2, 'label': "Turo Reservation ID", 'value': "Reservation No"},
   ];
 
   static const List<Map<String, dynamic>> recurringOptions = [

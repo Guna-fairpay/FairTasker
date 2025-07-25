@@ -19,6 +19,7 @@ class CompactDropDown<T extends Object> extends StatelessWidget {
   final TextEditingController? controller;
   final AutovalidateMode? autoValidateMode;
   final FormFieldValidator<T>? validator;
+  final bool enable;
 
   const CompactDropDown(
       {super.key,
@@ -31,7 +32,8 @@ class CompactDropDown<T extends Object> extends StatelessWidget {
         this.focusNode,
       this.helperText,
         this.autoValidateMode,
-        this.validator
+        this.validator,
+        this.enable = true,
       });
 
   @override
@@ -113,6 +115,7 @@ class CompactDropDown<T extends Object> extends StatelessWidget {
       enableSearch: (controller != null),
       textStyle: context.textTheme.labelLarge?.copyWith(overflow: TextOverflow.ellipsis),
       menuHeight: context.height * 0.3,
+      enabled: enable,
       inputDecorationTheme: InputDecorationTheme(
           hintStyle: context.textTheme.labelMedium?.copyWith(color: AppC.grey),
           contentPadding: EdgeInsets.symmetric(horizontal: 10.sp),
@@ -121,6 +124,8 @@ class CompactDropDown<T extends Object> extends StatelessWidget {
           border: border,
           isDense: true,
           constraints: BoxConstraints(maxHeight: 35.sp),
+        filled: !enable,
+        fillColor: AppC.grey[300]
       ),
       menuStyle: MenuStyle(
         backgroundColor: WidgetStateProperty.all<Color>(Colors.white),
