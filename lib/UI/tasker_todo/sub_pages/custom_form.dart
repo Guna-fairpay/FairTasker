@@ -49,7 +49,7 @@ class CustomForm extends StatelessWidget {
                     : Text.rich(
                   TextSpan(
                       text:
-                      "${context.watch<AddToDoBloc>().selectedCustom['label'].toString().isCustomLink ? "Link" : "Reservation No"} - ${value.text}",
+                      "${context.watch<AddToDoBloc>().selectedCustom['value'].toString()} - ${value.text}",
                       recognizer: TapGestureRecognizer()..onTap = () => context.read<AddToDoBloc>().add(OpenCustomLinkEvent())),
                   textAlign: TextAlign.end,
                   style: context.textTheme.labelLarge?.copyWith(

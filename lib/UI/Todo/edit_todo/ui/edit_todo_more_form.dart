@@ -278,8 +278,7 @@ class EditTodoMoreForm extends StatelessWidget {
                   ? Container()
                   : Text.rich(
                 TextSpan(
-                    text:
-                    "${state.selectedLinkOption!['label'].toString().isCustomLink ? "Link" : "Reservation No"} - ${value.text}",
+                    text:'${state.selectedLinkOption?['value']} - ${value.text}',
                     recognizer: TapGestureRecognizer()
                       ..onTap = () => context
                           .read<EditToDoBloc>()

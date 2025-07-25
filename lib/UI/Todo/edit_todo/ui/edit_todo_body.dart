@@ -71,15 +71,6 @@ class EditTodoBody extends StatelessWidget {
                   Utils.getText("Reason : ${context.watch<EditToDoBloc>().reason ?? ''}",size: 10.spMin,overFlow: TextOverflow.visible,color: AppC.grey),
                 ],
                 10.height,
-                /*SegmentedAutocomplete<Map<String, dynamic>>(
-                  segmentedSuggestions: [context.watch<EditToDoBloc>().tasks],
-                  itemAsString: (option) => (option['task'] ?? ""),
-                  itemAsStringTitle: (option) => option['task'] ?? "",
-                  itemAsSearchString: (option) => option['task'] ?? [],
-                  selectedValues: [state.selectedTask],
-                  onChanged: (val) => context.read<EditToDoBloc>().add(EditToDoTaskEvent(selectedTask: val)),
-                  onEmptyTap: (value) => context.push(TaskMainPage(title: context.read<EditToDoBloc>().taskNameController.text,)),
-                ),*/
                 SearchViewField(
                   controller: context.read<EditToDoBloc>().taskNameController,
                   suggestions: context.watch<EditToDoBloc>().tasks,
@@ -90,8 +81,22 @@ class EditTodoBody extends StatelessWidget {
                   showEmpty: true,
                   labelText: 'Task Name',
                   hintText: "Select Task",
+                  showTaskType: true,
                 ),
                 10.height,
+                if(state.apiResponse['identifier_id'] == 393)...[
+                  Utils.getTextFormField(
+                    null,
+                    context.read<EditToDoBloc>().customerNameController,
+                    readOnly: true,
+                    fillColor: AppC.grey.withValues(alpha: 0.3),
+                    suffixIcon: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Icon(Icons.keyboard_arrow_down_rounded, size: 20.spMin, color: context.theme.hintColor),
+                    ),
+                  ),
+                  10.height,
+                ],
                 if(context.watch<EditToDoBloc>().showLead)...[
                   SearchViewField(
                     controller: context.read<EditToDoBloc>().leadsController,
@@ -119,7 +124,7 @@ class EditTodoBody extends StatelessWidget {
                   ),
                   10.height,
                 ],
-                if((!Str.checkInCheckOut.contains(state.apiResponse['title']) && (!Str.userTypeId.contains(state.selectedTask['user_type']))) && (state.apiResponse['lead_id'] == null && state.apiResponse['channel_id'] == null))...[
+                if(!Str.checkInCheckOut.contains(state.apiResponse['title']) && !context.watch<EditToDoBloc>().showLead && state.selectedTask['user_type'] != 5)...[
                   CustomVendorLocationField(
                     vendorsList: context.watch<EditToDoBloc>().vendor,
                     locationsList: context.watch<EditToDoBloc>().location,
@@ -196,16 +201,25 @@ class EditTodoBody extends StatelessWidget {
                   ),
                   10.height,
                 ],
-                if(!Str.checkInCheckOut.contains(state.apiResponse['title']) && (!Str.userTypeId.contains(state.selectedTask['user_type'])) && (state.apiResponse['lead_id'] == null && state.apiResponse['channel_id'] == null))...[
+                if(!Str.checkInCheckOut.contains(state.apiResponse['title']) && !context.watch<EditToDoBloc>().showLead && state.selectedTask['user_type'] != 5)...[
                   const EditTodoMoreForm(),
                   10.height,
                 ],
                 const EditTodoUpdateButton(),
                 10.height,
-                if (state.apiResponse.isNotEmpty)
+                if (state.apiResponse.isNotEmpty && state.apiResponse['identifier_id'] != 393)
                   const PageKeepAliver(
                       key:PageStorageKey("EditTodoBottomTabs"),
                       child: EditTodoBottomTabs()),
+                if(state.apiResponse['identifier_id'] == 393 &&state.apiResponse['bookingDetails'] != null)...[
+                  AgreementStatusList(data: state.apiResponse['bookingDetails'] ?? {}),
+                  10.height,
+                  PageKeepAliver(
+                      key:const PageStorageKey("VerificationTabs"),
+                      child: VerificationMainUI(data: state.apiResponse,)
+                  ),
+                ],
+
               ],
             )
         )

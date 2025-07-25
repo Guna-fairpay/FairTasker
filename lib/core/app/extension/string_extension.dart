@@ -82,6 +82,8 @@ extension StringExtension on String? {
 
   bool get isCustomLink => this?.toLowerCase() == "custom link";
 
+  bool get isFairentalReservation=> this?.toLowerCase() == "Fairental ReservationID".toLowerCase();
+
   bool get isGetAroundReservation => this?.toLowerCase() == "Getaround ReservationID".toLowerCase();
 
   bool get isTuroReservation => this?.toLowerCase() == "Turo Reservation ID".toLowerCase();
