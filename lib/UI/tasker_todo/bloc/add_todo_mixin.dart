@@ -295,6 +295,16 @@ mixin AddToDoMixin {
   Future<Map<String, dynamic>?> _findReservation(dynamic vin) async => await getIt<CommonService>().findVehicleReservation(vin: vin);
   Future<Map<String, dynamic>?> _getOilChangeTask({required dynamic vin}) async => await getIt<CommonService>().getLatestOilChangeTask(vin: vin, dateTime: selectedDate);
 
+  String get customLinkText {
+    var customOptionId = selectedCustom['id'].toString().toNumeric.toInt();
+    return switch(customOptionId) {
+      1 => "Link - ${customLinkController.text}",
+      2 => "Reservation No - ${customLinkController.text}",
+      3 => "Booking Id - ${customLinkController.text}",
+      int() => "",
+    };
+  }
+
   void _errorCatch(dynamic e, Emitter<AddToDoState> emit) {
     Console.of.error("Error", error: e, name: "ADD_TODO_BLOC");
     if (!emit.isDone) emit(ErrorState(e));
