@@ -9,7 +9,7 @@ class PaymentPage extends StatelessWidget {
       builder: (context, state) {
         var days = context.read<VerificationBloc>().model?['bookingDetails']?['cost_summary']?['fullDays'] ?? '';
         var pricePerDay = context.read<VerificationBloc>().model?['bookingDetails']?['cost_summary']?['pricePerDay'] ?? '';
-        var initialPayment = context.read<VerificationBloc>().model?['bookingDetails']?['cost_summary']?['initialPayment'];
+        var initialPayment = context.read<VerificationBloc>().model?['bookingDetails']?['cost_summary']?['initialPayment'] ?? '';
         var securityDeposit = List.from(context.read<VerificationBloc>().model?['bookingDetails']?['cost_summary']?['feeTypes'] ?? []).firstOrNull?['amount'] ?? '';
         var subTotal = context.read<VerificationBloc>().model?['bookingDetails']?['cost_summary']?['subTotal'] ?? '';
         var initialRentalCost = context.read<VerificationBloc>().model?['bookingDetails']?['cost_summary']?['initialRentalCost'] ?? '';
@@ -19,7 +19,7 @@ class PaymentPage extends StatelessWidget {
         var status = payments.firstOrNull?['status'] ?? '';
         var date = payments.firstOrNull?['created_at'] ?? '';
         var amount = payments.firstOrNull?['amount'] ?? '';
-        var transactionNo = payments.firstOrNull?['transaction_no'] ?? '';
+        var transactionNo = payments.firstOrNull?['transaction_no'];
         List<dynamic>paymentAttachments = context.read<VerificationBloc>().paymentAttachments;
 
         return Column(
@@ -49,33 +49,38 @@ class PaymentPage extends StatelessWidget {
                    FittedBox(child: CompactText(paymentType, fontWeight: FontWeight.bold,)),
                  ],
                ),
-             tilePadding: 0.padding,
+             minTileHeight: 2,
+
+             backgroundColor: AppC.grey.shade200,
+             collapsedBackgroundColor: AppC.blue50,
+             tilePadding: 5.horizontalPadding,
+             collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+             childrenPadding: 10.padding,
              initiallyExpanded: true,
              children: [
                Row(
                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                  children: [
-                   FittedBox(
-                     child: Column(
-                       crossAxisAlignment: CrossAxisAlignment.start,
-                       children: [
-                         CompactText('Upfront Payment'),
-                         CompactText('Security deposit'),
-                         CompactText('Subtotal (Additional charges)'),
-                         CompactText('Rental cost ($days days @ \$$pricePerDay/day)'),
-                       ],
-                     ),
+                   Column(
+                     spacing: 10,
+                     crossAxisAlignment: CrossAxisAlignment.start,
+                     children: [
+                       const CompactText('Upfront Payment', overflow: TextOverflow.visible,),
+                       const CompactText('Security deposit', overflow: TextOverflow.visible,),
+                       const CompactText('Subtotal (Additional charges)', overflow: TextOverflow.visible,),
+                       CompactText('Rental cost ($days days @ \$$pricePerDay/day)', overflow: TextOverflow.visible,),
+                     ],
                    ),
-                   FittedBox(
-                     child: Column(
-                       crossAxisAlignment: CrossAxisAlignment.end,
-                       children: [
-                         CompactText("\$$initialPayment"),
-                         CompactText("\$$securityDeposit"),
-                         CompactText('\$$subTotal'),
-                         CompactText('\$$initialRentalCost'),
-                       ],
-                     ),
+                   Column(
+                     spacing: 10,
+                     crossAxisAlignment: CrossAxisAlignment.end,
+                     children: [
+                       CompactText("\$$initialPayment", overflow: TextOverflow.visible,),
+                       CompactText("\$$securityDeposit", overflow: TextOverflow.visible,),
+                       CompactText('\$$subTotal', overflow: TextOverflow.visible,),
+                       CompactText('\$$initialRentalCost', overflow: TextOverflow.visible,),
+                     ],
                    ),
                  ],
                )
@@ -85,7 +90,6 @@ class PaymentPage extends StatelessWidget {
               Container(
                 padding: 10.padding,
                 width: double.maxFinite,
-
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(4),
                   color: AppC.chipBackgroundUnselected,
@@ -100,7 +104,7 @@ class PaymentPage extends StatelessWidget {
                       children: [
                         CompactText('Type: $type'),
                         CompactText('${date.toString().toFormat(format: 'MM-dd-yyyy', inputFormat: 'yyyy-MM-dd HH:mm')}'),
-                        if(transactionNo != null)CompactText("#$transactionNo"),
+                        if(transactionNo != null) CompactText("#$transactionNo"),
                       ],
                     ),
                     Column(
@@ -117,9 +121,7 @@ class PaymentPage extends StatelessWidget {
                         ),
                         CompactText('\$$amount'),
                         if(paymentAttachments.isNotEmpty) InkWell(
-                          onTap: ()=> ShowAttachmentsDialog.of.show(context,
-                              attachments: paymentAttachments,
-                              title: 'Preview'),
+                            onTap: ()=> ImageViewDialog.show(context),
                             child: Icon(Icons.remove_red_eye_outlined, color:AppC.appColor, size: 18.spMin,)
                         ),
                       ],

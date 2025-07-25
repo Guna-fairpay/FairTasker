@@ -1,10 +1,14 @@
+import 'package:card_swiper/card_swiper.dart';
+import 'package:fairpytasker/Component/compact_doc_viewer.dart';
 import 'package:fairpytasker/Component/custom_compact_icon_button.dart';
 import 'package:fairpytasker/Component/custom_tab_button.dart';
 import 'package:fairpytasker/Component/custom_text/compact_text.dart';
+import 'package:fairpytasker/Component/image_preview.dart';
 import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/ui/verification/bloc/verification_bloc.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/ui/verification/component/add_payment_dialog.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/ui/verification/component/address_approve_warning_dialog.dart';
+import 'package:fairpytasker/UI/Todo/edit_todo/ui/verification/component/image_view_dialog.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/ui/verification/component/update_payment_model_dialog.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/ui/verification/component/verification_enum.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/ui/verification/component/verification_listing_page.dart';

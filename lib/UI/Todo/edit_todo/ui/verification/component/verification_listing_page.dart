@@ -1,20 +1,15 @@
 import 'package:card_swiper/card_swiper.dart';
-import 'package:fairpytasker/Component/attachment_slider_view.dart';
 import 'package:fairpytasker/Component/compact_doc_viewer.dart';
 import 'package:fairpytasker/Component/custom_checkbox.dart';
 import 'package:fairpytasker/Component/custom_text/compact_text.dart';
 import 'package:fairpytasker/Component/image_preview.dart';
-import 'package:fairpytasker/Component/image_viewer.dart';
 import 'package:fairpytasker/Component/success_button.dart';
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/Components/image_upload_selection.dart';
-import 'package:fairpytasker/UI/Todo/edit_todo/ui/verification/component/verification_enum.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 class VerificationListingPage extends StatelessWidget {
   final bool showPDFButtons;
@@ -53,28 +48,28 @@ class VerificationListingPage extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: 10,
       children: [
-        if(attachments.isNotEmpty)
+        if(attachments.isNotEmpty)...[
           SizedBox(
             height: context.height * 0.65,
             child: Container(
               padding: 5.padding,
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.white,
-                      Colors.grey.shade200
-                    ]),
-                borderRadius: BorderRadius.circular(5)
+                  gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.white,
+                        Colors.grey.shade200
+                      ]),
+                  borderRadius: BorderRadius.circular(5)
               ),
               child: Swiper(
                 scrollDirection: Axis.horizontal,
                 itemCount: attachments.length,
                 loop: false,
                 pagination: const SwiperPagination(
-                  alignment: Alignment.topCenter,
-                  builder: SwiperPagination.dots
+                    alignment: Alignment.topCenter,
+                    builder: SwiperPagination.dots
                 ),
                 outer: true,
                 indicatorLayout: PageIndicatorLayout.SLIDE,
@@ -90,34 +85,34 @@ class VerificationListingPage extends StatelessWidget {
                     spacing: 10,
                     children: [
                       Expanded(child:isPdf?DocumentViewer(input: attachment['file_url'], ratio: 0.5,): ImagePreview(imageInput: attachment['file_url'])),
-                  if(showPDFButtons)...[
-                    Row(
-                      spacing: 10,
-                      children: [
-                        SuccessButton(text: 'View', backgroundColor: AppC.appColor, onPressed:()=> viewAgreement(attachment),),
-                        SuccessButton(text: 'Regenerate', backgroundColor: AppC.appColor, onPressed:()=> generateAgreement(),),
+                      if(showPDFButtons)...[
+                        Row(
+                          spacing: 10,
+                          children: [
+                            SuccessButton(text: 'View', backgroundColor: AppC.appColor, onPressed:()=> viewAgreement(attachment),),
+                            SuccessButton(text: 'Regenerate', backgroundColor: AppC.appColor, onPressed:()=> generateAgreement(),),
+                          ],
+                        ),
                       ],
-                    ),
-                  ],
                       if(!showPDFButtons)
-                      Row(
-                        children: [
-                          Expanded(child: Text.rich(TextSpan(
-                            children: [
-                              TextSpan(text: attachment['name']),
-                              WidgetSpan(child: 10.spMin.width),
-                              WidgetSpan(child: Container(
-                                  padding: 2.padding,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(4),
-                                    color: AppC.blue,
-                                  ),
-                                  child: CompactText(status, color: AppC.white, fontWeight: FontWeight.w900, styleType: TextStyleType.bodySmall,)
-                              ),)
-                            ],
-                          ))),
-                        ],
-                      ),
+                        Row(
+                          children: [
+                            Expanded(child: Text.rich(TextSpan(
+                              children: [
+                                TextSpan(text: attachment['name']),
+                                WidgetSpan(child: 10.spMin.width),
+                                WidgetSpan(child: Container(
+                                    padding: 2.padding,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(4),
+                                      color: AppC.blue,
+                                    ),
+                                    child: CompactText(status, color: AppC.white, fontWeight: FontWeight.w900, styleType: TextStyleType.bodySmall,)
+                                ),)
+                              ],
+                            ))),
+                          ],
+                        ),
                       Row(
                         spacing: 20,
                         children: [
@@ -154,20 +149,22 @@ class VerificationListingPage extends StatelessWidget {
               ),
             ),
           ),
-        const Divider(color: AppC.grey, height: 5, thickness: 1,),
-        const CompactText('Checklist', fontWeight: FontWeight.bold, color: AppC.lightDark,),
-        ...?checkList?.map((e) =>
-            CustomCheckboxListTile(
-              title: Text(e?['description'] ?? ''),
-              value: e['is_checked'],
-              onChanged: (value) => checkListOnChange(e),
-              padding: 5.verticalPadding,
-              useExpand: false,
-              mainAxisSize: MainAxisSize.min,
-              radius: 8,
-              borderColor: AppC.appColor,
-            ),
-        ),
+          const Divider(color: AppC.grey, height: 5, thickness: 1,),
+          if((checkList ?? []).isNotEmpty) const CompactText('Checklist', fontWeight: FontWeight.bold, color: AppC.lightDark,),
+          ...?checkList?.map((e) =>
+              CustomCheckboxListTile(
+                title: Text(e?['description'] ?? ''),
+                value: e['is_checked'],
+                onChanged: (value) => checkListOnChange(e),
+                padding: 5.verticalPadding,
+                useExpand: false,
+                mainAxisSize: MainAxisSize.min,
+                radius: 8,
+                borderColor: AppC.appColor,
+              ),
+          ),
+        ],
+
       ],
     );
   }
