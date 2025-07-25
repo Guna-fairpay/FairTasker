@@ -1,6 +1,8 @@
 import 'dart:ui';
 
 import 'package:collection/collection.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/utilities/appC.dart';
 import 'package:flutter/material.dart';
 
@@ -74,7 +76,7 @@ enum VerificationEnum{
   pending_action,
   pending_admin_action,
   awaiting_payment,
-  booking_cancelled,
+  booking_canceled,
   canceled_and_closed,
   awaiting_confirmation,
   collection_pending,
@@ -98,7 +100,7 @@ List<String> verificationStatus = [
   'Pending Action',
   'Pending Action',
   'Awaiting Payment',
-  'Booking Canceled',
+  'Booking cancelled',
   'Canceled and Closed',
   'Awaiting Confirmation',
   'Payment Collection Pending',
@@ -113,7 +115,13 @@ List<String> verificationStatus = [
 
 extension VerificationStatusExtension on String?{
   VerificationEnum? get type => VerificationEnum.values.firstWhereOrNull((element) => element.name == (this ?? "unknown"));
-  String get label => verificationStatus[VerificationEnum.values.indexWhere((element) => element.name == (this ?? "unknown"))];
+  String get label {
+    Console.of.log(this, name: 'LABEl');
+    final input = isNullOrEmpty ? "unknown" : this;
+    return verificationStatus[VerificationEnum.values
+        .indexWhere((element) => element.name == input)];
+  }
+
   VerificationEnum get status => verificationStatus.contains(this) ? VerificationEnum.values[verificationStatus.indexOf(this ?? 'Unknown')] : VerificationEnum.unknown;
 
 }
@@ -130,7 +138,7 @@ extension VerificationStatusExtensionByType on VerificationEnum {
     VerificationEnum.pending_action => Colors.amber,
     VerificationEnum.pending_admin_action => Colors.amber,
     VerificationEnum.awaiting_payment => AppC.grey,
-    VerificationEnum.booking_cancelled => Colors.amber,
+    VerificationEnum.booking_canceled => Colors.amber,
     VerificationEnum.canceled_and_closed => AppC.redAccent,
     VerificationEnum.awaiting_confirmation => Colors.amber,
     VerificationEnum.collection_pending => Colors.amber,

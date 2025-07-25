@@ -1,20 +1,15 @@
 import 'package:card_swiper/card_swiper.dart';
-import 'package:fairpytasker/Component/attachment_slider_view.dart';
 import 'package:fairpytasker/Component/compact_doc_viewer.dart';
 import 'package:fairpytasker/Component/custom_checkbox.dart';
 import 'package:fairpytasker/Component/custom_text/compact_text.dart';
 import 'package:fairpytasker/Component/image_preview.dart';
-import 'package:fairpytasker/Component/image_viewer.dart';
 import 'package:fairpytasker/Component/success_button.dart';
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/Components/image_upload_selection.dart';
-import 'package:fairpytasker/UI/Todo/edit_todo/ui/verification/component/verification_enum.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 class VerificationListingPage extends StatelessWidget {
   final bool showPDFButtons;
@@ -155,7 +150,7 @@ class VerificationListingPage extends StatelessWidget {
             ),
           ),
         const Divider(color: AppC.grey, height: 5, thickness: 1,),
-        const CompactText('Checklist', fontWeight: FontWeight.bold, color: AppC.lightDark,),
+        if((checkList ?? []).isNotEmpty) const CompactText('Checklist', fontWeight: FontWeight.bold, color: AppC.lightDark,),
         ...?checkList?.map((e) =>
             CustomCheckboxListTile(
               title: Text(e?['description'] ?? ''),

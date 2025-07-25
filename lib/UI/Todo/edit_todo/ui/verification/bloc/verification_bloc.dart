@@ -349,6 +349,7 @@ class VerificationBloc extends Bloc<VerificationEvent, VerificationState>{
       }else{
         emit(ErrorState(response?['message']));
       }
+      emit(CommonState());
     } catch(e){
       _onError(e, emit);
     }

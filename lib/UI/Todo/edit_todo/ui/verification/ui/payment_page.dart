@@ -9,7 +9,7 @@ class PaymentPage extends StatelessWidget {
       builder: (context, state) {
         var days = context.read<VerificationBloc>().model?['bookingDetails']?['cost_summary']?['fullDays'] ?? '';
         var pricePerDay = context.read<VerificationBloc>().model?['bookingDetails']?['cost_summary']?['pricePerDay'] ?? '';
-        var initialPayment = context.read<VerificationBloc>().model?['bookingDetails']?['cost_summary']?['initialPayment'];
+        var initialPayment = context.read<VerificationBloc>().model?['bookingDetails']?['cost_summary']?['initialPayment'] ?? '';
         var securityDeposit = List.from(context.read<VerificationBloc>().model?['bookingDetails']?['cost_summary']?['feeTypes'] ?? []).firstOrNull?['amount'] ?? '';
         var subTotal = context.read<VerificationBloc>().model?['bookingDetails']?['cost_summary']?['subTotal'] ?? '';
         var initialRentalCost = context.read<VerificationBloc>().model?['bookingDetails']?['cost_summary']?['initialRentalCost'] ?? '';
@@ -117,9 +117,7 @@ class PaymentPage extends StatelessWidget {
                         ),
                         CompactText('\$$amount'),
                         if(paymentAttachments.isNotEmpty) InkWell(
-                          onTap: ()=> ShowAttachmentsDialog.of.show(context,
-                              attachments: paymentAttachments,
-                              title: 'Preview'),
+                            onTap: ()=> ImageViewDialog.show(context),
                             child: Icon(Icons.remove_red_eye_outlined, color:AppC.appColor, size: 18.spMin,)
                         ),
                       ],

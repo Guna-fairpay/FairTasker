@@ -16,7 +16,7 @@ class VehicleMainTabViewUi extends StatelessWidget {
               bottom: BorderSide(width: Num.borderWidthThinField)
           ),
       ),
-      height: 30.sp,
+      //height: 40.spMin,
       child: ListView(
         physics: const BouncingScrollPhysics(),
         scrollDirection: Axis.horizontal,

@@ -78,7 +78,7 @@ class CustomTabButton<T> extends StatelessWidget {
                             : FontWeight.bold,
                         fontFamily: "Lato")),
             if(subText != null)...[
-              Text(subText ?? '',style: TextStyle(fontWeight: FontWeight.bold, color: subTextColor ?? AppC.text, fontSize: 12.spMin), ),
+              Text(subText ?? '',style: TextTheme.of(context).labelSmall?.copyWith(color: subTextColor ?? AppC.text, fontSize: 12.spMin), ),
             ]
           ],
         ),
