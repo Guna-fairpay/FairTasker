@@ -168,6 +168,7 @@ mixin AddToDoMixin {
     baseBody['custom_link_id'] = "${selectedCustom['id'] ?? ""}";
     baseBody['custom_link'] = (selectedCustom['id'] == 1) ? customLinkController.text : "";
     baseBody['reference_id'] = (selectedCustom['id'] == 2) ? customLinkController.text : "";
+    baseBody['rental_booking_id'] = (selectedCustom['id'] == 3) ? customLinkController.text : "";
     if (baseBody['identifier_id'].toString().contains("358") && isEnquiryNotEmpty) {
       baseBody['rental_enquiry'] = QuillDeltaToHtmlConverter(enquiryController.document.toDelta().toJson(), ConverterOptions.forEmail()).convert();
     }
@@ -683,7 +684,9 @@ mixin AddToDoMixin {
           ? customLinkController.text
           : selectedCustom['label'].toString().isTuroReservation
           ? customLinkController.text.toTuroReserveUrl
-          : customLinkController.text.toFaiRentalReserveUrl;
+          : selectedCustom['label'].toString().isFairentalReservation
+          ? customLinkController.text.toFaiRentalReserveUrl
+          :customLinkController.text.toFaiRentalReserveUrl;
       emit(OpenLinkState(url));
     } catch (e) {
       Console.of.error("Error", error: e);

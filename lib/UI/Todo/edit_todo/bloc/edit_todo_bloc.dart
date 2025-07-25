@@ -75,7 +75,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   List<Map<String,dynamic>> task = [];
   List<Map<String,dynamic>> vehiclePersonList=[];
   List<dynamic> vinList = [];
-  List<dynamic> linkSelection = [];
+  //List<dynamic> linkSelection = [];
   List<dynamic> images = [];
   List<dynamic> todoImages = [];
   List<dynamic> notesImages = [];
@@ -100,6 +100,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   dynamic selectedDate;
   dynamic selectedMeetingType;
   dynamic selectedMeetingTime;
+  dynamic linkSelection;
 
   Map<String, dynamic>? selectedLead;
 
@@ -274,7 +275,13 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     dateController.text = todoResponse?['todo_date'] ?? '';
     notesController.text = todoResponse?['notes'] ?? '';
     departmentId = selectedUser.firstOrNull?['department'].toString();
-    customLinkController.text = todoResponse?['reference_id'] ?? '';
+    customLinkController.text = (todoResponse?['custom_link_id'] == 1)
+        ? (todoResponse?['custom_link']).toString()
+        : (todoResponse?['custom_link_id'] == 2)
+        ? (todoResponse?['reference_id']).toString()
+        : (todoResponse?['custom_link_id'] == 3)
+        ? (todoResponse?['rental_booking_id']).toString()
+        :'' ;
     tripDrivenController.text = todoResponse?['trip_driven'] ?? '';
     resolutionNotesController.text =
         todoResponse?['resolution_notes'] ?? '';
@@ -286,14 +293,9 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           element['name'] == todoResponse?['trip_review']) ??
           {};
     }
-    linkSelection = AddToDoConfig.customOptions
-        .where((element) =>
-    element['id']?.toString() ==
-        todoResponse?['custom_link_id']?.toString())
-        .toList();
-    if (linkSelection.isEmpty) {
-      linkSelection = [AddToDoConfig.customOptions[1]];
-    }
+    linkSelection = List.from(AddToDoConfig.customOptions).firstWhereOrNull((element) => element['id']?.toString() == todoResponse?['custom_link_id']?.toString());
+    if (linkSelection.isEmpty) linkSelection = AddToDoConfig.customOptions.firstOrNull;
+
     if(todoResponse?['vehicle_group_id'] == null){
       vinList = [todoResponse?['vin']];
       var vVins = List.from(todoResponse?['vehicles']).map((e) => e['vin']);
@@ -502,7 +504,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       supplies: suppliesResponse,
       selectedTaskPersons: selectedUser,
       resources: resources,
-      selectedLinkOption: linkSelection.first,
+      selectedLinkOption: linkSelection,
       selectedResource: selectedIds,
       isPartServiceEnable: (todoResponse?['parts'] as List).isNotEmpty,
       isSuppliesEnable: (todoResponse?['supplies'] as List).isNotEmpty,
@@ -803,11 +805,11 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     emit(state.copyWith(selectedSentiment: event.selectedSentiments));}
 
   void _onOpenCustomLinkEvent(EditToDoOpenCustomLinkEvent event, Emitter<EditTodoState> emit)  {
-    var url = (state.selectedLinkOption?['label'].toString().isCustomLink ??
-        false)
+    var url = (state.selectedLinkOption?['label'].toString().isCustomLink ?? false)
         ? customLinkController.text
-        : (state.selectedLinkOption?['label'].toString().isTuroReservation ??
-        false)
+        :(state.selectedLinkOption?['label'].toString().isFairentalReservation ?? false)
+        ? customLinkController.text.toFaiRentalReserveUrl
+        : (state.selectedLinkOption?['label'].toString().isTuroReservation ?? false)
         ? customLinkController.text.toTuroReserveUrl
         : customLinkController.text.toGetAroundReserveUrl;
     Utils.openURL(url);
@@ -1195,10 +1197,9 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     baseBody['trip_review'] = "${state.selectedSentiment?['name'] ?? ""}";
     baseBody['trip_driven'] = tripDrivenController.text;
     baseBody['time_change_reason'] = reason ?? '';
-    baseBody['custom_link'] =
-        (state.selectedLinkOption?['id'] == 1) ? customLinkController.text : "";
-    baseBody['reference_id'] =
-        (state.selectedLinkOption?['id'] != 1) ? customLinkController.text : "";
+    baseBody['custom_link'] = (state.selectedLinkOption?['id'] == 1) ? customLinkController.text : "";
+    baseBody['reference_id'] = (state.selectedLinkOption?['id'] == 2) ? customLinkController.text : "";
+    baseBody['rental_booking_id'] = (state.selectedLinkOption?['id'] == 3) ? customLinkController.text : "";
     if (state.selectedResource.isNotEmpty) {
       if (state.selectedResource.length == 1) {
         baseBody['user_id'] = state.selectedResource.first.toString();
