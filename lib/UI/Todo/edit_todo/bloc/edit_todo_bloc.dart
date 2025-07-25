@@ -281,7 +281,10 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         ? (todoResponse?['reference_id']).toString()
         : (todoResponse?['custom_link_id'] == 3)
         ? (todoResponse?['rental_booking_id']).toString()
-        :'' ;
+        :'';
+    if(todoResponse?['custom_link_id'] == null && todoResponse?['reference_id'] != null){
+      customLinkController.text = (todoResponse?['reference_id']).toString();
+    }
     tripDrivenController.text = todoResponse?['trip_driven'] ?? '';
     resolutionNotesController.text =
         todoResponse?['resolution_notes'] ?? '';
@@ -294,7 +297,11 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           {};
     }
     linkSelection = List.from(AddToDoConfig.customOptions).firstWhereOrNull((element) => element['id']?.toString() == todoResponse?['custom_link_id']?.toString());
-    if (linkSelection.isEmpty) linkSelection = AddToDoConfig.customOptions.firstOrNull;
+
+    if(linkSelection == null && todoResponse?['reference_id'] != null){
+      linkSelection = List.from(AddToDoConfig.customOptions).firstWhereOrNull((element) => element['id']?.toString() == '2');
+    }
+    linkSelection ??= AddToDoConfig.customOptions.firstOrNull;
 
     if(todoResponse?['vehicle_group_id'] == null){
       vinList = [todoResponse?['vin']];
