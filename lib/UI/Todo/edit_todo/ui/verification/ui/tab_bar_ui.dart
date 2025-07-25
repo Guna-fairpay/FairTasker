@@ -7,6 +7,7 @@ class TabBarUI extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<VerificationBloc, VerificationState>(
       builder: (context, state) =>  Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         spacing: 10,
         children: [
           Container(
