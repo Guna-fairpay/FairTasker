@@ -121,7 +121,7 @@ class PaymentPage extends StatelessWidget {
                         ),
                         CompactText('\$$amount'),
                         if(paymentAttachments.isNotEmpty) InkWell(
-                            onTap: ()=> ImageViewDialog.show(context),
+                            onTap: ()=> ImageViewDialog.show(context, attachments: paymentAttachments),
                             child: Icon(Icons.remove_red_eye_outlined, color:AppC.appColor, size: 18.spMin,)
                         ),
                       ],
