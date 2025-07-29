@@ -36,11 +36,11 @@ class ApiClient {
     }
   }
 
-  Future<http.Response?> callGetMethod(String url, {Map<String, dynamic>? params}) async {
+  Future<http.Response?> callGetMethod(String url, {Map<String, dynamic>? params, String? token}) async {
     if (await Utils.connection()) {
       http.Response response = await compute(_getCompute, {
         "url": url,
-        "token": Utils.getHeadersWithToken(url: url),
+        "token": Utils.getHeadersWithToken(url: url,token: token),
         "params" : params
       });
       // http.Response response = await client.get(Utils.getUri(url),
@@ -58,11 +58,13 @@ class ApiClient {
       String? fieldName,
       bool autoIncrement = false,
       int? lastImageIndex,
-      int? lastVideoIndex}) async {
+      int? lastVideoIndex,
+        String? token
+      }) async {
     if (await Utils.connection()) {
       http.Response response = await compute(_postMultiPartCompute, {
         "url": Uri.parse(url),
-        "token": Utils.getHeadersWithToken(url: url),
+        "token": Utils.getHeadersWithToken(url: url, token: token),
         "fields": body,
         "files": files,
         "fieldName": fieldName,

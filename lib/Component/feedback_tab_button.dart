@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 class FeedbackTabButton extends StatelessWidget {
   final String buttonText;
+  final String? subText;
   final int value, selectedValue;
   final bool showBade;
   final int? badgeCount;
@@ -16,6 +17,7 @@ class FeedbackTabButton extends StatelessWidget {
     this.badgeCount,
     this.overrideTextColor,
     required this.buttonText,
+    this.subText,
     required this.value,
     required this.selectedValue});
 
@@ -27,6 +29,7 @@ class FeedbackTabButton extends StatelessWidget {
       child: CustomTabButton<int>(
         overrideTextColor: overrideTextColor,
         buttonText: buttonText,
+        subText: subText,
         value: value,
         selectedValue: selectedValue,
         onPressed: onPressed),
