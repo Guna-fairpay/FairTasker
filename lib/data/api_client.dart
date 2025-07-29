@@ -254,4 +254,50 @@ class ApiClient {
     var response = await streamedResponse.stream.bytesToString();
     return http.Response(response, streamedResponse.statusCode);
   }
+
+  Future<http.Response?> callPostMethodWithBodyDynamicWithAutoIncrement(String url, {Map<String, dynamic>? body, dynamic infusedFiles,  String? token, bool autoIncrement = true}) async {
+    if (await Utils.connection()) {
+      http.Response response = await compute(_postMultiPartComputeDynamicWithAutoIncrement, {
+        "url": Uri.parse(url),
+        "token": Utils.getHeadersWithToken(url: url, token: token),
+        "fields": body,
+        "infusedFiles": infusedFiles,
+        "autoIncrement": autoIncrement,
+      });
+      return response;
+    } else {
+      Utils.showMobileToast(Str.checkInternetConnectionAlert);
+      return null;
+    }
+  }
+
+  Future<http.Response> _postMultiPartComputeDynamicWithAutoIncrement(dynamic message) async {
+    var infusedFiles = message['infusedFiles'];
+    Console.of.debug("${infusedFiles.runtimeType} ${infusedFiles is List}", name: "INFUSION_TYPE");
+    List<http.MultipartFile> multiPartFiles = [];
+    if (infusedFiles != null) {
+      if (infusedFiles is List) {
+        var files = List<Map<String, String?>>.from(message['infusedFiles'] ?? []);
+        if (files.isNotEmpty) {
+          multiPartFiles = (await Converter.instance.convertFilePathToMultipartDynamicWithAutoIncrement(files: files, autoIncrementField: message['autoIncrement'])) ?? [];
+        }
+      } else if (infusedFiles is Map<String, String?>) {
+        multiPartFiles = (await Converter.instance.convertFilePathToMultipartDynamicMap(files: infusedFiles)) ?? [];
+      }
+    }
+    if (multiPartFiles.isNotEmpty) multiPartFiles.forEach((element) => Console.of.debug("TYPE:\t${element.field} ${element.filename} ${element.contentType.type}", name: "MULTIPART_IMAGES"));
+    var request = http.MultipartRequest("POST", message['url']);
+    if (multiPartFiles.isNotEmpty) request.files.addAll(multiPartFiles);
+    if (message['fields'] != null) {
+      var fields = Map<String, dynamic>.from(message['fields']).map((key, value) => MapEntry(key, (value?.toString() ?? "")));
+      Console.of.log(jsonEncode(fields), name: "UPLOADED_FIELDS");
+      request.fields.addAll(fields);
+    }
+    if (message['token'] != null) request.headers.addAll(message['token']);
+    var streamedResponse = await client.send(request);
+    var response = await streamedResponse.stream.bytesToString();
+    Console.of.log("${streamedResponse.statusCode}: $response");
+    return http.Response(response, streamedResponse.statusCode);
+  }
+
 }

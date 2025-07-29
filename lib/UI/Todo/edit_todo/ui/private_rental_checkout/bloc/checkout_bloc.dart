@@ -6,6 +6,7 @@ import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +33,7 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState>{
 
   Future<Map<String, dynamic>?> _checkOutValues({dynamic id}) async => await _apiRepository.checkOutValues(id: id, token: token);
   Future<Map<String, dynamic>?> _getToken() async => await _apiRepository.getRentalToken();
-  Future<Map<String, dynamic>?> _saveCheckOut({dynamic body, dynamic id, List<String>? file}) async => await _apiRepository.saveCheckOut(body: body, token: token, id: id, images: file);
+  Future<Map<String, dynamic>?> _saveCheckOut({required Map<String, dynamic> body, dynamic id, dynamic file}) async => await _apiRepository.saveCheckOut(body: body, token: token, id: id, images: file);
 
   CheckoutBloc() : super(LoadingState()){
     on<InitialEvent>(_onInitialEvent);
@@ -64,7 +65,7 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState>{
           for (var element in checkOutValues) {
             element['isCheck'] = element['value'] != null;
             element['controller'] = TextEditingController();
-            (element['controller'] as TextEditingController).text = element?['value'] ?? '';
+            (element['controller'] as TextEditingController).text = element?['value'].toString() ?? '';
             if(element['children'] != null){
               element['children'].forEach((e) {
                 e['isCheck'] = e['value'] != null;
@@ -115,7 +116,9 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState>{
     try {
       checkOutValues.where((element) => element['children'] != null).forEach((element) {
         List.from(element['children']).where((e) => e['id'] == event.data['id']).forEach((e) {
-          e['value'] = (event.data['value'] == "true" ? "false" : "true");
+          e['value'] = /*event.data?['value'] != null
+              ? (event.data['value'] == "true" ? "false" : "true")
+              :*/ event.isYes == true ? "true" : "false";
         });
       });
       emit(CommonState());
@@ -162,7 +165,7 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState>{
       var attachments = List.from(attachmentPaths);
       attachments.remove(event.data);
       attachmentPaths = attachments;
-      fileNameController.text = basename(attachmentPaths.lastOrNull?.path ?? "");
+      fileNameController.text = basename((attachmentPaths.lastOrNull is File) ? (attachmentPaths.lastOrNull?.path) : (attachmentPaths.lastOrNull) ?? "");
       emit(CommonState());
     }catch(e){
       _onError(e, emit);
@@ -180,15 +183,12 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState>{
   void _onSaveEvent(SaveEvent event, Emitter<CheckoutState> emit) async {
     try{
       emit(LoadingState());
-      var imageList = List.from(attachmentPaths);
-      if (imageList.isNotEmpty) {
-        imageList.removeWhere((element) =>
-            attachments.any((e) => e['file_url'] == element));
-      }
+      checkOutData(closeRide: event.isApprove == true ? 1 : 0);
+      var input = checkOutData(closeRide: event.isApprove == true ? 1 : 0);
       var response = await _saveCheckOut(
-          body: checkOutData(closeRide: event.isApprove == true ? 1 : 0),
+          body: input['data'],
           id: model?['rental_booking_id'],
-          file: imageList.whereType<File>().map((e) => e.path).toList(),
+          file: input['files'],
       );
       if(response?['success'] == true){
         emit(SuccessState(response?['message']));
@@ -220,14 +220,16 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState>{
 
   Map<String, dynamic> checkOutData({dynamic closeRide}){
     Map<String, dynamic> data = {};
-    var imageList = List.from(attachmentPaths);
-    if (imageList.isNotEmpty) {
-      imageList.removeWhere((element) =>
-          attachments.any((e) => e['file_url'] == element));
-    }
+    List<dynamic> imageList = [];
+    imageList.addAll(attachments.map((e) => e['name']));
+    imageList.addAll(List.from(attachmentPaths));
+    imageList.removeWhere((element) =>
+        attachments.any((e) => e['file_url'] == element));
+
     data['previous_entry'] = bookingDetails?['status_name'] == 'completed' ? 1 : 0;
     data['closing_ride'] = closeRide;
     int fullIndex = 0;
+    List<Map<String, String?>> imageFiles = [];
     for (var element in checkOutValues) {
       if (element['controller'].text != null && element['controller'].text.isNotEmpty) {
         data['values[$fullIndex][checkout_field_id]'] = element['id'].toString();
@@ -245,14 +247,27 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState>{
             fullIndex++;
           } else if (child['type'] == 'file') {
             var images = [
-              //...List.from(child['value'] ?? []),
               ...imageList.whereType<File>().map((e) => e.path).toList(),
             ];
-            if (images.isNotEmpty) {
+            Console.of.log(images, name: "bookingDetails");
+
+            if(images.isNotEmpty || attachments.isNotEmpty){
+              int imageIndex = 0;
               data['values[$fullIndex][checkout_field_id]'] = child['id'].toString();
-              // images.asMap().forEach((i, img) {
-              //   data['values[$fullIndex][value][$i]'] =(img);
-              // });
+              if(attachments.isNotEmpty){
+                attachments.asMap().forEach((k, path) {
+                  data['values[$fullIndex][value][$imageIndex]'] = jsonEncode(path);
+                  imageIndex++;
+                });
+              }
+            if (images.isNotEmpty) {
+              images.asMap().forEach((i, img) {
+                imageFiles.add({
+                  'values[$fullIndex][value][$imageIndex]' : img,
+                });
+                imageIndex++;
+              });
+            }
               fullIndex++;
             }
           } else {
@@ -267,44 +282,8 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState>{
     }
 
 
-    Console.of.log(jsonEncode(data), name: "checkOutData");
-    return data;
+    Console.of.log(data, name: "checkOutData");
+    return {"data" : data, "files" : imageFiles};
   }
-
-/*checkOutValues.forEachIndexed((parentIndex, element) {
-      if (element['controller'].text != null && element['controller'].text.isNotEmpty) {
-        data['values[$parentIndex][checkout_field_id]'] = element['id'].toString();
-        data['values[$parentIndex][value]'] = element['controller'].text;
-      }
-      final children = List.from(element['children'] ?? []);
-      if (children.isNotEmpty) {
-        children.forEachIndexed((childIndex, child) {
-          int fullIndex = parentIndex + childIndex;
-          Console.of.log(fullIndex, name: "fullIndex");
-          if (['currency', 'number', 'text'].contains(child['type']) &&
-              child['controller'].text != null &&
-              child['controller'].text.isNotEmpty) {
-            data['values[$fullIndex][checkout_field_id]'] = child['id'].toString();
-            data['values[$fullIndex][value]'] = child['controller'].text;
-          }else if(child['type'] == 'file'){
-           var images = [
-             ...List.from(child['value'] ?? []),
-             ...attachmentPaths.whereType<File>().map((e) => e.path).toList(),
-           ];
-           if (images.isNotEmpty) {
-             data['values[$fullIndex][checkout_field_id]'] = child['id'].toString();
-             images.forEachIndexed((currentIndex, img){
-               data['values[$fullIndex][value][$currentIndex]'] = img;
-             });
-           }
-          } else {
-            if(child['value'] != null) {
-              data['values[$fullIndex][checkout_field_id]'] = child['id'].toString();
-              data['values[$fullIndex][value]'] = child['value'];
-            }
-          }
-        });
-      }
-    });*/
 
 }

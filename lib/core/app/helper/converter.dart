@@ -54,7 +54,6 @@ class Converter {
       var file = File(filePath);
       String fileName = basename(file.path);
       var field = "$fieldName[$index]";
-
       return await http.MultipartFile.fromPath(field, file.path, filename: fileName);
     }));
   }
@@ -107,6 +106,19 @@ class Converter {
       });
     }
     return multipartFiles;
+  }
+
+  Future<List<http.MultipartFile>?> convertFilePathToMultipartDynamicWithAutoIncrement({required List<Map<String, String?>>? files, required bool autoIncrementField}) async {
+    if (files == null || files.isEmpty) return null;
+    return await Future.wait(files.asMap().entries.map((entry) async {
+      int index = entry.key;
+      var fieldName = entry.value.keys.first;
+      String filePath = entry.value.values.first ?? "";
+      var file = File(filePath);
+      String fileName = basename(file.path);
+      var field = (autoIncrementField) ? "$fieldName[$index]" : fieldName;
+      return await http.MultipartFile.fromPath(field, file.path, filename: fileName);
+    }));
   }
 
 }

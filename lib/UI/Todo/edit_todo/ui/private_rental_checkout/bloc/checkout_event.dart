@@ -28,9 +28,10 @@ class ChildCheckEvent extends CheckoutEvent{
 
 class YesNoEvent extends CheckoutEvent{
   final dynamic data;
-  YesNoEvent(this.data);
+  final bool? isYes;
+  YesNoEvent({this.data, this.isYes});
   @override
-  List<Object?> get props => [data];
+  List<Object?> get props => [data, isYes];
 }
 
 class DropdownEvent extends CheckoutEvent{

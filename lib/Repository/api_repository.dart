@@ -4778,16 +4778,15 @@ Future<Map<String, dynamic>?> getLocations() async {
     }
   }
 
-  Future<Map<String, dynamic>?> saveCheckOut({dynamic body, String? token, dynamic id, List<String>? images})async{
+  Future<Map<String, dynamic>?> saveCheckOut({required Map<String, dynamic> body, String? token, dynamic id, dynamic images})async{
     try{
       String apiUrl = '${Str.FAIRENTAL_URL}admin/bookings/$id/$_saveCheckOut';
-      final http.Response? response = await _apiClient.callPostMethodWithBody(
+      final http.Response? response = await _apiClient.callPostMethodWithBodyDynamicWithAutoIncrement(
         apiUrl,
         body: body,
         token: token,
-        files: images,
-        autoIncrement: true,
-        fieldName: "values",
+        infusedFiles: images,
+        autoIncrement: false,
       );
       if (response?.isSuccess == true) {
         return await response.mapData;

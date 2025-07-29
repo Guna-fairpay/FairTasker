@@ -95,13 +95,13 @@ class CheckoutListingUI extends StatelessWidget {
                                     CustomCheckboxListTile(
                                       title: const Text('Yes'),
                                       value: e['value'] == "true",
-                                      onChanged: (v)=> context.read<CheckoutBloc>().add(YesNoEvent(e)),
+                                      onChanged: (v)=> context.read<CheckoutBloc>().add(YesNoEvent(data: e, isYes: true)),
                                       useExpand: false,
                                     ),
                                     CustomCheckboxListTile(
                                       title: const Text('No'),
                                       value: e['value'] == "false",
-                                      onChanged: (v)=> context.read<CheckoutBloc>().add(YesNoEvent(e)),
+                                      onChanged: (v)=> context.read<CheckoutBloc>().add(YesNoEvent(data: e, isYes: false)),
                                       useExpand: false,
                                     ),
                                   ],
