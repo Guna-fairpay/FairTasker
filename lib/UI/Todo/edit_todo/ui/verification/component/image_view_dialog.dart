@@ -122,6 +122,9 @@ class _ImageViewDialogState extends State<_ImageViewDialog> {
                             onTap: () {
                               widget.onDelete?.call(attachment);
                               attachments?.remove(attachment);
+                              if(attachments?.isEmpty ?? false){
+                                context.popDialog();
+                              }
                               setState(() {});
                             },
                               child: const Icon(RemixIcons.delete_bin_line, color: AppC.redAccent,)),

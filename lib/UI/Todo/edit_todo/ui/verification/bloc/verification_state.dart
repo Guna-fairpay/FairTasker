@@ -44,3 +44,8 @@ class UpdatePaymentModelState extends VerificationState{
   @override
   List<Object?> get props => [data, Random().nextDouble()];
 }
+
+class InsuranceDeleteState extends VerificationState{
+  @override
+  List<Object?> get props => [Random().nextDouble()];
+}

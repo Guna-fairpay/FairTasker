@@ -485,6 +485,12 @@ class APiRepository {
 
   String get _saveCheckOut => 'checkout-value';
 
+  String get _updateInsuranceRequirement => 'admin/bookings/update-insurance-requirement';
+
+  String get _updateInsurance => 'admin/insurance/upload';
+
+  String get _deleteInsurance => 'admin/insurance';
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -4796,5 +4802,53 @@ Future<Map<String, dynamic>?> getLocations() async {
       rethrow;
     }
   }
+
+  Future<Map<String, dynamic>?> updateInsuranceRequirement({dynamic body, String? token})async{
+    try{
+      String apiUrl = '${Str.FAIRENTAL_URL}$_updateInsuranceRequirement';
+      final http.Response? response = await _apiClient.callPostMethodWithBodyDynamic(apiUrl, token: token, body: body);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      }else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    }catch(e){
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> updateInsurance({required Map<String, dynamic> body, String? token, dynamic images})async{
+    try{
+      String apiUrl = '${Str.FAIRENTAL_URL}$_updateInsurance';
+      final http.Response? response = await _apiClient.callPostMethodWithBodyDynamicWithAutoIncrement(
+        apiUrl,
+        body: body,
+        token: token,
+        infusedFiles: images,
+        autoIncrement: false,
+      );
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      }else{
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");}
+    }catch(e){
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> deleteInsurance({dynamic id, String? token}) async {
+    try{
+      String apiUrl = '${Str.FAIRENTAL_URL}$_deleteInsurance/$id';
+      final http.Response? response = await _apiClient.callDelete(apiUrl, token: token);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      }else{
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    } catch(e) {
+      rethrow;
+    }
+  }
+
 
 }
