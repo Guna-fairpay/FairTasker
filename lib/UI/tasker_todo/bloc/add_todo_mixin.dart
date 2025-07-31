@@ -45,7 +45,7 @@ mixin AddToDoMixin {
 
   List<Map<String, dynamic>> get locations => getIt<CommonService>().locationsList;
   List<Map<String, dynamic>> get persons {
-    List<Map<String, dynamic>> resources = List.from(getIt<CommonService>().usersList);
+    List<Map<String, dynamic>> resources = List.from(getIt<CommonService>().resourcesList);
     resources.removeWhere((resource) =>
     ((!Str.reqTaskManagerIds.contains(resource['id'])) &&
         (resource['branch_id'] !=

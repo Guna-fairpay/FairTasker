@@ -18,14 +18,24 @@ class TRSDBloc extends Bloc<TRSDEvents, TRSDStates> {
     on<TRSDSelectedEvent>(_onSelectedEvent);
   }
 
-  Future<List<Map<String, dynamic>>> _getUsersList() async => await getIt<CommonService>().getResources();
+  Future<List<Map<String, dynamic>>> _getUsersList() async => await getIt<CommonService>().getUsers();
 
   void _onInitialEvent(TRSDInitialEvent event, Emitter<TRSDStates> emit) async {
     try {
       model = event.model;
       emit(TRSDLoadingState());
       var response = await _getUsersList();
-      response.removeWhere((element) => ((element['deleted_at'].toString().isNotNullOrEmpty) || (element['id'] == 2) || (element['branch_id'] != Session.of.getInt(Str.branchIdPrefText))) && (!(["7"].contains(element['department'])) && (element['id'] != 3) ));
+      // response.removeWhere(
+      //         (element) => ((element['deleted_at']!= null)
+      //             || (element['id'] == 2)
+      //             || (element['branch_id'] != Session.of.getInt(Str.branchIdPrefText)))
+      //             && (!(["7"].contains(element['department'])) && (element['id'] != 3) ));
+      // Console.of.log(response, name: 'USERS_LIST');
+      response.removeWhere((resource) =>
+      ((!Str.reqTaskManagerIds.contains(resource['id'])) &&
+          (resource['branch_id'] !=
+              Session.of.getInt(Str.branchIdPrefText))) ||
+          (resource['deleted_at'] != null));
       apiResponse = response;
       selectedResourcesList = List<Map<String, dynamic>>.from(model?['display']?['resources'] ?? []);
       Console.of.log(selectedResourcesList);
