@@ -1,0 +1,27 @@
+part of 'check_in_bloc.dart';
+
+abstract class CheckInState extends Equatable{
+  @override
+  List<Object?> get props => [];
+}
+
+class LoadingState extends CheckInState {}
+
+class CommonState extends CheckInState {
+  @override
+  List<Object?> get props => [Random().nextDouble()];
+}
+
+class ErrorState extends CheckInState {
+  final dynamic message;
+  ErrorState(this.message);
+  @override
+  List<Object?> get props => [message, Random().nextDouble()];
+}
+
+class SuccessState extends CheckInState {
+  final dynamic message;
+  SuccessState(this.message);
+  @override
+  List<Object?> get props => [message, Random().nextDouble()];
+}

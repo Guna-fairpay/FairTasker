@@ -67,6 +67,18 @@ class TabBarUI extends StatelessWidget {
                       borderRadius: const BorderRadius.only(topLeft: Radius.circular(Num.borderRadius), topRight: Radius.circular(Num.borderRadius)),
                     ),
                   ),
+                CustomTabButton(
+                    subText: context.watch<VerificationBloc>().model?['bookingDetails']?['insurance_status'].toString().statusLabel,
+                    subTextColor: context.watch<VerificationBloc>().model?['bookingDetails']?['insurance_status'].toString().statusType?.statusColor,
+                    buttonText: 'Insurance',
+                    value: 5,
+                    selectedValue: context.watch<VerificationBloc>().selectedValue,
+                    onPressed: (v)=> context.read<VerificationBloc>().add(TabChangeEvent(v)),
+                    decoration:  BoxDecoration(
+                      border: Border.all(color: AppC.grey, width: Num.borderWidthButton),
+                      borderRadius: const BorderRadius.only(topLeft: Radius.circular(Num.borderRadius), topRight: Radius.circular(Num.borderRadius)),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -77,6 +89,7 @@ class TabBarUI extends StatelessWidget {
             2 => const AddressPage(),
             3 => const AgreementPage(),
             4 => const PaymentPage(),
+            5 => const InsurancePage(),
             _ => const Placeholder(color: Colors.brown,)
           }
         ],

@@ -123,14 +123,14 @@ class ApiClient {
     }
   }
 
-  Future<http.Response?> callDelete(String url, {Map<String, dynamic>? params, Map<String, dynamic>? body}) async {
+  Future<http.Response?> callDelete(String url, {Map<String, dynamic>? params, Map<String, dynamic>? body, String? token}) async {
     if (await Utils.connection()) {
       //   http.Response response = await client.delete(Utils.getUri(url),
       //       headers: Utils.getHeadersWithToken(),
       // );
       http.Response response = await compute(_deleteCompute, {
         "url": url,
-        "token": Utils.getHeadersWithToken(url: url),
+        "token": Utils.getHeadersWithToken(url: url, token: token),
         "params" : params,
         "body" : jsonEncode(body),
       });

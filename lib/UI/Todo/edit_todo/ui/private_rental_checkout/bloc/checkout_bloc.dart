@@ -3,10 +3,8 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:collection/collection.dart';
-import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
-import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -65,7 +63,7 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState>{
           for (var element in checkOutValues) {
             element['isCheck'] = element['value'] != null;
             element['controller'] = TextEditingController();
-            (element['controller'] as TextEditingController).text = element?['value'].toString() ?? '';
+            (element['controller'] as TextEditingController).text = element?['value'] ?? '';
             if(element['children'] != null){
               element['children'].forEach((e) {
                 e['isCheck'] = e['value'] != null;
@@ -231,7 +229,7 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState>{
     int fullIndex = 0;
     List<Map<String, String?>> imageFiles = [];
     for (var element in checkOutValues) {
-      if (element['controller'].text != null && element['controller'].text.isNotEmpty) {
+      if (element['controller'] is TextEditingController) {
         data['values[$fullIndex][checkout_field_id]'] = element['id'].toString();
         data['values[$fullIndex][value]'] = element['controller'].text;
         fullIndex++;
@@ -240,8 +238,7 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState>{
       if (children.isNotEmpty) {
         for (var child in children) {
           if (['currency', 'number', 'text'].contains(child['type']) &&
-              child['controller'].text != null &&
-              child['controller'].text.isNotEmpty) {
+              child['controller'] is TextEditingController) {
             data['values[$fullIndex][checkout_field_id]'] = child['id'].toString();
             data['values[$fullIndex][value]'] = child['controller'].text;
             fullIndex++;
