@@ -370,7 +370,11 @@ class VerificationBloc extends Bloc<VerificationEvent, VerificationState>{
         files: infusedFiles,
       );
       if(response?['success'] == true){
-        List.from(bookingDetails?['payments'] ?? []).add(response?['data']?['payments']);
+        model?['bookingDetails']?['payment_status'] = response?['data']?['payment_status'];
+        model?['bookingDetails']?['payments'] = [response?['data']?['payment']];
+        bookingDetails?['payments'] = [response?['data']?['payment']];
+        bookingDetails?['payment_status'] = response?['data']?['payment_status'];
+        emit(SuccessState(response?['message']));
       }else{
         emit(ErrorState(response?['message']));
       }

@@ -76,7 +76,7 @@ extension VerificationStatusExtensionByType on VerificationEnum {
     VerificationEnum.partially_rejected => Colors.amber,
     VerificationEnum.pending_action => Colors.amber,
     VerificationEnum.pending_admin_action => Colors.amber,
-    VerificationEnum.awaiting_payment => AppC.grey,
+    VerificationEnum.awaiting_payment => AppC.blue,
     VerificationEnum.booking_canceled => Colors.amber,
     VerificationEnum.canceled_and_closed => AppC.redAccent,
     VerificationEnum.awaiting_confirmation => Colors.amber,
