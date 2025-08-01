@@ -130,7 +130,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   Future<List<Map<String, dynamic>>> _getLocationsList() async => await getIt<CommonService>().getLocationsList();
   Future<List<Map<String, dynamic>>> _getTaskExpenseData() async => await getIt<CommonService>().getTaskExpenseData();
   Future<List<Map<String, dynamic>>> _getGroupPersons() async => await getIt<CommonService>().getGroupPersons();
-  Future<List<Map<String, dynamic>>> _getResources() async => await getIt<CommonService>().getResources();
+  Future<List<Map<String, dynamic>>> _getResources() async => await getIt<CommonService>().getUsers();
   Future<List<Map<String, dynamic>>> _groupVehicles() async => await getIt<CommonService>().groupVehicles();
   List<Map<String, dynamic>> get leads => getIt<CommonService>().leads;
   List<Map<String, dynamic>> get channels => getIt<CommonService>().channels;
