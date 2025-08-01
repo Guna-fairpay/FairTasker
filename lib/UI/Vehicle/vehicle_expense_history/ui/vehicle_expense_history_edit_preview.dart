@@ -1,6 +1,6 @@
 
 import 'package:fairpytasker/Component/custom_vehicle_expense_history_Info.dart';
-import 'package:fairpytasker/UI/Finance/Expense/Component/icon_with_text.dart';
+import 'package:fairpytasker/UI/Finance/Expense/Component/icon_and_text.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/Components/image_upload_selection.dart';
 import 'package:fairpytasker/UI/Vehicle/vehicle_expense_history/ui/vehicle_expense_history_edit_ui.dart';
 import 'package:fairpytasker/UI/Vehicle/vehicle_expense_history/ui/vehicle_expense_history_ui.dart';

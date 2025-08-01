@@ -8,6 +8,7 @@ class Str{
     static String get LIST_BASE_URL => flavor.returnsUrl;
     static String get TODO_ATTACHMENTS_URL => flavor.attachmentUrl;
     static String get FAIRENTAL_BOOKING_SUMMARY => flavor.fairRentalBookingSummary;
+    static String get FAIRENTAL_URL => flavor.fairRentalUrl;
 
     static const String TURO_RESERV_URL = "https://turo.com/us/en/reservation/";
     static const String GETAROUND_RESERV_URL = "https://getaround.com/dashboard/rentals/";
@@ -108,6 +109,8 @@ class Str{
     static const List<int> userTypeId = [5,3];
 
     static const List<String> checkInCheckOut = ['Check In','Check Out'];
+
+    static const List<int> basedBookingId = [393, 357];
 
 
 

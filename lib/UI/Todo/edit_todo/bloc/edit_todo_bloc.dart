@@ -56,6 +56,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   final TextEditingController commentsController = TextEditingController();
   final TextEditingController leadsController = TextEditingController();
   final TextEditingController meetingLinkController = TextEditingController();
+  final TextEditingController customerNameController = TextEditingController();
   QuillController quillController = QuillController.basic();
 
   int? get branchId => Session.of.getInt(Str.branchIdPrefText);
@@ -74,7 +75,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   List<Map<String,dynamic>> task = [];
   List<Map<String,dynamic>> vehiclePersonList=[];
   List<dynamic> vinList = [];
-  List<dynamic> linkSelection = [];
+  //List<dynamic> linkSelection = [];
   List<dynamic> images = [];
   List<dynamic> todoImages = [];
   List<dynamic> notesImages = [];
@@ -99,6 +100,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   dynamic selectedDate;
   dynamic selectedMeetingType;
   dynamic selectedMeetingTime;
+  dynamic linkSelection;
 
   Map<String, dynamic>? selectedLead;
 
@@ -128,7 +130,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   Future<List<Map<String, dynamic>>> _getLocationsList() async => await getIt<CommonService>().getLocationsList();
   Future<List<Map<String, dynamic>>> _getTaskExpenseData() async => await getIt<CommonService>().getTaskExpenseData();
   Future<List<Map<String, dynamic>>> _getGroupPersons() async => await getIt<CommonService>().getGroupPersons();
-  Future<List<Map<String, dynamic>>> _getResources() async => await getIt<CommonService>().getResources();
+  Future<List<Map<String, dynamic>>> _getResources() async => await getIt<CommonService>().getUsers();
   Future<List<Map<String, dynamic>>> _groupVehicles() async => await getIt<CommonService>().groupVehicles();
   List<Map<String, dynamic>> get leads => getIt<CommonService>().leads;
   List<Map<String, dynamic>> get channels => getIt<CommonService>().channels;
@@ -246,14 +248,13 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     var assignedToResponse = await _getResources();
     var groupVehiclesResponse = await _groupVehicles();
     var leadsData = leadChannels;
-    Console.of.log("leadsData $leadsData");
     if(todoResponse?['lead_id'] != null){
       selectedLead = leadsData.firstWhereOrNull((e) => (e['type'] == 'lead') && (e['id'].toString()) == todoResponse?['lead_id'].toString(),);
     }
     if(todoResponse?['lead_id'] == null && todoResponse?['channel_id'] != null){
       selectedLead = leadsData.firstWhereOrNull((e) => e['type'] == 'channel' && e['id'].toString() == todoResponse?['channel_id'].toString(),);
     }
-    //selectedLead = leadsData.firstWhereOrNull((e) => e['id'].toString() == todoResponse?['lead_id'].toString());
+    customerNameController.text = todoResponse?['bookingDetails']?['user']?['name'] ?? 'Select Customer';
     leadsController.text = selectedLead?['name'] ?? '';
     meetingLinkController.text = todoResponse?['meeting_link'] ?? '';
     var resources = assignedToResponse;
@@ -274,7 +275,16 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     dateController.text = todoResponse?['todo_date'] ?? '';
     notesController.text = todoResponse?['notes'] ?? '';
     departmentId = selectedUser.firstOrNull?['department'].toString();
-    customLinkController.text = todoResponse?['reference_id'] ?? '';
+    customLinkController.text = (todoResponse?['custom_link_id'] == 1)
+        ? (todoResponse?['custom_link'] ?? '').toString()
+        : (todoResponse?['custom_link_id'] == 2)
+        ? (todoResponse?['reference_id'] ?? '').toString()
+        : (todoResponse?['custom_link_id'] == 3)
+        ? (todoResponse?['rental_booking_id'] ?? '').toString()
+        :'';
+    if(todoResponse?['custom_link_id'] == null && todoResponse?['reference_id'] != null){
+      customLinkController.text = (todoResponse?['reference_id']).toString();
+    }
     tripDrivenController.text = todoResponse?['trip_driven'] ?? '';
     resolutionNotesController.text =
         todoResponse?['resolution_notes'] ?? '';
@@ -286,14 +296,13 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           element['name'] == todoResponse?['trip_review']) ??
           {};
     }
-    linkSelection = AddToDoConfig.customOptions
-        .where((element) =>
-    element['id']?.toString() ==
-        todoResponse?['custom_link_id']?.toString())
-        .toList();
-    if (linkSelection.isEmpty) {
-      linkSelection = [AddToDoConfig.customOptions[1]];
+    linkSelection = List.from(AddToDoConfig.customOptions).firstWhereOrNull((element) => element['id']?.toString() == todoResponse?['custom_link_id']?.toString());
+
+    if(linkSelection == null && todoResponse?['reference_id'] != null){
+      linkSelection = List.from(AddToDoConfig.customOptions).firstWhereOrNull((element) => element['id']?.toString() == '2');
     }
+    linkSelection ??= AddToDoConfig.customOptions.firstOrNull;
+
     if(todoResponse?['vehicle_group_id'] == null){
       vinList = [todoResponse?['vin']];
       var vVins = List.from(todoResponse?['vehicles']).map((e) => e['vin']);
@@ -372,23 +381,43 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         List.from(todoResponse?['todo_mileage_attachments']).map((e) => e['path'].toString().toAttachmentURL).toList();
     final title = todoResponse?['title'];
     var selectedTask = taskResponse.firstWhereOrNull(
-            (element) => element['id'] == todoResponse?['identifier_id']);
+            (element) => element['id'].toString() == todoResponse?['identifier_id'].toString());
     final vehicleExists = todoResponse?['vehicle_name'] != null ||
         todoResponse?['vin'] != null ||
         (todoResponse?['vehicles']?.isNotEmpty ?? false);
+
+    bool isBookingBased = todoResponse?['identifier_id'] == 357 ? (todoResponse?['rental_booking_id'] == null) : true;
+    bool isExpenseBased = !Str.checkInCheckOut.contains(title) && selectedTask?['user_type'].toString() != '5';
+    bool isCheckList = [268, 219].contains(todoResponse?['identifier_id']);
+    bool isMaintenance = todoResponse?['identifier_id'] == 257;
+    bool isOdometer = [
+      'oil change',
+      'oilchange check',
+      'oil change check',
+    ].contains(title.toString().toLowerCase());
+    bool isSetVehicle = !['Check In', 'Check Out'].contains(title);
+    bool isPrivateRentalCheck = todoResponse?['identifier_id'] == 324;
+    bool isCheckOut = todoResponse?['identifier_id'] == 357 && todoResponse?['rental_booking_id'] != null;
+
     final List<Map<String, dynamic>> tabs = [
-      if (!Str.checkInCheckOut.contains(title)  && selectedTask?['user_type'] != 5)
+      if (isExpenseBased && isBookingBased)
         {"id": 1, "title": "Expense"},
-      {"id": 2, "title": "Next Task"},
-      if ([268,219].contains(todoResponse?['identifier_id'])) {"id": 3, "title": "Check List"},
-      if (todoResponse?['identifier_id'] == 257) {"id": 4, "title": "Maintenance"},
-      if (['Oil change'.toLowerCase(), 'OilChange Check'.toLowerCase(), 'Oil Change Check'.toLowerCase()].contains(title.toString().toLowerCase()))
+      if (isBookingBased)
+        {"id": 2, "title": "Next Task"},
+      if (isCheckList)
+        {"id": 3, "title": "Check List"},
+      if (isMaintenance)
+        {"id": 4, "title": "Maintenance"},
+      if (isOdometer)
         {"id": 7, "title": "Odometer"},
-      if (!['Check In', 'Check Out'].contains(title) && vehicleExists)
+      if (isSetVehicle && vehicleExists && isBookingBased)
         {"id": 5, "title": "Set Vehicle"},
-      if (todoResponse?['identifier_id'] == 324)
+      if (isPrivateRentalCheck)
         {"id": 6, "title": "Private Rental Check"},
+      if (isCheckOut)
+        {"id": 8, "title": "Check Out"},
     ];
+
     selectionTaps = tabs.firstWhere(
           (e) =>
       ([268,219].contains(todoResponse?['identifier_id']) && e['title'] == "Check List") ||
@@ -501,7 +530,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       supplies: suppliesResponse,
       selectedTaskPersons: selectedUser,
       resources: resources,
-      selectedLinkOption: linkSelection.first,
+      selectedLinkOption: linkSelection,
       selectedResource: selectedIds,
       isPartServiceEnable: (todoResponse?['parts'] as List).isNotEmpty,
       isSuppliesEnable: (todoResponse?['supplies'] as List).isNotEmpty,
@@ -582,7 +611,8 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         emit(state.copyWith(selectedVPerson: []));
       }
     }
-    showLead = selectedLead?['user_type'] == 3;
+
+    showLead = (event.selectedTask?['user_type'].toString()) == '3' ? true : false;
     showCleanCar = Str.cleanCarCheckIds.contains(event.selectedTask['id']);
     emit(state.copyWith(selectedTask: event.selectedTask, showCleanCar: showCleanCar));
   }
@@ -801,11 +831,11 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     emit(state.copyWith(selectedSentiment: event.selectedSentiments));}
 
   void _onOpenCustomLinkEvent(EditToDoOpenCustomLinkEvent event, Emitter<EditTodoState> emit)  {
-    var url = (state.selectedLinkOption?['label'].toString().isCustomLink ??
-        false)
+    var url = (state.selectedLinkOption?['label'].toString().isCustomLink ?? false)
         ? customLinkController.text
-        : (state.selectedLinkOption?['label'].toString().isTuroReservation ??
-        false)
+        :(state.selectedLinkOption?['label'].toString().isFairentalReservation ?? false)
+        ? customLinkController.text.toFaiRentalReserveUrl
+        : (state.selectedLinkOption?['label'].toString().isTuroReservation ?? false)
         ? customLinkController.text.toTuroReserveUrl
         : customLinkController.text.toGetAroundReserveUrl;
     Utils.openURL(url);
@@ -1193,10 +1223,9 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     baseBody['trip_review'] = "${state.selectedSentiment?['name'] ?? ""}";
     baseBody['trip_driven'] = tripDrivenController.text;
     baseBody['time_change_reason'] = reason ?? '';
-    baseBody['custom_link'] =
-        (state.selectedLinkOption?['id'] == 1) ? customLinkController.text : "";
-    baseBody['reference_id'] =
-        (state.selectedLinkOption?['id'] != 1) ? customLinkController.text : "";
+    baseBody['custom_link'] = (state.selectedLinkOption?['id'] == 1) ? customLinkController.text : "";
+    baseBody['reference_id'] = (state.selectedLinkOption?['id'] == 2) ? customLinkController.text : "";
+    baseBody['rental_booking_id'] = (state.selectedLinkOption?['id'] == 3) ? customLinkController.text : "";
     if (state.selectedResource.isNotEmpty) {
       if (state.selectedResource.length == 1) {
         baseBody['user_id'] = state.selectedResource.first.toString();

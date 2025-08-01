@@ -48,7 +48,8 @@ class CustomForm extends StatelessWidget {
                     ? const SizedBox.shrink()
                     : Text.rich(
                   TextSpan(
-                      text: context.watch<AddToDoBloc>().customLinkText,
+                      text:
+                      "${context.watch<AddToDoBloc>().selectedCustom['value'].toString()} - ${value.text}",
                       recognizer: TapGestureRecognizer()..onTap = () => context.read<AddToDoBloc>().add(OpenCustomLinkEvent())),
                   textAlign: TextAlign.end,
                   style: context.textTheme.labelLarge?.copyWith(

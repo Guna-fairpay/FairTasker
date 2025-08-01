@@ -1,5 +1,7 @@
 import 'package:fairpytasker/Component/custom_checkbox.dart';
+import 'package:fairpytasker/Component/custom_compact_search_view.dart';
 import 'package:fairpytasker/Component/custom_text/compact_text.dart';
+import 'package:fairpytasker/Component/empty_widget.dart';
 import 'package:fairpytasker/UI/Finance/Expense/Component/date_range_selection.dart';
 import 'package:fairpytasker/UI/dialog/show_notes_dialog.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
@@ -8,6 +10,7 @@ import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:remixicon/remixicon.dart';
 
 class ArchiveTaskListItem extends StatelessWidget {
   final dynamic selectedDateRange;
@@ -19,6 +22,10 @@ class ArchiveTaskListItem extends StatelessWidget {
   final List<dynamic> archivedList;
   final void Function(dynamic data) archiveStatusEvent;
   final String title;
+  final TextEditingController searchController;
+  final void Function(dynamic query) onSearch;
+  final Function() filterDialog;
+
   const ArchiveTaskListItem({super.key,
     required this.selectedDateRange,
     required this.onDateRangeSelected,
@@ -29,6 +36,9 @@ class ArchiveTaskListItem extends StatelessWidget {
     required this.archivedList,
     required this.archiveStatusEvent,
     required this.title,
+    required this.searchController,
+    required this.onSearch,
+    required this.filterDialog,
   });
 
   @override
@@ -71,6 +81,19 @@ class ArchiveTaskListItem extends StatelessWidget {
                   child: CompactText(title, color: AppC.appColor, fontWeight: FontWeight.bold,))
           ],
         ),
+        Row(
+          spacing: 10,
+          children: [
+            Expanded(
+              child: CompactSearchView(
+                controller: searchController,
+                onChanged: (value)=> onSearch(value),
+              ),
+            ),
+            IconButton(onPressed: ()=> filterDialog(), icon: const Icon(Remix.filter_line,))
+          ],
+        ),
+        archivedList.isEmpty ? const EmptyWidget():
         Expanded(
           child: ListView.separated(
             physics: const BouncingScrollPhysics(),
@@ -91,7 +114,6 @@ class ArchiveTaskListItem extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             CompactText(item['title'] ?? '', fontWeight: FontWeight.bold, color: AppC.appColor,overflow: TextOverflow.ellipsis,),
-                            //if((item['vin'].toString().isNotNullOrEmpty) || List.from(item['vehicles'] ?? []).isNotEmpty)
                             CompactText(
                               getIt<CommonService>().findVehicle(vin: item['vin'],vehicleLis: List.from(item['vehicles'] ?? []),
                               vehicleGroupId: item['vehicle_group_id'],),
@@ -140,7 +162,7 @@ class ArchiveTaskListItem extends StatelessWidget {
                                     size:  Size.fromRadius(10.spMin),
                                     child:  Checkbox(
                                       activeColor: AppC.appColor,
-                                      value: item['isChecked'] == 1,
+                                      value: selectedTask.contains(item['id']),
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(5),
                                       ),

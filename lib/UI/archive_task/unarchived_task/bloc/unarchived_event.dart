@@ -24,3 +24,17 @@ class ArchiveStatusEvent extends UnarchivedEvent{
   @override
   List<Object?> get props => [model];
 }
+
+class SearchEvent extends UnarchivedEvent{
+  final dynamic query;
+  SearchEvent(this.query);
+  @override
+  List<Object?> get props => [query];
+}
+
+class TaskFilterEvent extends UnarchivedEvent{
+  final List<dynamic> data;
+  TaskFilterEvent(this.data);
+  @override
+  List<Object?> get props => [data];
+}

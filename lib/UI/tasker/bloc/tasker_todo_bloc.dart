@@ -803,6 +803,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       emit(ToDoTaskerLoadingState());
       var response = await _updateToDo(body: mapData, todoId: model?['id']);
       if (response != null) _reFetchToDos();
+      triggerPreRequests;
     } catch (e) {
       emit(ErrorState(e));
     }

@@ -143,6 +143,7 @@ class Utils {
         double borderWidth = Num.borderWidthField,
         AutovalidateMode? autovalidateMode,
         FormFieldValidator<dynamic>? validator,
+        bool enable = true,
       }) {
     return FormField<dynamic>(
       initialValue: initialSelection,
@@ -170,6 +171,7 @@ class Utils {
               initialSelection: initialSelection,
               hintText: hintText,
               menuHeight: 250.spMin,
+              enabled: enable,
               selectedTrailingIcon: const Icon(Icons.keyboard_arrow_up_sharp,color: AppC.appColor,),
               trailingIcon: const Icon(Icons.keyboard_arrow_down_sharp,color: AppC.appColor,),
               textStyle: TextStyle(
@@ -181,6 +183,8 @@ class Utils {
                 hintStyle: const TextStyle(color: AppC.grey),
                 contentPadding: EdgeInsets.symmetric(horizontal: 10.sp),
                 border: border,
+                filled: !enable,
+                fillColor: AppC.grey[300],
                 enabledBorder: border,
                 isCollapsed: true,
                 isDense: true,
@@ -1153,12 +1157,12 @@ class Utils {
     };
   }
 
-  static Map<String, String> getHeadersWithToken({required String url}) {
+  static Map<String, String> getHeadersWithToken({required String url, String? token}) {
     return {
       'accept': 'application/json',
       'Content-Type': 'application/json',
       'Accept-Encoding': 'gzip',
-      'Authorization': (url.isFairReturns) ? returnBearerToken : bearerToken
+      'Authorization': (token.isNotNullOrEmpty) ? token.toBearer : ((url.isFairReturns) ? returnBearerToken : bearerToken)
     };
   }
 
