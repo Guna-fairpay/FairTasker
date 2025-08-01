@@ -8,7 +8,7 @@ class ArchivedTaskListingUI extends StatelessWidget {
     return BlocBuilder<ArchivedBloc, ArchivedState>(
       builder: (context, state) {
         return ArchiveTaskListItem(
-          archivedList: context.watch<ArchivedBloc>().archivedList,
+          archivedList: context.watch<ArchivedBloc>().filteredList,
           archiveStatusEvent: (data)=> context.read<ArchivedBloc>().add(ArchiveStatusEvent(data)),
           isSelectedAll: context.watch<ArchivedBloc>().isSelectAll,
           selectedDateRange: context.watch<ArchivedBloc>().selectedDateRange,
@@ -17,6 +17,13 @@ class ArchivedTaskListingUI extends StatelessWidget {
           unArchiveEvent: ()=> context.read<ArchivedBloc>().add(UnArchiveEvent()),
           onDateRangeSelected: (value)=> context.read<ArchivedBloc>().add(DateRangePickerEvent(value)),
           title: 'UNARCHIVE',
+          searchController: context.read<ArchivedBloc>().searchController,
+          onSearch: (query)=> context.read<ArchivedBloc>().add(SearchEvent(query)),
+          filterDialog: ()=> TaskFilterDialogView.show(context,
+            isAll: context.read<ArchivedBloc>().isTaskAll,
+            onChanged: (v)=> context.read<ArchivedBloc>().add(TaskFilterEvent(v)),
+            taskFilterList: context.read<ArchivedBloc>().taskFilterList,
+          ),
         );
       }
     );
