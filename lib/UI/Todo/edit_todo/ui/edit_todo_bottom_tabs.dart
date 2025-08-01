@@ -66,7 +66,10 @@ class EditTodoBottomTabs extends StatelessWidget {
               7 => OdometerView(
                   todoItems: state.apiResponse,
                   vehicle: state.taskHistory.firstOrNull,
-                  selectedVehicle: state.selectedVehicle), //Add by RDB
+                  selectedVehicle: state.selectedVehicle),
+              8 =>  CheckOutMainUI(
+                model: state.apiResponse,
+              ),
               _ => const SizedBox(),
             },
           ),

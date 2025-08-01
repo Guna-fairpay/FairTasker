@@ -11,6 +11,7 @@ class CompactIconButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final GestureTapDownCallback? onTapDown;
   final WidgetStatePropertyAll<OutlinedBorder?>? shape;
+  final WidgetStatePropertyAll<EdgeInsetsGeometry?>? padding;
   final double? iconSize;
 
   const CompactIconButton(
@@ -20,7 +21,7 @@ class CompactIconButton extends StatelessWidget {
       this.foregroundColor = AppC.white,
       this.elevation = 0,
       this.onTapDown,
-      this.onPressed, this.shape, this.iconSize});
+      this.onPressed, this.shape, this.iconSize, this.padding});
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +39,7 @@ class CompactIconButton extends StatelessWidget {
           style: ButtonStyle(
               shape: shape ?? WidgetStatePropertyAll(ContinuousRectangleBorder(
                   borderRadius: BorderRadius.circular(Num.borderRadiusLarge))),
-              padding: WidgetStatePropertyAll(
+              padding: padding ?? WidgetStatePropertyAll(
                   EdgeInsets.symmetric(vertical: 12.spMin, horizontal: 6.spMin)),
               iconSize: WidgetStatePropertyAll(12.spMin),
               minimumSize: WidgetStatePropertyAll(Size.fromRadius(18.spMin)),

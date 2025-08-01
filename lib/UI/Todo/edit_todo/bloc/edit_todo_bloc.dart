@@ -130,7 +130,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   Future<List<Map<String, dynamic>>> _getLocationsList() async => await getIt<CommonService>().getLocationsList();
   Future<List<Map<String, dynamic>>> _getTaskExpenseData() async => await getIt<CommonService>().getTaskExpenseData();
   Future<List<Map<String, dynamic>>> _getGroupPersons() async => await getIt<CommonService>().getGroupPersons();
-  Future<List<Map<String, dynamic>>> _getResources() async => await getIt<CommonService>().getResources();
+  Future<List<Map<String, dynamic>>> _getResources() async => await getIt<CommonService>().getUsers();
   Future<List<Map<String, dynamic>>> _groupVehicles() async => await getIt<CommonService>().groupVehicles();
   List<Map<String, dynamic>> get leads => getIt<CommonService>().leads;
   List<Map<String, dynamic>> get channels => getIt<CommonService>().channels;
@@ -276,11 +276,11 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     notesController.text = todoResponse?['notes'] ?? '';
     departmentId = selectedUser.firstOrNull?['department'].toString();
     customLinkController.text = (todoResponse?['custom_link_id'] == 1)
-        ? (todoResponse?['custom_link']).toString()
+        ? (todoResponse?['custom_link'] ?? '').toString()
         : (todoResponse?['custom_link_id'] == 2)
-        ? (todoResponse?['reference_id']).toString()
+        ? (todoResponse?['reference_id'] ?? '').toString()
         : (todoResponse?['custom_link_id'] == 3)
-        ? (todoResponse?['rental_booking_id']).toString()
+        ? (todoResponse?['rental_booking_id'] ?? '').toString()
         :'';
     if(todoResponse?['custom_link_id'] == null && todoResponse?['reference_id'] != null){
       customLinkController.text = (todoResponse?['reference_id']).toString();
@@ -385,20 +385,39 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     final vehicleExists = todoResponse?['vehicle_name'] != null ||
         todoResponse?['vin'] != null ||
         (todoResponse?['vehicles']?.isNotEmpty ?? false);
-    Console.of.log(selectedTask.toString(), name: "selectedTask");
+
+    bool isBookingBased = todoResponse?['identifier_id'] == 357 ? (todoResponse?['rental_booking_id'] == null) : true;
+    bool isExpenseBased = !Str.checkInCheckOut.contains(title) && selectedTask?['user_type'].toString() != '5';
+    bool isCheckList = [268, 219].contains(todoResponse?['identifier_id']);
+    bool isMaintenance = todoResponse?['identifier_id'] == 257;
+    bool isOdometer = [
+      'oil change',
+      'oilchange check',
+      'oil change check',
+    ].contains(title.toString().toLowerCase());
+    bool isSetVehicle = !['Check In', 'Check Out'].contains(title);
+    bool isPrivateRentalCheck = todoResponse?['identifier_id'] == 324;
+    bool isCheckOut = todoResponse?['identifier_id'] == 357 && todoResponse?['rental_booking_id'] != null;
+
     final List<Map<String, dynamic>> tabs = [
-      if (!Str.checkInCheckOut.contains(title)  && selectedTask?['user_type'].toString() != '5')
+      if (isExpenseBased && isBookingBased)
         {"id": 1, "title": "Expense"},
-      {"id": 2, "title": "Next Task"},
-      if ([268,219].contains(todoResponse?['identifier_id'])) {"id": 3, "title": "Check List"},
-      if (todoResponse?['identifier_id'] == 257) {"id": 4, "title": "Maintenance"},
-      if (['Oil change'.toLowerCase(), 'OilChange Check'.toLowerCase(), 'Oil Change Check'.toLowerCase()].contains(title.toString().toLowerCase()))
+      if (isBookingBased)
+        {"id": 2, "title": "Next Task"},
+      if (isCheckList)
+        {"id": 3, "title": "Check List"},
+      if (isMaintenance)
+        {"id": 4, "title": "Maintenance"},
+      if (isOdometer)
         {"id": 7, "title": "Odometer"},
-      if (!['Check In', 'Check Out'].contains(title) && vehicleExists)
+      if (isSetVehicle && vehicleExists && isBookingBased)
         {"id": 5, "title": "Set Vehicle"},
-      if (todoResponse?['identifier_id'] == 324)
+      if (isPrivateRentalCheck)
         {"id": 6, "title": "Private Rental Check"},
+      if (isCheckOut)
+        {"id": 8, "title": "Check Out"},
     ];
+
     selectionTaps = tabs.firstWhere(
           (e) =>
       ([268,219].contains(todoResponse?['identifier_id']) && e['title'] == "Check List") ||

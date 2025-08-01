@@ -9,6 +9,7 @@ import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/utilities/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AddPaymentDialog {
   AddPaymentDialog._();
@@ -47,41 +48,53 @@ class _AddPaymentDialog extends StatelessWidget {
       contentPadding: 15.horizontalPadding,
       content: BlocBuilder<VerificationBloc, VerificationState>(
         builder: (context, state) {
-          return Container(
-            width: double.maxFinite,
-            padding: 10.bottomPadding,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              spacing: 10,
+          return SizedBox(
+            width: context.width,
+            child: ListView(
+              shrinkWrap: true,
+              physics: const BouncingScrollPhysics(),
+              padding: EdgeInsets.only(bottom: 20.spMin),
+             // crossAxisAlignment: CrossAxisAlignment.start,
+             // mainAxisSize: MainAxisSize.min,
+             // spacing: 10,
               children: [
                 const CompactText('Initial payment', fontWeight: FontWeight.bold,),
+                10.spMin.height,
                 Utils.getTextFormField("",
                     context.read<VerificationBloc>().initialPaymentController,
                     readOnly: true,
                   fillColor: Colors.grey.shade200
                 ),
+                10.spMin.height,
                 const CompactText('Payment type', fontWeight: FontWeight.bold,),
+                10.spMin.height,
                 Utils.dropdownBox('',
                     context.read<VerificationBloc>().paymentTypes,
                         (v)=> context.read<VerificationBloc>().add(PaymentTypeEvent(v)),
                     initialSelection: context.read<VerificationBloc>().selectedPaymentType,
                     labelKey: 'name'),
+                10.spMin.height,
                 const CompactText('Payment Method', fontWeight: FontWeight.bold,),
+                10.spMin.height,
                 Utils.getTextFormField("",
                     context.read<VerificationBloc>().paymentMethodController,
                     readOnly: true,
                     fillColor: Colors.grey.shade200
                 ),
+                10.spMin.height,
                 const CompactText('Transaction number', fontWeight: FontWeight.bold,),
+                10.spMin.height,
                 Utils.getTextFormField("Transaction number",
                     context.read<VerificationBloc>().transactionNumberController,
                 ),
+                10.spMin.height,
                 const CompactText('Attachments', fontWeight: FontWeight.bold,),
+                10.spMin.height,
                 CompactFilePicker(
                   controller: context.read<VerificationBloc>().imageNameController,
                   onPressed:()=> context.read<VerificationBloc>().add(PaymentAttachmentEvent()),
                 ),
+                10.spMin.height,
                 ImageUploadSection(
                   title: 'Preview',
                   borderColor: Colors.blue,
@@ -90,6 +103,7 @@ class _AddPaymentDialog extends StatelessWidget {
                   logName: "AddPaymentEvent",
                   isRequired: false,
                 ),
+                10.spMin.height,
                 SuccessButton(onPressed: (){
                   context.read<VerificationBloc>().add(SavePaymentEvent());
                   context.popDialog();

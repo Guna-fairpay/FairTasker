@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:math';
 import 'package:fairpytasker/Utilities/utils.dart';
+import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:path/path.dart';
 
 import 'package:equatable/equatable.dart';
@@ -16,12 +17,21 @@ part 'verification_state.dart';
 class VerificationBloc extends Bloc<VerificationEvent, VerificationState>{
 
   final APiRepository apiRepository = APiRepository();
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  AutovalidateMode? autoValidateMode;
 
   final TextEditingController notesController = TextEditingController();
   final TextEditingController initialPaymentController = TextEditingController();
   final TextEditingController paymentMethodController = TextEditingController();
   final TextEditingController transactionNumberController = TextEditingController();
   final TextEditingController imageNameController = TextEditingController();
+  final TextEditingController adminNotesController = TextEditingController();
+  final TextEditingController insuranceCompanyNameController = TextEditingController();
+  final TextEditingController insuranceTypeController = TextEditingController();
+  final TextEditingController paidByController = TextEditingController();
+  final TextEditingController insuranceAmountController = TextEditingController();
+  final TextEditingController expiryDateController = TextEditingController();
+  final TextEditingController insuranceFileNameController = TextEditingController();
 
   List<dynamic> licenseCheckList = [];
   List<dynamic> addressCheckList = [];
@@ -31,6 +41,7 @@ class VerificationBloc extends Bloc<VerificationEvent, VerificationState>{
   List<dynamic> agreementAttachments = [];
   List<dynamic> paymentAttachments = [];
   List<dynamic> addPaymentAttachments = [];
+  List<dynamic> insuranceAttachments = [];
 
   List<dynamic> paymentTypes = [{'id': 1, 'name': 'Initial'}, {'id': 2, 'name': 'Full'}];
   List<dynamic> updatePaymentMethod= [
@@ -44,7 +55,10 @@ class VerificationBloc extends Bloc<VerificationEvent, VerificationState>{
   dynamic selectedPaymentType;
   dynamic selectedPaymentMethod;
 
+  DateTime? selectedInsuranceExpiryDate;
+
   bool forceAction = false;
+  bool insuranceInfo = false;
 
   String? token;
 
@@ -59,6 +73,9 @@ class VerificationBloc extends Bloc<VerificationEvent, VerificationState>{
   Future<Map<String, dynamic>?> _getAgreementPdf({dynamic id}) async => await apiRepository.getAgreementPdf(token: token, id: id);
   Future<Map<String, dynamic>?> _createPayment({dynamic body, dynamic files,}) async => await apiRepository.createPayment(token: token, body: body, images: files);
   Future<Map<String, dynamic>?> _updatePayment({dynamic body,}) async => await apiRepository.updatePayment(token: token, body: body,);
+  Future<Map<String, dynamic>?> _updateInsuranceRequirement({dynamic body,}) async => await apiRepository.updateInsuranceRequirement(token: token, body: body,);
+  Future<Map<String, dynamic>?> _updateInsurance({dynamic body, dynamic image}) async => await apiRepository.updateInsurance(token: token, body: body, images: image);
+  Future<Map<String, dynamic>?> _deleteInsurance({dynamic id,}) async => await apiRepository.deleteInsurance(token: token, id: id,);
 
   VerificationBloc() : super(LoadingState()){
     on<InitialEvent>(_onInitialEvent);
@@ -75,6 +92,14 @@ class VerificationBloc extends Bloc<VerificationEvent, VerificationState>{
     on<SavePaymentEvent>(_onSavePaymentEvent);
     on<PaymentTypeEvent>(_onPaymentTypeEvent);
     on<UpdatePaymentMethodEvent>(_onUpdatePaymentMethodEvent);
+    on<InsuranceInformationCheckEvent>(_onInsuranceInformationCheckEvent);
+    on<InsuranceInformationSaveEvent>(_onInsuranceInformationSaveEvent);
+    on<InsuranceDeleteEvent>(_onInsuranceDeleteEvent);
+    on<InsuranceSaveEvent>(_onInsuranceSaveEvent);
+    on<InsuranceExpiryDateEvent>(_onInsuranceExpiryDateEvent);
+    on<ChooseInsuranceFileEvent>(_onChooseInsuranceFileEvent);
+    on<RemoveInsuranceFileEvent>(_onRemoveInsuranceFileEvent);
+    on<DeleteAlertDialogEvent>(_onDeleteAlertDialogEvent);
 
   }
 
@@ -345,7 +370,11 @@ class VerificationBloc extends Bloc<VerificationEvent, VerificationState>{
         files: infusedFiles,
       );
       if(response?['success'] == true){
-        List.from(bookingDetails?['payments'] ?? []).add(response?['data']?['payments']);
+        model?['bookingDetails']?['payment_status'] = response?['data']?['payment_status'];
+        model?['bookingDetails']?['payments'] = [response?['data']?['payment']];
+        bookingDetails?['payments'] = [response?['data']?['payment']];
+        bookingDetails?['payment_status'] = response?['data']?['payment_status'];
+        emit(SuccessState(response?['message']));
       }else{
         emit(ErrorState(response?['message']));
       }
@@ -373,8 +402,151 @@ class VerificationBloc extends Bloc<VerificationEvent, VerificationState>{
     }
   }
 
+  void _onInsuranceInformationCheckEvent(InsuranceInformationCheckEvent event, Emitter<VerificationState> emit) async {
+    try{
+      insuranceInfo = !insuranceInfo;
+      bookingDetails['insurance_info_required'] = insuranceInfo ? 1 : 0;
+      emit(CommonState());
+    } catch(e){
+      _onError(e, emit);
+    }
+  }
+
+  void _onInsuranceInformationSaveEvent(InsuranceInformationSaveEvent event, Emitter<VerificationState> emit) async {
+    try{
+      if(adminNotesController.text.isEmpty) return emit(ErrorState('Please enter a note.'));
+      emit(LoadingState());
+      var response = await _updateInsuranceRequirement(body: {
+        'booking_id': bookingDetails?['id'],
+        'insurance_admin_notes': adminNotesController.text,
+        'insurance_info_required': bookingDetails['insurance_info_required'],
+      });
+      if(response?['success'] == true){
+        model?['bookingDetails']?['insurance_info_required'] = response?['data']?['insurance_info_required'];
+        model?['bookingDetails']?['insurance_admin_notes'] = response?['data']?['insurance_admin_notes'];
+        model?['bookingDetails']?['insurance_status'] = response?['data']?['insurance_status'];
+        bookingDetails['insurance_admin_notes'] = response?['data']?['insurance_admin_notes'];
+        bookingDetails?['insurance_status'] = response?['data']?['insurance_status'];
+        bookingDetails?['insurance_info_required'] = response?['data']?['insurance_info_required'];
+        Console.of.log(response?['data']);
+        emit(SuccessState(response?['message']));
+      }else{
+        emit(ErrorState(response?['message']));
+      }
+    } catch(e){
+      _onError(e, emit);
+    }
+  }
+
+  void _onDeleteAlertDialogEvent(DeleteAlertDialogEvent event, Emitter<VerificationState> emit) async {
+    try{
+      emit(InsuranceDeleteState());
+    }catch(e){
+      _onError(e, emit);
+    }
+  }
+
+  void _onInsuranceDeleteEvent(InsuranceDeleteEvent event, Emitter<VerificationState> emit) async {
+    try{
+      emit(LoadingState());
+      var response = await _deleteInsurance(id: bookingDetails?['insurance']?['id']);
+      if(response?['success'] == true){
+        model?['bookingDetails']?['insurance_status'] = 'pending_admin_action';
+        bookingDetails?['insurance_status'] = 'pending_admin_action';
+        model?['bookingDetails']?['insurance'] = null;
+        bookingDetails?['insurance'] = null;
+        insuranceAttachments.clear();
+        insuranceFileNameController.clear();
+        insuranceCompanyNameController.clear();
+        insuranceTypeController.clear();
+        paidByController.clear();
+        expiryDateController.clear();
+        insuranceAmountController.clear();
+        selectedInsuranceExpiryDate = null;
+        emit(SuccessState(response?['message']));
+      }else{
+        emit(ErrorState(response?['message']));
+      }
+      emit(CommonState());
+    } catch(e){
+      _onError(e, emit);
+    }
+  }
+
+  void _onInsuranceSaveEvent(InsuranceSaveEvent event, Emitter<VerificationState> emit) async {
+    try{
+      autoValidateMode = AutovalidateMode.onUserInteraction;
+      if(formKey.currentState?.validate() == false) return emit(CommonState());
+      emit(LoadingState());
+      autoValidateMode = null;
+      var input = _updateData();
+      var response = await _updateInsurance(
+        body: input['data'],
+        image: input['image'],
+      );
+      if(response?['success'] == true){
+        model?['bookingDetails']?['insurance_status'] = response?['data']?['insurance_status'];
+        bookingDetails?['insurance_status'] = response?['data']?['insurance_status'];
+        model?['bookingDetails']?['insurance'] = response?['data'];
+        bookingDetails?['insurance'] = response?['data'];
+        insuranceAttachments.clear();
+        emit(SuccessState(response?['message']));
+      }else{
+        emit(ErrorState(response?['message']));
+      }
+    } catch(e){
+      _onError(e, emit);
+    }
+  }
+
+  void _onInsuranceExpiryDateEvent(InsuranceExpiryDateEvent event, Emitter<VerificationState> emit) async {
+    try{
+      selectedInsuranceExpiryDate = event.data;
+      emit(CommonState());
+    } catch(e){
+      _onError(e, emit);
+    }
+  }
+
+  void _onChooseInsuranceFileEvent(ChooseInsuranceFileEvent event, Emitter<VerificationState> emit) async {
+    try{
+      var result = await _pickFiles(allowMultiple: false);
+      if (result.isNotEmpty) {
+        insuranceAttachments.clear();
+        insuranceAttachments = result;
+        insuranceFileNameController.text = basename(insuranceAttachments.lastOrNull?.path ?? "");
+      }
+      emit(CommonState());
+    } catch(e){
+      _onError(e, emit);
+    }
+  }
+
+  void _onRemoveInsuranceFileEvent(RemoveInsuranceFileEvent event, Emitter<VerificationState> emit) async {
+    try{
+      if (event.data == null) return;
+      insuranceAttachments.remove(event.data);
+      insuranceFileNameController.text = basename((insuranceAttachments.lastOrNull is File)
+          ? (insuranceAttachments.lastOrNull as File).path
+          : insuranceAttachments.lastOrNull?.toString() ?? "");
+      emit(CommonState());
+    } catch(e){
+      _onError(e, emit);
+    }
+  }
+
   Future<void> fetchData() async {
     bookingDetails = model?['bookingDetails'];
+    adminNotesController.text = bookingDetails?['insurance_admin_notes'] ?? '';
+    insuranceCompanyNameController.text = bookingDetails?['insurance']?['company_name'] ?? '';
+    insuranceTypeController.text = bookingDetails?['insurance']?['insurance_type'] ?? '';
+    paidByController.text = bookingDetails?['insurance']?['paid_by'] ?? '';
+    expiryDateController.text = bookingDetails?['insurance']?['expiry_date'] ?? '';
+    insuranceAmountController.text = bookingDetails?['insurance']?['amount'] ?? '';
+    selectedInsuranceExpiryDate = bookingDetails?['insurance']?['expiry_date'] != null ? DateTime.parse(bookingDetails?['insurance']?['expiry_date']) : null;
+
+    insuranceInfo = bookingDetails?['insurance_info_required'] == 1;
+
     var tokenRes = await getToken();
     token = tokenRes?['data'];
     var response = await getCheckList(bookingId: model['bookingDetails']?['id']);
@@ -420,9 +592,9 @@ class VerificationBloc extends Bloc<VerificationEvent, VerificationState>{
     emit(ErrorState(error));
   }
 
-  Future<List<File>> _pickFiles() async {
+  Future<List<File>> _pickFiles({bool? allowMultiple}) async {
     var result = await FilePicker.platform.pickFiles(
-        allowMultiple: true,
+        allowMultiple: allowMultiple ?? true,
         allowCompression: true,
         type: FileType.custom,
         allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf',]);
@@ -431,6 +603,22 @@ class VerificationBloc extends Bloc<VerificationEvent, VerificationState>{
         .map((e) => File(e!))
         .toList() ??
         [];
+  }
+
+  Map<String, dynamic> _updateData(){
+    Map<String, dynamic> data = {
+      'booking_id': bookingDetails?['id'],
+      'user_id': bookingDetails?['user_id'],
+      'company_name': insuranceCompanyNameController.text,
+      'insurance_type': insuranceTypeController.text,
+      'paid_by': paidByController.text,
+      'amount': insuranceAmountController.text,
+      'expiry_date': selectedInsuranceExpiryDate.toFormat(),
+    };
+    List<dynamic> attachments = insuranceAttachments.whereType<File>().map((e) => {"document" : e.path }).toList();
+    Console.of.log(data);
+    Console.of.log(attachments);
+    return {'data': data, 'image': attachments};
   }
 
 }

@@ -7,6 +7,7 @@ class TabBarUI extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<VerificationBloc, VerificationState>(
       builder: (context, state) =>  Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         spacing: 10,
         children: [
           Container(
@@ -21,7 +22,9 @@ class TabBarUI extends StatelessWidget {
                   CustomTabButton(
                     subText: context.watch<VerificationBloc>().model?['bookingDetails']?['license_status'].toString().label,
                     subTextColor: context.watch<VerificationBloc>().model?['bookingDetails']?['license_status'].toString().type?.color,
-                    buttonText: 'License',
+                    buttonText: null,
+                    icon: Icons.badge_rounded,
+                    iconSize: 20.spMin,
                     value: 1,
                     selectedValue: context.watch<VerificationBloc>().selectedValue,
                     onPressed: (v)=> context.read<VerificationBloc>().add(TabChangeEvent(v)),
@@ -33,7 +36,9 @@ class TabBarUI extends StatelessWidget {
                   CustomTabButton(
                     subText: context.watch<VerificationBloc>().model?['bookingDetails']?['address_proof_status'].toString().label,
                     subTextColor: context.watch<VerificationBloc>().model?['bookingDetails']?['address_proof_status'].toString().type?.color,
-                    buttonText: 'Address',
+                    buttonText: null,
+                    icon: Icons.home_work_rounded,
+                    iconSize: 20.spMin,
                     value: 2,
                     selectedValue: context.watch<VerificationBloc>().selectedValue,
                     onPressed: (v)=> context.read<VerificationBloc>().add(TabChangeEvent(v)),
@@ -45,7 +50,9 @@ class TabBarUI extends StatelessWidget {
                   CustomTabButton(
                     subText: context.watch<VerificationBloc>().model?['bookingDetails']?['agreement_status'].toString().label,
                     subTextColor: context.watch<VerificationBloc>().model?['bookingDetails']?['agreement_status'].toString().type?.color,
-                    buttonText: 'Agreement',
+                    buttonText: null,
+                    icon: Icons.description_rounded,
+                    iconSize: 20.spMin,
                     value: 3,
                     selectedValue: context.watch<VerificationBloc>().selectedValue,
                     onPressed: (v)=> context.read<VerificationBloc>().add(TabChangeEvent(v)),
@@ -57,8 +64,24 @@ class TabBarUI extends StatelessWidget {
                   CustomTabButton(
                     subText: context.watch<VerificationBloc>().model?['bookingDetails']?['payment_status'].toString().label,
                     subTextColor: context.watch<VerificationBloc>().model?['bookingDetails']?['payment_status'].toString().type?.color,
-                    buttonText: 'Payment',
+                    buttonText: null,
+                    icon: Icons.credit_card_rounded,
+                    iconSize: 20.spMin,
                     value: 4,
+                    selectedValue: context.watch<VerificationBloc>().selectedValue,
+                    onPressed: (v)=> context.read<VerificationBloc>().add(TabChangeEvent(v)),
+                    decoration:  BoxDecoration(
+                      border: Border.all(color: AppC.grey, width: Num.borderWidthButton),
+                      borderRadius: const BorderRadius.only(topLeft: Radius.circular(Num.borderRadius), topRight: Radius.circular(Num.borderRadius)),
+                    ),
+                  ),
+                  CustomTabButton(
+                    subText: context.watch<VerificationBloc>().model?['bookingDetails']?['insurance_status'].toString().statusLabel,
+                    subTextColor: context.watch<VerificationBloc>().model?['bookingDetails']?['insurance_status'].toString().statusType?.statusColor,
+                    buttonText: null,
+                    icon: RemixIcons.contacts_book_2_fill,
+                    iconSize: 20.spMin,
+                    value: 5,
                     selectedValue: context.watch<VerificationBloc>().selectedValue,
                     onPressed: (v)=> context.read<VerificationBloc>().add(TabChangeEvent(v)),
                     decoration:  BoxDecoration(
@@ -76,6 +99,7 @@ class TabBarUI extends StatelessWidget {
             2 => const AddressPage(),
             3 => const AgreementPage(),
             4 => const PaymentPage(),
+            5 => const InsurancePage(),
             _ => const Placeholder(color: Colors.brown,)
           }
         ],

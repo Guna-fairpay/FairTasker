@@ -27,6 +27,8 @@ class AskPermissionDialog {
       VoidCallback? onSaveMultiPressed,
         bool? isExpense,
         void Function(String reason)? onMultiSubmitted,
+        IconData? titleIcon,
+        Color? titleIconColor,
       }) async {
     await showDialog(
       context: context,
@@ -46,6 +48,8 @@ class AskPermissionDialog {
         onMultiSubmitted: onMultiSubmitted,
         onNegativePressed: onNegativePressed,
         isExpense: isExpense,
+        titleIcon: titleIcon,
+        titleIconColor: titleIconColor,
       ),
     );
   }
@@ -67,6 +71,8 @@ class _AskPermissionDialogView extends StatelessWidget {
   final void Function(String reason)? onReasonSubmitted;
   final void Function(String reason)? onMultiSubmitted;
   final TextEditingController _reasonController = TextEditingController();
+  final IconData? titleIcon;
+  final Color? titleIconColor;
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -85,7 +91,9 @@ class _AskPermissionDialogView extends StatelessWidget {
       this.onMultiSubmitted,
       this.onNegativePressed,
         this.isExpense,
-      this.onReasonSubmitted});
+      this.onReasonSubmitted,
+      this.titleIcon,
+      this.titleIconColor,});
 
   @override
   Widget build(BuildContext context) {
@@ -102,7 +110,7 @@ class _AskPermissionDialogView extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.help_outline_sharp,size: 40.spMin,color: Colors.blue,),
+              Icon(titleIcon ?? Icons.help_outline_sharp, size: 40.spMin, color: titleIconColor ?? Colors.blue,),
               15.spMin.height,
               Utils.getText(
                   title ?? 'Are you sure?',

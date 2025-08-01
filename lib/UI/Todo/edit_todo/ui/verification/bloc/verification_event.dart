@@ -83,3 +83,31 @@ class UpdatePaymentMethodEvent extends VerificationEvent{
   @override
   List<Object?> get props => [data];
 }
+
+class InsuranceInformationCheckEvent extends VerificationEvent{}
+
+class InsuranceInformationSaveEvent extends VerificationEvent{}
+
+class InsuranceDeleteEvent extends VerificationEvent{}
+
+class DeleteAlertDialogEvent extends VerificationEvent{}
+
+class InsuranceSaveEvent extends VerificationEvent{}
+
+class InsuranceExpiryDateEvent extends VerificationEvent{
+  final dynamic data;
+  InsuranceExpiryDateEvent(this.data);
+  @override
+  List<Object?> get props => [data];
+}
+
+class ChooseInsuranceFileEvent extends VerificationEvent{}
+
+class RemoveInsuranceFileEvent extends VerificationEvent{
+  final dynamic data;
+  RemoveInsuranceFileEvent({this.data});
+  @override
+  List<Object?> get props => [data];
+}
+
+
