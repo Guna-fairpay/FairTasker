@@ -25,3 +25,10 @@ class SuccessState extends CheckInState {
   @override
   List<Object?> get props => [message, Random().nextDouble()];
 }
+
+class ViewImageState extends CheckInState {
+  final List<dynamic> data;
+  ViewImageState(this.data);
+  @override
+  List<Object?> get props => [data, Random().nextDouble()];
+}

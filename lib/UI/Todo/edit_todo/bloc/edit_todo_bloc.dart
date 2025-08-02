@@ -386,7 +386,8 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         todoResponse?['vin'] != null ||
         (todoResponse?['vehicles']?.isNotEmpty ?? false);
 
-    bool isBookingBased = todoResponse?['identifier_id'] == 357 ? (todoResponse?['rental_booking_id'] == null) : true;
+    bool isBookingBased = todoResponse?['identifier_id'] == 357 || todoResponse?['identifier_id'] == 387
+        ? (todoResponse?['rental_booking_id'] == null) : true;
     bool isExpenseBased = !Str.checkInCheckOut.contains(title) && selectedTask?['user_type'].toString() != '5';
     bool isCheckList = [268, 219].contains(todoResponse?['identifier_id']);
     bool isMaintenance = todoResponse?['identifier_id'] == 257;
@@ -398,6 +399,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     bool isSetVehicle = !['Check In', 'Check Out'].contains(title);
     bool isPrivateRentalCheck = todoResponse?['identifier_id'] == 324;
     bool isCheckOut = todoResponse?['identifier_id'] == 357 && todoResponse?['rental_booking_id'] != null;
+    bool isCheckIn = todoResponse?['identifier_id'] == 387 && todoResponse?['rental_booking_id'] != null;
 
     final List<Map<String, dynamic>> tabs = [
       if (isExpenseBased && isBookingBased)
@@ -416,6 +418,8 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         {"id": 6, "title": "Private Rental Check"},
       if (isCheckOut)
         {"id": 8, "title": "Check Out"},
+      if (isCheckIn)
+        {"id": 9, "title": "Check In"},
     ];
 
     selectionTaps = tabs.firstWhere(
