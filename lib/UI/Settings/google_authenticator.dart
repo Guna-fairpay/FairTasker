@@ -1,8 +1,11 @@
-import 'package:flutter/material.dart';
+import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/Component/success_button.dart';
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:fairpytasker/Utilities/utils.dart';
+import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import '../../Component/header.dart';
-import '../../Utilities/Utils.dart';
-import '../../Utilities/appC.dart';
+import 'package:flutter/material.dart';
 
 class GoogleAuthenticatorUI extends StatefulWidget {
   const GoogleAuthenticatorUI({super.key});
@@ -45,94 +48,62 @@ class _GoogleAuthenticatorUIState extends State<GoogleAuthenticatorUI> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppC.white,
-      appBar: const PreferredSize(
-        preferredSize: Size.fromHeight(35.0), // Change the height here
-        child: HeaderView(),
+      appBar: AppBar(
+        title: const Text("Settings"),
+        automaticallyImplyLeading: false,
+        leadingWidth: 0,
+        actions: [
+          IconButton(onPressed: context.pop, icon: const Icon(Icons.close_rounded))
+        ],
+        backgroundColor: AppC.appColor,
+        foregroundColor: AppC.white,
       ),
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Row(
-                    children: [
-                      GestureDetector(
-                          onTap: () {
-                            Navigator.pop(context);
-                          },
-                          child: const Icon(Icons.arrow_back)),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      Utils.getText(
-                        'Google Authenticator',
-                        size: 18,
-                        weight: FontWeight.bold,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Utils.getText(
-                    'Set up your two factor authentication by scanning the barcode below with Google Authenticator app.',
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Row(
-                    children: [
-                      Utils.getText(
-                        'Alternatively, you can use the code',
-                      ),
-                      Expanded(
-                        child: Utils.getText(' $qrCodeData',
-                            weight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  Center(
-                    child: QrImageView(
-                      data: qrCodeData,
-                      version: QrVersions.auto,
-                      size: 200.0,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Utils.getText(
-                    'Enter the code from the Google Authenticator app:',
-                    weight: FontWeight.bold,
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: SizedBox(
-                          height: 40,
-                          child:
-                              Utils.getBackgroundFilledTextFieldFirstLetterCaps(
-                            'One time password',
-                            otpController,
-                            textType: TextInputType.number,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 20),
-                      SizedBox(
-                        height: 40,
-                        child: Utils.getAddFilledButton('Verify', _verifyOTP),
-                      ),
-                    ],
-                  ),
-                ],
+      body: Padding(
+        padding: 16.sp.padding,
+        child: Column(
+          spacing: 16.sp,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            const SizedBox.shrink(),
+            Utils.getText(
+              'Set up your two factor authentication by scanning the barcode below with Google Authenticator app.',
+            ),
+            Text.rich(TextSpan(
+              text: "Alternatively, you can use the code\t",
+              children: [
+                TextSpan(text: qrCodeData, style: context.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.bold))
+              ]
+            )),
+            Center(
+              child: QrImageView(
+                data: qrCodeData,
+                version: QrVersions.auto,
+                size: 200.0,
               ),
             ),
-          ),
-        ],
+            Utils.getText(
+              'Enter the code from the Google Authenticator app:',
+              weight: FontWeight.bold,
+            ),
+            Row(
+              spacing: 10.sp,
+              children: [
+                Expanded(
+                  child: Utils.getTextFormField(
+                    'One time password',
+                    otpController,
+                    textType: TextInputType.number,
+                  ),
+                ),
+                SuccessButton(
+                  text: "Verify",
+                  backgroundColor: AppC.appColor,
+                  onPressed: _verifyOTP,
+                )
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

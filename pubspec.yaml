@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.0+1
+version: 1.2.138
 
 environment:
   sdk: '>=3.2.0 <4.0.0'
@@ -35,41 +35,107 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
-  multi_select_flutter: ^4.0.0
-  top_modal_sheet: ^2.1.0
-  external_app_launcher: ^4.0.1
   url_launcher: ^6.1.7
-  pinch_zoom: ^2.0.0
   fl_chart: ^0.69.0
-  photo_view: ^0.15.0
-  flutter_bloc:
+  flutter_bloc: ^8.1.1
   qr_flutter: ^4.0.0
-  flutter_quill: ^10.5.3
-  flutter_speed_dial: ^7.0.0
   equatable: ^2.0.5
   dropdown_search: 5.0.6
   smooth_page_indicator: ^1.2.0+3
-  intl: ^0.19.0
   image_picker: ^0.8.6+1
   cached_network_image: ^3.2.3
   connectivity_plus: ^4.0.2
-  http: 1.2.1
-  fluttertoast: ^8.2.4
-  flutter_svg: ^1.1.5
+  http: ^1.2.1
+  fluttertoast: ^8.2.12
+  flutter_svg: ^2.0.17
   nfc_manager: ^3.3.0
   local_auth: ^2.1.7
   shared_preferences: ^2.3.5
-  #  calender_picker: ^2.0.1
-  calendar_date_picker2: ^1.1.7
-  date_picker_timeline: ^1.2.5
-  swipe_to: ^1.0.2
-  custom_date_range_picker: 1.1.0
   web_socket_channel: ^2.4.0
-  flutter_date_range_picker: ^0.1.1
   flutter_animation_progress_bar: ^2.3.1
-  flutter_slidable: ^3.0.1
-  keyboard_avoider: ^0.2.0
-
+  flutter_slidable: ^3.1.2
+  date_time: ^0.12.0
+  collection: ^1.17.1
+  dio: ^5.7.0
+  talker_dio_logger: ^4.6.4
+  talker_http_logger: ^0.1.0-dev.30
+  http_interceptor: ^2.0.0
+  path_provider: ^2.1.5
+  permission_handler: ^11.3.1
+  data_table_2: ^2.0.0
+  fbroadcast: ^2.0.0
+  flutter_easyloading: ^3.0.5
+  dropdown_button2: ^2.3.9
+  flutter_video_thumbnail_plus: ^1.0.5
+  timeago: ^3.7.1
+  timezone: ^0.10.0
+  video_player: ^2.9.2
+  vsc_quill_delta_to_html: ^1.0.5
+  flutter_quill_delta_from_html: ^1.5.1
+  mime: ^2.0.0
+  file_picker: ^8.3.1
+  firebase_crashlytics: ^4.3.1
+  firebase_analytics: ^11.4.1
+  firebase_core: ^3.10.1
+  firebase_performance: ^0.10.1+1
+  flutter_typeahead: ^5.2.0
+  syncfusion_flutter_pdfviewer: ^30.1.41
+  card_swiper: ^3.0.1
+  searchfield:
+    git:
+      url: https://github.com/PrabhuC-FP/searchfield.git
+      ref: master
+  google_fonts: ^6.2.1
+  sticky_headers: ^0.3.0+2
+  number_pagination: ^1.1.6
+  geolocator: ^13.0.2
+  geocoding: ^3.0.0
+  open_file: ^3.5.10
+  timelines_plus: ^1.0.6
+  audioplayers: ^6.2.0
+  get_it: ^8.0.3
+  flutter_screenutil: ^5.9.3
+  logger: ^2.5.0
+  record: ^6.0.0
+  get_time_ago: ^2.3.0
+  html: ^0.15.5
+  package_info_plus: ^8.3.0
+  receive_sharing_intent:
+    git:
+      url: https://github.com/PrabhuC-FP/receive_sharing_intent
+      ref: master
+  date_range_picker:
+    git:
+      url: https://github.com/PrabhuC-FP/date_range_picker
+      ref: master
+  multi_dropdown:
+    git:
+      url: https://github.com/PrabhuC-FP/multiselect-dropdown
+      ref: main
+  delightful_toast: ^1.1.0
+  flutter_map: ^8.1.1
+  latlong2: ^0.9.1
+  html_to_flutter: ^0.2.3-dev.8
+  html_to_flutter_table: ^0.0.2-dev.7
+  html_to_flutter_kit: ^0.0.3-dev.4
+  device_info_plus: ^11.4.0
+  segmented_button_slide: ^2.0.0
+  flutter_html: any
+  flutter_date_range_picker: any
+  flutter_quill: ^11.4.1
+  draggable_scrollbar: ^0.1.0
+  workmanager: ^0.6.0
+  r_icon_pro: ^1.0.3
+  iconsax: ^0.0.8
+  remixicon: ^1.4.1
+  flutter_markdown: ^0.7.7+1
+  skeletonizer: ^2.0.1
+  multiple_search_selection: ^2.7.2
+  intl: ^0.20.2
+  multiselect_dropdown_flutter:
+    git:
+      url: https://github.com/PrabhuC-FP/multiselect_dropdown_flutter
+      ref: master
 
 dev_dependencies:
   flutter_test:
@@ -94,13 +160,14 @@ flutter:
   # the material Icons class.
   uses-material-design: true
   assets:
-    - assets/
-    - assets/images/
+    - asset/
+    - asset/images/
+    - asset/vectors/
   fonts:
     - family: Lato
       fonts:
-        - asset: assets/fonts/Lato/Lato-Regular.ttf
-        - asset: assets/fonts/Lato/Lato-Bold.ttf
+        - asset: asset/fonts/Lato/Lato-Regular.ttf
+        - asset: asset/fonts/Lato/Lato-Bold.ttf
           weight: 700
   #   assets:
   #     - assets/

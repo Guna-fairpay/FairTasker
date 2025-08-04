@@ -1,17 +1,17 @@
+import 'package:fairpytasker/main.dart';
 
 class Str{
-    static const String BASE_URL = "https://apidevfairtasker.fairreturns.in/api/";
-    //static const String BASE_URL = "http://192.168.1.24:8000/api/";
+    static String get BASE_URL => flavor.baseUrl;
+    static String get GOPORTAL_BASE_URL => flavor.portalUrl;
+    static String get STORAGE_BASE_URL => flavor.storageUrl;
+    static String get TASKER_STORAGE_BASE_URL => flavor.taskerStorageUrl;
+    static String get LIST_BASE_URL => flavor.returnsUrl;
+    static String get TODO_ATTACHMENTS_URL => flavor.attachmentUrl;
+    static String get FAIRENTAL_BOOKING_SUMMARY => flavor.fairRentalBookingSummary;
+    static String get FAIRENTAL_URL => flavor.fairRentalUrl;
 
-    static const String GOPORTAL_BASE_URL = "https://apiorgportal.fairreturns.in/api/";
-
-   // static const String STORAGE_BASE_URL = "https://devfairtasker.fairreturns.in/uploads/";
-   static const String STORAGE_BASE_URL = "https://phase1.fairreturns.in/storage/";
-
-    //static const String LIST_BASE_URL = "https://dev.fairreturns.in/api/";
-    static const String LIST_BASE_URL = "https://phase1.fairreturns.in/api/";
-
-    static const String TODO_ATTACHMENTS_URL ="https://apidevfairtasker.fairreturns.in/";
+    static const String TURO_RESERV_URL = "https://turo.com/us/en/reservation/";
+    static const String GETAROUND_RESERV_URL = "https://getaround.com/dashboard/rentals/";
 
   static const String loginPrefText = 'LoginPref';
   static const String userPermissionPrefText = 'UserPermissionPref';
@@ -23,7 +23,17 @@ class Str{
   static const String radiusPrefText = 'RadiusPref';
   static const String namePrefText = 'NamePref';
   static const String emailPrefText = 'EmailPref';
+  static const String frBearerToken = 'fr_bearerToken';
   static const String accessTokenPrefText = 'AccessTokenPref';
+  static const String departmentIdPrefText = 'departmentIdPref';
+  static const String userPrefText = 'userDataPref';
+  static const String availBioMetrics = 'availBioMetricsPref';
+
+  static const String userPunchListRefresh = 'refresh_user_punch_list';
+
+    static const String branchNamePrefText = 'BranchNamePref';
+  static const String branchChange = 'branch_has_been_changed';
+  static const String valueChange = 'api_value_has_been_changed';
 
   static const String appName = "FairPYTasker";
   // static const String addExpense = "Add Expenses";
@@ -62,6 +72,47 @@ class Str{
 
   //error image URL
     static const errorImage='https://media.wired.com/photos/5a0201b14834c514857a7ed7/master/pass/1217-WI-APHIST-01.jpg';
+
+    static const List<int> platFormCheckIds = [268, 211, 209];
+
+    static const List<int> cleanCarCheckIds = [209, 210]; // 30 IS NOT INCLUDED DUE TO IT'LL SHOW JUST ICON
+
+    static const List<int> reqTaskManagerIds = [3,17,19,20,26,31,32];
+
+    static const List<int> getAroundIds = [268, 177];
+
+    static const List<int> unCompletedOdometer = [257, 268, 324];
+
+    static const List<int> completedOdometer = [212, 210];
+
+    static const List<String> todoEditExpense = ['Check In','Check Out','CheckOut Car Rental','Pickup Car Rental','Email Notofication Form','Refuel Car'];
+
+
+    static const String noMatchFound = 'No data found. Please check your input and try again.';
+
+    static const String todayToDo = "fetch_todos_for_today";
+
+    static const String addToDoRefresh = "refresh_add";
+
+    static const String editToDoRefresh = "refresh_edit";
+
+    static const String refetchCate = "refresh_category";
+
+    static const String refetchVendorLocation = "refresh_vendor_location";
+
+    static const List<int> green = [209, 211];
+
+    static const List<int> red = [212, 210];
+
+    static const List<int> oilChangeCheckIds = [126, 294, 35];
+
+    static const List<int> userTypeId = [5,3];
+
+    static const List<String> checkInCheckOut = ['Check In','Check Out'];
+
+    static const List<int> basedBookingId = [393, 357];
+
+
 
 
 }

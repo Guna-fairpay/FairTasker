@@ -1,71 +1,39 @@
-import 'dart:io';
-
+import 'package:fairpytasker/core/app/helper/work_manager_helper.dart';
+import 'package:fairpytasker/core/initializer/main_initializer.dart';
+import 'package:flutter/services.dart' show DeviceOrientation, SystemChrome;
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
+import 'package:fairpytasker/core/app/config/easy_loading_config.dart';
+import 'package:fairpytasker/UI/fairtasker/fair_tasker_app.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:fairpytasker/core/app/build_flavor/flavor.dart';
+import 'package:fairpytasker/Utilities/prefs.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'dart:async';
 
-import 'UI/Splash/splash_ui.dart';
+import 'package:workmanager/workmanager.dart';
 
-List<int> requestFrom = [0, 1];
-String accessTokenGlobal = '';
-String userIdGlobal = '';
-List<String>? userPermissionsGlobal;
-// List<String>? userRole;
-String? filterDate;
-String? formattedDate;
-DateTime selectedDate = DateTime.now();
+final Flavor flavor = Flavor.debug; // SHOULD NOT CHANGE UNTIL GET PROPER PERMISSION FROM THE LEAD
 
-Future<bool> verifySSL(String url) async {
-  // Create an HttpClient instance
-  HttpClient client = HttpClient();
-  // Disable the certificate verification
-/*  client.badCertificateCallback =
-      (X509Certificate cert, String host, int port) => true;*/
-
-  // Try to establish a connection to the API endpoint
-  try {
-    HttpClientRequest request = await client.getUrl(Uri.parse(url));
-    HttpClientResponse response = await request.close();
-    // Check if the connection was successful
-    if (response.statusCode == 200) {
-      // SSL certificate is valid
-      print('SSL certificate validation failed: true');
+void main() {
+  runZonedGuarded(() async {
+    WidgetsFlutterBinding.ensureInitialized(); // Required for the line below
+    await Firebase.initializeApp();
+    await Session.of.init();
+    Initializer.of.init(); // GET_IT INITIALIZATION
+    WorkManagerBridge.setupMainIsolatePort();
+    await Workmanager().initialize(callbackDispatcher, isInDebugMode: kDebugMode);
+    FlutterError.onError = (error) {
+      FlutterError.presentError(error);
+      FirebaseCrashlytics.instance.recordFlutterFatalError(error);
+    };
+    PlatformDispatcher.instance.onError = (error, stack) {
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
       return true;
-    }
-  } catch (e) {
-    // Connection error or SSL certificate validation failed
-    print('SSL certificate validation failed: $e');
-  }
-  // SSL certificate is not valid
-  return false;
-}
-
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized(); // Required for the line below
-  runApp(const MyApp());
-  // selectedDate = DateTime.now();
-  filterDate = DateFormat('yyyy-MM-dd').format(selectedDate);
-  // formattedDate = DateFormat('yyyy-MMM-dd').format(selectedDate!);
-  formattedDate = DateFormat('MMM dd').format(selectedDate);
-  // String apiUrl = Str.BASE_URL; // Replace with your API endpoint
-  // String apiUrl = 'https://dev.fairreturns.in/api/login'; // Replace with your API endpoint
-  // bool sslValid = await verifySSL(apiUrl);
-  // print('SSL certificate validation result: $sslValid');
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Fair Returns',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        fontFamily: 'Lato',
-      ),
-      home: const SplashScreen(),
-    );
-  }
+    };
+    await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+    runApp(const FairTaskerApp());
+    EasyLoadingConfig.config();
+  }, (error, stack) => FirebaseCrashlytics.instance.recordError(error, stack, printDetails: true, fatal: true));
 }

@@ -1,4 +1,7 @@
 
+import 'dart:developer' as d;
+import 'dart:math';
+
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:fairpytasker/Response/create_expense_field_data.dart';
@@ -6,23 +9,31 @@ import 'package:fairpytasker/Repository/todo_list_repository.dart';
 import 'package:fairpytasker/Response/subcategories_response.dart';
 import 'package:fairpytasker/Repository/vehicle_repository.dart';
 import 'package:fairpytasker/Response/create_vehicle_data.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
+import 'package:fairpytasker/core/app/helper/toaster.dart';
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
+import 'package:fbroadcast/fbroadcast.dart';
+
+import '../UI/Todo/create_sparekey_data.dart';
 part '../Event/vehicle_data_event.dart';
 part '../State/vehicle_data_state.dart';
 
 class VehicleDataBloc extends Bloc<VehicleDataEvent, VehicleDataState> {
   VehicleDataRepo vehicleDataRepo = VehicleDataRepo();
   TodoListRepo todoListRepo = TodoListRepo();
+  final FBroadcast _broadcast = FBroadcast.instance();
+  dynamic selectedVehicle;
 
   VehicleDataBloc() : super(VehicleDataInitial()) {
     on<VehicleDataEvent>((event, emit) {
       // TODO: implement event handler
     });
 
-    on<GetExpenseToData>((event, emit) async {
+    on<GetExpenseToDatas>((event, emit) async {
       if(event.expenseId != null) {
         emit(const VehicleDataLoading());
         await todoListRepo.getAExpenseDetailTodo(event.expenseId!).then((value) {
-          emit(ExpenseTodoLoaded(expensesData: value?.expenses??[]));
+          emit(ExpenseTodoDataLoaded(expensesData: value?.expenses??[]));
         });
       }
     });
@@ -65,15 +76,107 @@ class VehicleDataBloc extends Bloc<VehicleDataEvent, VehicleDataState> {
     // });
 
     on<AddVehicleDataEvent>((event, emit) async {
-      if(event.createVehicleData != null) {
-        emit(const VehicleDataLoading());
-        await vehicleDataRepo
-            .createVehicle(event.createVehicleData!)
-            .then((value) {
-          emit(VehicleDataLoadedV(result: value?.data??[], vin: event.createVehicleData!.vin,
-              categoryId: event.createVehicleData!.categoryId));
-        });
+      if (event.createVehicleData != null) {
+        emit(const VehicleDataLoading()); // Start loading state
+        try {
+          final response = await vehicleDataRepo.createVehicle(event.createVehicleData!);
+          print("Bloc Triggered");
+          emit(VehicleDataLoadedV(
+            result: response?.data ?? [],
+            vin: event.createVehicleData!.vin,
+            categoryId: event.createVehicleData!.categoryId,
+          ));
+        } catch (error) {
+          emit(const VehicleDataError( errorMessage: ''));
+        }
       }
+    });
+
+//Set vehicle save Bloc
+    on<UpdateVehicleDataEvent>((event, emit) async {
+      if (event.createVehicleData != null) {
+        emit(setVehicleDataLoading(pop: false));
+        try {
+          final response = await vehicleDataRepo.createVehicle(event.createVehicleData!);
+          d.log("${response}", name: "UPDATE_DATA");
+          _broadcast.stickyBroadcast("todo_view", value: true);
+
+          final response1 = await getIt<CommonService>().getActiveVehicles(reset: true);
+          dynamic vehicle = event.vin != null ? {} : null;
+          if (response1.isNotEmpty && event.vin != null) {
+            try {
+              vehicle = response1.firstWhere(
+                    (e) => e['vin']?.toString() == event.vin?.toString(),
+                orElse: () => {},
+              );
+            } catch (e) {
+              d.log("Error finding vehicle: $e");
+              vehicle = {};
+            }
+          }
+          emit(setVehicleImageLoaded(currentVehicle: vehicle));
+        } catch (error) {
+          emit(const VehicleDataError( errorMessage: ''));
+        }
+      }
+    });
+
+    on<setVehicleInitialEvent>((event, emit) async {
+      Console.of.log(event.vehicle, name: "VEHICLE_DATA");
+      d.log("${event.vehicle}" ,name: "event_vehicle");
+      emit(setVehicleDataLoading(pop: false));
+      final response = await getIt<CommonService>().getActiveVehicles(reset: true);
+      dynamic vehicle = event.vehicle != null ? {} : null;
+      if (response.isNotEmpty && event.vehicle != null) {
+        try {
+          vehicle = response.firstWhere(
+                (e) => e['vin']?.toString() == event.vehicle?['vin']?.toString(),
+            orElse: () => {},
+          );
+        } catch (e) {
+          d.log("Error finding vehicle: $e");
+          vehicle = {};
+        }
+      }
+      emit(setVehicleLoaded(currentVehicle: vehicle));
+    });
+    on<AddSpareKeysTask>((event, emit) async {
+       await todoListRepo.spareKeyTask(event.createSpareKeyTaskData!);
+      emit(setVehicleDataLoading(pop: true));
+      Toaster.showSuccess("Sparekey Task created successfully");
+    });
+
+    on<DeleteSetVehicleImage>((event, emit) async {
+      Console.of.debug("VIN ${event.vin} // ID: ${event.id}", name: "DELETE_IMAGE_EVENT");
+      d.log('${event.vin} ${event.id}', name: "delete_image");
+      final response = await vehicleDataRepo.deleteVehicleImages(event.id);
+      final response1 = await getIt<CommonService>().getActiveVehicles(reset: true);
+      dynamic vehicle;
+      if (event.vin != '' && event.vin != null) {
+        try {
+          vehicle = response1.firstWhere(
+                (e) => e['vin']?.toString() == event.vin,
+            orElse: () => {},
+          );
+        } catch (e) {
+          d.log("Error finding vehicle: $e");
+          vehicle = {};
+        }
+      }
+      d.log("${vehicle}", name: "VEHICLE_Image");
+      emit(setVehicleImageLoaded(currentVehicle: vehicle));
+      d.log("${response}", name: "VEHICLE_Image");
+    });
+
+
+    on<MoveRentalData>((event, emit) async {
+      emit(const VehicleDataLoading());
+      await vehicleDataRepo
+          .moveRental(
+         rentalData: event.rentalData)
+          .then((value) {
+        emit(MoveRentalDataLoaded(result: value));
+      });
     });
 
     on<DeleteVehicleImage>((event, emit) async {
@@ -124,12 +227,19 @@ class VehicleDataBloc extends Bloc<VehicleDataEvent, VehicleDataState> {
       });
     });
 
-    // on<DeleteVehicleGroupEvent>((event, emit) async {
-    //   emit(const VehicleDataLoading());
-    //   await vehicleDataRepo.deleteVehicleGroup(event.id).then((value) {
-    //     emit(VehicleDataLoadedV(result: value.));
-    //   });
-    // });
+    on<GetVehicleGroupData>((event, emit) async {
+      emit(const VehicleDataLoading());
+      await vehicleDataRepo.getVehicleGroupData().then((value) {
+        emit(VehicleGroupDataLoaded(vehicleGroupDataList: value?.vehicleGroupData??[]));
+      });
+    });
+
+    on<DeleteVehicleGroupEvent>((event, emit) async {
+      emit(const VehicleDataLoading());
+      await vehicleDataRepo.deleteVehicleGroup(event.id).then((value) {
+        emit(VehicleGroupLoaded(result: value));
+      });
+    });
 
     on<GetVehicleHistoryEvent>((event, emit) async {
       emit(const VehicleDataLoading());
@@ -161,7 +271,7 @@ class VehicleDataBloc extends Bloc<VehicleDataEvent, VehicleDataState> {
       });
     });
 
-    on<DeletePartsEvent>((event, emit) async {
+    on<DeletePartEvent>((event, emit) async {
       emit(const VehicleDataLoading());
       await vehicleDataRepo.deleteParts(event.id).then((value) {
         emit(PartsDataLoaded(result: value));

@@ -1,119 +1,119 @@
-import 'dart:async';
-
-import 'package:fairpytasker/UI/authentication_ui.dart';
-import 'package:fairpytasker/UI/local_authentication_ui.dart';
-import 'package:fairpytasker/Utilities/appC.dart';
-import 'package:fairpytasker/Utilities/assets.dart';
+import 'package:fairpytasker/Component/custom_text/compact_text.dart';
+import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/Utilities/str.dart';
-import 'package:fairpytasker/Utilities/utils.dart';
-import 'package:fairpytasker/main.dart';
+import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/UI/Splash/bloc/splash_bloc.dart';
+import 'package:fairpytasker/UI/authentication/local_authentication_ui.dart';
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
+import 'package:flutter/services.dart';
+import 'package:fairpytasker/UI/authentication/authentication_ui.dart';
+import 'package:fairpytasker/Utilities/assets.dart';
+import 'package:fairpytasker/Utilities/appC.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class SplashScreen extends StatefulWidget {
+class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
 
   @override
-  SplashScreenState createState() => SplashScreenState();
-}
-
-class SplashScreenState extends State<SplashScreen> {
-  @override
-  void initState() {
-    super.initState();
-    Utils.getStringPreference(Str.accessTokenPrefText).then((value) {
-      Utils.getStringPreference(Str.userIdPrefText).then((valueUserId) {
-        userIdGlobal = valueUserId;
-      });
-      Utils.getStringListPreference(Str.userPermissionPrefText)
-          .then((valueUserPermission) {
-        userPermissionsGlobal = valueUserPermission;
-      });
-      // Utils.getStringListPreference(Str.rolePrefText).then((roleList) {
-      //   userRole = roleList;
-      // });
-      accessTokenGlobal = /*"199|qdDKXEzbgIfYykw3HKNN4tqZ47eyEQQhq22Fva5t06ef4437"*/
-          value;
-      Timer(const Duration(seconds: 2), () {
-        Utils.getBoolPreference(Str.loginPrefText).then((value) {
-          if (!value) {
-            Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (BuildContext context) =>
-                        const AuthenticationUI()));
-          } else {
-            Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (BuildContext context) =>
-                        const LocalAuthenticationUI()));
-          }
-        });
-      });
-    });
-    // Check availability
-    // bool isAvailable =  NfcManager.instance.isAvailable() as bool;
-
-// Start Session
-    /*NfcManager.instance.startSession(
-      onDiscovered: (NfcTag tag) async {
-        // Do something with an NfcTag instance.
-        Utils.showMobileToast('tag found. onDiscovered, splash screen');
-      },
-    );*/
-
-// Stop Session
-//     NfcManager.instance.stopSession();
-  }
-
-/*  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppC.white,
-      body:
-      SafeArea(
-        child: Container(
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height,
-          // width: MediaQuery.of(context).size.width/1.7,
-          // alignment: Alignment.center,
-          padding: EdgeInsets.only(left: MediaQuery.of(context).size.width/5,
-            right: MediaQuery.of(context).size.width/5, bottom: 15),
-          decoration: const BoxDecoration(
-            image: DecorationImage(image: AssetImage(Assets.splashBg), fit: BoxFit.fitHeight)
-          ),
-          child: Image.asset(
-            Assets.logoWithoutWatermarkBg,
-            // fit: BoxFit.cover,
-          ),
-        // ),
-    ),
-      )
+    SystemChrome.setEnabledSystemUIMode(
+      SystemUiMode.manual,
+      overlays: [
+        SystemUiOverlay.top, // Shows Status bar and hides Navigation bar
+      ],
     );
-  }*/
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: AppC.white,
-        body: SafeArea(
-          child: Container(
-            width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height,
-            // width: MediaQuery.of(context).size.width/1.7,
-            // alignment: Alignment.center,
-            padding: EdgeInsets.only(
-                left: MediaQuery.of(context).size.width / 5,
-                right: MediaQuery.of(context).size.width / 5,
-                bottom: 15),
-            decoration: const BoxDecoration(
-                image: DecorationImage(
-                    image: AssetImage(Assets.splashBg), fit: BoxFit.fitHeight)),
-            child: Image.asset(
-              Assets.logoWithoutWatermarkBg,
-              // fit: BoxFit.cover,
-            ),
-            // ),
-          ),
-        ));
+        body: BlocProvider(
+            create: (context) => SplashBloc()..add(InitialEvent()),
+            child: BlocConsumer<SplashBloc, SplashState>(
+              listener: (context, state) {
+                if (state is LoadingState) {
+                  // if (!EasyLoading.isShow) EasyLoading.show();
+                } else {
+                  // if (EasyLoading.isShow) EasyLoading.dismiss();
+                  switch (state) {
+                    case NavigateLoginState():
+                      context.pushReplacement(const AuthenticationUI());
+                      break;
+                    case NavigateHomeState():
+                      context.pushReplacement(const LocalAuthenticationUI());
+                      break;
+                  }
+                }
+              },
+              builder: (context, state) => Container(
+                decoration: const BoxDecoration(
+                    image: DecorationImage(
+                        repeat: ImageRepeat.repeat,
+                        opacity: 0.35,
+                        image: AssetImage(Assets.splashBg),
+                        fit: BoxFit.contain)),
+                child: Stack(
+                  alignment: Alignment.center,
+                  fit: StackFit.passthrough,
+                  clipBehavior: Clip.antiAliasWithSaveLayer,
+                  children: [
+                    Align(
+                      alignment: Alignment.center,
+                      child: Padding(
+                        padding: EdgeInsets.only(
+                            left: (MediaQuery.of(context).size.width / 6)
+                                .ceilToDouble()
+                                .spMin,
+                            right: (MediaQuery.of(context).size.width / 6)
+                                .ceilToDouble()
+                                .spMin),
+                        child: Image.asset(
+                          Assets.taskManagerLogo,
+                          fit: BoxFit.scaleDown,
+                        ),
+                      ),
+                    ),
+                    if (Session.of.getBool(Str.loginPrefText) ?? false)
+                      Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Padding(
+                          padding: EdgeInsetsGeometry.only(bottom: 150.spMin),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            spacing: 5.spMin,
+                            children: [
+                              CompactText(
+                                  (state is LoadingState)
+                                      ? 'Fetching user information...'
+                                      : "✅ Fetched user information...",
+                                  color: AppC.lightDark,
+                                  fontWeight: FontWeight.w200),
+                              Padding(
+                                  padding: 30.spMin.horizontalPadding,
+                                  child: LinearProgressIndicator(
+                                    borderRadius:
+                                        BorderRadius.circular(5.spMin),
+                                    backgroundColor: AppC.lightGray,
+                                    color: AppC.appColor,
+                                  ))
+                            ],
+                          ),
+                        ),
+                      ),
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Padding(
+                        padding: EdgeInsetsGeometry.only(bottom: 30.spMin),
+                        child: FutureBuilder(future: getIt<CommonService>().getPackageInfo(), builder: (context, snapshot) => AnimatedCrossFade(
+                            firstChild: const CompactText('Fetching version'),
+                            secondChild: CompactText('Version: ${snapshot.data?.version}'),
+                            crossFadeState: (snapshot.data != null) ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+                            duration: Durations.extralong4)),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )));
   }
 }

@@ -1,10 +1,9 @@
-import 'package:equatable/equatable.dart';
+part of '../Bloc/local_authentication_bloc.dart';
 
 abstract class LocalAuthenticationEvent extends Equatable {
-  const LocalAuthenticationEvent();
-}
-
-class LocalAuthenticationInitialEvent extends LocalAuthenticationEvent {
   @override
   List<Object?> get props => [];
 }
+
+class LocalAuthenticationInitialEvent extends LocalAuthenticationEvent {}
+class LocalAuthenticationCheckEvent extends LocalAuthenticationEvent {}

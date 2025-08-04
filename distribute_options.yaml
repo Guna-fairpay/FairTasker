@@ -1,0 +1,20 @@
+variables:
+  FIREBASE_TOKEN: "1//0gNGOz9UsdqyJCgYIARAAGBASNwF-L9IrXbjjnkkMxYO2VjxGP5gukv374rs5y8daYc_cSVDQQhUQ2wpAZmvZrg-XLkN5vp7wftU"
+output: release/
+releases:
+  - name: dev
+    jobs:
+      - name: release-dev-android
+        package:
+          platform: android
+          target: apk
+          build_args:
+            target-platform: android-arm,android-arm64
+        # Publish to firebase
+        publish:
+          target: firebase
+          args:
+            app: com.fairpytasker.fairpytasker
+            testers: prabhu4fairpay@gmail.com
+            groups: alpha
+#            release-notes: release v1.0.0

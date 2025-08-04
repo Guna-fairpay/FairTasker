@@ -9,16 +9,15 @@ class VehicleInitial extends VehicleDataEvent {
   @override
   List<Object?> get props => [];
 }
-
 class GetDropdownVehicleData extends VehicleDataEvent {
   const GetDropdownVehicleData();
   @override
   List<Object?> get props => [];
 }
 
-class GetExpenseToData extends VehicleDataEvent {
+class GetExpenseToDatas extends VehicleDataEvent {
   final String? expenseId;
-  const GetExpenseToData({required this.expenseId});
+  const GetExpenseToDatas({required this.expenseId});
   @override
   List<Object?> get props => [expenseId];
 }
@@ -57,6 +56,13 @@ class GetVehicleGroupingListV extends VehicleDataEvent {
   List<Object?> get props => [];
 }
 
+class GetVehicleGroupData extends VehicleDataEvent {
+  const GetVehicleGroupData();
+  @override
+  List<Object?> get props => [];
+}
+
+
 class AddVehicleDataEvent extends VehicleDataEvent {
   final CreateVehicleData? createVehicleData;
   const AddVehicleDataEvent({this.createVehicleData});
@@ -64,6 +70,40 @@ class AddVehicleDataEvent extends VehicleDataEvent {
   List<Object?> get props => [createVehicleData];
 }
 
+//Set vehicle save event
+class UpdateVehicleDataEvent extends VehicleDataEvent {
+  final CreateVehicleData? createVehicleData;
+  final String? vin;
+  const UpdateVehicleDataEvent({this.createVehicleData, this.vin});
+  @override
+  List<Object?> get props => [createVehicleData, vin];
+}
+
+class setVehicleInitialEvent extends VehicleDataEvent {
+  final dynamic vehicle;
+  final dynamic todoItems;
+  const setVehicleInitialEvent({this.vehicle,this.todoItems});
+  @override
+  List<Object?> get props => [vehicle, todoItems];
+}
+
+
+class AddSpareKeysTask extends VehicleDataEvent {
+  final CreateSpareKeyData? createSpareKeyTaskData;
+  AddSpareKeysTask({required this.createSpareKeyTaskData,});
+  @override
+  List<Object?> get props => [createSpareKeyTaskData];
+}
+
+class MoveRentalData extends VehicleDataEvent {
+  final dynamic rentalData;
+  const MoveRentalData({
+    required this.rentalData});
+  @override
+  List<Object?> get props => [rentalData];
+}
+
+//
 class AddVehicleGroupingData extends VehicleDataEvent {
   final int? id;
   final String? name;
@@ -85,6 +125,14 @@ class DeleteVehicleImage extends VehicleDataEvent {
   const DeleteVehicleImage({required this.id});
   @override
   List<Object?> get props => [id];
+}
+
+class DeleteSetVehicleImage extends VehicleDataEvent {
+  final int? id;
+  final String? vin;
+  const DeleteSetVehicleImage({required this.id, required this.vin});
+  @override
+  List<Object?> get props => [id, vin];
 }
 
 class DeleteExpenseImage extends VehicleDataEvent {
@@ -142,9 +190,9 @@ class GetPartsListV extends VehicleDataEvent {
   List<Object?> get props => [];
 }
 
-class DeletePartsEvent extends VehicleDataEvent {
+class DeletePartEvent extends VehicleDataEvent {
   final int? id;
-  const DeletePartsEvent({required this.id});
+  const DeletePartEvent({required this.id});
   @override
   List<Object?> get props => [id];
 }
@@ -200,6 +248,7 @@ class AddDepartmentData extends VehicleDataEvent {
   @override
   List<Object?> get props => [name, id, head];
 }
+
 /*
 class GetSubCategory extends AddVehicleData {
   const GetSubCategory();
