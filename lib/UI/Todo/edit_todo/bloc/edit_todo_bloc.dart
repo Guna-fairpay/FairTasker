@@ -390,6 +390,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         ? (todoResponse?['rental_booking_id'] == null) : true;
     bool isExpenseBased = !Str.checkInCheckOut.contains(title) && selectedTask?['user_type'].toString() != '5';
     bool isCheckList = [268, 219].contains(todoResponse?['identifier_id']);
+    bool isPreCheck = todoResponse?['identifier_id'] == 403;
     bool isMaintenance = todoResponse?['identifier_id'] == 257;
     bool isOdometer = [
       'oil change',
@@ -420,6 +421,8 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         {"id": 8, "title": "Check Out"},
       if (isCheckIn)
         {"id": 9, "title": "Check In"},
+      if(isPreCheck)
+        {"id": 10, "title": "Private Rental"},
     ];
 
     selectionTaps = tabs.firstWhere(
@@ -427,6 +430,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       ([268,219].contains(todoResponse?['identifier_id']) && e['title'] == "Check List") ||
           (todoResponse?['identifier_id'] == 257 && e['title'] == "Maintenance") ||
           (todoResponse?['identifier_id'] == 324 && e['title'] == "Private Rental Check") ||
+          (todoResponse?['identifier_id'] == 403 && e['title'] == "Private Rental") ||
           ((title == 'Oil change' || title == 'OilChange Check' || title == 'Oil Change Check') && e['title'] == "Odometer"),
       orElse: () => tabs.isNotEmpty ? tabs[0] : {},
     );
