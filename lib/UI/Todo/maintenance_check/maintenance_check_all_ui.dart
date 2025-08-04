@@ -14,15 +14,15 @@ class MaintenanceCheckAllUi extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<MaintenanceCheckBloc, MaintenanceCheckState>(
       builder: (context, state) => Column(
-        spacing: 10.sp,
+        spacing: 10.spMin,
         children: [
           const SizedBox.shrink(),
           CustomCheckboxListTile(
             activeColor: Colors.grey,
-            title: Text("Is all maintenance check done", style: context.textTheme.labelLarge?.copyWith(fontSize: 12.sp, fontWeight: FontWeight.w500)),
+            title: Text("Is all maintenance check done", style: context.textTheme.labelLarge?.copyWith(fontSize: 12.spMin, fontWeight: FontWeight.w500)),
             mainAxisSize: MainAxisSize.min,
             padding: EdgeInsets.zero,
-            spacing: 5.sp,
+            spacing: 5.spMin,
             value: context.watch<MaintenanceCheckBloc>().isMandatory,
             onChanged: (value) => context.read<MaintenanceCheckBloc>().add(MaintenanceCheckAllCheckEvent(value)),
           ),

@@ -67,7 +67,7 @@ class AddTodoMainForm extends StatelessWidget {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: context.textTheme.labelLarge?.copyWith(
-                                  fontSize: 12.sp,
+                                  fontSize: 14.spMin,
                                   fontWeight: FontWeight.bold,
                                   color: AppC.black),
                             )

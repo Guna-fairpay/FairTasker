@@ -12,7 +12,7 @@ class Reports extends StatelessWidget {
           padding: 16.spMin.padding,
           child: Center(
               child: Column(
-                spacing: 10.sp,
+                spacing: 10.spMin,
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,

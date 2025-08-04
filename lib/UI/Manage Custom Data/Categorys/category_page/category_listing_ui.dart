@@ -39,17 +39,17 @@ class CategoryListingUi extends StatelessWidget {
                             color: AppC.appbgColor),
                         children: [
                           Padding(
-                              padding: 5.sp.padding.copyWith(left: 10.sp, right: 10.sp),
+                              padding: 5.spMin.padding.copyWith(left: 10.spMin, right: 10.spMin),
                               child: Text("Category",
                                   style: context.textTheme.labelLarge?.copyWith(
                                       fontWeight: FontWeight.bold,
-                                      fontSize: 12.sp))),
+                                      fontSize: 12.spMin))),
                           Padding(
-                              padding: 5.sp.padding.copyWith(left: 10.sp, right: 10.sp),
+                              padding: 5.spMin.padding.copyWith(left: 10.spMin, right: 10.spMin),
                               child: Text("Actions",
                                   style: context.textTheme.labelLarge?.copyWith(
                                       fontWeight: FontWeight.bold,
-                                      fontSize: 12.sp))),
+                                      fontSize: 12.spMin))),
                         ]),
                     ...context
                         .watch<CategoryBloc>()

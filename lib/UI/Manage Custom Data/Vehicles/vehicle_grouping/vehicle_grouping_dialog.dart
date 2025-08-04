@@ -40,7 +40,7 @@ class _VehicleGroupingDialogView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      insetPadding: 10.sp.padding,
+      insetPadding: 10.spMin.padding,
       titlePadding: EdgeInsets.zero,
       alignment: Alignment.topCenter,
       shape: ContinuousRectangleBorder(

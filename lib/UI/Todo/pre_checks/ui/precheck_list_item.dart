@@ -29,9 +29,9 @@ class PreCheckListItem extends StatelessWidget {
           subtitle: (model?['description'].toString().isNotNullOrEmpty ?? false) ? Text("${model?['description'] ?? ""}") : null,
         ),
         if ((model?['checked'] == false) || ((model?['fix_task'] != null)))
-          Padding(padding: 16.sp.horizontalPadding,
+          Padding(padding: 16.spMin.horizontalPadding,
         child: Column(
-          spacing: 10.sp,
+          spacing: 10.spMin,
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,

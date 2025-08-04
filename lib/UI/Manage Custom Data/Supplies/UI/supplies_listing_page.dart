@@ -57,7 +57,7 @@ class SuppliesListingPage extends StatelessWidget {
                             child: GestureDetector(
                               onTap: () => context.read<SuppliesBloc>().add(EditSuppliesEvent(data: item)),
                               child: Utils.getText(item['name'] ?? '',
-                                  size: 12.sp, overFlow: TextOverflow.visible),
+                                  size: 12.spMin, overFlow: TextOverflow.visible),
                             ),
                           ),
                           Row(
@@ -65,7 +65,7 @@ class SuppliesListingPage extends StatelessWidget {
                             children: [
                               InkWell(
                                   onTap: () => context.read<SuppliesBloc>().add(EditSuppliesEvent(data: item)),
-                                  child: Icon(Icons.edit_outlined,color: AppC.blue,size: 20.sp,)),
+                                  child: Icon(Icons.edit_outlined,color: AppC.blue,size: 20.spMin,)),
                               InkWell(
                                   onTap: () {
                                     AskPermissionDialog.show(context,
@@ -78,7 +78,7 @@ class SuppliesListingPage extends StatelessWidget {
                                         onPositivePressed: ()=>context.read<SuppliesBloc>().add(DeleteSuppliesEvent(data: item))
                                     );
                                   },
-                                  child: Icon(Icons.delete_outline,color: AppC.redAccent,size: 20.sp,)),
+                                  child: Icon(Icons.delete_outline,color: AppC.redAccent,size: 20.spMin,)),
                             ],
                           )
                         ]),

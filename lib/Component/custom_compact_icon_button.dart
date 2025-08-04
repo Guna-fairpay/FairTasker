@@ -47,9 +47,9 @@ class CompactIconButton extends StatelessWidget {
                 ),
               ),
               padding: padding ?? WidgetStatePropertyAll(
-                  EdgeInsets.symmetric(vertical: 12.sp, horizontal: 6.sp)),
-              iconSize: WidgetStatePropertyAll(12.sp),
-              minimumSize: WidgetStatePropertyAll(Size.fromRadius(18.sp)),
+                  EdgeInsets.symmetric(vertical: 12.spMin, horizontal: 6.spMin)),
+              iconSize: WidgetStatePropertyAll(12.spMin),
+              minimumSize: WidgetStatePropertyAll(Size.fromRadius(18.spMin)),
               foregroundColor: WidgetStatePropertyAll(foregroundColor),
               backgroundColor: WidgetStatePropertyAll(backgroundColor),
               elevation: WidgetStatePropertyAll(elevation)),

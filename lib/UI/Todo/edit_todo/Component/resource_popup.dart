@@ -56,12 +56,12 @@ class ResourceSelection {
                       ),
                     ),
                     ConstrainedBox(
-                      constraints: BoxConstraints(maxHeight: 200.sp),
+                      constraints: BoxConstraints(maxHeight: 200.spMin),
                       child: Scrollbar(
                         controller: scrollController,
                         thumbVisibility: true,
                         trackVisibility: true,
-                        thickness: 3.sp,
+                        thickness: 3.spMin,
                         radius: const Radius.circular(Num.borderRadiusLarge),
                         child: ListView.builder(
                           controller: scrollController,

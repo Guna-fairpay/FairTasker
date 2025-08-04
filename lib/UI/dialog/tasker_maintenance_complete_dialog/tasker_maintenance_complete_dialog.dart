@@ -41,7 +41,7 @@ class _TaskerMaintenanceCompleteDialog extends StatelessWidget {
           }
         },
         child: BlocBuilder<TaskerMaintenanceBloc, TaskerMaintenanceCompleteState>(builder: (context, state) => Column(
-          spacing: 10.sp,
+          spacing: 10.spMin,
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [

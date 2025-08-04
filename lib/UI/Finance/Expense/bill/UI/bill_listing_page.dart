@@ -27,7 +27,7 @@ class BillListingPage extends StatelessWidget {
             spacing: 10,
             children: [
               Row(
-                spacing: 20.sp,
+                spacing: 20.spMin,
                 children: [
                   Expanded(
                     flex: 2,
@@ -50,7 +50,7 @@ class BillListingPage extends StatelessWidget {
                   2: FlexColumnWidth(5),
                   3: IntrinsicColumnWidth(),
                   4: IntrinsicColumnWidth(),
-                  5: FlexColumnWidth(2),
+                  5: IntrinsicColumnWidth(),
                 },
                 defaultVerticalAlignment: TableCellVerticalAlignment.middle,
                 border:  const TableBorder(
@@ -65,28 +65,28 @@ class BillListingPage extends StatelessWidget {
                           color: AppC.appbgColor),
                       children: [
                         Padding(
-                            padding: 5.sp.padding.copyWith(left: 10.sp, right: 10.sp),
+                            padding: 5.spMin.padding.copyWith(left: 10.spMin, right: 10.spMin),
                             child: const SizedBox.shrink()),
                         Padding(
-                            padding: 5.sp.padding.copyWith(left: 10.sp, right: 10.sp),
-                            child: Align( alignment: Alignment.center, child: Icon(Icons.calendar_month_rounded,size: 16.sp))),
+                            padding: 5.spMin.padding.copyWith(left: 10.spMin, right: 10.spMin),
+                            child: Align( alignment: Alignment.center, child: Icon(Icons.calendar_month_rounded,size: 16.spMin))),
                         Padding(
-                            padding: 5.sp.padding.copyWith(left: 10.sp, right: 10.sp),
+                            padding: 5.spMin.padding.copyWith(left: 10.spMin, right: 10.spMin),
                             child: Text("Title",
                                 style: context.textTheme.labelLarge?.copyWith(
                                     fontWeight: FontWeight.bold,
-                                    fontSize: 12.sp))),
+                                    fontSize: 12.spMin))),
                         Padding(
-                            padding: 5.sp.padding.copyWith(left: 10.sp, right: 10.sp),
-                            child: Icon(Icons.image_outlined,size: 16.sp,)),
+                            padding: 5.spMin.padding.copyWith(left: 10.spMin, right: 10.spMin),
+                            child: Icon(Icons.image_outlined,size: 16.spMin,)),
                         Padding(
-                            padding: 5.sp.padding.copyWith(left: 10.sp, right: 10.sp),
-                            child: Icon(Icons.person_2_rounded,size: 16.sp,)),
+                            padding: 5.spMin.padding.copyWith(left: 10.spMin, right: 10.spMin),
+                            child: Icon(Icons.person_2_rounded,size: 16.spMin,)),
                         Padding(
-                            padding: 5.sp.padding.copyWith(left: 10.sp, right: 10.sp),
+                            padding: 5.spMin.padding.copyWith(left: 20.spMin, /*right: 10.spMin*/),
                             child: Text("#",style: context.textTheme.labelLarge?.copyWith(
                                 fontWeight: FontWeight.bold,
-                                fontSize: 12.sp))),
+                                fontSize: 12.spMin))),
 
                       ]),
                   ...context

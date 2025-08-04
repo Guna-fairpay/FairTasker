@@ -11,25 +11,23 @@ class TableChildRow extends TableRow {
     TableCell(child: Padding(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5), child: Text("${model?['phone'] ?? ""}", maxLines: 1, overflow: TextOverflow.ellipsis))),
     TableCell(child: Padding(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5), child: Text("\$ ${model?['monthly_rental'] ?? "0"}", maxLines: 1, overflow: TextOverflow.ellipsis))),
     TableCell(child: Padding(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5), child: Text(model?['rental_start_date'].toString().toFormat(format: "MM-dd-yy") ?? "", maxLines: 1, overflow: TextOverflow.ellipsis))),
-    TableCell(child: Padding(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5), child: FittedBox(
-      child: Row(
-        spacing: 5.spMin,
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.end,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          InkWell(
-            onTap: onEdit,
-            borderRadius: BorderRadius.circular(Num.borderRadiusLarge),
-            child: SvgPicture.asset(Assets.penEditIcon, theme: const SvgTheme(currentColor: AppC.appColor)),
-          ),
-          InkWell(
-            onTap: onDelete,
-            borderRadius: BorderRadius.circular(Num.borderRadiusLarge),
-            child: SvgPicture.asset(Assets.trashIcon, theme: const SvgTheme(currentColor: AppC.redAccent)),
-          ),
-        ],
-      ),
+    TableCell(child: Padding(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5), child: Row(
+      spacing: 5.spMin,
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        InkWell(
+          onTap: onEdit,
+          borderRadius: BorderRadius.circular(Num.borderRadiusLarge),
+          child: SvgPicture.asset(Assets.penEditIcon, theme: const SvgTheme(currentColor: AppC.appColor,), width: 20.spMin, height: 20.spMin,),
+        ),
+        InkWell(
+          onTap: onDelete,
+          borderRadius: BorderRadius.circular(Num.borderRadiusLarge),
+          child: SvgPicture.asset(Assets.trashIcon, theme: const SvgTheme(currentColor: AppC.redAccent), width: 20.spMin, height: 20.spMin,),
+        ),
+      ],
     ))),
   ];
 }

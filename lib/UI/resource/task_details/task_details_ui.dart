@@ -52,7 +52,7 @@ class TaskDetailsUi extends StatelessWidget {
                 ],
               ),
               body: Column(
-                spacing: 10.sp,
+                spacing: 10.spMin,
                 children: const [
                   TaskDetailsFilterUi(),
                   TaskDetailsListUi()

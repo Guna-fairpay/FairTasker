@@ -57,7 +57,7 @@ class _SwapIndexPopUp extends StatelessWidget {
                           context.read<VehicleStatusConfigBloc>().matchedData['category_name']??'',
                           weight: FontWeight.w600,
                         color: AppC.appColor,
-                        size: 17.sp
+                        size: 17.spMin
                       ),
                       const Spacer(),
                       IconButton(onPressed: context.popDialog, icon: const Icon(Icons.close,color: AppC.redAccent))
@@ -93,7 +93,7 @@ class _SwapIndexPopUp extends StatelessWidget {
                           title: Utils.getText(
                             "${checklist['label']} - ${checklist['checklist_order']}",
                             weight: FontWeight.bold,
-                            size: 12.sp,
+                            size: 12.spMin,
                           ),
                         ),
                       );

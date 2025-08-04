@@ -23,7 +23,7 @@ class VehicleExpenseListingPageUI extends StatelessWidget {
         minimum: 10.padding,
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          spacing: 10.sp,
+          spacing: 10.spMin,
           children: [
             Row(
               spacing: 10,
@@ -50,7 +50,7 @@ class VehicleExpenseListingPageUI extends StatelessWidget {
                 Utils.getText(
                     "Total : \$${(context.watch<ExpenseDetailsBloc>().expenseAmount ?? 0.0).toString().toDoubleDigit}",
                 weight: FontWeight.bold,
-                size: 13.sp,
+                size: 13.spMin,
                 color: AppC.appColor)
               ],
             ),

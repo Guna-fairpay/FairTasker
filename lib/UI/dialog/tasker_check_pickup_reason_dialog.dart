@@ -32,7 +32,7 @@ class _TaskerTimeChangeReasonDialogView extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       insetPadding: 10.padding,
-      contentPadding: 16.sp.horizontalPadding.copyWith(bottom: 16.sp),
+      contentPadding: 16.spMin.horizontalPadding.copyWith(bottom: 16.spMin),
       titlePadding: EdgeInsets.zero,
       shape: ContinuousRectangleBorder(
           borderRadius: BorderRadius.circular(Num.borderRadiusLarge)),

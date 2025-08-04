@@ -18,7 +18,7 @@ class TaskTitleView extends StatelessWidget {
     spans.add(
       TextSpan(
         text: display['task_title'] ?? '',
-        style: context.textTheme.labelMedium?.copyWith(
+        style: context.textTheme.labelLarge?.copyWith(
           color: hasTimeSensitive ? AppC.red : AppC.appColor,
           fontWeight: FontWeight.bold,
         ),
@@ -28,27 +28,27 @@ class TaskTitleView extends StatelessWidget {
 
     if (hasReason || hasReasonAttachments) {
       spans.addAll([
-        TextSpan(text: "\t(\t", style: context.textTheme.labelMedium?.copyWith(color: Colors.red, fontSize: 12.sp)),
-        if (hasReason) TextSpan(text: display['reason'] ?? '', style: context.textTheme.labelMedium?.copyWith(color: Colors.red, fontSize: 12.sp)),
+        TextSpan(text: "\t(\t", style: context.textTheme.labelSmall?.copyWith(color: Colors.red, fontSize: 12.spMin)),
+        if (hasReason) TextSpan(text: display['reason'] ?? '', style: context.textTheme.labelSmall?.copyWith(color: Colors.red, fontSize: 12.spMin)),
         if (hasReasonAttachments)
           WidgetSpan(child: GestureDetector(
             onTap: onReasonAttachmentView,
-            child: Icon(Icons.remove_red_eye_rounded, color: Colors.red, size: 14.sp),
+            child: Icon(Icons.remove_red_eye_rounded, color: Colors.red, size: 14.spMin),
           )),
-        TextSpan(text: "\t)\t", style: context.textTheme.labelMedium?.copyWith(color: Colors.red, fontSize: 12.sp)),
+        TextSpan(text: "\t)\t", style: context.textTheme.labelSmall?.copyWith(color: Colors.red, fontSize: 12.spMin)),
       ]);
     }
 
     if (hasMeeting) {
       spans.addAll([WidgetSpan(child: 5.spMin.width), WidgetSpan(child: GestureDetector(
         onTap: onMeetingView,
-        child: Icon(Remix.links_line, color: AppC.bouncieButtonColor, size: 14.sp),
+        child: Icon(Remix.links_line, color: AppC.bouncieButtonColor, size: 14.spMin),
       ))]);
     }
 
     if (hasRelatedTask) {
       spans.addAll([
-        TextSpan(text: "\t>>\t", style: context.textTheme.labelMedium?.copyWith(color: Colors.red)),
+        TextSpan(text: "\t>>\t", style: context.textTheme.labelSmall?.copyWith(color: Colors.red)),
         TextSpan(text: display['relatedTaskName'] ?? ''),
       ]);
     }
@@ -57,7 +57,7 @@ class TaskTitleView extends StatelessWidget {
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
       textAlign: TextAlign.center,
-      style: context.textTheme.labelMedium?.copyWith(color: AppC.appColor, fontSize: 12.sp),
+      style: context.textTheme.labelSmall?.copyWith(color: AppC.appColor, fontSize: 12.spMin),
     );
   }
 }

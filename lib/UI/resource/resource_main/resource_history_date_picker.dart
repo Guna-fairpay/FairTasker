@@ -19,19 +19,19 @@ class ResourceHistoryDatePicker extends StatelessWidget {
       builder: (context, state) =>
           Column(
             mainAxisSize: MainAxisSize.min,
-            spacing: 10.sp,
+            spacing: 10.spMin,
             children: [
               const SizedBox.shrink(),
               Container(
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(5.sp),
+                  borderRadius: BorderRadius.circular(5.spMin),
                   color: AppC.appbgColor
                 ),
                 child: ListTile(
                   title: const Text("Working Hours History"),
                   horizontalTitleGap: 0,
                   minVerticalPadding: 0,
-                  minTileHeight: 40.sp,
+                  minTileHeight: 40.spMin,
                   titleTextStyle: context.textTheme.titleMedium
                       ?.copyWith(fontWeight: FontWeight.bold),
                   trailing: InkWell(
@@ -41,7 +41,7 @@ class ResourceHistoryDatePicker extends StatelessWidget {
                 ),
               ),
               Row(
-                spacing: 10.sp,
+                spacing: 10.spMin,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(

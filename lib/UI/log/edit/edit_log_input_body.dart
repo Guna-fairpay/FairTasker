@@ -15,7 +15,7 @@ class EditLogInputBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<EditLogBloc, EditLogState>(builder: (context, state) => Column(
       mainAxisSize: MainAxisSize.min,
-      spacing: 10.sp,
+      spacing: 10.spMin,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         CompactTextField(

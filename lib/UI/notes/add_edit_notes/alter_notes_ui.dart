@@ -50,7 +50,7 @@ class AlterNotesUi extends StatelessWidget {
               }
             }
           },
-          child: SafeArea(minimum: 16.sp.padding, child: const AlterNotesBody()),
+          child: SafeArea(minimum: 16.spMin.padding, child: const AlterNotesBody()),
         ),
       ),
     );

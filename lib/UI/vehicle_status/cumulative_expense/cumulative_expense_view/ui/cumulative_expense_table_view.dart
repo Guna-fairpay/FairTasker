@@ -19,14 +19,14 @@ class CumulativeExpenseTableView extends TableRow {
   List<Widget> get children => [
         TableRowInkWell(
             child: Padding(
-                padding: 10.sp.padding,
+                padding: 10.spMin.padding,
                 child: Utils.getText(
                     DateTime.tryParse(model?['expense_date'] ?? '')
                         .toFormat(format: "MM-dd-yyy")
-                        .toString(),size:12.sp))),
+                        .toString(),size:12.spMin))),
         TableRowInkWell(
           child: Padding(
-            padding: 10.sp.padding,
+            padding: 10.spMin.padding,
             child: RichText(
               text: TextSpan(children: [
                 TextSpan(
@@ -49,10 +49,10 @@ class CumulativeExpenseTableView extends TableRow {
         ),
         TableRowInkWell(
             child: Padding(
-                padding: 10.sp.padding,
+                padding: 10.spMin.padding,
                 child: Align(
                   alignment: Alignment.bottomRight,
-                  child: Utils.getText(size:12.sp,
+                  child: Utils.getText(size:12.spMin,
                       "\$${model?['expense_amount'].toString() ?? ""}"),
                 ))),
         TableCell(

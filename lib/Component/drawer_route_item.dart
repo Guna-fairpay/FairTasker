@@ -17,7 +17,7 @@ class DrawerRouteItem extends StatelessWidget {
       selected: true,
       leading: Icon(icon, color: AppC.appColor),
       minLeadingWidth: 10.spMin,
-      title: Utils.getText(title, size: 12.sp, weight: FontWeight.w400),
+      title: Utils.getText(title, size: 14.spMin, weight: FontWeight.w400),
       onTap: () async {
         Scaffold.of(context).closeDrawer();
         await Future.delayed(Durations.short1);

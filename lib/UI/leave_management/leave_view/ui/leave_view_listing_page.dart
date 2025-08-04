@@ -37,7 +37,7 @@ class LeaveViewListingPage extends StatelessWidget {
                     labelKey: 'first_name',
                     labelKey2: 'last_name',
                     initialSelection: context.read<LeaveViewBloc>().selectedEmployee,
-                    height: 28.sp,
+                    height: 28.spMin,
                     borderColor: AppC.blue,
                     borderWidth: 1,
                   )),
@@ -56,7 +56,7 @@ class LeaveViewListingPage extends StatelessWidget {
                   ),
                 ],
               ),
-              10.sp.height,
+              10.spMin.height,
               Table(
                 columnWidths:const {
                   0: FlexColumnWidth(2),
@@ -80,46 +80,46 @@ class LeaveViewListingPage extends StatelessWidget {
                           color: AppC.appbgColor),
                       children: [
                         Padding(
-                            padding: 5.sp.padding.copyWith(left: 5.sp, right: 5.sp),
+                            padding: 5.spMin.padding.copyWith(left: 5.spMin, right: 5.spMin),
                             child: Text("Name",
                                 style: context.textTheme.labelLarge?.copyWith(
                                     fontWeight: FontWeight.bold,
-                                    fontSize: 12.sp))),
+                                    fontSize: 12.spMin))),
                         Padding(
-                            padding: 5.sp.padding.copyWith(left: 5.sp, right: 5.sp),
+                            padding: 5.spMin.padding.copyWith(left: 5.spMin, right: 5.spMin),
                             child: Text("Type",
                                 style: context.textTheme.labelLarge?.copyWith(
                                     fontWeight: FontWeight.bold,
-                                    fontSize: 12.sp))),
+                                    fontSize: 12.spMin))),
                         Padding(
-                            padding: 5.sp.padding.copyWith(left: 5.sp, right: 5.sp),
+                            padding: 5.spMin.padding.copyWith(left: 5.spMin, right: 5.spMin),
                             child: Text("Reason",
                                 textAlign: TextAlign.start,
                                 style: context.textTheme.labelLarge?.copyWith(
                                     fontWeight: FontWeight.bold,
-                                    fontSize: 12.sp))),
+                                    fontSize: 12.spMin))),
                         Padding(
-                            padding: 5.sp.padding.copyWith(left: 5.sp, right: 5.sp),
+                            padding: 5.spMin.padding.copyWith(left: 5.spMin, right: 5.spMin),
                             child: Text("Date",
                                 style: context.textTheme.labelLarge?.copyWith(
                                     fontWeight: FontWeight.bold,
-                                    fontSize: 12.sp))),
+                                    fontSize: 12.spMin))),
                         Padding(
-                            padding: 5.sp.padding.copyWith(left: 5.sp, right: 5.sp),
+                            padding: 5.spMin.padding.copyWith(left: 5.spMin, right: 5.spMin),
                             child: Text("#",
                                 style: context.textTheme.labelLarge?.copyWith(
                                     fontWeight: FontWeight.bold,
-                                    fontSize: 12.sp))),
+                                    fontSize: 12.spMin))),
                         Padding(
-                            padding: 5.sp.padding.copyWith(left: 5.sp, right: 5.sp),
+                            padding: 5.spMin.padding.copyWith(left: 5.spMin, right: 5.spMin),
                             child: Text("#",
                                 style: context.textTheme.labelLarge?.copyWith(
                                     fontWeight: FontWeight.bold,
                                     color: AppC.trans,
-                                    fontSize: 12.sp))),
+                                    fontSize: 12.spMin))),
                         Padding(
-                            padding: 5.sp.padding.copyWith(left: 5.sp, right: 5.sp),
-                            child: Icon(Icons.edit_outlined,size: 16.sp,)),
+                            padding: 5.spMin.padding.copyWith(left: 5.spMin, right: 5.spMin),
+                            child: Icon(Icons.edit_outlined,size: 16.spMin,)),
                       ]),
                 ],
               ),

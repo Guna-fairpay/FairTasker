@@ -37,7 +37,7 @@ class CumulativeExpenseListingPage extends StatelessWidget {
                     backgroundColor: AppC.white,
                     onPressed:()=> context.push(CumulativeExpenseAddMainPage(model:context.read<CumulativeExpenseBloc>().data,)),),
               ),
-              10.sp.height,
+              10.spMin.height,
               Table(
                 columnWidths: const {
                   0: FlexColumnWidth(2),
@@ -58,29 +58,29 @@ class CumulativeExpenseListingPage extends StatelessWidget {
                           color: AppC.appbgColor),
                       children: [
                         Padding(
-                            padding: 5.sp.padding.copyWith(left: 10.sp, right: 10.sp),
+                            padding: 5.spMin.padding.copyWith(left: 10.spMin, right: 10.spMin),
                             child: Text("Date",
                                 style: context.textTheme.labelLarge?.copyWith(
                                     fontWeight: FontWeight.bold,
-                                    fontSize: 12.sp))),
+                                    fontSize: 12.spMin))),
                         Padding(
-                            padding: 5.sp.padding.copyWith(left: 10.sp, right: 10.sp),
+                            padding: 5.spMin.padding.copyWith(left: 10.spMin, right: 10.spMin),
                             child: Text("Category",
                                 style: context.textTheme.labelLarge?.copyWith(
                                     fontWeight: FontWeight.bold,
-                                    fontSize: 12.sp))),
+                                    fontSize: 12.spMin))),
                         Padding(
-                            padding: 5.sp.padding.copyWith(left: 10.sp, right: 10.sp),
+                            padding: 5.spMin.padding.copyWith(left: 10.spMin, right: 10.spMin),
                             child: Text("Amount",
                                 style: context.textTheme.labelLarge?.copyWith(
                                     fontWeight: FontWeight.bold,
-                                    fontSize: 12.sp))),
+                                    fontSize: 12.spMin))),
                         Padding(
-                            padding: 5.sp.padding.copyWith(left: 10.sp, right: 10.sp),
+                            padding: 5.spMin.padding.copyWith(left: 10.spMin, right: 10.spMin),
                             child: Text("#",style: context.textTheme.labelLarge?.copyWith(
                                 fontWeight: FontWeight.bold,
                                 color: AppC.trans,
-                                fontSize: 12.sp))),
+                                fontSize: 12.spMin))),
 
                       ]),
                   ...context

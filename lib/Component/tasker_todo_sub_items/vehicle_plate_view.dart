@@ -24,7 +24,7 @@ class VehiclePlateView extends StatelessWidget {
       vehicleImageWidget = Center(
         child: Utils.getText(
           vinText,
-          size: 14.sp,
+          size: 14.spMin,
           overFlow: TextOverflow.ellipsis,
           color: AppC.appColor,
           align: TextAlign.center,
@@ -76,7 +76,7 @@ class VehiclePlateView extends StatelessWidget {
             if (hasVehiclePlate)
               Utils.getText(
                 vehiclePlate,
-                size: 10.sp,
+                size: 12.spMin,
                 weight: FontWeight.w900,
                 color: plateColor,
               ),

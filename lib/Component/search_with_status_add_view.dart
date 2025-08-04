@@ -30,7 +30,7 @@ class SearchWithStatusAddView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(color: Color(0xFFf3f6f9)),
-      padding: 5.sp.padding,
+      padding: 5.spMin.padding,
       child: Row(
         children: [
           if (onChanged != null)

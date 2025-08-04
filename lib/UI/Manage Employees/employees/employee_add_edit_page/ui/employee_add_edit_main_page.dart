@@ -20,7 +20,7 @@ class EmployeeAddEditMainPage extends StatelessWidget {
       appBar: AppBar(
         title:  Text(id==null?'Add Employee':'Edit Employee'),
         titleTextStyle:
-        context.textTheme.titleMedium?.copyWith(color: AppC.white, fontWeight: FontWeight.bold),
+        context.textTheme.titleMedium?.copyWith(color: AppC.white, fontWeight: FontWeight.bold, fontSize: 20.spMin),
         backgroundColor: AppC.appColor,
         foregroundColor: AppC.white,
         automaticallyImplyLeading: false,
@@ -49,7 +49,7 @@ class EmployeeAddEditMainPage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all( color: AppC.grey,width: 0.5)
                   ),
-                    padding: EdgeInsets.all(16.sp),
+                    padding: EdgeInsets.all(16.spMin),
                   child: EmployeeAddEditTextFormFieldPage(id: id,)
                 ),
               ],

@@ -120,7 +120,7 @@ class AddVehicleMoreTwo extends StatelessWidget {
                       CustomDateTimePicker<DateTime>(
                         controller:
                         context.read<AddVehicleBloc>().renewalDateController,
-                        padding: 8.sp.padding,
+                        padding: 8.spMin.padding,
                         format: "MM-dd-yyyy",
                         labelText: "dd-mm-yyyy",
                         suffixIcon: Icon(Icons.calendar_month_rounded,

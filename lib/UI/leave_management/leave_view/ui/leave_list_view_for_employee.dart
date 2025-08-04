@@ -48,7 +48,7 @@ class LeaveListViewForEmployee extends StatelessWidget {
                     ),
                   ],
                 ),
-                10.sp.height,
+                10.spMin.height,
                 Expanded(
                   child: ListView.builder(
                     physics: const BouncingScrollPhysics(),
@@ -64,8 +64,8 @@ class LeaveListViewForEmployee extends StatelessWidget {
                                 width: Num.borderWidthThinField)
                         ),
                         clipBehavior: Clip.antiAliasWithSaveLayer,
-                        padding: 10.sp.padding,
-                        margin: 10.sp.padding,
+                        padding: 10.spMin.padding,
+                        margin: 10.spMin.padding,
                         child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -74,7 +74,7 @@ class LeaveListViewForEmployee extends StatelessWidget {
                                 trailing: Utils.getText(
                                     "${(item['start_date'] ?? '').toString().toDateTime().toFormat(format: 'MM-dd-yy')} to "
                                         "${(item['end_date'] ?? '').toString().toDateTime().toFormat(format: 'MM-dd-yy')}",
-                                  size: 12.sp,
+                                  size: 12.spMin,
                                 ),
                                 contentPadding: EdgeInsets.zero,
                                 minTileHeight: 0,
@@ -89,11 +89,11 @@ class LeaveListViewForEmployee extends StatelessWidget {
                                       children: [TextSpan(text: item['reason'],
                                           style: const TextStyle(color: AppC.grey,))
                                       ],
-                                  ), style: TextStyle(fontSize: 12.sp),),
+                                  ), style: TextStyle(fontSize: 12.spMin),),
                                   trailing:(item['start_time'] != null)? Utils.getText(
                                     "${(item['start_time']).toString().toDateTime(inputFormat: "HH:mm:ss").toFormat(format: 'hh:mm a') ?? ''} to "
                                         "${(item['end_time']).toString().toDateTime(inputFormat: "HH:mm:ss").toFormat(format: 'hh:mm a') ?? ''}",
-                                    size: 12.sp,):null,
+                                    size: 12.spMin,):null,
                               ),
                               ListTile(
                                 contentPadding: EdgeInsets.zero,
@@ -103,12 +103,12 @@ class LeaveListViewForEmployee extends StatelessWidget {
                                    TextSpan(
                                     text: "Admin Reason: ",
                                     children: [TextSpan(text: item['admin_reason'], style: const TextStyle(color: AppC.grey),)]) ,
-                                  style: TextStyle(fontSize: 12.sp),
+                                  style: TextStyle(fontSize: 12.spMin),
                                 ) : const SizedBox.shrink(),
-                                  trailing: IconButton( onPressed: ()=> context.read<LeaveViewBloc>().add(AddEditPageEvent(leaveData: item)),icon: Icon(Icons.mode_edit_outlined,size: 18.sp,color: AppC.appColor) )
+                                  trailing: IconButton( onPressed: ()=> context.read<LeaveViewBloc>().add(AddEditPageEvent(leaveData: item)),icon: Icon(Icons.mode_edit_outlined,size: 18.spMin,color: AppC.appColor) )
                               ),
                               Container(
-                                padding: 1.sp.padding,
+                                padding: 1.spMin.padding,
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(Num.borderRadius),
                                   shape: BoxShape.rectangle,
@@ -122,7 +122,7 @@ class LeaveListViewForEmployee extends StatelessWidget {
                                       : item['status'] == 'Rejected' ? AppC.red
                                       : item['status'] == 'Pending' ? const Color(0xffff4500)
                                       : AppC.text,
-                                  size: 9.sp,
+                                  size: 9.spMin,
                                   weight: FontWeight.bold,
                                 ),
                               ),

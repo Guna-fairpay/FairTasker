@@ -17,7 +17,7 @@ class PrivateRentalListItem extends TableRow {
             verticalAlignment: TableCellVerticalAlignment.intrinsicHeight,
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4),
-              child: Utils.getText(vehicle['vehicle_name'] ?? '', size: 12.sp),
+              child: Utils.getText(vehicle['vehicle_name'] ?? '', size: 12.spMin),
             )),
         TableCell(
             verticalAlignment: TableCellVerticalAlignment.intrinsicHeight,
@@ -27,7 +27,7 @@ class PrivateRentalListItem extends TableRow {
                   (vehicle['customer'].toString().isNotNullOrEmpty && (vehicle['customer'] is Map) )
                       ? "${vehicle['customer']?['first_name'] ?? ''} ${vehicle['customer']?['last_name'] ?? ''}"
                       : "",
-                  size: 12.sp),
+                  size: 12.spMin),
             )),
         TableCell(
           verticalAlignment: TableCellVerticalAlignment.intrinsicHeight,
@@ -44,7 +44,7 @@ class PrivateRentalListItem extends TableRow {
                             BorderRadius.circular(Num.borderRadiusXLarge),
                         onTap: onAdd,
                         child: Padding(
-                          padding: 3.sp.padding,
+                          padding: 3.spMin.padding,
                           child: const Icon(
                             Icons.add,
                             color: AppC.green,
@@ -58,7 +58,7 @@ class PrivateRentalListItem extends TableRow {
                         borderRadius:
                             BorderRadius.circular(Num.borderRadiusXLarge),
                         child: Padding(
-                          padding: 3.sp.padding,
+                          padding: 3.spMin.padding,
                           child: const Icon(
                             Icons.edit_outlined,
                             color: AppC.appColor,
@@ -70,7 +70,7 @@ class PrivateRentalListItem extends TableRow {
                         borderRadius:
                             BorderRadius.circular(Num.borderRadiusXLarge),
                         child: Padding(
-                          padding: 3.sp.padding,
+                          padding: 3.spMin.padding,
                           child: const Icon(
                             Icons.delete_outline,
                             color: AppC.redAccent,

@@ -40,7 +40,7 @@ class AlterNotesBody extends StatelessWidget {
                 children: [
                   ListView.separated(
                       physics: const NeverScrollableScrollPhysics(),
-                      separatorBuilder: (context, index) => 10.sp.height,
+                      separatorBuilder: (context, index) => 10.spMin.height,
                       itemBuilder: (context, index) {
                         var model = context.watch<AlterNotesBloc>().noteItems[index];
                         return NotesTaskComponent(

@@ -37,8 +37,8 @@ class _ProjectFilterUI extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      insetPadding: 16.sp.padding,
-      contentPadding: 16.sp.horizontalPadding.copyWith(bottom: 16.sp),
+      insetPadding: 16.spMin.padding,
+      contentPadding: 16.spMin.horizontalPadding.copyWith(bottom: 16.spMin),
       backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Num.borderRadiusLarge)),
       alignment: Alignment.center,
@@ -60,7 +60,7 @@ class _ProjectFilterUI extends StatelessWidget {
               builder: (context, state) => Container(
                 width: 30,
                 constraints:
-                BoxConstraints(maxHeight: context.height * 0.5),
+                BoxConstraints(maxHeight: context.height * 0.5, minWidth: context.width * 0.3, maxWidth: context.width * 0.5),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,

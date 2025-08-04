@@ -16,7 +16,7 @@ class CompactTextButton extends StatelessWidget {
       iconColor: WidgetStatePropertyAll(iconColor),
         foregroundColor: WidgetStatePropertyAll(textColor),
         textStyle: WidgetStatePropertyAll(context.textTheme.labelLarge
-            ?.copyWith(fontSize: 12.sp, fontWeight: FontWeight.bold)));
+            ?.copyWith(fontSize: 12.spMin, fontWeight: FontWeight.bold)));
     return (icon != null) ? TextButton.icon(onPressed: onPressed, label: textWidget, style: style, icon: Icon(icon)) : TextButton(
       onPressed: onPressed,
       style: style,

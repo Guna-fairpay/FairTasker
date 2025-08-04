@@ -25,7 +25,7 @@ class _OilChangeDialogView extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       insetPadding: 16.spMin.padding,
-      contentPadding: 16.spMin.horizontalPadding.copyWith(bottom: 16.sp),
+      contentPadding: 16.spMin.horizontalPadding.copyWith(bottom: 16.spMin),
       titlePadding: EdgeInsets.zero,
       backgroundColor: Colors.white,
       shape: ContinuousRectangleBorder(

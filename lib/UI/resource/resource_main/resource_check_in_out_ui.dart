@@ -48,7 +48,7 @@ class ResourceCheckInOutUi extends StatelessWidget {
           }
         },
         child: ListView(
-            padding: 10.sp.padding,
+            padding: 10.spMin.padding,
             children: const [
               ResourceWorkHoursList(),
               ResourceHistoryDatePicker(),

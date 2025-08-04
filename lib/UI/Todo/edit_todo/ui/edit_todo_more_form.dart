@@ -9,7 +9,7 @@ class EditTodoMoreForm extends StatelessWidget {
       builder: (context, state) => Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.end,
-        spacing: 5,
+        spacing: 10,
         children: [
           if (state.selectedVLocations['type'] == 'location' && (state.isMoreEnable))
             SearchViewField<Map<String, dynamic>>(
@@ -136,8 +136,6 @@ class EditTodoMoreForm extends StatelessWidget {
                       initialSelection: state.selectedLinkOption))
             ],
           ),
-
-          5.height,
           if (state.selectedLinkOption != null && state.selectedTask['user_type'] != 4)
             Utils.getTextFormField("${state.selectedLinkOption?['label']}",
                 context.read<EditToDoBloc>().customLinkController,
@@ -236,7 +234,7 @@ class EditTodoMoreForm extends StatelessWidget {
                 spacing: 5,
                 children: [
                   Utils.getText('Note attachments'),
-                  Icon(Icons.remove_red_eye_outlined,size: 16.sp,)
+                  Icon(Icons.remove_red_eye_outlined,size: 16.spMin,)
                 ],
               ),
             ),
@@ -290,12 +288,11 @@ class EditTodoMoreForm extends StatelessWidget {
                     color:[209,211].contains(state.apiResponse['identifier_id'])? AppC.green
                         :[210,212].contains(state.apiResponse['identifier_id'])? AppC.redAccent
                         : AppC.appColor,
-                    fontSize: 12.sp,
+                    fontSize: 12.spMin,
                     decoration: TextDecoration.underline,
                     decorationColor: AppC.appColor),
               ),
             ),
-
         ],
       ),
     );

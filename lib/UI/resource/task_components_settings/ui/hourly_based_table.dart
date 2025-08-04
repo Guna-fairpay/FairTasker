@@ -16,7 +16,7 @@ class HourlyBasedTable extends StatelessWidget {
           children: [
             TableHeaderRow(
                 tableDecoration: BoxDecoration(
-                  borderRadius: BorderRadius.only(topLeft: Radius.circular(4.sp), topRight: Radius.circular(4.sp)),
+                  borderRadius: BorderRadius.only(topLeft: Radius.circular(4.spMin), topRight: Radius.circular(4.spMin)),
                   color: AppC.lightGray,
                 ),
                 labels: ["Name","Amount/hr", if (getIt<CommonService>().isAdmin) "Action"]
@@ -25,23 +25,23 @@ class HourlyBasedTable extends StatelessWidget {
                 children: [
                   TableRowInkWell(
                     child: Padding(
-                      padding: 10.sp.padding,
+                      padding: 10.spMin.padding,
                       child: Utils.getText(e['user_name']),
                     ),
                     onTap: () {},
                   ),
                   TableCell(child: Padding(
-                    padding: 10.sp.padding,
+                    padding: 10.spMin.padding,
                     child: Text("\$${e['amount']}"),
                   )),
                   if (getIt<CommonService>().isAdmin)
                   TableCell(child: Padding(
-                    padding: 10.sp.padding,
+                    padding: 10.spMin.padding,
                     child:  Row(children: [
                       GestureDetector(
                           onTap: () => context.read<TaskComponentBloc>().add(EditEvent(value: e)),
                           child: Icon(Icons.edit_outlined,color: AppC.blue,)),
-                      5.sp.width,
+                      5.spMin.width,
                       GestureDetector(
                           onTap: (){
                             AskPermissionDialog.show(context,

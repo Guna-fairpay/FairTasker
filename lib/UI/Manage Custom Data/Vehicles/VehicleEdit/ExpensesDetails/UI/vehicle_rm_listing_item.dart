@@ -43,14 +43,14 @@ class VehicleRmListingItem extends StatelessWidget {
 
     List<dynamic> expenseImages =
     images.map((e) => e['path'].toString().toStorageURL).toList();
-    return Padding(padding: 8.sp.padding,
+    return Padding(padding: 8.spMin.padding,
     child: Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         Row(children: [
           Expanded(child: Row(
             mainAxisSize: MainAxisSize.min,
-            spacing: 10.sp,
+            spacing: 10.spMin,
             children: [
               Utils.getText(
                 DateFormat('MM-dd-yy').format(DateTime.parse(model['expense_date'])),
@@ -64,7 +64,7 @@ class VehicleRmListingItem extends StatelessWidget {
             ],
           )),
           Row(
-            spacing: 10.sp,
+            spacing: 10.spMin,
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.end,
             children: [

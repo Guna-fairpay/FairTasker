@@ -63,8 +63,8 @@ class ResourceSelectionPopup {
                   ),
                   if (listing.isNotEmpty)
                     SizedBox(
-                      width: 140.sp,
-                      height: 200.sp,
+                      width: 140.spMin,
+                      height: 200.spMin,
                       child: ListView.separated(
                         separatorBuilder: (context, index) => 5.height,
                         itemBuilder: (context, index) {
