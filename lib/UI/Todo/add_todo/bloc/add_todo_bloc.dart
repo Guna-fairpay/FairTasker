@@ -26,7 +26,9 @@ import 'package:fairpytasker/core/initializer/todo_supporter.dart';
 import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:vsc_quill_delta_to_html/vsc_quill_delta_to_html.dart';
 
 class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
   final APiRepository _apiRepository = APiRepository();
@@ -49,6 +51,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
   final TextEditingController addressController = TextEditingController();
   final TextEditingController partsController = TextEditingController();
   final TextEditingController suppliesController = TextEditingController();
+  final QuillController enquiryController = QuillController.basic();
 
   final FBroadcast _broadcast = FBroadcast.instance();
 
@@ -100,6 +103,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
   List<Map<String, dynamic>> get groupVehicleList => getIt<CommonService>().groupVehicleList;
   List<Map<String, dynamic>> get partsList => getIt<CommonService>().partsList;
   List<Map<String, dynamic>> get suppliesList => getIt<CommonService>().suppliesList;
+  List<Map<String, dynamic>> get leads => getIt<CommonService>().leads;
   Color reservationColor = AppC.appColor;
 
   @override
@@ -181,6 +185,8 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
     on<AddToDoRecurringEndDateSelectionEvent>(_onRecurringEndDateSelectionEvent);
     on<AddToDoRecurringYearlySelectedMonthEvent>(_onRecurringYearlySelectedMonthEvent);
   }
+
+  bool get hasEnquiry => state.selectedTaskIdentifier[1]?['id'] == 358;
 
   Future<Map<String, dynamic>?> findClearCarExist(dynamic vin) async => await _apiRepository.checkCleanCarTask(vin: vin);
   Future<void> _findOilChangeTaskExist({required dynamic vin}) async {
@@ -277,6 +283,11 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
         (state.selectedLinkOption?['id'] == 1) ? customLinkController.text : "";
     baseBody['reference_id'] =
         (state.selectedLinkOption?['id'] != 1) ? customLinkController.text : "";
+    if (baseBody['identifier_id'].toString().contains("358")) {
+      if (enquiryController.document.toPlainText().trim().isNotNullOrEmpty) {
+        baseBody['rental_enquiry'] = QuillDeltaToHtmlConverter(enquiryController.document.toDelta().toJson(), ConverterOptions.forEmail()).convert();
+      }
+    }
     log(jsonEncode(baseBody), name: "ADD_TODO_BODY");
     return baseBody;
   }
@@ -375,6 +386,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
   Future<List<Map<String, dynamic>>?> _getParts() async => await getIt<CommonService>().getPartsList(); // API CALL: GET-PARTS
   Future<List<Map<String, dynamic>>?> _getSupplies() async => await getIt<CommonService>().getSuppliesList(); // API CALL: GET-PARTS
   Future<List<Map<String, dynamic>>> _getGroupVehicles() async => await getIt<CommonService>().groupVehicles(); // API CALL: GET-GROUP-VEHICLES
+  Future<List<Map<String, dynamic>>> _getLeads() async => await getIt<CommonService>().fetchLeads(); // API CALL: GET-GROUP-VEHICLES
   // Future<List<Map<String, dynamic>>> _getCurrentToDos() async => await getIt<CommonService>().getToDos(); // API CALL: GET-TODOS
   Future<Map<String, dynamic>?> _getOilChangeTask({required dynamic vin}) async => await getIt<CommonService>().getLatestOilChangeTask(vin: vin, dateTime: state.selectedDate ?? DateTime.now());
   Future<Map<String, dynamic>?> _deleteToDo({dynamic todoId}) async => await _apiRepository.deleteTodo(id: todoId, reason: "");
@@ -508,6 +520,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
         _getSupplies(), // 5
         _getResources(), // 6
         _getGroupVehicles(), // 7
+        _getLeads(), // 7
         // _getCurrentToDos(), // 8
       ]);
       var resources = response[6] ?? [];
@@ -565,7 +578,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
         if (lastVin.toString().isNotNullOrEmpty) return await _findOilChangeTaskExist(vin: lastVin);
       }
 
-      emit(state.copyWith(isLoading: true));
+      // emit(state.copyWith(isLoading: true));
       var files = state.attachments.whereType<File>().map((e) => {"images" : e.path}).toList();
       var response = await _apiRepository.addToDo(body: _addTodoBody(), infusedFiles: files);
       if ((response?.isNotEmpty ?? false) && (response?['status'] == 200)) Toaster.showSuccess(response?['message'] ?? "Success");
@@ -647,6 +660,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
         _getSupplies(), // 5
         _getResources(), // 6
         _getGroupVehicles(), // 7
+        _getLeads(), // 7
         // _getCurrentToDos(), // 8
       ]);
       var resources = response[6] ?? [];

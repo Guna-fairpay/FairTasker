@@ -1,8 +1,4 @@
-import 'dart:io';
-
-import 'package:equatable/equatable.dart';
-import 'package:flutter/gestures.dart' show TapDownDetails;
-import 'package:flutter/material.dart';
+part of 'tasker_todo_bloc.dart';
 
 abstract class ToDoTaskerEvent extends Equatable {
   @override
@@ -27,7 +23,13 @@ class ToDoTaskerShowCompleteEvent extends ToDoTaskerEvent {
   List<Object?> get props => [showCompleted];
 }
 
-class ToDoTaskerOnAddToDoEvent extends ToDoTaskerEvent {}
+class ToDoTaskerOnAddToDoEvent extends ToDoTaskerEvent {
+  final Offset? offset;
+  final TaskType? taskType;
+  ToDoTaskerOnAddToDoEvent({this.offset, this.taskType});
+  @override
+  List<Object?> get props => [offset, taskType];
+}
 class ToDoTaskerOnMicEvent extends ToDoTaskerEvent {}
 class ToDoTaskerSearchEvent extends ToDoTaskerEvent {
   final String search;
@@ -348,6 +350,13 @@ class ToDoTaskerTimeSensitiveEvent extends ToDoTaskerEvent {
   List<Object?> get props => [isTimeSensitive];
 }
 
+class ToDoTaskerMeetingFilterEvent extends ToDoTaskerEvent {
+  final bool isMeetingFilter;
+  ToDoTaskerMeetingFilterEvent(this.isMeetingFilter);
+  @override
+  List<Object?> get props => [isMeetingFilter];
+}
+
 class ToDoTaskerViewBouncieEvent extends ToDoTaskerEvent {
   final Map<String, dynamic>? model;
   ToDoTaskerViewBouncieEvent(this.model);
@@ -360,4 +369,55 @@ class ToDoTaskerRemoveVehiclePersonEvent extends ToDoTaskerEvent {
   ToDoTaskerRemoveVehiclePersonEvent(this.model);
   @override
   List<Object?> get props => [model];
+}
+
+class ToDoTaskerYesterdayEvent extends ToDoTaskerEvent {
+  final DateTime selectedDate;
+  ToDoTaskerYesterdayEvent(this.selectedDate);
+  @override
+  List<Object?> get props => [selectedDate];
+}
+
+class MeetingViewEvent extends ToDoTaskerEvent {
+  final Map<String, dynamic>? model;
+  MeetingViewEvent(this.model);
+  @override
+  List<Object?> get props => [model];
+}
+
+class FollowupTaskEvent extends ToDoTaskerEvent {
+  final Map<String, dynamic>? model;
+  FollowupTaskEvent(this.model);
+  @override
+  List<Object?> get props => [model];
+}
+
+class TaskerLeadTapEvent extends ToDoTaskerEvent {
+  final Map<String, dynamic>? model;
+  TaskerLeadTapEvent(this.model);
+  @override
+  List<Object?> get props => [model];
+}
+
+class TaskerLeadUpdateEvent extends ToDoTaskerEvent {
+  final Map<String, dynamic>? model;
+  final Map<String, dynamic>? selectedModel;
+  TaskerLeadUpdateEvent(this.model, this.selectedModel);
+  @override
+  List<Object?> get props => [model, selectedModel];
+}
+
+class MeetingTapEvent extends ToDoTaskerEvent {
+  final Map<String, dynamic>? model;
+  MeetingTapEvent(this.model);
+  @override
+  List<Object?> get props => [model];
+}
+
+class MeetingUpdateEvent extends ToDoTaskerEvent {
+  final Map<String, dynamic>? model;
+  final Map<String, dynamic>? selectedModel;
+  MeetingUpdateEvent(this.model, this.selectedModel);
+  @override
+  List<Object?> get props => [model, selectedModel];
 }

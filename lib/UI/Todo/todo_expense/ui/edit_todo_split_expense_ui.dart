@@ -184,7 +184,6 @@ class TodoSplitExpenseUI extends StatelessWidget {
                child: Utils.getTextFormField(
                  null,
                  hintText: "Enter Sales Tax",
-                 maxLength: 20,
                  context
                      .watch<TodoEditExpenseBloc>()
                      .percentageOrAmountController,
@@ -198,6 +197,7 @@ class TodoSplitExpenseUI extends StatelessWidget {
                  style: context.textTheme.labelLarge
                      ?.copyWith(fontFamily: "Lato"),
                  textInputFormatter:[
+                   LengthLimitingTextInputFormatter(20),
                    FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*'))],
                ),
              ),

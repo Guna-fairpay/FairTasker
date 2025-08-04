@@ -1,4 +1,6 @@
 
+import 'dart:io';
+
 import 'package:fairpytasker/Component/close_badge.dart';
 import 'package:fairpytasker/Component/image_viewer.dart';
 import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
@@ -20,6 +22,8 @@ class ImageUploadSection extends StatelessWidget {
   final bool isRequired;
   final bool isDeleteDialog;
   final bool isDeleteIcon;
+  final IconData icon;
+  final bool showDownload;
 
   const ImageUploadSection({
     Key? key,
@@ -32,6 +36,8 @@ class ImageUploadSection extends StatelessWidget {
     required this.logName,
     this.isRequired = true,
     this.isDeleteIcon = true,
+    this.icon = Icons.cloud_upload,
+    this.showDownload = false,
   }) : super(key: key);
 
   @override
@@ -52,7 +58,7 @@ class ImageUploadSection extends StatelessWidget {
                 spacing: 5,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.cloud_upload, color: borderColor, size: 13.sp),
+                  Icon(icon, color: borderColor, size: 13.sp),
                   Utils.getText(title, color: borderColor, weight: FontWeight.bold, size: 12.sp),
                 ],
               ),
@@ -74,7 +80,13 @@ class ImageUploadSection extends StatelessWidget {
                 onTapView: () {
                   ShowAttachmentsDialog.of.show(context,
                       attachments: images, title: "",
-                      currentAttachment: images[index]);
+                      currentAttachment: images[index],
+                      showDownload: showDownload,
+                      onDownload: (v){
+                        var data = (images[index] is File) ? (images[index] as File).path : images[index];
+                        Utils.openURL(data, isFile: (images[index] is File));
+                      }
+                  );
                 },
                 onTapDelete: () {
                   (isDeleteDialog)?

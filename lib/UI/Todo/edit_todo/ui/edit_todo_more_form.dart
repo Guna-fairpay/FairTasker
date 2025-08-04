@@ -1,29 +1,4 @@
-import 'package:fairpytasker/Component/custom_searcher_view.dart';
-import 'package:fairpytasker/Component/success_button.dart';
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/Parts/ui/parts_main_ui.dart';
-import 'package:fairpytasker/Component/custom_multi_selection_chips_field.dart';
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/Supplies/UI/supplies_main_ui.dart';
-import 'package:fairpytasker/UI/Todo/edit_todo/Component/ask_date_range_permission_dialog.dart';
-import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
-import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
-import 'package:fairpytasker/Utilities/appC.dart';
-import 'package:fairpytasker/Utilities/num.dart';
-import 'package:fairpytasker/core/app/extension/context_extension.dart';
-import 'package:fairpytasker/Utilities/utils.dart';
-import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
-import 'package:fairpytasker/core/app/extension/sized_extension.dart';
-import 'package:fairpytasker/core/app/extension/string_extension.dart';
-import 'package:fairpytasker/core/app/helper/warning_helper.dart';
-import 'package:flutter/gestures.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../../../Utilities/str.dart';
-import '../../../Vehicle/vehicle_history/vehicle_history_view_ui.dart';
-import '../bloc/edit_todo_bloc.dart';
-import '../bloc/edit_todo_event.dart';
-import '../bloc/edit_todo_state.dart';
+part of 'edit_todo_ui.dart';
 
 class EditTodoMoreForm extends StatelessWidget {
   const EditTodoMoreForm({super.key});
@@ -135,18 +110,21 @@ class EditTodoMoreForm extends StatelessWidget {
           ),
           Row(
             spacing: 10,
-            mainAxisSize: MainAxisSize.min,
+            //mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               GestureDetector(
                 onTap: () =>
                     context.read<EditToDoBloc>().add(EditToDoShowMoreEvent()),
                 child: Utils.getText(
+                  align: TextAlign.start,
                     '${state.isMoreEnable ? "Less" : "More"}...',
                     color: (state.isMoreEnable
                             ? Colors.lightBlue
                             : Colors.lightGreen)
                         .shade800),
               ),
+              if(state.selectedTask['user_type'] != 4)
               Flexible(
                   child: Utils.dropdownBox(
                       'Select',
@@ -160,8 +138,8 @@ class EditTodoMoreForm extends StatelessWidget {
           ),
 
           5.height,
-          if (state.selectedLinkOption != null)
-            Utils.getTextFormField("${state.selectedLinkOption!['label']}",
+          if (state.selectedLinkOption != null && state.selectedTask['user_type'] != 4)
+            Utils.getTextFormField("${state.selectedLinkOption?['label']}",
                 context.read<EditToDoBloc>().customLinkController,
                 inputAction: TextInputAction.done,
                 isDense: true,
@@ -241,7 +219,7 @@ class EditTodoMoreForm extends StatelessWidget {
                 spacing: 5,
                 children: [
                   Utils.getText('General Picture'),
-                  Icon(Icons.remove_red_eye_outlined,size: 16.sp,)
+                  Icon(Icons.remove_red_eye_outlined,size: 16.spMin,)
                 ],
               ),
             ),
@@ -302,8 +280,7 @@ class EditTodoMoreForm extends StatelessWidget {
                   ? Container()
                   : Text.rich(
                 TextSpan(
-                    text:
-                    "${state.selectedLinkOption!['label'].toString().isCustomLink ? "Link" : "Reservation No"} - ${value.text}",
+                    text:'${state.selectedLinkOption?['value']} - ${value.text}',
                     recognizer: TapGestureRecognizer()
                       ..onTap = () => context
                           .read<EditToDoBloc>()
@@ -318,89 +295,7 @@ class EditTodoMoreForm extends StatelessWidget {
                     decorationColor: AppC.appColor),
               ),
             ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              SuccessButton(text: 'Update',onPressed: () {
-                var currentOdometer = num.tryParse(context.read<EditToDoBloc>().odometerController.text);
-                bool showOdometerPop = (currentOdometer != null && state.showOdometer && (int.tryParse(state.previousOdometer) != 0)
-                    && (double.tryParse(currentOdometer.toString()) ?? 0) <
-                        (double.tryParse(state.previousOdometer) ?? 0));
-                if(state.apiResponse['recurring_id']!=null){
-                    AskPermissionDialog.show(
-                      context,
-                      title:
-                      "Do you want to Update this task only?",
-                      description:state.apiResponse['recurring'],
-                      positiveText:"Yes, Update it!",
-                      negativeText: "Cancel",
-                      isReasonRequired: false,
-                      subPositiveText:"Update multiple",
-                      onSaveMultiPressed: () async {
-                        if(state.selectedEndDate != null && state.selectedStartDate != null){
-                          await Future.delayed(Durations.short1);
-                          AskDateRangePermissionDialog.show(context,
-                              endDate: state.selectedEndDate?.toFormat(format: 'yyyy-MM-dd'),
-                              startDate: context.read<EditToDoBloc>().recurringStartDate?.toFormat(format: 'yyyy-MM-dd'),
-                              selectedEndDate: state.selectedEndDate,
-                              selectedStartDate: state.selectedStartDate,
-                              onStartDate: (value)=>context.read<EditToDoBloc>().add(EditToDoStartDateChangeEvent(value)),
-                              onEndDate: (value)=>context.read<EditToDoBloc>().add(EditToDoEndDateChangeEvent(value)),
-                              onPositivePressed: (){
-                                if(showOdometerPop){
-                                  WarningHelper.odometerWarning(context,
-                                      onPositive: () => context.read<EditToDoBloc>().add(
-                                      EditToDoSaveEvent()));
-                                } else {
-                                  context.read<EditToDoBloc>().add(
-                                      EditToDoSaveEvent());
-                                }
-                              }
-                          );
-                        }
-                      },
-                      onPositivePressed: (){
-                        if(showOdometerPop){
-                          WarningHelper.odometerWarning(context,
-                              onPositive: () => context.read<EditToDoBloc>().add(
-                                  EditToDoSaveEvent()));
-                        } else {
-                          context.read<EditToDoBloc>().add(
-                              EditToDoSaveEvent());
-                        }
-                      },
-                    );
-                }else {
-                  if(showOdometerPop){
-                    WarningHelper.odometerWarning(context,
-                        onPositive: () => context.read<EditToDoBloc>().add(
-                            EditToDoSaveEvent()));
-                  } else {
-                    context.read<EditToDoBloc>().add(
-                        EditToDoSaveEvent());
-                  }
-                }
-              },),
-            ],
-          ),
-          if (state.apiResponse['recurring'] != null)
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Utils.getText('Recurring Details',
-                    color: AppC.appColor, weight: FontWeight.w500),
-                Row(
-                  children: [
-                    const Icon(Icons.refresh),
-                    20.width,
-                    Expanded(
-                      child:
-                          Utils.getText(state.apiResponse['recurring'] ?? ''),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+
         ],
       ),
     );

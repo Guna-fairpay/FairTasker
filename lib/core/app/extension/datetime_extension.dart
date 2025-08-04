@@ -54,4 +54,6 @@ extension DatetimeExtension on DateTime? {
     return DateTime(year, month, day, dateTime.hour, dateTime.minute, dateTime.second);
   }
 
+  bool get isToday => this?.toFormat() == DateTime.now().toFormat();
+
 }

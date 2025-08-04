@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -156,15 +157,25 @@ class _CommentsAddUIState extends State<CommentsAddUI> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppC.white,
-      appBar: const PreferredSize(
-        preferredSize: Size.fromHeight(35.0),
-        child: HeaderView(),
+      appBar: AppBar(
+        backgroundColor: AppC.appColor,
+        leading: Container(),
+        leadingWidth: 0,
+        title: Text("Add Comments"),
+        titleTextStyle: context.textTheme.titleMedium?.copyWith(color: Colors.white, fontFamily: "Lato", fontWeight: FontWeight.w600),
+        actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: const Icon(Icons.close, color: Colors.white,)),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20.0),
         child: Column(
           children: [
-            Row(
+            /*Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 GestureDetector(
@@ -175,7 +186,7 @@ class _CommentsAddUIState extends State<CommentsAddUI> {
                 ),
                 Utils.getText('Add Comment', size: 20, weight: FontWeight.bold),
               ],
-            ),
+            ),*/
             Column(
               children: [
                 SingleChildScrollView(
@@ -319,7 +330,7 @@ class _CommentsAddUIState extends State<CommentsAddUI> {
           ],
         ),
       ),
-      drawer: const DrawerView(),
+      // drawer: const DrawerView(),
     );
   }
 }

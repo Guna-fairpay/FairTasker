@@ -2,11 +2,13 @@ import 'dart:async';
 import 'dart:core';
 import 'dart:io';
 import 'dart:convert';
-import 'dart:developer';
+import 'dart:math';
 import 'package:fairpytasker/UI/dialog/oil_change_exist_dialog.dart';
+import 'package:flutter_quill/flutter_quill.dart';
+import 'package:flutter_quill_delta_from_html/parser/html_to_delta.dart';
+import 'package:vsc_quill_delta_to_html/vsc_quill_delta_to_html.dart';
 
-import 'edit_todo_event.dart';
-import 'edit_todo_state.dart';
+import 'package:equatable/equatable.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:date_time/date_time.dart';
@@ -14,7 +16,7 @@ import 'package:fbroadcast/fbroadcast.dart';
 import 'package:collection/collection.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fairpytasker/Utilities/Str.dart';
+import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/helper/helper.dart';
@@ -30,6 +32,9 @@ import 'package:fairpytasker/core/app/extension/timeday_extension.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/helper/custom_search_data_converter.dart';
+
+part 'edit_todo_event.dart';
+part 'edit_todo_state.dart';
 
 class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
 
@@ -49,6 +54,10 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   final TextEditingController tripDrivenController = TextEditingController();
   final TextEditingController resolutionNotesController = TextEditingController();
   final TextEditingController commentsController = TextEditingController();
+  final TextEditingController leadsController = TextEditingController();
+  final TextEditingController meetingLinkController = TextEditingController();
+  final TextEditingController customerNameController = TextEditingController();
+  QuillController quillController = QuillController.basic();
 
   int? get branchId => Session.of.getInt(Str.branchIdPrefText);
   String? get currentUserId => Session.of.getString(Str.userIdPrefText);
@@ -66,7 +75,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   List<Map<String,dynamic>> task = [];
   List<Map<String,dynamic>> vehiclePersonList=[];
   List<dynamic> vinList = [];
-  List<dynamic> linkSelection = [];
+  //List<dynamic> linkSelection = [];
   List<dynamic> images = [];
   List<dynamic> todoImages = [];
   List<dynamic> notesImages = [];
@@ -77,12 +86,23 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   List<dynamic> locations = [];
   List<dynamic> partsIdList = [];
   List<dynamic> suppliesIdList = [];
+  List<dynamic> meetingType = [
+    {'id': 0, 'name': 'Selected Mode'},
+    {'id': 1, 'name': 'Online'},
+    {'id': 2, 'name': 'Person'},
+  ];
+  List<Map<String, dynamic>> get meetingTime  => ToDoConfig.meetingDuration;
 
   Map<String, dynamic> selectionTaps = {};
 
   dynamic selectedSentiments = {};
   dynamic previousOdometer = {};
   dynamic selectedDate;
+  dynamic selectedMeetingType;
+  dynamic selectedMeetingTime;
+  dynamic linkSelection;
+
+  Map<String, dynamic>? selectedLead;
 
   Map<String, dynamic>? todoResponse = {};
 
@@ -90,6 +110,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   bool cleanCarIsActive = false;
   bool showOdometer = false;
   bool isRecurring = false;
+  bool showLead = false;
 
   DateTime? selectedStartDate;
   DateTime? selectedEndDate;
@@ -107,10 +128,13 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   Future<List<Map<String, dynamic>>> _getActiveVehicles() async => await getIt<CommonService>().getActiveVehicles();
   Future<List<Map<String, dynamic>>> _getVendorsList() async => await getIt<CommonService>().getVendorsList();
   Future<List<Map<String, dynamic>>> _getLocationsList() async => await getIt<CommonService>().getLocationsList();
-  Future<List<Map<String, dynamic>>>_getTaskExpenseData() async => await getIt<CommonService>().getTaskExpenseData();
-  Future<List<Map<String, dynamic>>>_getGroupPersons() async => await getIt<CommonService>().getGroupPersons();
-  Future<List<Map<String, dynamic>>>_getResources() async => await getIt<CommonService>().getResources();
-  Future<List<Map<String, dynamic>>>_groupVehicles() async => await getIt<CommonService>().groupVehicles();
+  Future<List<Map<String, dynamic>>> _getTaskExpenseData() async => await getIt<CommonService>().getTaskExpenseData();
+  Future<List<Map<String, dynamic>>> _getGroupPersons() async => await getIt<CommonService>().getGroupPersons();
+  Future<List<Map<String, dynamic>>> _getResources() async => await getIt<CommonService>().getUsers();
+  Future<List<Map<String, dynamic>>> _groupVehicles() async => await getIt<CommonService>().groupVehicles();
+  List<Map<String, dynamic>> get leads => getIt<CommonService>().leads;
+  List<Map<String, dynamic>> get channels => getIt<CommonService>().channels;
+  List<Map<String, dynamic>> get leadChannels => CustomSearchDataConverter.convertLeadChannel(leads: leads, channels: channels);
 
   EditToDoBloc() : super(EditTodoState(
     isLoading: false,
@@ -204,6 +228,9 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     on<RemoveMileageImageEvent>(_onRemoveMileageImageEvent);
     on<EditToDoSaveEvent>(_onSaveEvent);
     on<EditToDoCleanCarEvent>(_onCleanCarEvent);
+    on<EditToDoMeetingTypeEvent>(_onMeetingTypeEvent);
+    on<LeadsEvent>(_onLeadsEvent);
+    on<MeetingTimeEvent>(_onMeetingTimeEvent);
   }
 
   Future<void>_onInitialEvent(GetEditTodoInitialEvent event, Emitter<EditTodoState> emit) async  {
@@ -220,6 +247,16 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     var userGroupResponse = await _getGroupPersons();
     var assignedToResponse = await _getResources();
     var groupVehiclesResponse = await _groupVehicles();
+    var leadsData = leadChannels;
+    if(todoResponse?['lead_id'] != null){
+      selectedLead = leadsData.firstWhereOrNull((e) => (e['type'] == 'lead') && (e['id'].toString()) == todoResponse?['lead_id'].toString(),);
+    }
+    if(todoResponse?['lead_id'] == null && todoResponse?['channel_id'] != null){
+      selectedLead = leadsData.firstWhereOrNull((e) => e['type'] == 'channel' && e['id'].toString() == todoResponse?['channel_id'].toString(),);
+    }
+    customerNameController.text = todoResponse?['bookingDetails']?['user']?['name'] ?? 'Select Customer';
+    leadsController.text = selectedLead?['name'] ?? '';
+    meetingLinkController.text = todoResponse?['meeting_link'] ?? '';
     var resources = assignedToResponse;
     resources.removeWhere((resource) => resource['id'] == 2);
     resources.removeWhere((resource) =>
@@ -230,11 +267,24 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     var selectedUser = resources
         .where((element) => element['id'].toString() == currentUserId)
         .toList();
+    if(todoResponse?['identifier_id'] == 358) {
+      quillController.document = Document.fromDelta(
+          HtmlToDelta().convert(todoResponse?['rental_enquiry'] ?? ''));
+    }
     timeController.text = todoResponse?['todo_time'] ?? '';
     dateController.text = todoResponse?['todo_date'] ?? '';
     notesController.text = todoResponse?['notes'] ?? '';
     departmentId = selectedUser.firstOrNull?['department'].toString();
-    customLinkController.text = todoResponse?['reference_id'] ?? '';
+    customLinkController.text = (todoResponse?['custom_link_id'] == 1)
+        ? (todoResponse?['custom_link'] ?? '').toString()
+        : (todoResponse?['custom_link_id'] == 2)
+        ? (todoResponse?['reference_id'] ?? '').toString()
+        : (todoResponse?['custom_link_id'] == 3)
+        ? (todoResponse?['rental_booking_id'] ?? '').toString()
+        :'';
+    if(todoResponse?['custom_link_id'] == null && todoResponse?['reference_id'] != null){
+      customLinkController.text = (todoResponse?['reference_id']).toString();
+    }
     tripDrivenController.text = todoResponse?['trip_driven'] ?? '';
     resolutionNotesController.text =
         todoResponse?['resolution_notes'] ?? '';
@@ -246,14 +296,13 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           element['name'] == todoResponse?['trip_review']) ??
           {};
     }
-    linkSelection = AddToDoConfig.customOptions
-        .where((element) =>
-    element['id']?.toString() ==
-        todoResponse?['custom_link_id']?.toString())
-        .toList();
-    if (linkSelection.isEmpty) {
-      linkSelection = [AddToDoConfig.customOptions[1]];
+    linkSelection = List.from(AddToDoConfig.customOptions).firstWhereOrNull((element) => element['id']?.toString() == todoResponse?['custom_link_id']?.toString());
+
+    if(linkSelection == null && todoResponse?['reference_id'] != null){
+      linkSelection = List.from(AddToDoConfig.customOptions).firstWhereOrNull((element) => element['id']?.toString() == '2');
     }
+    linkSelection ??= AddToDoConfig.customOptions.firstOrNull;
+
     if(todoResponse?['vehicle_group_id'] == null){
       vinList = [todoResponse?['vin']];
       var vVins = List.from(todoResponse?['vehicles']).map((e) => e['vin']);
@@ -286,11 +335,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       for (var group in userGroupResponse) {
         if (group['id'] == todoResponse?['user_group_id']) {
           var decodedList = List.from(json.decode(group['userId'] ?? '') ?? []);
-          if (decodedList is List) {
-            selectedIds = decodedList.map((e) => e.toString()).toList();
-          } else {
-            selectedIds = [];
-          }
+          selectedIds = decodedList.map((e) => e.toString()).toList();
         }
       }
     }
@@ -335,22 +380,48 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     mileageImages =
         List.from(todoResponse?['todo_mileage_attachments']).map((e) => e['path'].toString().toAttachmentURL).toList();
     final title = todoResponse?['title'];
+    var selectedTask = taskResponse.firstWhereOrNull(
+            (element) => element['id'].toString() == todoResponse?['identifier_id'].toString());
     final vehicleExists = todoResponse?['vehicle_name'] != null ||
         todoResponse?['vin'] != null ||
         (todoResponse?['vehicles']?.isNotEmpty ?? false);
+
+    bool isBookingBased = todoResponse?['identifier_id'] == 357 || todoResponse?['identifier_id'] == 387
+        ? (todoResponse?['rental_booking_id'] == null) : true;
+    bool isExpenseBased = !Str.checkInCheckOut.contains(title) && selectedTask?['user_type'].toString() != '5';
+    bool isCheckList = [268, 219].contains(todoResponse?['identifier_id']);
+    bool isMaintenance = todoResponse?['identifier_id'] == 257;
+    bool isOdometer = [
+      'oil change',
+      'oilchange check',
+      'oil change check',
+    ].contains(title.toString().toLowerCase());
+    bool isSetVehicle = !['Check In', 'Check Out'].contains(title);
+    bool isPrivateRentalCheck = todoResponse?['identifier_id'] == 324;
+    bool isCheckOut = todoResponse?['identifier_id'] == 357 && todoResponse?['rental_booking_id'] != null;
+    bool isCheckIn = todoResponse?['identifier_id'] == 387 && todoResponse?['rental_booking_id'] != null;
+
     final List<Map<String, dynamic>> tabs = [
-      if (!['Check In', 'Check Out'].contains(title))
+      if (isExpenseBased && isBookingBased)
         {"id": 1, "title": "Expense"},
-      {"id": 2, "title": "Next Task"},
-      if ([268,219].contains(todoResponse?['identifier_id'])) {"id": 3, "title": "Check List"},
-      if (todoResponse?['identifier_id'] == 257) {"id": 4, "title": "Maintenance"},
-      if (['Oil change'.toLowerCase(), 'OilChange Check'.toLowerCase(), 'Oil Change Check'.toLowerCase()].contains(title.toString().toLowerCase()))
-        {"id": 7, "title": "Odometer"}, //Add by RDB
-      if (!['Check In', 'Check Out'].contains(title) && vehicleExists)
+      if (isBookingBased)
+        {"id": 2, "title": "Next Task"},
+      if (isCheckList)
+        {"id": 3, "title": "Check List"},
+      if (isMaintenance)
+        {"id": 4, "title": "Maintenance"},
+      if (isOdometer)
+        {"id": 7, "title": "Odometer"},
+      if (isSetVehicle && vehicleExists && isBookingBased)
         {"id": 5, "title": "Set Vehicle"},
-      if (todoResponse?['identifier_id'] == 324)
+      if (isPrivateRentalCheck)
         {"id": 6, "title": "Private Rental Check"},
+      if (isCheckOut)
+        {"id": 8, "title": "Check Out"},
+      if (isCheckIn)
+        {"id": 9, "title": "Check In"},
     ];
+
     selectionTaps = tabs.firstWhere(
           (e) =>
       ([268,219].contains(todoResponse?['identifier_id']) && e['title'] == "Check List") ||
@@ -369,8 +440,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     element['id'].toString() ==
         todoResponse?['vehicle_group_id'].toString())
         .toList();
-    var selectedTask = taskResponse.firstWhereOrNull(
-            (element) => element['id'] == todoResponse?['identifier_id']);
+
     vehicleData = todoResponse?['vehicles'] ?? [];
     final addressIds = (todoResponse?['address'] != null)
         ? List.from(jsonDecode(todoResponse!['address']))
@@ -379,7 +449,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         .where((e) => addressIds.contains(e['id']))
         .toList();
     if(vinList.isNotEmpty){
-      previousOdometer = List.from(todoResponse?['previousOdometer']).firstOrNull;
+      previousOdometer = List.from(todoResponse?['previousOdometer'] ?? []).firstOrNull;
       /*previousOdometer = await _getPreviousOdometer(
           date: todoResponse?['todo_date'],
           vin: List.from(vinList).firstOrNull ?? '',
@@ -422,6 +492,14 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     Console.of.log(showOdometer.toString(), name: "show");
     isRecurring = todoResponse?['recurring_id'] != null;
 
+    selectedMeetingType = meetingType.firstWhereOrNull((element) => element['name'].toString().toLowerCase() == todoResponse?['meeting_mode'].toString().toLowerCase());
+    selectedMeetingType ??= meetingType.first;
+
+    selectedMeetingTime = meetingTime.firstWhereOrNull((element) => element['value'].toString().toLowerCase() == todoResponse?['meeting_duration'].toString().toLowerCase());
+    selectedMeetingTime ??= ToDoConfig.defaultMeetingDuration;
+
+    showLead = selectedTask?['user_type'] == 3 || (todoResponse?['lead_id'] != null || todoResponse?['channel_id'] != null);
+
     emit(state.copyWith(
       isLoading: false,
       showCleanCar: showCleanCar,
@@ -456,7 +534,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       supplies: suppliesResponse,
       selectedTaskPersons: selectedUser,
       resources: resources,
-      selectedLinkOption: linkSelection.first,
+      selectedLinkOption: linkSelection,
       selectedResource: selectedIds,
       isPartServiceEnable: (todoResponse?['parts'] as List).isNotEmpty,
       isSuppliesEnable: (todoResponse?['supplies'] as List).isNotEmpty,
@@ -485,7 +563,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     await Future.delayed(
         Durations.extralong4, () => suppliesBroadcastEvent(suppliesList));
   } catch (e) {
-    log("$e", name: "Error In Bloc Value");
+    Console.of.error("$e", name: "Error In Bloc Value");
     emit(state.copyWith(isLoading: false));
   }
 }
@@ -515,17 +593,33 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   }
   existingVPersons.addAll(event.vPerson);
   existingVPersons = existingVPersons.unique((element) => element['id']);
-  log(existingVPersons.toString(), name: "existingVPersons");
+  Console.of.log(existingVPersons.toString(), name: "existingVPersons");
   emit(state.copyWith(
     selectedVPerson: existingVPersons,
   ));
 }
 
   Future<void> _onTaskEvent(EditToDoTaskEvent event, Emitter<EditTodoState> emit) async  {
-  showCleanCar = Str.cleanCarCheckIds.contains(event.selectedTask['id']);
-  emit(state.copyWith(
-      selectedTask: event.selectedTask, showCleanCar: showCleanCar));
-}
+    if(state.selectedTask['user_type'] != event.selectedTask['user_type']){
+      selectedLead = null;
+      leadsController.clear();
+      selectedMeetingType = null;
+    }
+    if(event.selectedTask['user_type'] == 3 || event.selectedTask['user_type'] == 5){
+      vLocationController.clear();
+      partsController.clear();
+      suppliesController.clear();
+      emit(state.copyWith(selectedVLocations: {}, selectedParts: [], selectedSupplies: []));
+      if(event.selectedTask['user_type'] == 5){
+        vPersonController.clear();
+        emit(state.copyWith(selectedVPerson: []));
+      }
+    }
+
+    showLead = (event.selectedTask?['user_type'].toString()) == '3' ? true : false;
+    showCleanCar = Str.cleanCarCheckIds.contains(event.selectedTask['id']);
+    emit(state.copyWith(selectedTask: event.selectedTask, showCleanCar: showCleanCar));
+  }
 
   Future<void> _onShowPartsEvent(EditToDoShowPartsEvent event, Emitter<EditTodoState> emit) async   {
   var currentStatus = state.isPartServiceEnable;
@@ -539,7 +633,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
 
   Future<void> _onTaskStatusChangeEvent(TaskStatusChangeEvent event, Emitter<EditTodoState> emit) async   {
     bool? status = event.todoStatus;
-    log(status.toString(), name: 'STATUS');
+    Console.of.log(status.toString(), name: 'STATUS');
     try {
       if(status==true){
         if ((state.apiResponse['identifier_id'] == 257)) {
@@ -575,7 +669,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       }
     } catch (e) {
       Toaster.showError("$e");
-      log(e.toString(), name: 'ERROR');
+      Console.of.error(e.toString(), name: 'ERROR');
       emit(state.copyWith(isLoading: false));
     }
   }
@@ -741,11 +835,11 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     emit(state.copyWith(selectedSentiment: event.selectedSentiments));}
 
   void _onOpenCustomLinkEvent(EditToDoOpenCustomLinkEvent event, Emitter<EditTodoState> emit)  {
-    var url = (state.selectedLinkOption?['label'].toString().isCustomLink ??
-        false)
+    var url = (state.selectedLinkOption?['label'].toString().isCustomLink ?? false)
         ? customLinkController.text
-        : (state.selectedLinkOption?['label'].toString().isTuroReservation ??
-        false)
+        :(state.selectedLinkOption?['label'].toString().isFairentalReservation ?? false)
+        ? customLinkController.text.toFaiRentalReserveUrl
+        : (state.selectedLinkOption?['label'].toString().isTuroReservation ?? false)
         ? customLinkController.text.toTuroReserveUrl
         : customLinkController.text.toGetAroundReserveUrl;
     Utils.openURL(url);
@@ -809,7 +903,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       emit(state.copyWith(isLoading: false));
     } catch (e) {
       Toaster.showError("$e");
-      log(e.toString(), name: 'ERROR');
+      Console.of.error(e.toString(), name: 'ERROR');
       // emit(state.copyWith(isLoading: false));
     }
   }
@@ -838,7 +932,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       emit(state.copyWith(isPop: true));
     } catch (e) {
       Toaster.showError("$e");
-      log(e.toString(), name: 'ERROR');
+      Console.of.error(e.toString(), name: 'ERROR');
       emit(state.copyWith(isLoading: false));
     }
   }
@@ -869,7 +963,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         return;
       }catch(e){
         Toaster.showError("$e");
-        log(e.toString(), name: 'ERROR');
+        Console.of.error(e.toString(), name: 'ERROR');
         emit(state.copyWith(isLoading: false));
       }
     }
@@ -893,7 +987,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       return;
     }catch(e){
       Toaster.showError("$e");
-      log(e.toString(), name: 'ERROR');
+      Console.of.error(e.toString(), name: 'ERROR');
       emit(state.copyWith(isLoading: false));
     }
   }
@@ -915,7 +1009,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       return;
     }catch(e){
       Toaster.showError("$e");
-      log(e.toString(), name: 'ERROR');
+      Console.of.error(e.toString(), name: 'ERROR');
       emit(state.copyWith(isLoading: false));
     }
   }
@@ -965,7 +1059,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       }
     } catch (e) {
       Toaster.showError("$e");
-      log(e.toString(), name: 'ERROR');
+      Console.of.error(e.toString(), name: 'ERROR');
       emit(state.copyWith(isLoading: false));
     }
   }
@@ -1008,13 +1102,13 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       var response = await _getOilChangeTask(vin: vin);
       emit(state.copyWith(isLoading: false));
       var context = CommonHelper.instance.navigatorKey.currentContext;
-      if ((response == null) || (response?.isEmpty ?? false)) return add(EditToDoSaveEvent(overrideOilCheck: true));
+      if ((response == null) || (response.isEmpty)) return add(EditToDoSaveEvent(overrideOilCheck: true));
       if (context != null) {
         var result = await OilChangeTaskExistDialog.show(context, model: response, isAddNew: false);
         Utils.dismissKeyboard(context);
         if (result == true) {
           emit(state.copyWith(isLoading: true));
-          var deleteResponse = await _deleteToDo(todoId: response?['id']);
+          var deleteResponse = await _deleteToDo(todoId: response['id']);
           emit(state.copyWith(isLoading: false));
           if (deleteResponse?['status'] == 200) return add(EditToDoSaveEvent(overrideOilCheck: true));
         }
@@ -1039,6 +1133,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       var taskResponse = await _getTaskExpenseData();
       var userGroupResponse = await _getGroupPersons();
       var assignedToResponse = await _getResources();
+      var leadResponse = leadChannels;
       var resources = assignedToResponse;
       resources.removeWhere((resource) => resource['id'] == 2);
       resources.removeWhere((resource) =>
@@ -1059,6 +1154,38 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           resources: resources));
     } catch (e) {
       emit(state.copyWith(isLoading: false));
+    }
+  }
+
+  void _onMeetingTypeEvent(EditToDoMeetingTypeEvent event, Emitter<EditTodoState> emit) {
+    try{
+      selectedMeetingType = event.meetingType;
+      if(selectedMeetingType?['id'] != 1){
+        meetingLinkController.clear();
+      }
+      emit(state.copyWith());
+    }catch(e){
+      Toaster.showError("$e");
+    }
+  }
+
+  Future<void> _onLeadsEvent(LeadsEvent event, Emitter<EditTodoState> emit) async {
+    try {
+      selectedLead = event.leads;
+      emit(state.copyWith());
+    }catch(e){
+      Console.of.error(e.toString(), name: 'ERROR');
+      Toaster.showError("$e");
+    }
+  }
+
+  void _onMeetingTimeEvent(MeetingTimeEvent event, Emitter<EditTodoState> emit) {
+    try{
+      selectedMeetingTime = event.meetingTime;
+      emit(state.copyWith());
+    }catch(e) {
+      Console.of.error(e.toString(), name: 'ERROR');
+      Toaster.showError("$e");
     }
   }
 
@@ -1093,17 +1220,16 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     baseBody['resolution_notes'] = resolutionNotesController.text;
     baseBody['platform_check'] = state.isSelectedPlatformCheck ? "1" : "0";
     baseBody['time_sensitive'] = state.isTimeSensitive ? '1' : '0';
-    baseBody['todo_user_type'] = "0";
+    baseBody['todo_user_type'] = "${state.selectedTask['user_type'] ?? '0'}";
     baseBody['mileage'] = odometerController.text;
     baseBody['address'] = "${state.addresses.map((e) => e['id']).toList()}";
     baseBody['custom_link_id'] = "${state.selectedLinkOption?['id'] ?? ""}";
     baseBody['trip_review'] = "${state.selectedSentiment?['name'] ?? ""}";
     baseBody['trip_driven'] = tripDrivenController.text;
     baseBody['time_change_reason'] = reason ?? '';
-    baseBody['custom_link'] =
-        (state.selectedLinkOption?['id'] == 1) ? customLinkController.text : "";
-    baseBody['reference_id'] =
-        (state.selectedLinkOption?['id'] != 1) ? customLinkController.text : "";
+    baseBody['custom_link'] = (state.selectedLinkOption?['id'] == 1) ? customLinkController.text : "";
+    baseBody['reference_id'] = (state.selectedLinkOption?['id'] == 2) ? customLinkController.text : "";
+    baseBody['rental_booking_id'] = (state.selectedLinkOption?['id'] == 3) ? customLinkController.text : "";
     if (state.selectedResource.isNotEmpty) {
       if (state.selectedResource.length == 1) {
         baseBody['user_id'] = state.selectedResource.first.toString();
@@ -1154,6 +1280,24 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
 
     baseBody['person'] = firstPerson?['name']?.toString() ?? "";
     baseBody['person_id'] = firstPerson?['id']?.toString() ?? "";
+    baseBody['rental_enquiry'] = QuillDeltaToHtmlConverter(
+      (quillController).document.toDelta().toJson(),
+      ConverterOptions.forEmail(),).convert();
+    // baseBody['meeting_mode'] = selectedMeetingType?['name'] ?? '';
+    baseBody['meeting_mode'] = selectedMeetingType?['id'] != 0 ? ( selectedMeetingType?['name'] ?? '').toString().toLowerCase() : '';
+    // baseBody['lead_id'] = "${selectedLead?['id'] ?? ''}";
+    baseBody['meeting_duration'] = "${selectedMeetingTime?['value'] ?? ''}";
+    baseBody['meeting_link'] = meetingLinkController.text;
+    if(selectedLead != null){
+      if(selectedLead?['type'] == 'lead'){
+        baseBody['lead_id'] = "${selectedLead?['id'] ?? ''}";
+        baseBody['channel_id'] = "";
+      }
+      if(selectedLead?['type'] == 'channel'){
+        baseBody['channel_id'] = "${selectedLead?['id'] ?? ''}";
+        baseBody['lead_id'] = "";
+      }
+    }
     baseBody['type'] = "inline";
 
     var groupVehicleList = state.selectedVPerson
@@ -1169,7 +1313,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       baseBody['from_date'] = state.selectedStartDate.toFormat() ?? '';
       baseBody['to_date'] = state.selectedEndDate.toFormat() ?? '';
     }
-    log(jsonEncode(baseBody), name: "EDIT_TODO_BODY");
+    Console.of.log(jsonEncode(baseBody), name: "EDIT_TODO_BODY");
     return baseBody;
   }
 
@@ -1260,7 +1404,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     baseBody['vehicle_group_id'] = groupVehicleId?['id']?.toString() ?? "";
     baseBody['reason'] = '';
     baseBody['branch_id'] = "${branchId ?? ""}";
-    log(jsonEncode(baseBody), name: "CLEAN_CAR_JSON_BODY");
+    Console.of.log(jsonEncode(baseBody), name: "CLEAN_CAR_JSON_BODY");
     return baseBody;
   }
 
@@ -1275,7 +1419,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   }
 
   void vendorBroadcastEvent(dynamic value,) {
-    log(value.toString(), name: "Parts Broadcast");
+    Console.of.log(value.toString(), name: "Parts Broadcast");
     FBroadcast.instance().broadcast("Vendor", value: value, persistence: true);
   }
 
@@ -1283,13 +1427,6 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     var result = await ImagePicker().pickMultiImage();
     return result.map((e) => File(e.path)).toList();
   }
-
-  Future<Map<String, dynamic>?> _getPreviousOdometer(
-      {required String date,
-        required String vin,
-        required dynamic identifierId}) async =>
-      await apiRepository.getPreviousOdometer(
-          date: date, vin: vin, identifierId: identifierId);
 
   var tabs = List.from(AddToDoConfig.editTodoBottomTaps);
 

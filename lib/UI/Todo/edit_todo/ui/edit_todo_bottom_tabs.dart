@@ -1,19 +1,4 @@
-import 'package:fairpytasker/UI/Todo/private_rental/UI/private_rental_check_list_page.dart';
-import 'package:fairpytasker/UI/Todo/maintenance_check/maintenance_check_ui.dart';
-import 'package:fairpytasker/UI/Todo/set_vehicles/ui/set_vehicles_main_ui.dart';
-import 'package:fairpytasker/UI/Todo/todo_expense/ui/edit_todo_expense.dart';
-import 'package:fairpytasker/UI/Todo/edit_todo/bloc/edit_todo_event.dart';
-import 'package:fairpytasker/UI/Todo/edit_todo/bloc/edit_todo_state.dart';
-import 'package:fairpytasker/UI/Todo/pre_checks/ui/precheck_main_ui.dart';
-import 'package:fairpytasker/UI/Todo/edit_todo/bloc/edit_todo_bloc.dart';
-import 'package:fairpytasker/core/app/extension/context_extension.dart';
-import 'package:fairpytasker/UI/Todo/Odometer/odometer_view.dart';
-import 'package:fairpytasker/Component/feedback_tab_button.dart';
-import 'package:fairpytasker/UI/Todo/add_todo_ui.dart';
-import 'package:fairpytasker/Utilities/appC.dart';
-import 'package:fairpytasker/Utilities/num.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter/material.dart';
+part of 'edit_todo_ui.dart';
 
 class EditTodoBottomTabs extends StatelessWidget {
   const EditTodoBottomTabs({super.key});
@@ -56,7 +41,7 @@ class EditTodoBottomTabs extends StatelessWidget {
                   selectedParts: state.selectedParts,
                   selectedSupplies: state.selectedSupplies,
                   selectedVendor: state.selectedVLocations),
-              2 => CreateTodoUI(
+              2 => TaskerAddToDo(
                   showHeader: false,
                   isNextTask: true,
                   selectedDate: state.selectedDate,
@@ -81,7 +66,13 @@ class EditTodoBottomTabs extends StatelessWidget {
               7 => OdometerView(
                   todoItems: state.apiResponse,
                   vehicle: state.taskHistory.firstOrNull,
-                  selectedVehicle: state.selectedVehicle), //Add by RDB
+                  selectedVehicle: state.selectedVehicle),
+              8 =>  CheckOutMainUI(
+                model: state.apiResponse,
+              ),
+              9 =>  CheckInMainPage(
+                model: state.apiResponse,
+              ),
               _ => const SizedBox(),
             },
           ),

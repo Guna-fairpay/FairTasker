@@ -10,12 +10,14 @@ class CustomCheckboxListTile extends StatefulWidget {
   final ValueChanged<bool?> onChanged;
   final bool isCheckboxOnRight;
   final bool useExpand;
+  final bool useFlexible;
   final double spacing;
   final EdgeInsets? padding;
   final MainAxisSize mainAxisSize;
   final Color? activeColor;
   final double radius;
   final Color borderColor;
+  final bool wrapExpand;
 
   const CustomCheckboxListTile({
     Key? key,
@@ -26,11 +28,13 @@ class CustomCheckboxListTile extends StatefulWidget {
     this.padding,
     this.spacing = 3,
     this.useExpand = true,
+    this.useFlexible = false,
     this.borderColor = AppC.borderColor,
     this.mainAxisSize = MainAxisSize.max,
     this.isCheckboxOnRight = false,
     this.activeColor = AppC.appColor,
     this.radius = Num.subradiusButton,
+    this.wrapExpand = false,
   }) : super(key: key);
 
   @override
@@ -40,56 +44,44 @@ class CustomCheckboxListTile extends StatefulWidget {
 class _CustomCheckboxListTileState extends State<CustomCheckboxListTile> {
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    Widget checkBox = SizedBox.fromSize(
+      size: const Size.fromRadius(14), // Control checkbox radius here
+      child: Checkbox(
+        value: widget.value,
+        onChanged: null,
+        checkColor: AppC.white,
+        tristate: true,
+        fillColor: WidgetStateProperty.resolveWith((states) => (states.contains(WidgetState.selected) ? widget.activeColor : null)),
+        activeColor:widget.activeColor,
+        shape: ContinuousRectangleBorder(
+          borderRadius: BorderRadius.circular(widget.radius),
+        ),
+        side: BorderSide(width: 1, color: widget.borderColor),
+
+      ),
+    );
+    Widget title = (widget.useExpand) ? Expanded(child: widget.title) : (widget.useFlexible) ? Flexible(child: widget.title) : widget.title;
+    if (widget.isCheckboxOnRight) title = widget.title;
+    List<Widget> children = [];
+    if (widget.isCheckboxOnRight) children.add(title);
+    children.add(checkBox);
+    if (!widget.isCheckboxOnRight) children.add(title);
+    if (widget.suffix != null) children.add(widget.suffix ?? const SizedBox.shrink());
+    EdgeInsets padding = widget.padding ?? const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0);
+    Widget child = InkWell(
       onTap: () {
         widget.onChanged(!(widget.value ?? false));
       },
       child: Padding(
-        padding: widget.padding ?? const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+        padding: padding,
         child: Row(
           spacing: widget.spacing,
           mainAxisSize: widget.mainAxisSize,
-          children: widget.isCheckboxOnRight
-              ? [
-            widget.title,
-            SizedBox.fromSize(
-              size: const Size.fromRadius(14), // Control checkbox radius here
-              child: Checkbox(
-                value: widget.value,
-                onChanged: null,
-                checkColor: AppC.white,
-                tristate: true,
-                fillColor: WidgetStateProperty.resolveWith((states) => (states.contains(WidgetState.selected) ? widget.activeColor : null)),
-                activeColor:widget.activeColor,
-                shape: ContinuousRectangleBorder(
-                  borderRadius: BorderRadius.circular(widget.radius),
-                ),
-                side: BorderSide(width: 1, color: widget.borderColor),
-
-              ),
-            ),
-            if (widget.suffix != null) widget.suffix ?? const SizedBox.shrink(),
-          ]
-              : [
-            SizedBox.fromSize(
-              size: const Size.fromRadius(14), // Control checkbox radius here
-              child: Checkbox(
-                value: widget.value,
-                onChanged: null,
-                checkColor: AppC.white,
-                tristate: true,
-                fillColor: WidgetStateProperty.resolveWith((states) => (states.contains(WidgetState.selected) ? widget.activeColor : null)),
-                shape: ContinuousRectangleBorder(
-                  borderRadius: BorderRadius.circular(widget.radius),
-                ),
-                side: BorderSide(width: 1, color: widget.borderColor),
-              ),
-            ),
-            (widget.useExpand) ? Expanded(child: widget.title) : widget.title,
-            if (widget.suffix != null) widget.suffix ?? const SizedBox.shrink(),// Title on the right
-          ],
+          children: children,
         ),
       ),
     );
+    if (widget.wrapExpand) child = Expanded(child: child);
+    return child;
   }
 }

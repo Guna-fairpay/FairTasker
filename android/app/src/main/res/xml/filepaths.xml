@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <external-path name="external-path" path="."/>
+    <external-cache-path name="external-cache-path" path="."/>
+    <external-files-path name="external-files-path" path="."/>
+    <files-path name="app_flutter" path="app_flutter/"/>
+    <cache-path name="cache-path" path="."/>
+<!--    <root-path name="root" path="."/>-->
+
+    <!-- This allows access to app's internal storage -->
+    <files-path name="files_path" path="."/>
+
+    <!-- This allows access to external storage (only your app's folder) -->
+    <external-files-path name="external_files" path="."/>
+
+    <!-- Cache folder access -->
+    <cache-path name="cache" path="."/>
+</paths>

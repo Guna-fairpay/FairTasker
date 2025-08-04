@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:equatable/equatable.dart';
 
 abstract class PrivateRentalEvent extends Equatable {
@@ -63,6 +65,13 @@ class GetCustomerData extends PrivateRentalEvent {
   List<Object?> get props => [];
 }
 
+class GetEditCustomerData extends PrivateRentalEvent {
+  final int? id;
+  const GetEditCustomerData({required this.id});
+  @override
+  List<Object?> get props => [id];
+}
+
 class AddCustomerData extends PrivateRentalEvent {
   final String firstName;
   final String lastName;
@@ -72,8 +81,8 @@ class AddCustomerData extends PrivateRentalEvent {
   final String rentalStartDate;
   final String securityDeposit;
   final String note;
-  // final List<File> licenceAttach;
-  // final List<File> insuranceAttach;
+   final List<File> licenceAttach;
+   final List<File> insuranceAttach;
   final int? id;
 
   const AddCustomerData({
@@ -85,8 +94,8 @@ class AddCustomerData extends PrivateRentalEvent {
     required this.rentalStartDate,
     required this.securityDeposit,
     required this.note,
-    // required this.insuranceAttach,
-    //required this.licenceAttach,
+     required this.insuranceAttach,
+    required this.licenceAttach,
     required this.id,
   });
   @override
@@ -106,7 +115,7 @@ class AddCustomerData extends PrivateRentalEvent {
 }
 
 class DeleteCustomer extends PrivateRentalEvent {
-  final String id;
+  final int id;
   const DeleteCustomer({
     required this.id,
   });
