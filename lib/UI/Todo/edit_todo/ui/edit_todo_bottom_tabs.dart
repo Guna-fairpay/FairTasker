@@ -70,6 +70,9 @@ class EditTodoBottomTabs extends StatelessWidget {
               8 =>  CheckOutMainUI(
                 model: state.apiResponse,
               ),
+              9 =>  CheckInMainPage(
+                model: state.apiResponse,
+              ),
               _ => const SizedBox(),
             },
           ),
