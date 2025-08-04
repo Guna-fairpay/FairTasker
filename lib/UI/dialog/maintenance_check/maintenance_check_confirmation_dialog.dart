@@ -35,7 +35,7 @@ class _MaintenanceCheckConfirmDialog extends StatelessWidget {
           borderRadius: BorderRadius.circular(Num.borderRadiusLarge)),
       backgroundColor: Colors.white,
       titlePadding: EdgeInsets.zero,
-      insetPadding: 10.sp.padding,
+      insetPadding: 10.spMin.padding,
       title: ListTile(
         contentPadding: EdgeInsets.zero,
         dense: true,
@@ -47,19 +47,19 @@ class _MaintenanceCheckConfirmDialog extends StatelessWidget {
         width: double.maxFinite,
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          spacing: 10.sp,
+          spacing: 10.spMin,
           children: [
             ValueListenableBuilder(valueListenable: _showDropDown, builder: (context, value, child) => Column(
               mainAxisSize: MainAxisSize.min,
-              spacing: 10.sp,
+              spacing: 10.spMin,
               children: [
                if (!value)
                  ...[
                    Text("Task already exits, please complete or delete the task", style: context.textTheme.labelLarge?.copyWith(
-                       fontSize: 12.sp
+                       fontSize: 12.spMin
                    ),),
                    Row(
-                     spacing: 10.sp,
+                     spacing: 10.spMin,
                      mainAxisAlignment: MainAxisAlignment.end,
                      crossAxisAlignment: CrossAxisAlignment.end,
                      children: [
@@ -97,20 +97,20 @@ class _MaintenanceCheckConfirmDialog extends StatelessWidget {
                   ...[
                     ValueListenableBuilder(valueListenable: _selectedDropDown, builder: (context, selectedValue, child) => Column(
                       mainAxisSize: MainAxisSize.min,
-                      spacing: 10.sp,
+                      spacing: 10.spMin,
                       children: [
                         CustomDropdown<Map<String, dynamic>>(
                             items: List.from(model?['children'] ?? [])..sort((a, b) => a['order'].compareTo(b['order'])),
                             itemAsString: (item) => item['name'].toString(),
                             value: selectedValue,
                             onChanged: (val) => _selectedDropDown.value = val,
-                            contentPadding: 1.sp.padding.copyWith(left: 5.sp, right: 5.sp),
+                            contentPadding: 1.spMin.padding.copyWith(left: 5.spMin, right: 5.spMin),
                             hintText: "Not Checked",
                             labelText: null,
                             isExpanded: true),
                         if (!(["good"].contains(selectedValue?['name'].toString().toLowerCase())))
                         Row(
-                          spacing: 10.sp,
+                          spacing: 10.spMin,
                           mainAxisAlignment: MainAxisAlignment.end,
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [

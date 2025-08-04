@@ -41,7 +41,7 @@ class SuccessButton extends StatelessWidget {
         backgroundColor: WidgetStatePropertyAll(backgroundColor),
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         padding: WidgetStatePropertyAll(
-            EdgeInsets.symmetric(vertical: 5.sp, horizontal: 10.sp)),
+            EdgeInsets.symmetric(vertical: 5.spMin, horizontal: 10.spMin)),
         foregroundColor: WidgetStatePropertyAll(foregroundColor),
         visualDensity: VisualDensity.compact,
         iconColor: WidgetStatePropertyAll(foregroundColor),
@@ -49,7 +49,7 @@ class SuccessButton extends StatelessWidget {
             ?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
-                fontSize: 12.sp)));
+                fontSize: 12.spMin)));
     return GestureDetector(
       onTapDown: onTapDown,
       child: (icon != null)

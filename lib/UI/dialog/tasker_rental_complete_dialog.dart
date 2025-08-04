@@ -1,5 +1,6 @@
 import 'package:fairpytasker/Component/compact_chips_wrap_builder.dart';
 import 'package:fairpytasker/Component/custom_checkbox.dart';
+import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
 import 'package:fairpytasker/UI/dialog/tasker_rental_complete_dialog_bloc/tasker_rental_complete_dialog_bloc.dart';
@@ -20,6 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class TaskerRentalCompleteDialog {
   TaskerRentalCompleteDialog._();
@@ -116,11 +118,7 @@ class _TaskerRentalCompleteDialogContentView extends StatelessWidget {
                                 dense: true,
                                 controlAffinity:
                                     ListTileControlAffinity.leading,
-                                title: Transform.scale(
-                                  scale: 1.2,
-                                  child: const FittedBox(
-                                      child: Text("Move To Repair")),
-                                ),
+                                title:  Text("Move To Repair", style: TextStyle(fontSize: 16.spMin),),
                               )),
                         ),
                         Expanded(
@@ -133,11 +131,7 @@ class _TaskerRentalCompleteDialogContentView extends StatelessWidget {
                             dense: true,
                             controlAffinity: ListTileControlAffinity.leading,
                             onChanged: (value) => context.read<TRCDBloc>().add(TRCDBlockCalendarEvent(value: value)),
-                            title: Transform.scale(
-                                scale: 1.2,
-                                child: const FittedBox(
-                                    child: Text("Block Calendar",
-                                        overflow: TextOverflow.visible))),
+                            title: Text("Block Calendar", overflow: TextOverflow.visible, style: TextStyle(fontSize: 16.spMin),),
                           ),
                         )),
                       ],
@@ -166,13 +160,23 @@ class _TaskerRentalCompleteDialogContentView extends StatelessWidget {
                                 ],
                                 validator: (val) => val.isNullOrEmpty ? "Please enter a valid odometer" : null,
                                 context.read<TRCDBloc>().odometerController)),
-                        Utils.getOutlinedButton(
-                            "Upload",
-                            () => context
-                                .read<TRCDBloc>()
-                                .add(TRCDMileageImagePickEvent()),
-                            radius: BorderRadius.circular(Num.borderRadius),
-                            iconData: const Icon(Icons.cloud_upload_rounded)),
+                        SuccessButton(
+                          onPressed:() => context
+                              .read<TRCDBloc>()
+                              .add(TRCDMileageImagePickEvent()),
+                          text: "Upload",
+                          isOutline: true,
+                          foregroundColor: AppC.blue,
+                          backgroundColor: AppC.white,
+                          icon: Icons.cloud_upload_rounded,
+                        ),
+                        // Utils.getOutlinedButton(
+                        //     "Upload",
+                        //     () => context
+                        //         .read<TRCDBloc>()
+                        //         .add(TRCDMileageImagePickEvent()),
+                        //     radius: BorderRadius.circular(Num.borderRadius),
+                        //     iconData: const Icon(Icons.cloud_upload_rounded)),
                         if (context.watch<TRCDBloc>().mileageAttachments.isNotEmpty)
                           IconButton(onPressed: () => context.read<TRCDBloc>().add(TRCDMileageAttachmentViewEvent()), icon: const Icon(Icons.remove_red_eye_rounded, color: AppC.appColor))
                       ],
@@ -321,12 +325,22 @@ class _TaskerRentalCompleteDialogContentView extends StatelessWidget {
                                 textType: TextInputType.multiline,
                                 minLines: 3,
                                 maxLines: 6)),
-                        Utils.getOutlinedButton(
-                            "Upload",
-                            () => context
-                                .read<TRCDBloc>()
-                                .add(TRCDNotesImagePickEvent()),
-                            iconData: const Icon(Icons.cloud_upload_rounded)),
+                        SuccessButton(
+                          onPressed:() => context
+                              .read<TRCDBloc>()
+                              .add(TRCDNotesImagePickEvent()),
+                          text: "Upload",
+                          isOutline: true,
+                          foregroundColor: AppC.blue,
+                          backgroundColor: AppC.white,
+                          icon: Icons.cloud_upload_rounded,
+                        ),
+                        // Utils.getOutlinedButton(
+                        //     "Upload",
+                        //     () => context
+                        //         .read<TRCDBloc>()
+                        //         .add(TRCDNotesImagePickEvent()),
+                        //     iconData: const Icon(Icons.cloud_upload_rounded)),
                         if (context.watch<TRCDBloc>().notesAttachments.isNotEmpty)
                           IconButton(onPressed: () => context.read<TRCDBloc>().add(TRCDNotesAttachmentViewEvent()), icon: const Icon(Icons.remove_red_eye_rounded, color: AppC.appColor)),
                       ],

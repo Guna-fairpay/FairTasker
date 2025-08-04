@@ -21,7 +21,7 @@ class CumulativeExpenseAddFormField extends StatelessWidget {
     return BlocBuilder<CumulativeExpenseAddBloc, CumulativeExpenseAddState>(
       builder: (context,state) {
         return SafeArea(
-            minimum: 12.sp.padding,
+            minimum: 12.spMin.padding,
             child: Form(
               key: context.read<CumulativeExpenseAddBloc>().formKey,
               child: ListView(
@@ -32,13 +32,13 @@ class CumulativeExpenseAddFormField extends StatelessWidget {
                    value: context.watch<CumulativeExpenseAddBloc>().selectedDate,
                    onChanged:(val)=> context.read<CumulativeExpenseAddBloc>().add(CumulativeExpenseAddDatePickEvent(selectedDate: val)),
                    format: 'MM-dd-yyyy',
-                   suffixIcon: Icon(Icons.calendar_month_outlined,size: 12.sp,),
+                   suffixIcon: Icon(Icons.calendar_month_outlined,size: 12.spMin,),
                    labelText: 'mm-dd-yyyy',
-                   padding: 8.sp.padding,
+                   padding: 8.spMin.padding,
                    autovalidateMode: AutovalidateMode.onUserInteraction,
                    validator: (value) => (value == null) ? "Please select date" : null,
                  ),
-                  12.sp.height,
+                  12.spMin.height,
                   Utils.dropdownBox(
                       'Select Cohort',
                       context.read<CumulativeExpenseAddBloc>().cohort,
@@ -49,7 +49,7 @@ class CumulativeExpenseAddFormField extends StatelessWidget {
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     validator: (value) => (value == null) ? "Please select cohort" : null,
                   ),
-                  12.sp.height,
+                  12.spMin.height,
                   Utils.dropdownBox(
                     'Select Vehicle',
                     context.read<CumulativeExpenseAddBloc>().vehicleList,
@@ -60,7 +60,7 @@ class CumulativeExpenseAddFormField extends StatelessWidget {
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     validator: (value) => (value == null) ? "Please select vehicle" : null,
                   ),
-                  12.sp.height,
+                  12.spMin.height,
                   Utils.dropdownBox(
                     'Select Category',
                     context.read<CumulativeExpenseAddBloc>().categoryList,
@@ -71,7 +71,7 @@ class CumulativeExpenseAddFormField extends StatelessWidget {
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     validator: (value) => (value == null) ? "Please select category" : null,
                   ),
-                  12.sp.height,
+                  12.spMin.height,
                   Utils.dropdownBox(
                     'Select Sub Category',
                     context.read<CumulativeExpenseAddBloc>().subCategoryList,
@@ -82,7 +82,7 @@ class CumulativeExpenseAddFormField extends StatelessWidget {
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     validator: (value) => (value == null) ? "Please select sub category" : null,
                   ),
-                  12.sp.height,
+                  12.spMin.height,
                   Utils.getTextFormField(
                     'Amount in dollars',
                     context.read<CumulativeExpenseAddBloc>().amountController,
@@ -93,13 +93,13 @@ class CumulativeExpenseAddFormField extends StatelessWidget {
                     autoValidate: context.watch<CumulativeExpenseAddBloc>().autoValidateMode,
                     validator: (value) => (value == null || value.isEmpty) ? "Please enter amount" : null,
                   ),
-                  12.sp.height,
+                  12.spMin.height,
                   Utils.getTextFormField(
                     'Enter Description',
                     context.read<CumulativeExpenseAddBloc>().descriptionController,
                     inputAction: TextInputAction.done,
                   ),
-                  12.sp.height,
+                  12.spMin.height,
                   SuccessButton(
                     onPressed: ()=>context.read<CumulativeExpenseAddBloc>().add(CumulativeExpenseAddReceiptEvent()),
                     text: 'Receipt',
@@ -108,7 +108,7 @@ class CumulativeExpenseAddFormField extends StatelessWidget {
                     backgroundColor: Colors.transparent,
                     foregroundColor: AppC.grey,
                   ),
-                  12.sp.height,
+                  12.spMin.height,
                   ImageUploadSection(
                     title: '',
                     isDeleteDialog: false,
@@ -118,7 +118,7 @@ class CumulativeExpenseAddFormField extends StatelessWidget {
                     logName: "CumulativeExpenseAddRemoveAttachmentEvent",
                     isRequired: false,
                   ),
-                  20.sp.height,
+                  20.spMin.height,
                   SuccessButton(
                     onPressed: ()=> context.read<CumulativeExpenseAddBloc>().add(CumulativeExpenseAddSaveEvent()),
                     text: 'Save',

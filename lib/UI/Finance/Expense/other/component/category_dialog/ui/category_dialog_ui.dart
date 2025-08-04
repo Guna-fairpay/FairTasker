@@ -53,8 +53,8 @@ class _CategoryDialogUI extends StatelessWidget {
         child: BlocBuilder<CategoryDialogBloc, CategoryDialogState>(
           builder: (context, state) {
             return AlertDialog(
-              insetPadding: 16.sp.padding,
-              contentPadding: 16.sp.horizontalPadding.copyWith(bottom: 16.sp),
+              insetPadding: 16.spMin.padding,
+              contentPadding: 16.spMin.horizontalPadding.copyWith(bottom: 16.spMin),
               backgroundColor: Colors.white,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Num.borderRadiusLarge)),
               alignment: Alignment.center,

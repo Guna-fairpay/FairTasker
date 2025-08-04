@@ -98,7 +98,7 @@ class _TaskerFilterTasksDialogContentView extends StatelessWidget {
               child: ListView(
                   shrinkWrap: true,
                   physics: const BouncingScrollPhysics(),
-                  padding: EdgeInsets.only(bottom: 20.sp),
+                  padding: EdgeInsets.only(bottom: 20.spMin),
                   children: [
                 Row(
                   mainAxisSize: MainAxisSize.min,
@@ -148,10 +148,10 @@ class _TaskerFilterTasksDialogContentView extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           padding: 10.padding,
                           title: Utils.getText(mainModel['name'] ?? '',
-                              weight: FontWeight.w700, size: 12.sp),
+                              weight: FontWeight.w700, size: 12.spMin),
                           suffix: Utils.getText(
                             ' ${childTasks.map<num>((e) => num.tryParse((e['count'] ?? 0).toString()) ?? 0).sum}',
-                            size: 12.sp,
+                            size: 12.spMin,
                             weight: FontWeight.w700,
                           ),
                           value: (mainModel['related_sub_names']?.every((e) =>

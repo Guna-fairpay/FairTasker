@@ -42,7 +42,7 @@ class CostListView extends StatelessWidget {
                   },
                   border: const TableBorder(horizontalInside: BorderSide(color: AppC.borderColor, width: Num.borderWidthButton)),
                   children: [
-                    TableHeaderRow(labels: const ["Date", "Category", "Amount"], backgroundColor: AppC.appbgColor, borderRadius: BorderRadius.vertical(top: Radius.circular(5.sp)), padding: 7.spMin.padding),
+                    TableHeaderRow(labels: const ["Date", "Category", "Amount"], backgroundColor: AppC.appbgColor, borderRadius: BorderRadius.vertical(top: Radius.circular(5.spMin)), padding: 7.spMin.padding),
                     ...List.generate((state is LoadingState) ? 10 : 0, (index) => <String, dynamic>{}).map((e) => CostTableRow(context, e)).toList() ?? [],
                     ...context.watch<CostBloc>().filteredData?.map((e) => CostTableRow(context, e)).toList() ?? [],
                   ],

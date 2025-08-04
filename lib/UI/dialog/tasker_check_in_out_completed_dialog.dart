@@ -88,7 +88,7 @@ class _TaskerCompleteCheckInOutContentView extends StatelessWidget {
           spacing: 10,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Utils.getText( "${context.watch<TCIODBloc>().isCheckOut ? "Check Out" : "Yesterday Hours"} summary", size: 17.sp),
+            Utils.getText( "${context.watch<TCIODBloc>().isCheckOut ? "Check Out" : "Yesterday Hours"} summary", size: 17.spMin),
             if (context.watch<TCIODBloc>().showPendingCounts)
             Text.rich(TextSpan(
               children: [
@@ -107,10 +107,10 @@ class _TaskerCompleteCheckInOutContentView extends StatelessWidget {
                     child: Column(
                       children: [
                         Utils.getText("00:00",
-                            weight: FontWeight.bold, size: 32.sp, color: AppC.red),
+                            weight: FontWeight.bold, size: 32.spMin, color: AppC.red),
                         Utils.getText(
                           "Idle Time",
-                          size: 12.sp,
+                          size: 12.spMin,
                           weight: FontWeight.bold,
                         ),
                         const SizedBox(
@@ -123,14 +123,14 @@ class _TaskerCompleteCheckInOutContentView extends StatelessWidget {
                               TextSpan(
                                   text: 'Checkin ',
                                   style: context.textTheme.labelMedium?.copyWith(
-                                    fontSize: 12.sp,
+                                    fontSize: 12.spMin,
                                     fontWeight: FontWeight.bold,
                                   )),
                               TextSpan(
                                   text: context.watch<TCIODBloc>().checkInTime.toHM(),
                                   style: context.textTheme.labelMedium?.copyWith(
                                       fontWeight: FontWeight.bold,
-                                      fontSize: 12.sp,
+                                      fontSize: 12.spMin,
                                       color: AppC.green))
                             ])),
                           ],
@@ -141,9 +141,9 @@ class _TaskerCompleteCheckInOutContentView extends StatelessWidget {
                     child: Column(
                       children: [
                         Utils.getText(context.watch<TCIODBloc>().activeHours.toHM(),
-                            weight: FontWeight.bold, size: 32.sp, color: AppC.green),
+                            weight: FontWeight.bold, size: 32.spMin, color: AppC.green),
                         Utils.getText("Total Active Hours",
-                            weight: FontWeight.bold, size: 12.sp),
+                            weight: FontWeight.bold, size: 12.spMin),
                         10.height,
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
@@ -153,13 +153,13 @@ class _TaskerCompleteCheckInOutContentView extends StatelessWidget {
                                 TextSpan(
                                     text: 'Checkout ',
                                     style: context.textTheme.labelMedium?.copyWith(
-                                      fontSize: 12.sp,
+                                      fontSize: 12.spMin,
                                       fontWeight: FontWeight.bold,
                                     )),
                                 TextSpan(
                                     text: context.watch<TCIODBloc>().checkOutTime.toHM(),
                                     style: context.textTheme.labelMedium?.copyWith(
-                                        fontSize: 12.sp,
+                                        fontSize: 12.spMin,
                                         fontWeight: FontWeight.bold,
                                         color: AppC.red))
                               ]),
@@ -181,9 +181,9 @@ class _TaskerCompleteCheckInOutContentView extends StatelessWidget {
                   minVerticalPadding: 0,
                   horizontalTitleGap: 0,
                   leading: Utils.getText(model['title'] ?? "",
-                      color: AppC.appColor, size: 12.sp, weight: FontWeight.bold),
+                      color: AppC.appColor, size: 12.spMin, weight: FontWeight.bold),
                   trailing: Utils.getText(model['complete_time_taken'] ?? "00:15",
-                      weight: FontWeight.normal, size: 12.sp, color: model['complete_time_taken'].toString().isNullOrEmpty ? AppC.red : AppC.text),
+                      weight: FontWeight.normal, size: 12.spMin, color: model['complete_time_taken'].toString().isNullOrEmpty ? AppC.red : AppC.text),
                   contentPadding: 10.horizontalPadding,
                 );
               },

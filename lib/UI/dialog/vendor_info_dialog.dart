@@ -28,9 +28,9 @@ class _VendorInfoDialogView extends StatelessWidget {
     return AlertDialog.adaptive(
       shape: ContinuousRectangleBorder(
           borderRadius: BorderRadius.circular(Num.borderRadiusLarge)),
-      contentPadding: 10.sp.padding,
-      titlePadding: 10.sp.padding,
-      insetPadding: 10.sp.padding,
+      contentPadding: 10.spMin.padding,
+      titlePadding: 10.spMin.padding,
+      insetPadding: 10.spMin.padding,
       title: ListTile(
         dense: true,
         minTileHeight: 0,
@@ -39,17 +39,17 @@ class _VendorInfoDialogView extends StatelessWidget {
         horizontalTitleGap: 0,
         contentPadding: EdgeInsets.zero,
         title:
-            Utils.getText("Vendor Info", size: 17.sp, weight: FontWeight.bold),
+            Utils.getText("Vendor Info", size: 17.spMin, weight: FontWeight.bold),
         trailing: GestureDetector(
           onTap: context.popDialog,
-          child: Icon(Icons.close_rounded, size: 18.sp),
+          child: Icon(Icons.close_rounded, size: 18.spMin),
         ),
       ),
       content: Container(
         width: double.maxFinite,
         decoration: BoxDecoration(),
         clipBehavior: Clip.antiAliasWithSaveLayer,
-        padding: 10.sp.padding,
+        padding: 10.spMin.padding,
         child: Table(
           columnWidths: {
             0: FlexColumnWidth(),
@@ -66,7 +66,7 @@ class _VendorInfoDialogView extends StatelessWidget {
                   child: Padding(
                     padding: 10.padding,
                     child: Utils.getText("Name",
-                        size: 12.sp,
+                        size: 12.spMin,
                         weight: FontWeight.bold,
                         overFlow: TextOverflow.ellipsis),
                   )),
@@ -75,7 +75,7 @@ class _VendorInfoDialogView extends StatelessWidget {
                     padding: 10.padding,
                     child: Utils.getText(
                         "${model?['display']?['vendor']?['name'] ?? ""}",
-                        size: 12.sp,
+                        size: 12.spMin,
                         weight: FontWeight.normal,
                         overFlow: TextOverflow.ellipsis),
                   )),
@@ -85,7 +85,7 @@ class _VendorInfoDialogView extends StatelessWidget {
                   child: Padding(
                     padding: 10.padding,
                     child: Utils.getText("Vendor Type",
-                        size: 12.sp,
+                        size: 12.spMin,
                         weight: FontWeight.bold,
                         overFlow: TextOverflow.ellipsis),
                   )),
@@ -94,7 +94,7 @@ class _VendorInfoDialogView extends StatelessWidget {
                     padding: 10.padding,
                     child: Utils.getText(
                         "${model?['display']?['vendor']?['vendor_type']?['name'] ?? ""}",
-                        size: 12.sp,
+                        size: 12.spMin,
                         weight: FontWeight.normal,
                         overFlow: TextOverflow.ellipsis),
                   )),
@@ -104,7 +104,7 @@ class _VendorInfoDialogView extends StatelessWidget {
                   child: Padding(
                     padding: 10.padding,
                     child: Utils.getText("Phone",
-                        size: 12.sp,
+                        size: 12.spMin,
                         weight: FontWeight.bold,
                         overFlow: TextOverflow.ellipsis),
                   )),
@@ -113,7 +113,7 @@ class _VendorInfoDialogView extends StatelessWidget {
                     padding: 10.padding,
                     child: Utils.getText(
                         "${model?['display']?['vendor']?['phone'] ?? ""}",
-                        size: 12.sp,
+                        size: 12.spMin,
                         weight: FontWeight.normal,
                         overFlow: TextOverflow.ellipsis),
                   )),
@@ -123,7 +123,7 @@ class _VendorInfoDialogView extends StatelessWidget {
                   child: Padding(
                     padding: 10.padding,
                     child: Utils.getText("Address",
-                        size: 12.sp,
+                        size: 12.spMin,
                         weight: FontWeight.bold,
                         overFlow: TextOverflow.ellipsis),
                   )),
@@ -142,7 +142,7 @@ class _VendorInfoDialogView extends StatelessWidget {
                     padding: 10.padding,
                     child: Utils.getText(
                         "${model?['display']?['vendor']?['address'] ?? ""}",
-                        size: 12.sp,
+                        size: 12.spMin,
                         color: AppC.appColor,
                         weight: FontWeight.normal,
                         overFlow: TextOverflow.ellipsis),
@@ -153,7 +153,7 @@ class _VendorInfoDialogView extends StatelessWidget {
                   child: Padding(
                     padding: 10.padding,
                     child: Utils.getText("Expertise",
-                        size: 12.sp,
+                        size: 12.spMin,
                         weight: FontWeight.bold,
                         overFlow: TextOverflow.ellipsis),
                   )),
@@ -162,7 +162,7 @@ class _VendorInfoDialogView extends StatelessWidget {
                     padding: 10.padding,
                     child: Utils.getText(
                         "${model?['display']?['vendor']?['expertise'] ?? ""}",
-                        size: 12.sp,
+                        size: 12.spMin,
                         weight: FontWeight.normal,
                         overFlow: TextOverflow.visible),
                   )),
@@ -172,7 +172,7 @@ class _VendorInfoDialogView extends StatelessWidget {
                   child: Padding(
                     padding: 10.padding,
                     child: Utils.getText("Description",
-                        size: 12.sp,
+                        size: 12.spMin,
                         weight: FontWeight.bold,
                         overFlow: TextOverflow.visible),
                   )),
@@ -181,7 +181,7 @@ class _VendorInfoDialogView extends StatelessWidget {
                     padding: 10.padding,
                     child: Utils.getText(
                         "${model?['display']?['vendor']?['description'] ?? ""}",
-                        size: 12.sp,
+                        size: 12.spMin,
                         weight: FontWeight.normal,
                         overFlow: TextOverflow.visible),
                   )),

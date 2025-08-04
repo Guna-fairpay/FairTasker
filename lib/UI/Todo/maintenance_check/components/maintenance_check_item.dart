@@ -18,13 +18,13 @@ class MaintenanceCheckItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      spacing: 5.sp,
+      spacing: 5.spMin,
       mainAxisAlignment: MainAxisAlignment.end,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         CustomCheckboxListTile(
-          title: Text("${model?['name'] ?? ""}", style: context.textTheme.labelLarge?.copyWith(fontSize: 12.sp)),
-          spacing: 5.sp,
+          title: Text("${model?['name'] ?? ""}", style: context.textTheme.labelLarge?.copyWith(fontSize: 12.spMin)),
+          spacing: 5.spMin,
           padding: EdgeInsets.zero,
           value: (model?['checked'] ?? false),
           activeColor: Colors.grey,
@@ -33,7 +33,7 @@ class MaintenanceCheckItem extends StatelessWidget {
           useExpand: false,
           suffix: Expanded(
             child: Row(
-              spacing: 5.sp,
+              spacing: 5.spMin,
               children: [
                 if (List.from(model?['children'] ?? []).isNotEmpty)
                 Expanded(
@@ -42,7 +42,7 @@ class MaintenanceCheckItem extends StatelessWidget {
                         itemAsString: (item) => item['name'].toString(),
                         initialSelection: model?['selectedValue'],
                         onChanged: onDropDownChanged,
-                        // contentPadding: 1.sp.padding.copyWith(left: 5.sp, right: 5.sp),
+                        // contentPadding: 1.spMin.padding.copyWith(left: 5.spMin, right: 5.spMin),
                         hintText: "Not Checked",
                         // labelText: null,
                         // isExpanded: true

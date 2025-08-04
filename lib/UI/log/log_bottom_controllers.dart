@@ -17,7 +17,7 @@ class LogBottomControllers extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<LogBloc, LogState>(
       builder: (context, state) => Container(
-        padding: 10.sp.padding,
+        padding: 10.spMin.padding,
         color: Colors.white,
         child: Row(
           spacing: 5,

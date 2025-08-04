@@ -58,21 +58,21 @@ class PrivateRentalListingPage extends StatelessWidget {
                               color: AppC.appbgColor),
                           children: [
                             Padding(
-                                padding: 5.sp.padding,
+                                padding: 5.spMin.padding,
                                 child: Text("Vehicle Name",
                                     style: context.textTheme.labelLarge
                                         ?.copyWith(
                                             fontWeight: FontWeight.bold,
-                                            fontSize: 12.sp))),
+                                            fontSize: 14.spMin))),
                             Padding(
-                                padding: 5.sp.padding,
+                                padding: 5.spMin.padding,
                                 child: Text("Customer",
                                     style: context.textTheme.labelLarge
                                         ?.copyWith(
                                             fontWeight: FontWeight.bold,
-                                            fontSize: 12.sp))),
+                                            fontSize: 14.spMin))),
                             Padding(
-                                padding: 5.sp.padding,
+                                padding: 5.spMin.padding,
                                 child: const SizedBox.shrink()),
                           ]),
                       ...context

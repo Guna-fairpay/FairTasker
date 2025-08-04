@@ -48,9 +48,9 @@ class _CheckInOutHoursDetailsMain extends StatelessWidget {
             }
           },
           child: Padding(
-            padding: 10.sp.padding,
+            padding: 10.spMin.padding,
             child: Column(
-              spacing: 10.sp,
+              spacing: 10.spMin,
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,

@@ -30,8 +30,8 @@ class PartsListingPage extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Expanded(child: Utils.getText('Parts Name', weight: FontWeight.bold)),
-                  Utils.getText('Action', weight: FontWeight.bold),
+                  Expanded(child: Utils.getText('Parts Name', weight: FontWeight.bold, size: 14.spMin)),
+                  Utils.getText('Action', weight: FontWeight.bold, size: 14.spMin),
                 ],
               ),
             ),
@@ -57,7 +57,7 @@ class PartsListingPage extends StatelessWidget {
                           child: GestureDetector(
                             onTap: () => context.read<PartsBloc>().add(EditPartsEvent(data: item)),
                             child: Utils.getText(item['name'] ?? '',
-                                size: 12.sp, overFlow: TextOverflow.visible),
+                                size: 12.spMin, overFlow: TextOverflow.visible),
                           ),
                         ),
                         Row(
@@ -65,7 +65,7 @@ class PartsListingPage extends StatelessWidget {
                           children: [
                             InkWell(
                                 onTap: () => context.read<PartsBloc>().add(EditPartsEvent(data: item)),
-                                child: Icon(Icons.edit_outlined,color: AppC.blue,size: 20.sp,)),
+                                child: Icon(Icons.edit_outlined,color: AppC.blue,size: 20.spMin,)),
                             InkWell(
                                 onTap: () {
                                   AskPermissionDialog.show(context,
@@ -78,7 +78,7 @@ class PartsListingPage extends StatelessWidget {
                                       onPositivePressed: ()=>context.read<PartsBloc>().add(DeletePartsEvent(data: item))
                                   );
                                 },
-                                child: Icon(Icons.delete_outline,color: AppC.redAccent,size: 20.sp,)),
+                                child: Icon(Icons.delete_outline,color: AppC.redAccent,size: 20.spMin,)),
                           ],
                         )
                       ]),

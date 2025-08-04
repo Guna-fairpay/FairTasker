@@ -37,7 +37,7 @@ class _TaskerVehicleSearchDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
         insetPadding: 10.padding,
-        contentPadding: 6.sp.horizontalPadding.copyWith(bottom: 10.sp),
+        contentPadding: 6.spMin.horizontalPadding.copyWith(bottom: 10.spMin),
         titlePadding: EdgeInsets.zero,
         shape: ContinuousRectangleBorder(
             borderRadius: BorderRadius.circular(Num.borderRadiusLarge)),
@@ -86,6 +86,7 @@ class _TaskerVehicleSearchBodyView extends StatelessWidget {
                 child: Column(
                   spacing: 10,
                   mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox.shrink(),
                     SearchViewField<Map<String, dynamic>>(

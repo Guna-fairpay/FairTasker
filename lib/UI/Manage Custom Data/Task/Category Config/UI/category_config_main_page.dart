@@ -21,7 +21,7 @@ class CategoryConfigMainPage extends StatelessWidget {
           if (state is CategoryConfigCommonState) {if (EasyLoading.isShow) EasyLoading.dismiss();}
         },
         child: SafeArea(
-          minimum: EdgeInsets.symmetric(vertical: 10.sp),
+          minimum: EdgeInsets.symmetric(vertical: 10.spMin),
           child: const CategoryConfigTextFieldPage()
         ),
       ),

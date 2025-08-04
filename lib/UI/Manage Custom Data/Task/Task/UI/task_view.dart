@@ -29,13 +29,13 @@ class TaskView extends StatelessWidget {
           key: context.read<TaskBloc>().formKey,
           child: Column(
             children: [
-              10.sp.height,
+              10.spMin.height,
               Utils.getTextFormField(
                 'Task', context.read<TaskBloc>().taskController,
                 autoValidate: context.watch<TaskBloc>().autoValidateMode,
                 validator: (val) => val!.isEmpty ? 'Please enter task name' : null ,
               ),
-              10.sp.height,
+              10.spMin.height,
               DropdownBoxWithIcon(
                 hindText: 'Select Category',
                 list: context.read<TaskBloc>().category,
@@ -45,7 +45,7 @@ class TaskView extends StatelessWidget {
                 initialSelection: context.read<TaskBloc>().selectedCategory,
                 selectedKey: context.read<TaskBloc>().selectedCategory,
               ),
-              10.sp.height,
+              10.spMin.height,
               DropdownBoxWithIcon(
                 list: context.read<TaskBloc>().subcategory,
                 hindText: 'Select SubCategory',
@@ -55,14 +55,14 @@ class TaskView extends StatelessWidget {
                 initialSelection: context.read<TaskBloc>().selectedSubCategory,
                 selectedKey: context.read<TaskBloc>().selectedSubCategory,
               ),
-              10.sp.height,
+              10.spMin.height,
               Utils.getTextFormField(
                 'Time taken to complete in minutes (eg: 30)',
                 context.read<TaskBloc>().timeTakenController,
                 textType: TextInputType.number,
                 textInputFormatter: [FilteringTextInputFormatter.allow(RegExp(r'^\d{0,4}'))],
               ),
-              10.sp.height,
+              10.spMin.height,
               Utils.dropdownBox(
                 'select user type',
                 context.read<TaskBloc>().usersType,
@@ -70,7 +70,7 @@ class TaskView extends StatelessWidget {
                 labelKey: 'name',
                 initialSelection: context.read<TaskBloc>().selectedUserType,
               ),
-              10.sp.height,
+              10.spMin.height,
               Row(
                 //spacing: 10,
                 children: [
@@ -89,7 +89,7 @@ class TaskView extends StatelessWidget {
                       value: context.read<TaskBloc>().noCategory,
                       onChanged: (value)=>context.read<TaskBloc>().add(NoCategoryEvent(value: value))),
                   Utils.getText('No Category',weight: FontWeight.bold),
-                  10.sp.width,
+                  10.spMin.width,
                   Expanded(
                       child: CompactSearchView(
                     controller: context.read<TaskBloc>().searchController,

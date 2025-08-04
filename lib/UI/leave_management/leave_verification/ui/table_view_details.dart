@@ -15,7 +15,7 @@ class TableViewDetails extends TableRow{
 
   @override
   List<Widget> get children => [
-    TableCell(child: Padding(padding: 10.sp.padding, child: Utils.getText('$label', size: 12.sp, weight: FontWeight.bold))),
-    TableCell(child: Padding(padding: 10.sp.padding, child: Utils.getText('$value',size: 12.sp, weight: FontWeight.w400))),
+    TableCell(child: Padding(padding: 10.spMin.padding, child: Utils.getText('$label', size: 12.spMin, weight: FontWeight.bold))),
+    TableCell(child: Padding(padding: 10.spMin.padding, child: Utils.getText('$value',size: 12.spMin, weight: FontWeight.w400))),
      ];
 }

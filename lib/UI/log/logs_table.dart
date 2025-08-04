@@ -26,7 +26,7 @@ class LogsTable extends StatelessWidget {
             if (context.watch<LogBloc>().filteredResponse.isNotEmpty)
               Expanded(
                   child: Padding(
-                    padding: 15.sp.padding,
+                    padding: 15.spMin.padding,
                     child: Table(
                                     defaultVerticalAlignment: TableCellVerticalAlignment.middle,
                                     columnWidths: const {

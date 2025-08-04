@@ -15,7 +15,7 @@ class AttachmentView extends StatelessWidget {
         onTap: onViewAttachment,
         child: Icon(
           Icons.remove_red_eye_sharp,
-          size: 14.spMin,
+          size: 16.spMin,
           color: AppC.appColor,
         ),
       );

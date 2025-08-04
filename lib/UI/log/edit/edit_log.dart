@@ -48,9 +48,9 @@ class EditLog extends StatelessWidget {
             }
           },
             child: SafeArea(
-              minimum: 16.sp.padding,
+              minimum: 16.spMin.padding,
               child: Column(
-                spacing: 10.sp,
+                spacing: 10.spMin,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: const [
                   EditLogInputBody(),

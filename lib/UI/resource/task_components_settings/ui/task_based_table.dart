@@ -17,28 +17,28 @@ class TaskBasedTable extends StatelessWidget {
           TableHeaderRow(
               tableDecoration: BoxDecoration(
                 borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(4.sp),
-                    topRight: Radius.circular(4.sp)),
+                    topLeft: Radius.circular(4.spMin),
+                    topRight: Radius.circular(4.spMin)),
                 color: AppC.appbgColor,),
               backgroundColor: AppC.appbgColor,
               labels: ["Name", "Amount",if (getIt<CommonService>().isAdmin) "Action"]),
           ...?context.watch<TaskComponentBloc>().taskBaseList?.map((e) => TableRow(children: [
             TableRowInkWell(
               child: Padding(
-                padding: 10.sp.padding,
+                padding: 10.spMin.padding,
                 child: Utils.getText(e['task_name'] ?? ''),
               ),
               onTap: () => context.read<TaskComponentBloc>().add(EditEvent(value: e)),
             ),
             TableCell(
                 child: Padding(
-                  padding: 10.sp.padding,
+                  padding: 10.spMin.padding,
                   child: Text("\$${e['amount']}"),
                 )),
             if (getIt<CommonService>().isAdmin)
               TableCell(
                   child: Padding(
-                    padding: 10.sp.padding,
+                    padding: 10.spMin.padding,
                     child: Row(
                       children: [
                         GestureDetector(
@@ -47,7 +47,7 @@ class TaskBasedTable extends StatelessWidget {
                               Icons.edit_outlined,
                               color: AppC.blue,)
                         ),
-                        5.sp.width,
+                        5.spMin.width,
                         GestureDetector(
                             onTap: () => AskPermissionDialog.show(context,
                                 title: "Are you sure?",

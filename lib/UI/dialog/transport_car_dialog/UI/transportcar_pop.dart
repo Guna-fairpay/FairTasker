@@ -57,10 +57,10 @@ class _TransportCarPopView extends StatelessWidget {
             shape: ContinuousRectangleBorder(
                 borderRadius: BorderRadius.circular(Num.borderRadiusXLarge)),
             backgroundColor: AppC.white,
-            insetPadding: 10.sp.padding,
+            insetPadding: 10.spMin.padding,
             titlePadding: EdgeInsets.zero,
             contentPadding:
-                5.sp.padding.copyWith(left: 15.sp, right: 20.sp, bottom: 15.sp),
+                5.spMin.padding.copyWith(left: 15.spMin, right: 20.spMin, bottom: 15.spMin),
             title: Align(
               alignment: Alignment.centerLeft,
               child: IconButton(

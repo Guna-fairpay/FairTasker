@@ -22,13 +22,13 @@ class LeaveVerificationListingPage extends StatelessWidget {
     return BlocBuilder<LeaveVerificationBloc, LeaveVerificationState>(
       builder: (context, state) {
         return SafeArea(
-          minimum: 16.sp.padding,
+          minimum: 16.spMin.padding,
           child: ListView(
             physics: const BouncingScrollPhysics(),
             shrinkWrap: true,
             children: [
-              Utils.getText('Status', size: 12.sp, weight: FontWeight.w600),
-              5.sp.height,
+              Utils.getText('Status', size: 12.spMin, weight: FontWeight.w600),
+              5.spMin.height,
               Utils.dropdownBox(
                   'Select Status',
                   context.read<LeaveVerificationBloc>().statusName,
@@ -36,9 +36,9 @@ class LeaveVerificationListingPage extends StatelessWidget {
                   labelKey: 'name',
                 initialSelection: context.read<LeaveVerificationBloc>().selectedStatus,
               ),
-              12.sp.height,
-              Utils.getText('Reason', size: 12.sp, weight: FontWeight.w600),
-              5.sp.height,
+              12.spMin.height,
+              Utils.getText('Reason', size: 12.spMin, weight: FontWeight.w600),
+              5.spMin.height,
               Utils.getTextFormField(
                 null,
                 context.read<LeaveVerificationBloc>().reasonController,
@@ -46,11 +46,11 @@ class LeaveVerificationListingPage extends StatelessWidget {
                 maxLines: 2,
                 minLines: 2,
               ),
-              12.sp.height,
+              12.spMin.height,
               SuccessButton(
                 onPressed: () => context.read<LeaveVerificationBloc>().add(LeaveVerificationSubmitEvent()),
               ),
-              20.sp.height,
+              20.spMin.height,
               Table(
                 border: TableBorder.all(width: Num.borderWidthThinField, color: AppC.borderColor),
                 columnWidths: const {

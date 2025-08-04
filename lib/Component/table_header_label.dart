@@ -11,6 +11,6 @@ class TableHeaderLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TableCell(child: Padding(padding: padding ?? 5.sp.padding, child: Text(label, style: context.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.bold), textAlign: textAlign)));
+    return TableCell(child: Padding(padding: padding ?? 5.spMin.padding, child: Text(label, style: context.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.bold), textAlign: textAlign)));
   }
 }

@@ -11,7 +11,7 @@ class CategoryListItem extends TableRow {
 
   @override
   List<Widget> get children => [
-    TableRowInkWell(onTap: onEdit, child: Padding(padding: 10.sp.padding, child: Utils.getText("${model?['name'] ?? ""}"))),
+    TableRowInkWell(onTap: onEdit, child: Padding(padding: 10.spMin.padding, child: Utils.getText("${model?['name'] ?? ""}"))),
     TableCell(child: Row(
       children: [
         IconButton(onPressed: onEdit, icon: const Icon(Icons.edit_outlined), color: AppC.appColor),

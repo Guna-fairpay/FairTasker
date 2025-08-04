@@ -23,13 +23,13 @@ class BillListItem extends TableRow {
       activeColor: AppC.appColor,
       value: model?['expense_status'] == 1 ? true : false,
       onChanged: (v)=>model?['expense_status'] == 0 ? onPass?.call():{},
-      shape: ContinuousRectangleBorder(borderRadius: BorderRadius.circular(8.sp),),
-      side: BorderSide(color: AppC.appColor,width: 1.sp,),
+      shape: ContinuousRectangleBorder(borderRadius: BorderRadius.circular(8.spMin),),
+      side: BorderSide(color: AppC.appColor,width: 1.spMin,),
     )),
-    TableRowInkWell(onTap: onEdit, child: Padding(padding: 10.sp.padding, child: Utils.getText(DateTime.tryParse(model?['created_at']??'').toFormat(format: "M-dd-yyy").toString()))),
-    TableRowInkWell(onTap: onEdit, child: Padding(padding: 10.sp.padding, child: Utils.getText("${model?['title'] ?? ""}",size: 12.sp))),
+    TableRowInkWell(onTap: onEdit, child: Padding(padding: 10.spMin.padding, child: Utils.getText(DateTime.tryParse(model?['created_at']??'').toFormat(format: "M-dd-yyy").toString()))),
+    TableRowInkWell(onTap: onEdit, child: Padding(padding: 10.spMin.padding, child: Utils.getText("${model?['title'] ?? ""}",size: 14.spMin))),
     TableCell(child: model?['billimages']?.isNotEmpty ? IconButton(onPressed: onViewAttachment, icon: const Icon(Icons.remove_red_eye,size: 20,), color: AppC.appColor):const SizedBox.shrink(),),
-    TableRowInkWell(child: Padding(padding: 10.sp.padding, child: Utils.getText(<String>[(model?['users']?['first_name'] ?? ""), (model?['users']?['last_name'] ?? "")].toInitial,))),
+    TableRowInkWell(child: Padding(padding: 10.spMin.padding, child: Utils.getText(<String>[(model?['users']?['first_name'] ?? ""), (model?['users']?['last_name'] ?? "")].toInitial,size: 14.spMin))),
     TableCell(child: IconButton(onPressed: onDelete, icon: const Icon(Icons.delete_outline,size: 20,), color: AppC.redAccent),),
   ];
 }

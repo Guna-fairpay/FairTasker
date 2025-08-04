@@ -46,10 +46,10 @@ class VehicleExpenseDetailsListItem extends StatelessWidget {
     List<dynamic> expenseImages =
     images.map((e) => e['path'].toString().toStorageURL).toList();
     return Padding(
-      padding: 8.sp.padding,
+      padding: 8.spMin.padding,
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        spacing: 10.sp,
+        spacing: 10.spMin,
         children: [
           Row(
             spacing: 10,
@@ -57,7 +57,7 @@ class VehicleExpenseDetailsListItem extends StatelessWidget {
               Expanded(
                 flex: 2,
                   child: Row(
-                spacing: 10.sp,
+                spacing: 10.spMin,
                 children: [
                   Utils.getText(
                     DateFormat('MM-dd-yy').format(DateTime.parse(model['expense_date'])),
@@ -72,7 +72,7 @@ class VehicleExpenseDetailsListItem extends StatelessWidget {
               )),
               Row(
                 mainAxisSize: MainAxisSize.min,
-                spacing: 10.sp,
+                spacing: 10.spMin,
                 children: [
                   Visibility(
                     visible: model['attachments'].isNotEmpty,
