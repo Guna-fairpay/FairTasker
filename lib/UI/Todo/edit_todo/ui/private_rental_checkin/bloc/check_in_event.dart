@@ -12,12 +12,11 @@ class InitialEvent extends CheckInEvent {
   List<Object?> get props => [data];
 }
 
-class SaveEvent extends CheckInEvent {
-  final dynamic data;
-  SaveEvent(this.data);
-  @override
-  List<Object?> get props => [data];
-}
+class SaveImagesEvent extends CheckInEvent {}
+
+class SaveDepositEvent extends CheckInEvent {}
+
+class SaveOdometerEvent extends CheckInEvent {}
 
 class CapturedImageEvent extends CheckInEvent {
   final String imageName;
@@ -48,4 +47,9 @@ class DeleteImageEvent extends CheckInEvent {
   List<Object?> get props => [imageName, data];
 }
 
-class CheckBoxEvent extends CheckInEvent {}
+class ShowImageUploadEvent extends CheckInEvent {
+  final String checkBoxName;
+  ShowImageUploadEvent({required this.checkBoxName,});
+  @override
+  List<Object?> get props => [checkBoxName,];
+}

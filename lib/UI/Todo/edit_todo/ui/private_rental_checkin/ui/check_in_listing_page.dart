@@ -19,21 +19,23 @@ class CheckInListingPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Expanded(child: Utils.getTextFormField(null, hintText: 'Override Security Deposit',TextEditingController())),
-                  Expanded(child: Utils.getTextFormField(null, hintText: 'Reason(Optional)', TextEditingController(), maxLines: 2, minLines: 2)),
-                  CompactIconButton(icon: RemixIcons.save_2_line, iconSize: 20.spMin, backgroundColor: AppC.green,),
+                  Expanded(child: Utils.getTextFormField(null, context.read<CheckInBloc>().securityAmountController, hintText: 'Override Security Deposit')),
+                  Expanded(child: Utils.getTextFormField(null, context.read<CheckInBloc>().reasonController, hintText: 'Reason(Optional)', maxLines: 2, minLines: 2)),
+                  CompactIconButton(icon: RemixIcons.save_2_line, iconSize: 20.spMin, backgroundColor: AppC.green, onPressed: ()=> context.read<CheckInBloc>().add(SaveDepositEvent()),),
                   ],
               ),
               const CompactText('Odometer', fontWeight: FontWeight.bold),
               Row(
                 spacing: 10,
                 children: [
-                  Expanded(child: Utils.getTextFormField(null, TextEditingController())),
-                  CompactIconButton(icon: RemixIcons.save_2_line, iconSize: 20.spMin, backgroundColor: AppC.green,),
+                  Expanded(child: Utils.getTextFormField(null, context.read<CheckInBloc>().odometerController)),
+                  CompactIconButton(icon: RemixIcons.save_2_line, iconSize: 20.spMin, backgroundColor: AppC.green, onPressed: ()=> context.read<CheckInBloc>().add(SaveOdometerEvent()),),
                 ]
               ),
               const CheckInPicturesListUI(),
-              SuccessButton(),
+              SuccessButton(
+                onPressed: ()=> context.read<CheckInBloc>().add(SaveImagesEvent()),
+              ),
             ],
           ),
         );
