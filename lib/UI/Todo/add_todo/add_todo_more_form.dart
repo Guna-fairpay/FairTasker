@@ -157,7 +157,7 @@ class AddTodoMoreForm extends StatelessWidget {
                     child: Utils.dropdownBox(
                         "",
                         List.from(state.linkOptions),
-                        height: 28.sp,
+                        height: 28.spMin,
                         (selectedValue) => context
                             .read<AddToDoBloc>()
                             .add(AddToDoSelectLinkOptionEvent(selectedValue)),

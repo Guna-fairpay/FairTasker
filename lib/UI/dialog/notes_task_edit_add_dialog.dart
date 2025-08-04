@@ -62,7 +62,7 @@ class _NotesTaskAddEditDialogView extends StatelessWidget {
           return SizedBox(
             width: double.maxFinite,
             child: Column(
-              spacing: 5.sp,
+              spacing: 5.spMin,
               mainAxisSize: MainAxisSize.min,
               children: [
                 Row(

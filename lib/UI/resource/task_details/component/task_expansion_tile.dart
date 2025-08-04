@@ -62,7 +62,7 @@ class TaskExpansionTile extends StatelessWidget {
             );
           }, separatorBuilder: (context, index) => Divider(), itemCount: subList.length),
         );
-      }, separatorBuilder: (context, index) => 5.sp.height, itemCount: listTasks.length),
+      }, separatorBuilder: (context, index) => 5.spMin.height, itemCount: listTasks.length),
     );
   }
 }

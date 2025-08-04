@@ -13,6 +13,7 @@ class CompactIconButton extends StatelessWidget {
   final WidgetStatePropertyAll<OutlinedBorder?>? shape;
   final WidgetStatePropertyAll<EdgeInsetsGeometry?>? padding;
   final double? iconSize;
+  final WidgetStatePropertyAll<BorderSide?>? side;
 
   const CompactIconButton(
       {super.key,
@@ -21,7 +22,7 @@ class CompactIconButton extends StatelessWidget {
       this.foregroundColor = AppC.white,
       this.elevation = 0,
       this.onTapDown,
-      this.onPressed, this.shape, this.iconSize, this.padding});
+      this.onPressed, this.shape, this.iconSize, this.padding, this.side});
 
   @override
   Widget build(BuildContext context) {
@@ -39,10 +40,16 @@ class CompactIconButton extends StatelessWidget {
           style: ButtonStyle(
               shape: shape ?? WidgetStatePropertyAll(ContinuousRectangleBorder(
                   borderRadius: BorderRadius.circular(Num.borderRadiusLarge))),
+              side: side ?? const WidgetStatePropertyAll(
+                BorderSide(
+                  color: Colors.transparent,
+                  width: 0.0,
+                ),
+              ),
               padding: padding ?? WidgetStatePropertyAll(
-                  EdgeInsets.symmetric(vertical: 12.sp, horizontal: 6.sp)),
-              iconSize: WidgetStatePropertyAll(12.sp),
-              minimumSize: WidgetStatePropertyAll(Size.fromRadius(18.sp)),
+                  EdgeInsets.symmetric(vertical: 12.spMin, horizontal: 6.spMin)),
+              iconSize: WidgetStatePropertyAll(12.spMin),
+              minimumSize: WidgetStatePropertyAll(Size.fromRadius(18.spMin)),
               foregroundColor: WidgetStatePropertyAll(foregroundColor),
               backgroundColor: WidgetStatePropertyAll(backgroundColor),
               elevation: WidgetStatePropertyAll(elevation)),

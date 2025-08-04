@@ -8,7 +8,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class CustomTabButton<T> extends StatelessWidget {
   final Function(T val)? onPressed;
   final EdgeInsets? padding;
-  final String buttonText;
+  final String? buttonText;
   final String? subText;
   final TextStyle? textStyle;
   final BorderRadius? tapBorderRaius;
@@ -18,6 +18,7 @@ class CustomTabButton<T> extends StatelessWidget {
   final Color? overrideTextColor;
   final IconData? icon;
   final Color? subTextColor;
+  final double? iconSize;
 
   const CustomTabButton(
       {super.key,
@@ -29,11 +30,12 @@ class CustomTabButton<T> extends StatelessWidget {
       this.icon,
       this.selectedBorderColor,
       this.overrideTextColor,
-      required this.buttonText,
+      this.buttonText,
       this.subText,
       required this.value,
       required this.selectedValue,
         this.subTextColor,
+        this.iconSize,
       });
 
   @override
@@ -63,7 +65,7 @@ class CustomTabButton<T> extends StatelessWidget {
             Text.rich(TextSpan(
               children: [
                 if (icon != null)
-                  WidgetSpan(child: Icon(icon, size: 16.spMin, color: (selectedValue != value) ? null : AppC.appColor)),
+                  WidgetSpan(child: Icon(icon, size: iconSize ?? 16.spMin, color: (selectedValue != value) ? AppC.grey.shade600 : AppC.appColor)),
                 if (icon != null)
                   WidgetSpan(child: 4.width),
                 TextSpan(text: buttonText)

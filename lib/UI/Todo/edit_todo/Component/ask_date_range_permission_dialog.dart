@@ -98,26 +98,26 @@ class _AskDateRangePermissionDialogView extends StatelessWidget {
         key: _formKey,
         autovalidateMode: AutovalidateMode.onUserInteraction,
         child: Padding(
-          padding: 10.sp.padding,
+          padding: 10.spMin.padding,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Utils.getText(
                   "Enter Date Range",
-                  size: 18.sp,
+                  size: 18.spMin,
                   weight: FontWeight.bold,
                   align: TextAlign.center),
               8.height,
-              Utils.getText("Recurring Start Date - $startDate", size: 14.sp),
+              Utils.getText("Recurring Start Date - $startDate", size: 14.spMin),
               8.height,
-              Utils.getText("Recurring End Date - $endDate", size: 14.sp),
+              Utils.getText("Recurring End Date - $endDate", size: 14.spMin),
               8.height,
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Expanded(
                     flex: 1,
-                      child: Utils.getText("From", size: 14.sp,align: TextAlign.center)),
+                      child: Utils.getText("From", size: 14.spMin,align: TextAlign.center)),
                   Expanded(
                     flex: 2,
                     child: ValueListenableBuilder<DateTime?>(
@@ -144,7 +144,7 @@ class _AskDateRangePermissionDialogView extends StatelessWidget {
                 children: [
                   Expanded(
                       flex: 1,
-                      child: Utils.getText("To", size: 14.sp,align: TextAlign.center)),
+                      child: Utils.getText("To", size: 14.spMin,align: TextAlign.center)),
                   Expanded(
                     flex: 2,
                     child: ValueListenableBuilder<DateTime?>(

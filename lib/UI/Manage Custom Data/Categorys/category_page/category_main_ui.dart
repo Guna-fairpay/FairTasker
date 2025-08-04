@@ -45,7 +45,7 @@ class CategoryMainUi extends StatelessWidget {
             }
           },
           child: SafeArea(
-              minimum: 16.sp.padding,
+              minimum: 16.spMin.padding,
               child: ListView(
                 children: [
                   const CategoryAlterUi(),

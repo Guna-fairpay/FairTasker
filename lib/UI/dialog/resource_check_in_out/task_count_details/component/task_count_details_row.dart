@@ -14,9 +14,9 @@ class TaskCountDetailsRow extends TableRow {
 
   @override
   List<Widget> get children => [
-    TableCell(child: Padding(padding: 5.sp.padding, child: Text(model?['date'].toString().toDateTime().toFormat(format: "MM-dd-yy") ?? "", textAlign: TextAlign.start))),
-    TableCell(child: Padding(padding: 5.sp.padding, child: CompactText(model?['total_hours'].toString().parseDurationToMinutes.minutesToHM ?? "", textAlign: TextAlign.center,color: AppC.redAccent))),
-    TableRowInkWell(onTap: (model?['reason'].toString().isNullOrEmpty ?? false) ? null : () => onViewNotes?.call(model?['reason'] ?? ""),child: Padding(padding: 5.sp.padding, child: Text("${model?['reason'] ?? ""}", textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis))),
-    TableRowInkWell(onTap: (model?['comments'].toString().isNullOrEmpty ?? false) ? null : () => onViewNotes?.call(model?['comments'] ?? ""),child: Padding(padding: 5.sp.padding, child: Text("${model?['comments'] ?? ""}", textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis))),
+    TableCell(child: Padding(padding: 5.spMin.padding, child: Text(model?['date'].toString().toDateTime().toFormat(format: "MM-dd-yy") ?? "", textAlign: TextAlign.start))),
+    TableCell(child: Padding(padding: 5.spMin.padding, child: CompactText(model?['total_hours'].toString().parseDurationToMinutes.minutesToHM ?? "", textAlign: TextAlign.center,color: AppC.redAccent))),
+    TableRowInkWell(onTap: (model?['reason'].toString().isNullOrEmpty ?? false) ? null : () => onViewNotes?.call(model?['reason'] ?? ""),child: Padding(padding: 5.spMin.padding, child: Text("${model?['reason'] ?? ""}", textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis))),
+    TableRowInkWell(onTap: (model?['comments'].toString().isNullOrEmpty ?? false) ? null : () => onViewNotes?.call(model?['comments'] ?? ""),child: Padding(padding: 5.spMin.padding, child: Text("${model?['comments'] ?? ""}", textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis))),
   ];
 }

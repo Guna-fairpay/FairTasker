@@ -4,6 +4,7 @@ import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/UI/v
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 
 class VehicleTabBar extends StatelessWidget {
@@ -22,10 +23,10 @@ class VehicleTabBar extends StatelessWidget {
         leadingWidth: 40,
         title: TabBar(
          // controller: tabController,
-          tabs: const [
+          tabs:  [
             Tab(
               text: 'Vehicles',
-              height: 40,
+              height: 40.spMin,
             ),
             Tab(text: 'Private Rental', height: 40),
           ],

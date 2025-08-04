@@ -17,9 +17,9 @@ class DetailedReportByTask extends StatelessWidget {
         ),
         Expanded(child: ListView.separated(
             shrinkWrap: true,
-            padding: 16.sp.horizontalPadding.copyWith(bottom: 20.sp),
+            padding: 16.spMin.horizontalPadding.copyWith(bottom: 20.spMin),
             itemCount: context.watch<DetailedBloc>().tasks?.length ?? 0,
-            separatorBuilder: (context, index) => 10.sp.height,
+            separatorBuilder: (context, index) => 10.spMin.height,
             itemBuilder: (context, index) => TaskExpansionTile(styleType: TextStyleType.labelLarge, model: context.watch<DetailedBloc>().tasks?[index])),
         )
       ],

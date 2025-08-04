@@ -78,7 +78,7 @@ class EmployeeAddEditTextFormFieldPage extends StatelessWidget {
                 validator: (value) => (value==null) ? 'Please select a role' : null,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
               ),
-              Text('Department',style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.bold, color: const Color(0xff212529)),),
+              Text('Department',style: TextStyle(fontSize: 12.spMin, fontWeight: FontWeight.bold, color: const Color(0xff212529)),),
               Utils.dropdownBox(
                   'Select a department',
                   context.read<EmployeeAddEditBloc>().departmentList,

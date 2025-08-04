@@ -19,7 +19,7 @@ class LeaveAddEditTextFormFieldPage extends StatelessWidget {
     return BlocBuilder<LeaveAddEditBloc,LeaveAddEditState>(
       builder: (context, state) {
         return SafeArea(
-          minimum: 16.sp.padding,
+          minimum: 16.spMin.padding,
           child: Form(
             key: context.read<LeaveAddEditBloc>().formKey,
             child: ListView(
@@ -27,7 +27,7 @@ class LeaveAddEditTextFormFieldPage extends StatelessWidget {
               shrinkWrap: true,
               children: [
                 Utils.getText('Leave Type',weight: FontWeight.bold),
-                5.sp.height,
+                5.spMin.height,
                 Utils.dropdownBox(
                     'Select',
                     context.read<LeaveAddEditBloc>().leaveTypes,
@@ -37,10 +37,10 @@ class LeaveAddEditTextFormFieldPage extends StatelessWidget {
                   validator: (value)=>(value == null)?'Please select leave type':null,
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                 ),
-                12.sp.height,
+                12.spMin.height,
                 DateTimePickersInRow<DateTime>(
                   format: 'MM-dd-yyyy',
-                  icon: Icon(Icons.calendar_month_outlined,size: 14.sp),
+                  icon: Icon(Icons.calendar_month_outlined,size: 14.spMin),
                   firstLabel: 'Start Date',
                   startController: context.read<LeaveAddEditBloc>().startDateController,
                   firstValue: context.read<LeaveAddEditBloc>().startDate,
@@ -51,7 +51,7 @@ class LeaveAddEditTextFormFieldPage extends StatelessWidget {
                   onSecondChanged: (value)=>context.read<LeaveAddEditBloc>().add(EndDateSelectionEvent(selectedEndDate: value)),
                 ),
                 if(context.read<LeaveAddEditBloc>().selectedLeaveType?['id'].toString() == '8')...[
-                  12.sp.height,
+                  12.spMin.height,
                   Row(
                     children: [
                       CustomRadioButton<String>(
@@ -70,10 +70,10 @@ class LeaveAddEditTextFormFieldPage extends StatelessWidget {
                   ),
                 ],
                 if(['8','9'].contains(context.read<LeaveAddEditBloc>().selectedLeaveType?['id'].toString()))...[
-                  12.sp.height,
+                  12.spMin.height,
                   DateTimePickersInRow<TimeOfDay>(
                     format: 'HH:mm',
-                    icon: Icon(Icons.access_time_outlined,size: 14.sp),
+                    icon: Icon(Icons.access_time_outlined,size: 14.spMin),
                     firstLabel: 'Start Time',
                     startController: context.read<LeaveAddEditBloc>().startTimeController,
                     firstValue: context.read<LeaveAddEditBloc>().startTime,
@@ -84,9 +84,9 @@ class LeaveAddEditTextFormFieldPage extends StatelessWidget {
                     onSecondChanged: (value)=>context.read<LeaveAddEditBloc>().add(EndTimeSelectionEvent(selectedEndTime: value)),
                   ),
                 ],
-                12.sp.height,
+                12.spMin.height,
                 Utils.getText('Reason',weight: FontWeight.bold),
-                5.sp.height,
+                5.spMin.height,
                 Utils.getTextFormField(
                     null,
                     context.read<LeaveAddEditBloc>().reasonController,
@@ -97,7 +97,7 @@ class LeaveAddEditTextFormFieldPage extends StatelessWidget {
                   validator: (value)=>(value?.trim().isEmpty ?? false)?'Please enter reason':null,
                   inputAction: TextInputAction.done,
                 ),
-                12.sp.height,
+                12.spMin.height,
                 SuccessButton(
                   text: context.read<LeaveAddEditBloc>().model != null? 'Update' : 'Submit',
                   onPressed: () => context.read<LeaveAddEditBloc>().add(SaveLeaveEvent()),

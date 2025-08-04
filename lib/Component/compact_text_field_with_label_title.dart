@@ -37,7 +37,7 @@ class _CompactTextFieldWithLabelTitleState extends State<CompactTextFieldWithLab
   @override
   Widget build(BuildContext context) {
     return Column(
-      spacing: 7.sp,
+      spacing: 7.spMin,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(widget.label ?? '', style: GoogleFonts.poppinsTextTheme().labelMedium),

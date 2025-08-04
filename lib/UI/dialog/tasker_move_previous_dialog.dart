@@ -59,7 +59,7 @@ class _TaskerMoveTomorrowDialogView extends StatelessWidget {
         horizontalTitleGap: 0,
         contentPadding: EdgeInsets.zero,
         title: Utils.getText("Select Date & Time",
-            size: 17.sp, weight: FontWeight.w500),
+            size: 17.spMin, weight: FontWeight.w500),
         trailing: IconButton(
             onPressed: context.popDialog,
             icon: const Icon(Icons.close_rounded)),
@@ -172,7 +172,7 @@ class _TaskerMoveTomorrowDialogContentView extends StatelessWidget {
                                 "Selected: ${context.watch<TMPDBloc>().selectedModels?.length}",
                                 align: TextAlign.end,
                                 weight: FontWeight.bold,
-                                size: 12.sp),
+                                size: 12.spMin),
                             const SizedBox.shrink(),
                           ],
                         ),
@@ -224,7 +224,7 @@ class _TaskerMoveTomorrowDialogContentView extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.end,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                Utils.getText("Select All", size: 12.sp),
+                                Utils.getText("Select All", size: 12.spMin),
                                 Icon(
                                   (context.watch<TMPDBloc>().isAllSelected ==
                                           null)

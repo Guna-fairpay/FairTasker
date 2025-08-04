@@ -43,10 +43,10 @@ class _ExpenseLogAttachmentDialogView extends StatelessWidget {
         minLeadingWidth: 0,
         horizontalTitleGap: 0,
         contentPadding: EdgeInsets.zero,
-        title: Utils.getText("", size: 17.sp, weight: FontWeight.bold),
+        title: Utils.getText("", size: 17.spMin, weight: FontWeight.bold),
         trailing: GestureDetector(
           onTap: context.popDialog,
-          child: Icon(Icons.close_rounded, size: 18.sp),
+          child: Icon(Icons.close_rounded, size: 18.spMin),
         ),
       ),
       content: _ExpenseLogAttachmentDialogContentView(model: model),
@@ -68,13 +68,13 @@ class _ExpenseLogAttachmentDialogContentView extends StatelessWidget {
         padding: 10.padding,
         children: [
           if (model?['video'].toString().isNotNullOrEmpty ?? false) ...[
-            Utils.getText("Video", size: 12.sp, weight: FontWeight.bold),
+            Utils.getText("Video", size: 12.spMin, weight: FontWeight.bold),
             10.height,
             VideoPlayerView(videoInput: model?['video'], autoPlay: false),
             10.height,
           ],
           if (model?['image'].toString().isNotNullOrEmpty ?? false) ...[
-            Utils.getText("Image", size: 12.sp, weight: FontWeight.bold),
+            Utils.getText("Image", size: 12.spMin, weight: FontWeight.bold),
             10.height,
             SizedBox(
               height: context.height * 0.3,
@@ -83,7 +83,7 @@ class _ExpenseLogAttachmentDialogContentView extends StatelessWidget {
             10.height,
           ],
           if (model?['audio'].toString().isNotNullOrEmpty ?? false) ...[
-            Utils.getText("Audio", size: 12.sp, weight: FontWeight.bold),
+            Utils.getText("Audio", size: 12.spMin, weight: FontWeight.bold),
             10.height,
             SizedBox(
               width: context.width,
@@ -92,12 +92,12 @@ class _ExpenseLogAttachmentDialogContentView extends StatelessWidget {
             10.height,
           ],
           if (model?['notes'].toString().isNotNullOrEmpty ?? false) ...[
-            Utils.getText("Notes", size: 12.sp, weight: FontWeight.bold),
+            Utils.getText("Notes", size: 12.spMin, weight: FontWeight.bold),
             10.height,
             Text("${model?['notes'] ?? ""}",
                 overflow: TextOverflow.visible,
                 style:
-                    context.textTheme.labelMedium?.copyWith(fontSize: 12.sp)),
+                    context.textTheme.labelMedium?.copyWith(fontSize: 12.spMin)),
             10.height,
           ],
         ],

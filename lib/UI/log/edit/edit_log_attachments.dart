@@ -29,11 +29,11 @@ class EditLogAttachments extends StatelessWidget {
                           borderRadius:
                               BorderRadius.circular(Num.borderRadiusLarge),
                           color: const Color(0xfff6f7f9)),
-                      padding: 15.sp.padding,
+                      padding: 15.spMin.padding,
                       child: SingleChildScrollView(
                         child: Wrap(
-                          spacing: 10.sp,
-                          runSpacing: 10.sp,
+                          spacing: 10.spMin,
+                          runSpacing: 10.spMin,
                           children: context
                               .watch<EditLogBloc>()
                               .attachments

@@ -48,7 +48,7 @@ class BranchPopupMenu {
                         "${e['city'] ?? ""}",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 12.sp, // Smaller font size
+                          fontSize: 12.spMin, // Smaller font size
                           color: (e['id'] ==
                                   Session.of.getInt(Str.branchIdPrefText))
                               ? Colors.white

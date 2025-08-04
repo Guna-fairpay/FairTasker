@@ -18,7 +18,7 @@ class LogTableRow extends TableRow {
             onTap: onEdit,
             child: Padding(
               padding:
-                  10.sp.horizontalPadding.copyWith(top: 8.sp, bottom: 8.sp),
+                  10.spMin.horizontalPadding.copyWith(top: 8.spMin, bottom: 8.spMin),
               child: Text("${model?['title'] ?? ""}"),
             )),
         if (List.from(model?['attachments'] ?? []).isNotEmpty)

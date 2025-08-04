@@ -57,7 +57,7 @@ class _TaskerPartsSuppliesDialogView extends StatelessWidget {
           minTileHeight: 0,
           horizontalTitleGap: 0,
           title: Utils.getText("${model?['display']?['task_title'] ?? ""}",
-              size: 12.sp,
+              size: 12.spMin,
               overFlow: TextOverflow.ellipsis,
               weight: FontWeight.bold,
               color: AppC.appColor),
@@ -102,7 +102,7 @@ class _TaskerPartsSuppliesDialogBodyView extends StatelessWidget {
               constraints: BoxConstraints(minWidth: context.width),
               child: Column(
                   mainAxisSize: MainAxisSize.min,
-                  spacing: 10.sp,
+                  spacing: 10.spMin,
                   children: [
                     Flexible(
                         child: SingleChildScrollView(

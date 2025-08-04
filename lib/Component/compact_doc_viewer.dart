@@ -40,12 +40,12 @@ class DocumentViewer extends StatelessWidget {
           scrollDirection: PdfScrollDirection.horizontal);
     } else if (input is File) {
       child = Column(
-        spacing: 10.sp,
+        spacing: 10.spMin,
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Icon(Icons.file_present_rounded, size: 46.sp, color: AppC.text),
+          Icon(Icons.file_present_rounded, size: 46.spMin, color: AppC.text),
           Text(
             p.basename((input as File).path),
             style: context.textTheme.titleMedium,

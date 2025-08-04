@@ -21,7 +21,7 @@ class PopupWithIcons {
         context: context,
         clipBehavior: Clip.antiAliasWithSaveLayer,
         menuPadding: EdgeInsets.zero,
-        constraints: BoxConstraints.tightFor(width: 70.sp),
+        constraints: BoxConstraints.tightFor(width: 70.spMin),
         position: RelativeRect.fromLTRB(
           details.globalPosition.dx,
           details.globalPosition.dy,
@@ -36,7 +36,7 @@ class PopupWithIcons {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const SizedBox.shrink(),
-                // IconButton(onPressed: onEditTap, icon: Icon(Icons.edit_outlined,color: AppC.blue,size: 16.sp,)),
+                // IconButton(onPressed: onEditTap, icon: Icon(Icons.edit_outlined,color: AppC.blue,size: 16.spMin,)),
                 GestureDetector(
                   onTap: () {
                     onIcon1Tap?.call();
@@ -45,7 +45,7 @@ class PopupWithIcons {
                   child:   Icon(
                     icon1,
                     color: color1,
-                    //size: 16.sp,
+                    //size: 16.spMin,
                   ),
                 ),
                 GestureDetector(
@@ -56,7 +56,7 @@ class PopupWithIcons {
                   child:  Icon(
                     icon2,
                     color: color2,
-                    //size: 16.sp,
+                    //size: 16.spMin,
                   ),
                 ),
               ],

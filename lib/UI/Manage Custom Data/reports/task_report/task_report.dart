@@ -12,10 +12,10 @@ class TaskReport extends StatelessWidget {
           duration: Durations.long1,
           child: (state is ReportsDownloadingState)
               ? Padding(
-            padding: 16.sp.padding,
+            padding: 16.spMin.padding,
             child: Center(
                 child: Column(
-                  spacing: 10.sp,
+                  spacing: 10.spMin,
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,

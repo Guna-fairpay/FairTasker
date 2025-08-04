@@ -39,7 +39,7 @@ class AttendanceView extends StatelessWidget {
             }
           },
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20.sp, vertical: 10.sp),
+            padding: EdgeInsets.symmetric(horizontal: 20.spMin, vertical: 10.spMin),
             child: const AttendanceBodyView(),
           ),
         ),

@@ -16,6 +16,7 @@ class TaskerViewVehicleHistoryDialog {
   TaskerViewVehicleHistoryDialog._();
 
   static void show(BuildContext context, Map<String, dynamic>? model) async {
+    if (model == null || model.isEmpty) return;
     await showDialog(
       context: context,
       barrierDismissible: true,
@@ -57,9 +58,9 @@ class _TaskerViewVehicleHistoryView extends StatelessWidget {
             color: AppC.white,
             borderRadius: BorderRadius.circular(8)
         ),
-        padding: 16.sp.padding,
+        padding: 16.spMin.padding,
         child: ListView(
-          // spacing: 10.sp,
+          // spacing: 10.spMin,
           // mainAxisSize: MainAxisSize.min,
           shrinkWrap: true,
           children: [
@@ -71,19 +72,20 @@ class _TaskerViewVehicleHistoryView extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Utils.getText(
-                      model?['display']?['vehicle_name'],
-                      size: 12.sp,
+                      model?['display']?['vehicle_name'] ?? '',
+                      size: 12.spMin,
                       weight: FontWeight.bold
                     ),
                   ),
                   Utils.getText(
                     model?['display']?['vehicleStatusCategoryName'] ?? '',
-                    size: 12.sp,
+                    size: 12.spMin,
                     color: Color(int.parse('0xFF${model?['display']?['vehicleHistoryIconColorCode']}') ?? 0x00000000),
                   ),
                 ],
               ),
             ),
+            5.sp.height,
             CompactRotationView(prefixChild: GestureDetector(
               onTap: () async {
                 String imageUrl = model?['display']?['vehicle_image'];

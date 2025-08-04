@@ -134,10 +134,10 @@ class Utils {
       dynamic initialSelection,
         String? labelKey2,
         dynamic selectedKey,
-        double topLRadius = 4,
-        double topRRadius = 4,
-        double bottomLRadius = 4,
-        double bottomRRadius = 4,
+        double topLRadius = 3,
+        double topRRadius = 3,
+        double bottomLRadius = 3,
+        double bottomRRadius = 3,
         double height = 35,
         Color borderColor = AppC.fieldBase,
         double borderWidth = Num.borderWidthField,
@@ -156,10 +156,10 @@ class Utils {
         });
         var border = OutlineInputBorder(
             borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(topLRadius),
-              topRight: Radius.circular(topRRadius),
-              bottomLeft: Radius.circular(bottomLRadius),
-              bottomRight: Radius.circular(bottomRRadius),),
+              topLeft: Radius.circular(topLRadius.spMin),
+              topRight: Radius.circular(topRRadius.spMin),
+              bottomLeft: Radius.circular(bottomLRadius.spMin),
+              bottomRight: Radius.circular(bottomRRadius.spMin),),
             borderSide: BorderSide(color: (field.hasError) ? AppC.errorTextColor : borderColor, width:  (field.hasError) ? Num.borderWidthButton : borderWidth,)
         );
         return Column(
@@ -177,19 +177,19 @@ class Utils {
               textStyle: TextStyle(
                   color: AppC.text,
                   overflow: TextOverflow.ellipsis,
-                  fontSize: 12.sp
+                  fontSize: 12.spMin
               ),
               inputDecorationTheme:  InputDecorationTheme(
                 hintStyle: const TextStyle(color: AppC.grey),
-                contentPadding: EdgeInsets.symmetric(horizontal: 10.sp),
+                contentPadding: EdgeInsets.symmetric(horizontal: 10.w),
                 border: border,
                 filled: !enable,
                 fillColor: AppC.grey[300],
                 enabledBorder: border,
                 isCollapsed: true,
                 isDense: true,
-                suffixIconConstraints: const BoxConstraints.tightFor(width: 30),
-                constraints: BoxConstraints(maxHeight: height.sp)
+                suffixIconConstraints:  BoxConstraints.tightFor(width: 30.spMin),
+                constraints: BoxConstraints(maxHeight: height.spMin)
               ),
               menuStyle: MenuStyle(
                 backgroundColor: WidgetStateProperty.all<Color>(Colors.white),
@@ -215,7 +215,7 @@ class Utils {
             ),
               if (field.hasError)
                 Row(
-                  spacing: 8,
+                  spacing: 8.spMin,
                   children: [
                     const SizedBox.shrink(),
                     Text(field.errorText ?? "", style: CommonHelper.instance.navigatorKey.currentContext?.textTheme.labelMedium?.copyWith(color: AppC.errorTextColor, fontWeight: FontWeight.w100))
@@ -555,8 +555,8 @@ class Utils {
               hintText: hintText,
               counterText: counterText,
               counterStyle: counterTextStyle ?? const TextStyle(color: AppC.red),
-              hintStyle: hintTextStyle ??  TextStyle(color: AppC.grey,fontSize: 12.sp,fontWeight: FontWeight.w300),
-              labelStyle: labelStyle ??  TextStyle(color: AppC.grey,fontSize: 12.sp,fontWeight: FontWeight.w300),
+              hintStyle: hintTextStyle ??  TextStyle(color: AppC.grey,fontSize: 12.spMin,fontWeight: FontWeight.w300),
+              labelStyle: labelStyle ??  TextStyle(color: AppC.grey,fontSize: 12.spMin,fontWeight: FontWeight.w300),
               filled: true,
               isCollapsed: isCollapsed,
               fillColor: fillColor,
@@ -589,7 +589,7 @@ class Utils {
             // fontSize: textSize,
             color: textColor,
             fontWeight: fontWeight,
-            fontSize: 12.sp,
+            fontSize: 12.spMin,
           ),
           onChanged: onChangeCallback,
         )

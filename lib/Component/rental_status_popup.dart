@@ -46,7 +46,7 @@ class _RentalStatusPopupView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Utils.getText("Do you want to move the status to ?",weight: FontWeight.bold,size: 14.sp),
+            Utils.getText("Do you want to move the status to ?",weight: FontWeight.bold,size: 14.spMin),
             Row(
               spacing: 10,
               children: [

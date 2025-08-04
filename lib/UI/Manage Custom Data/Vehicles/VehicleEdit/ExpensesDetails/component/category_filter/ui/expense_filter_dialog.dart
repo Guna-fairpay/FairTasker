@@ -48,6 +48,9 @@ class _ExpenseFilterDialogUI extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CompactAlertDialog(
+      titlePadding: 0.padding,
+      insetPadding: 0.padding,
+      contentPadding: 10.padding,
       alignment: Alignment.center,
       withMaxWidth: false,
       content: BlocProvider(
@@ -61,7 +64,7 @@ class _ExpenseFilterDialogUI extends StatelessWidget {
           },
           child: BlocBuilder<CategoryFilterBloc, CategoryFilterState>(
               builder: (context, state) => Container(
-                    width: 30,
+                    width: 30.w,
                     constraints:
                         BoxConstraints(maxHeight: context.height * 0.4),
                     child: Column(

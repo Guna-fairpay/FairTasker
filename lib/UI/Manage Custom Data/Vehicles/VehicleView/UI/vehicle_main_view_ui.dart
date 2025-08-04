@@ -61,13 +61,13 @@ class _VehicleMainViewUiState extends State<VehicleMainViewUi> {
             }
           },
           child: SafeArea(
-            minimum: 16.sp.padding,
+            minimum: 16.spMin.padding,
             child: ListView(
               shrinkWrap: true,
               physics: const BouncingScrollPhysics(),
               children: [
                 const VehicleMainTabViewUi(),
-                10.sp.height,
+                10.spMin.height,
                 const VehicleMainTabContentViewUi(),
               ],
             ),

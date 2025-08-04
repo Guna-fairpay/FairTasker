@@ -10,6 +10,7 @@ import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AddVehicleBody extends StatelessWidget {
   final Widget? searchChild;
@@ -73,7 +74,7 @@ class AddVehicleBody extends StatelessWidget {
               format: "MM-dd-yyyy",
               labelText: "dd-mm-yyyy",
               suffixIcon: Icon(Icons.calendar_month_rounded,
-                  size: 18, color: context.theme.hintColor),
+                  size: 18.spMin, color: context.theme.hintColor),
               textAlign: TextAlign.center,
               value: context.read<AddVehicleBloc>().selectedPurchaseDate,
               validator: (value) => (value == null) ? "Please select date" : null,

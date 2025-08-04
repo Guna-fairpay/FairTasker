@@ -48,7 +48,7 @@ class _InvoiceDialogMainUI extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          Utils.getText('Invoice Preview', weight: FontWeight.w900,size: 15.sp),
+                          Utils.getText('Invoice Preview', weight: FontWeight.w900,size: 15.spMin),
                           const Spacer(),
                           InkWell(
                             onTap: () => context.pop(),
@@ -76,12 +76,12 @@ class _InvoiceDialogMainUI extends StatelessWidget {
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
-                                    spacing: 18.sp,
+                                    spacing: 18.spMin,
                                     children: [
-                                      Utils.getText(invoiceData?['title']??'', weight: FontWeight.w900,size: 16.sp),
+                                      Utils.getText(invoiceData?['title']??'', weight: FontWeight.w900,size: 16.spMin),
                                       Utils.getText(invoiceData?['address']??'',),
                                       Utils.getText('Phone: ${invoiceData?['phone']??''}'),
-                                      Utils.getText('TO', weight: FontWeight.w900,size: 16.sp),
+                                      Utils.getText('TO', weight: FontWeight.w900,size: 16.spMin),
                                       Utils.getText(
                                         'Hasanath Mohammed,\n'
                                             'FairPY INC,\n'
@@ -94,10 +94,10 @@ class _InvoiceDialogMainUI extends StatelessWidget {
                                 ),
                                 Expanded(
                                   child: Column(
-                                    spacing: 18.sp,
+                                    spacing: 18.spMin,
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Utils.getText('Invoice', weight: FontWeight.w900,size: 16.sp),
+                                      Utils.getText('Invoice', weight: FontWeight.w900,size: 16.spMin),
                                       Utils.getText('INVOICE ${invoiceData?['invoiceId']}'),
                                       Utils.getText('DATE : ${invoiceData?['date']}'),
                                       Utils.getText('CAR PLATE : ${invoiceData?['plateNo']??''}'),

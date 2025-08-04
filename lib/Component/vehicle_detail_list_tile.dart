@@ -16,8 +16,8 @@ class VehicleDetailListTile extends StatelessWidget {
       minTileHeight: 0,
       contentPadding: EdgeInsets.zero,
       horizontalTitleGap: 0,
-      title: Utils.getText(label, size: 12.sp, weight: FontWeight.bold),
-      subtitle: Utils.getText(value, size: 12.sp, weight: FontWeight.normal),
+      title: Utils.getText(label, size: 12.spMin, weight: FontWeight.bold),
+      subtitle: Utils.getText(value, size: 12.spMin, weight: FontWeight.normal),
     );
   }
 }

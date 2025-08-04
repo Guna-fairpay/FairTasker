@@ -51,8 +51,8 @@ class HeaderView extends StatelessWidget {
                 onTap: Scaffold.of(context).openDrawer,
                 child: SvgPicture.asset(
                   Assets.hamburgerIcon,
-                  width: 20.w,
-                  height: 20.h,
+                  width: 24.spMin,
+                  height: 24.spMin,
                   fit: BoxFit.fitHeight,
                   theme: const SvgTheme(currentColor: AppC.appColor),
                 ),
@@ -63,17 +63,17 @@ class HeaderView extends StatelessWidget {
                   onTap: () => context.pushAndRemoveUntil(const BottomNavigationForTaskView(selectedIndex: 0)),
                   child: Image.asset(
                     Assets.favicon,
-                    width: 20.w,
-                    height: 20.h,
+                    width: 24.spMin,
+                    height: 24.spMin,
                     fit: BoxFit.fitHeight,
                   ),
                 ),
               ),
               if (getIt<CommonService>().hasReport)
-                IconButton(onPressed: () => context.push(const LogUi(), fullscreenDialog: true), icon: Icon(RIcon.Document_Add, color: AppC.grey, size: 20.r,)),
+                IconButton(onPressed: () => context.push(const LogUi(), fullscreenDialog: true), icon: Icon(RIcon.Document_Add, color: AppC.grey, size: 24.spMin,)),
               const Spacer(),
               if (kDebugMode)
-              Badge.count(count: 0, smallSize: 8.spMin, child: Icon(RIcon.Letter,color: AppC.appColor, size: 18.r)),
+              Badge.count(count: 0, smallSize: 8.spMin, child: Icon(RIcon.Letter,color: AppC.appColor, size: 22.spMin)),
               BlocSelector<HeaderBloc, HeaderState, HeaderState>(
                 selector: (state) => state,
                 builder: (context, state) => GestureDetector(
@@ -81,7 +81,7 @@ class HeaderView extends StatelessWidget {
                   // onTap: () => context.push(WorkHoursViewUI(), fullscreenDialog: true),
                   child: Container(
                     decoration: Utils.getBoxDecoration(),
-                    padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
+                    padding: EdgeInsets.symmetric(horizontal: 5.spMin, vertical: 2.spMin),
                     child: Utils.getText(' ${context.watch<HeaderBloc>().checkInOutCount ?? "0/0"} ', weight: FontWeight.bold),
                   ),
                 ),

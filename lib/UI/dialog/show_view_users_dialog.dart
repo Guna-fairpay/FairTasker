@@ -44,8 +44,8 @@ class _ShowViewUsersDialog<T extends Object> extends StatelessWidget {
       ),
       titlePadding: EdgeInsets.zero,
       alignment: Alignment.center,
-      insetPadding: 16.sp.padding,
-      contentPadding: 10.sp.padding,
+      insetPadding: 16.spMin.padding,
+      contentPadding: 10.spMin.padding,
       content: Container(
         width: context.width,
         padding: const EdgeInsets.only(bottom: 10),

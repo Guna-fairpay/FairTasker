@@ -1,3 +1,4 @@
+import 'package:fairpytasker/Component/custom_text/compact_text.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/Component/custom_search_field.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -48,7 +49,7 @@ class _CustomWrapChoiceState<T extends Object> extends State<CustomWrapChoice<T>
         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
         labelPadding: const EdgeInsets.symmetric(horizontal: 4),
         clipBehavior: Clip.antiAliasWithSaveLayer,
-        label: Utils.getText(
+        label: CompactText(
           widget.itemAsString?.call(e) ?? "$e",
           color: ((widget.selectionItemAsString != null)
               ? ((widget.selectedItems
@@ -58,15 +59,14 @@ class _CustomWrapChoiceState<T extends Object> extends State<CustomWrapChoice<T>
               : widget.selectedItems?.contains(e) ?? false)
               ? AppC.white
               : AppC.text,
-          weight: ((widget.selectionItemAsString != null)
+          fontWeight: ((widget.selectionItemAsString != null)
               ? ((widget.selectedItems
               ?.map((e) => widget.selectionItemAsString?.call(e)))
               ?.contains(widget.selectionItemAsString?.call(e)) ??
               false)
               : widget.selectedItems?.contains(e) ?? false)
               ? FontWeight.bold
-              : FontWeight.normal,
-          size: 11.sp,
+              : FontWeight.normal
         ),
         selected: ((widget.selectionItemAsString != null)
             ? ((widget.selectedItems

@@ -29,8 +29,8 @@ class CustomRadioButton<T> extends StatelessWidget {
             activeColor: AppC.appColor,
             fillColor: const WidgetStatePropertyAll(AppC.appColor),
           ),
-          Utils.getText(label??'',size: 12.sp,),
-          10.sp.width,
+          Utils.getText(label??'',size: 12.spMin,),
+          10.spMin.width,
         ],
       ),
     );

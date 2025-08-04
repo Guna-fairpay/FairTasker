@@ -32,13 +32,13 @@ class _DeleteAlertDialog extends StatelessWidget {
     return AlertDialog(
       shape: ContinuousRectangleBorder(borderRadius: BorderRadius.circular(Num.borderRadiusLarge)),
       backgroundColor: Colors.white,
-      insetPadding: 10.sp.padding,
-      contentPadding: 10.sp.horizontalPadding,
+      insetPadding: 10.spMin.padding,
+      contentPadding: 10.spMin.horizontalPadding,
       titlePadding: EdgeInsets.zero,
       alignment: Alignment.topCenter,
       title: ListTile(
         dense: true,
-        contentPadding: 5.sp.padding,
+        contentPadding: 5.spMin.padding,
         trailing: IconButton(onPressed: context.popDialog, icon: const Icon(Icons.close_rounded)),
       ),
       content: SizedBox(

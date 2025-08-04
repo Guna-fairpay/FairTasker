@@ -88,7 +88,7 @@ class FeedbackCommentsView extends StatelessWidget {
                   )
                 ],
                 10.height,
-                Utils.getText("Comments",weight: FontWeight.bold,size: 12.sp),
+                Utils.getText("Comments",weight: FontWeight.bold,size: 12.spMin),
                 ListView.separated(
                   separatorBuilder: (context, index) => const Divider(thickness: 0.5,height: 0,indent: 50,),
                   itemCount: state.comments.length,
@@ -107,10 +107,10 @@ class FeedbackCommentsView extends StatelessWidget {
                             dense: true,
                             minVerticalPadding: 0,
                             leading: CircleAvatar(
-                              radius: 15.sp,
+                              radius: 15.spMin,
                               child: Center(
                                   child: Utils.getText(<String>[(model?['users']?['first_name'] ?? ''), (model?['users']?['last_name'] ?? '')].toInitial,
-                                      size: 13.sp,
+                                      size: 13.spMin,
                                       weight: FontWeight.bold,
                                       color: AppC.white)),
                             ),
@@ -127,11 +127,11 @@ class FeedbackCommentsView extends StatelessWidget {
                                 children: [
                                   GestureDetector(
                                       onTap: () => context.read<FBEditBloc>().add(FBCommentsEditEvent(model)),
-                                      child: Icon(Icons.edit_outlined, color:AppC.appColor,size: 18.sp,)
+                                      child: Icon(Icons.edit_outlined, color:AppC.appColor,size: 20.spMin,)
                                   ),
                                   GestureDetector(
                                       onTap: () => context.read<FBEditBloc>().add(FBCommentDeleteEvent(model['id'])),
-                                      child: Icon(Icons.delete_outline, color:AppC.redAccent,size: 18.sp,)
+                                      child: Icon(Icons.delete_outline, color:AppC.redAccent,size: 20.spMin,)
                                   ),
                                 ],
                               ),
@@ -151,17 +151,19 @@ class FeedbackCommentsView extends StatelessWidget {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                    left: 50),
-                                child: Text(
-                                  "${model?['comment']}",
-                                  style:
-                                  context.textTheme.labelMedium,
-                                  overflow: TextOverflow.ellipsis,
-                                  softWrap: true,
-                                  maxLines: 3,
+                              Flexible(
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 50),
+                                  child: Text(
+                                    "${model?['comment']}",
+                                    style:
+                                    context.textTheme.labelMedium,
+                                    overflow: TextOverflow.ellipsis,
+                                    softWrap: true,
+                                    maxLines: 3,
 
+                                  ),
                                 ),
                               ),
                               if((model?['attachments'] != null) && (model?['attachments']is List) && (model?['attachments'] as List).isNotEmpty)...[
@@ -172,7 +174,7 @@ class FeedbackCommentsView extends StatelessWidget {
                                         (model?['attachments'] as List).where(
                                                 (element) => element['path'].toString().isNotEmpty)
                                             .map((e) => e['path'].toString().toAttachmentURL).toList())),
-                                    child:  Icon(Icons.image_outlined,size: 18.sp,color: AppC.appColor),
+                                    child:  Icon(Icons.image_outlined,size: 18.spMin,color: AppC.appColor),
                                   ),
                                 ),
                               ] else...[
