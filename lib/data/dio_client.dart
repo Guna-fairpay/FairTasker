@@ -14,7 +14,7 @@ abstract class DioClient {
     responseType: ResponseType.json,
     maxRedirects: 2,
   ))..interceptors.addAll([
-    TalkerDioLogger(talker: Talker(), settings: const TalkerDioLoggerSettings(printRequestExtra: true, printRequestHeaders: true, printResponseHeaders: true, printResponseRedirects: true, printResponseData: false)),
+    TalkerDioLogger(talker: Talker(), settings: const TalkerDioLoggerSettings(printRequestHeaders: true, printResponseHeaders: true, printResponseData: false)),
     DioTimeInterceptor()
   ]);
 
