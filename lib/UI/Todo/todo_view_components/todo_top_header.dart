@@ -95,7 +95,7 @@ class TodoTopHeader extends StatelessWidget {
                       borderRadius: BorderRadius.circular(Num.borderRadius),
                       color: (isMeetingSensitive) ? AppC.appColor : AppC.trans
                     ),
-                    child: Icon(Icons.check, size: 14.r, color: (isMeetingSensitive) ? AppC.white : AppC.trans,),
+                    child: Icon(Icons.check, size: 14.spMin, color: (isMeetingSensitive) ? AppC.white : AppC.trans,),
                   ),
                 ),
               ),
