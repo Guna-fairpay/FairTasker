@@ -12,7 +12,6 @@ static const redAccent = Color(0xffd01601);
     Color base = const Color(0xFF374E8C);
   static const text = Color(0xff373737);
   static const subText = Color(0xd6373737);
-  static const lightDark = Color(0xFF495057);
   // Color base1 = selectedColor;
  
   static const white = Color(0xffffffff);
@@ -71,7 +70,5 @@ static const redAccent = Color(0xffd01601);
   static const lightBlue = Color(0xffeaf0fa);
 
   static const lightBlues = Color(0xff3FA7D6);
-
-  static const fairental = Color(0xff299cbd);
 
 }

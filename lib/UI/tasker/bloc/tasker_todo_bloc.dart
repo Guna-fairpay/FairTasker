@@ -1,10 +1,9 @@
 import 'dart:async';
 import 'dart:convert' show jsonEncode;
 import 'dart:io' show File;
-import 'dart:math';
-import 'dart:ui';
 import 'package:collection/collection.dart';
 import 'package:date_time/date_time.dart' show DateTimeExtensions, Time;
+import 'package:fairpytasker/UI/dialog/transport_car_dialog/UI/transportcar_pop.dart';
 import 'package:fairpytasker/Response/general_response.dart';
 import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
@@ -13,23 +12,20 @@ import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/extension/timeday_extension.dart';
 import 'package:fairpytasker/core/app/helper/debouncer.dart';
-import 'package:fairpytasker/core/app/helper/dummy_data_provider.dart';
 import 'package:fairpytasker/core/app/helper/tasker_hours_processor.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
-import 'package:fairpytasker/core/app/helper/work_manager_helper.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
-import 'package:flutter/material.dart' show Durations, FocusNode, TextEditingController, TimeOfDay, ScrollController, GlobalObjectKey;
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart' show Durations, FocusNode, TextEditingController, TimeOfDay;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fairpytasker/core/app/helper/helper.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
-import 'package:equatable/equatable.dart';
-import 'package:fairpytasker/core/app/enums/task_enum.dart';
-import 'package:flutter/gestures.dart' show TapDownDetails;
+import 'package:fairpytasker/UI/tasker/bloc/tasker_todo_events.dart';
+import 'package:fairpytasker/UI/tasker/bloc/tasker_todo_states.dart';
+import 'package:fairpytasker/core/app/helper/tasker_todo_data_processor.dart';
 
-part 'tasker_todo_events.dart';
-part 'tasker_todo_states.dart';
 class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
   bool isFilterSelected = false;
   bool isUserSelected = false;
@@ -54,7 +50,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
 
   final FocusNode searchFocusNode = FocusNode();
 
-  bool isTimeSensitive = false, isMeetingFilter = false;
+  bool isTimeSensitive = false;
 
   final Map<dynamic, GlobalObjectKey> _todoKeyMaps = {};
   final debounce = Debouncer(duration: Durations.extralong1);
@@ -66,11 +62,6 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
   int get _userId => getIt<CommonService>().userId;
   int? get _hrmId => getIt<CommonService>().hrmId;
   int? get _branchId => getIt<CommonService>().branchId;
-
-  List<Map<String, dynamic>> get taskerResult {
-    if (toDos.isEmpty) return List.generate(10, (index) => DummyData.tasker);
-    return toDos;
-  }
 
   ToDoTaskerBloc() : super(ToDoTaskerLoadingState()) {
     _listenBroadCast();
@@ -125,16 +116,8 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     on<ToDoTaskerViewReasonAttachmentEvent>(_onViewReasonAttachmentEvent);
     on<ToDoTaskerSaveRecordEvent>(_onSaveRecordEvent);
     on<ToDoTaskerTimeSensitiveEvent>(_onTimeSensitiveEvent);
-    on<ToDoTaskerMeetingFilterEvent>(_onMeetingFilterEvent);
     on<ToDoTaskerViewBouncieEvent>(_onViewBouncieEvent);
     on<ToDoTaskerRemoveVehiclePersonEvent>(_onRemoveVehiclePersonEvent);
-    on<ToDoTaskerYesterdayEvent>(_onYesterdayEvent);
-    on<MeetingViewEvent>(_onMeetingViewEvent);
-    on<FollowupTaskEvent>(_onFollowupTaskEvent);
-    on<TaskerLeadTapEvent>(_onTaskerLeadTapEvent);
-    on<TaskerLeadUpdateEvent>(_onTaskerLeadUpdateEvent);
-    on<MeetingTapEvent>(_onMeetingTapEvent);
-    on<MeetingUpdateEvent>(_onMeetingUpdateEvent);
   }
 
   bool _isCheckInOutTask(Map<String, dynamic>? model) => _checkInOutTask.contains(model?['title']);
@@ -157,7 +140,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
 
   /* BEGIN: API CALLS */
   // Future<List<Map<String, dynamic>>?> _fetchToDoList() async => await _toDoProcessor.getToDoList(selectedDate, isCompleted, resourceId: _selectedUserIds);
-  Future<Map<String, dynamic>?> _fetchToDoList({bool showOther = false}) async => await _aPiRepository.getToDoModList(selectedDate: selectedDate.toFormat(), status: isCompleted, resourceId: _selectedUserIds, showOther: getIt<CommonService>().activeVehicleList.isEmpty ? showOther : false);
+  Future<Map<String, dynamic>?> _fetchToDoList({bool showOther = false}) async => await _aPiRepository.getToDoModList(selectedDate: selectedDate.toFormat(), status: isCompleted, resourceId: _selectedUserIds, showOther: showOther);
   Future<Map<String, dynamic>?> _changeToMorrow({required List<String> todoIds, dynamic groupId, required String groupName, DateTime? date, TimeOfDay? time}) async => await _aPiRepository.changeToDoByGroup(todoList: todoIds, groupId: groupId, groupName: groupName, date: date, time: time);
   Future<Map<String, dynamic>?> _updateToDo({required Map<String, dynamic> body, required dynamic todoId}) async => await _aPiRepository.updateToDo(body: body, toDoId: todoId);
   Future<Map<String, dynamic>?> _swapToDo({required dynamic fromId, required dynamic toId}) async => await _aPiRepository.swapToDo(fromId: fromId, toId: toId);
@@ -185,9 +168,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     List<Map<String, dynamic>>? resources = List.from(model?['resources'] ?? []);
     List<Map<String, dynamic>>? parts = List.from(model?['parts'] ?? []);
     List<Map<String, dynamic>>? supplies = List.from(model?['supplies'] ?? []);
-    List<Map<String, dynamic>>? leads = List.from(model?['leads'] ?? []);
-    List<Map<String, dynamic>>? channels = List.from(model?['channels'] ?? []);
-    getIt<CommonService>().updateValues(userList: users, groupPersonList: userGroup, taskExpenseDataList: taskExpenseData, locationsList: locations, vendorsList: vendors, groupVehicleList: vehicleGroups, activeVehicleList: vehicles, resourcesList: resources, partsList: parts, suppliesList: supplies, vehicleCategories: vehicleStatusCategories, leads: leads, channels: channels);
+    getIt<CommonService>().updateValues(userList: users, groupPersonList: userGroup, taskExpenseDataList: taskExpenseData, locationsList: locations, vendorsList: vendors, groupVehicleList: vehicleGroups, activeVehicleList: vehicles, resourcesList: resources, partsList: parts, suppliesList: supplies);
   }
 
   // INITIAL EVENT PROCESSOR
@@ -195,9 +176,9 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
   void _onInitialEvent(ToDoTaskerInitialEvent event, Emitter<ToDoTaskerState> emit) async {
     try {
       toDos.clear();
-      await CommonHelper.instance.waitForPostFrameCallback(withDelay: true);
       emit(ToDoTaskerLoadingState());
-      // getIt<CommonService>().getCurrentLocation();
+      // await CommonHelper.instance.waitForPostFrameCallback();
+      getIt<CommonService>().getCurrentLocation();
       if (!isAdmin) {
         if ((currentUser != null) && (currentUser?.isNotEmpty ?? false)) selectedUsers?.add(currentUser ?? {});
       }
@@ -205,7 +186,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       if (response != null) _setOtherValues(response);
       unfiltered = _processTodo(List.from(response?['todos'] ?? []));
       toDos = unfiltered;
-      // _generateKeys();
+      _generateKeys();
       isUserSelected = (selectedUsers?.isNotEmpty ?? false);
       Console.of.log("TASKER_ALL_API_LOADED", name: "TASKER_TODO_BLOC");
       emit(ToDoTaskerCommonState());
@@ -214,7 +195,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       emit(ToDoTaskerCommonState());
     } catch (e) {
       Console.of.error("Error", error: e);
-      emit(ErrorState("Server failure, Try again!"));
+      emit(ToDoTaskerErrorState("Server failure, Try again!"));
     }
   }
 
@@ -232,7 +213,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
 
   void _onTapDateEvent(
       ToDoTaskerTapDateEvent event, Emitter<ToDoTaskerState> emit) {
-    emit(DatePickerState());
+    emit(ToDoTaskerDatePickerState());
   }
 
   void _onDateFilterEvent(
@@ -273,9 +254,9 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       if ( (!showLoading) &&  (!isClosed)) emit(ToDoTaskerCommonState());
       Console.of.debug("SHOW_LOADING $showLoading");
       if ( showLoading && (!isClosed)) emit(ToDoTaskerLoadingState());
-      if (refresh) triggerPreRequests; // TRIGGER WORK MANAGER TO FETCH ALL THE VALUES BACKGROUND
-      var response = await _fetchToDoList();
-      // if ((response != null) && (refresh)) _setOtherValues(response); // COMMENTED DUE TO HANDLED IN WM (Work Manager)
+      // if (refresh) await _toDoProcessor.refresh();
+      var response = await _fetchToDoList(showOther: refresh);
+      if ((response != null) && (refresh)) _setOtherValues(response);
       unfiltered = _processTodo(List.from(response?['todos'] ?? []));
       toDos = unfiltered;
       _searchTasks();
@@ -285,7 +266,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       if (!isClosed) emit(ToDoTaskerCommonState());
     } catch (e) {
       Console.of.error("REFRESH_TODOS", error: e);
-      if (!isClosed) emit(ErrorState("Server Error, Try again!"));
+      if (!isClosed) emit(ToDoTaskerErrorState("Server Error, Try again!"));
     }
   }
 
@@ -335,37 +316,37 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     }
   }
 
-  void _onAddToDoEvent(ToDoTaskerOnAddToDoEvent event, Emitter<ToDoTaskerState> emit) {
-    if (event.taskType != null) return emit(AddToDoState(selectedDate, taskType: event.taskType));
-    if (event.offset != null) return emit(TaskerTypeState(event.offset!));
+  void _onAddToDoEvent(
+      ToDoTaskerOnAddToDoEvent event, Emitter<ToDoTaskerState> emit) {
+    emit(ToDoTaskerAddToDoState(selectedDate));
   }
 
   void _onMicEvent(ToDoTaskerOnMicEvent event, Emitter<ToDoTaskerState> emit) {
-    emit(MicState());
+    emit(ToDoTaskerMicState());
   }
 
   void _onEditEvent(ToDoTaskerEditEvent event, Emitter<ToDoTaskerState> emit) {
-    emit(EditState(event.toDoId, model: event.model));
+    emit(ToDoTaskerEditState(event.toDoId, model: event.model));
   }
 
   void _onTapUserFilterEvent(
       ToDoTaskerTapUserFilterEvent event, Emitter<ToDoTaskerState> emit) {
-    emit(UserFilterState(event.details));
+    emit(ToDoTaskerTapUserFilterState(event.details));
   }
 
   void _onTapVehicleFilterEvent(
       ToDoTaskerTapVehicleFilterEvent event, Emitter<ToDoTaskerState> emit) {
-    emit(VehicleFilterState(event.details));
+    emit(ToDoTaskerTapVehicleFilterState(event.details));
   }
 
   void _onVendorInfoEvent(
       ToDoTaskerVendorInfoEvent event, Emitter<ToDoTaskerState> emit) {
-    emit(VendorInfoState(event.model));
+    emit(ToDoTaskerVendorInfoState(event.model));
   }
 
   void _onViewNotesEvent(
       ToDoTaskerViewNotesEvent event, Emitter<ToDoTaskerState> emit) {
-    emit(NotesTapState(event.model));
+    emit(ToDoTaskerNotesTapState(event.model));
   }
 
   void _onSaveNotesEvent(
@@ -399,38 +380,38 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
         else emit(ToDoTaskerCommonState());
       }
     } catch (e) {
-      emit(ErrorState(e));
+      emit(ToDoTaskerErrorState(e));
     }
   }
 
   void _onVehiclePersonTapEvent(
       ToDoTaskerVehiclePersonTapEvent event, Emitter<ToDoTaskerState> emit) {
-    emit(VehiclePersonTapState(event.model));
+    emit(ToDoTaskerVehiclePersonTapState(event.model));
   }
 
   void _onResourceTapEvent(
       ToDoTaskerResourceTapEvent event, Emitter<ToDoTaskerState> emit) {
-    emit(ResourceTapState(event.model));
+    emit(ToDoTaskerResourceTapState(event.model));
   }
 
   void _onAddressTapEvent(
       ToDoTaskerAddressTapEvent event, Emitter<ToDoTaskerState> emit) {
-    emit(AddressTapState(event.model));
+    emit(ToDoTaskerAddressTapState(event.model));
   }
 
   void _onPartsTapEvent(
       ToDoTaskerPartsTapEvent event, Emitter<ToDoTaskerState> emit) {
-    emit(PartsTapState(event.model));
+    emit(ToDoTaskerPartsTapState(event.model));
   }
 
   void _onSuppliesTapEvent(
       ToDoTaskerSuppliesTapEvent event, Emitter<ToDoTaskerState> emit) {
-    emit(SuppliesTapState(event.model));
+    emit(ToDoTaskerSuppliesTapState(event.model));
   }
 
   void _onPreviousEvent(
       ToDoTaskerPreviousEvent event, Emitter<ToDoTaskerState> emit) {
-    emit(MoveTomorrowState(event.model, toDos));
+    emit(ToDoTaskerMoveTomorrowState(event.model, toDos));
   }
 
   void  _onCompleteEvent(
@@ -446,7 +427,6 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     var hasMileage = (mileage > 0);
     var hasMandatory = ( mandatory == 0);
     var isAbleMaintenanceComplete = (hasMileage && hasMandatory);
-    var hasLead = (model?['lead_id'].toString().isNotNullOrEmpty ?? false);
     Console.of.log("TASK COMPLETE ${identifierId} $taskTitle MILEAGE $hasMileage ($mileage) MANDATORY $hasMandatory ($mandatory) ${hasMileage && hasMandatory}");
     if (identifierId.toString().isNullOrEmpty) {
       /// CUSTOM TASK
@@ -462,49 +442,48 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
         }
       } else {
         if (maintenanceTaskId.isNotNullOrEmpty) {
-          emit(MaintenanceCheckTasksCompleteState(model));
+          emit(ToDoTaskerMaintenanceCheckTasksCompleteState(model));
         } else {
           _callCompleteApi(model, showLoading: !(["Check Out", "Check In"].contains(taskTitle)));
         }
       }
       switch(taskTitle) {
-        case "Check Out": emit(CompleteCheckOutState(event.model)); break;
-        case "Check In": emit(CompleteCheckInState(event.model)); break;
+        case "Check Out": emit(ToDoTaskerCompleteCheckOutState(event.model)); break;
+        case "Check In": emit(ToDoTaskerCompleteCheckInState(event.model)); break;
       }
     } else {
       var autoCompleteIds = [27];
       if (autoCompleteIds.contains(identifierId)) _callCompleteApi(model);
       switch(identifierId) {
         case 35: // OIL CHANGE STATE
-        case 126: emit(CompleteOilChangeState(event.model)); break;
+        case 126: emit(ToDoTaskerCompleteOilChangeState(event.model)); break;
         case 257: {
           if (isAbleMaintenanceComplete) {
             _insertMaintenanceCheckTask(model, incrementDays: 30);
             _callCompleteApi(model); } else {
             if(!hasMandatory){
-            emit(ErrorState("Is all maintenance check done is mandatory"));
+            emit(ToDoTaskerErrorState("Is all maintenance check done is mandatory"));
             }if(!hasMileage && hasMandatory){
-              emit(ErrorState("Odometer is mandatory"));
+              emit(ToDoTaskerErrorState("Odometer is mandatory"));
             }
-            emit(CompleteMaintenanceCheckState(event.model));
+            emit(ToDoTaskerCompleteMaintenanceCheckState(event.model));
           }
         } break;
-        case 212: emit(CompleteRentalCheckOutState(event.model)); break;
+        case 212: emit(ToDoTaskerCompleteRentalCheckOutState(event.model)); break;
         case 28:
-        case 210: emit(CompleteRentalPickupState(event.model)); break;
-        case 27: emit(CompleteDropCarState(event.model)); break;
+        case 210: emit(ToDoTaskerCompleteRentalPickupState(event.model)); break;
+        case 27: emit(ToDoTaskerCompleteDropCarState(event.model)); break;
         case 324: {
           if (hasMileage) _callCompleteApi(model);
           else {
-            emit(ErrorState("Odometer is mandatory"));
+            emit(ToDoTaskerErrorState("Odometer is mandatory"));
             await Future.delayed(Durations.short1);
-            emit(CompleteMaintenanceCheckState(event.model));
+            emit(ToDoTaskerCompleteMaintenanceCheckState(event.model));
           }
         } break;
         default: _callCompleteApi(model); break; // CALL API TO COMPLETE TASK
       }
     }
-    if (hasLead) return emit(FollowupTaskState(model));
   }
 
   void _onMoveTomorrowEvent(
@@ -537,13 +516,13 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
         }
       }
     } catch (e) {
-      emit(ErrorState(e));
+      emit(ToDoTaskerErrorState(e));
     }
   }
 
   void _onDateChangeTapEvent(
       ToDoTaskerDateChangeTapEvent event, Emitter<ToDoTaskerState> emit) {
-    emit(DateChangeTapState(event.model));
+    emit(ToDoTaskerDateChangeTapState(event.model));
   }
 
   void _onDateChangeEvent(
@@ -560,13 +539,13 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
         _reFetchToDos();
       }
     } catch (e) {
-      emit(ErrorState(e));
+      emit(ToDoTaskerErrorState(e));
     }
   }
 
   void _onCompletedTimeTapEvent(
       ToDoTaskerCompletedTimeTapEvent event, Emitter<ToDoTaskerState> emit) {
-    emit(CompletedTimeTapState(event.model));
+    emit(ToDoTaskerCompletedTimeTapState(event.model));
   }
 
   void _onCompletedTimeChangeEvent(ToDoTaskerCompletedTimeChangeEvent event,
@@ -589,13 +568,13 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
         }
       }
     } catch (e) {
-      emit(ErrorState(e));
+      emit(ToDoTaskerErrorState(e));
     }
   }
 
   void _onTimePickerTapEvent(
       ToDoTaskerTimePickerTapEvent event, Emitter<ToDoTaskerState> emit) {
-    emit(TimePickerTapState(event.model));
+    emit(ToDoTaskerTimePickerTapState(event.model));
   }
 
   void _onTimeChangeEvent(
@@ -605,7 +584,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       var time = event.selectedTime;
       var identifierId = model?['identifier_id'];
       var isPlatformRequired = Str.platFormCheckIds.contains(identifierId) && ((getIt<CommonService>().departmentId) == 7) && (model?['platform_check'] == 0);
-      if (isPlatformRequired) return emit(ErrorState("Platform check is required"));
+      if (isPlatformRequired) return emit(ToDoTaskerErrorState("Platform check is required"));
       var taskDate = model?['todo_date'].toString().toDateTime();
       var currentDate = DateTime.now().toFormat().toDateTime();
       var reason = event.reason;
@@ -616,7 +595,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
           var isBefore = selectedTime?.isBefore(currentTime ?? Time.fromMinutes(0));
           var isAfter = selectedTime?.isAfter(currentTime ?? Time.fromMinutes(0));
           if (isAfter ?? false) {
-            emit(ShowDropCheckInPopupState(model, time, "drop"));
+            emit(ToDoTaskerShowDropCheckInPopupState(model, time, "drop"));
             return;
           }
           Console.of.log("IS_AFTER:\t$isAfter $selectedTime $currentTime IS_BEFORE:\t$isBefore");
@@ -628,7 +607,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
           var isBefore = selectedTime?.isBefore(currentTime ?? Time.fromMinutes(0));
           var isAfter = selectedTime?.isAfter(currentTime ?? Time.fromMinutes(0));
           if (isBefore ?? false) {
-            emit(ShowDropCheckInPopupState(model, time, "pickup"));
+            emit(ToDoTaskerShowDropCheckInPopupState(model, time, "pickup"));
             return;
           }
           Console.of.log("IS_AFTER:\t$isAfter $selectedTime $currentTime IS_BEFORE:\t$isBefore");
@@ -647,7 +626,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       }
     } catch (e) {
       Console.of.error("ON_TIME_CHANGE_ERROR", error: e);
-      emit(ErrorState(e));
+      emit(ToDoTaskerErrorState(e));
     }
   }
 
@@ -687,7 +666,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
         if (response != null) _reFetchToDos();
       }
     } catch (e) {
-      emit(ErrorState(e));
+      emit(ToDoTaskerErrorState(e));
     }
   }
 
@@ -700,13 +679,13 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
         _reFetchToDos();
       }
     } catch (e) {
-      emit(ErrorState(e));
+      emit(ToDoTaskerErrorState(e));
     }
   }
 
   void _onVendorLocationTapEvent(
       ToDoTaskerVendorLocationTapEvent event, Emitter<ToDoTaskerState> emit) {
-    emit(VendorLocationTapState(event.model));
+    emit(ToDoTaskerVendorLocationTapState(event.model));
   }
 
   void _onVendorLocationUpdateEvent(ToDoTaskerVendorLocationUpdateEvent event,
@@ -729,7 +708,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
         _reFetchToDos();
       }
     } catch (e) {
-      emit(ErrorState(e));
+      emit(ToDoTaskerErrorState(e));
     }
   }
 
@@ -773,7 +752,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       var response = await _updateToDo(body: bodyData, todoId: model?['id']);
       if (response != null) _reFetchToDos();
     } catch (e) {
-      emit(ErrorState(e));
+      emit(ToDoTaskerErrorState(e));
     }
   }
 
@@ -788,7 +767,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       var response = await _updateToDo(body: mapData, todoId: model?['id']);
       if (response != null) _reFetchToDos();
     } catch (e) {
-      emit(ErrorState(e));
+      emit(ToDoTaskerErrorState(e));
     }
   }
 
@@ -798,14 +777,13 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       var selected = event.selected;
       var identifierId = model?['identifier_id'];
       var isPlatformRequired = Str.platFormCheckIds.contains(identifierId) && ((getIt<CommonService>().departmentId) == 7) && (model?['platform_check'] == 0);
-      if (isPlatformRequired) return emit(ErrorState("Platform check is required"));
+      if (isPlatformRequired) return emit(ToDoTaskerErrorState("Platform check is required"));
       var mapData = {"user_group_data" : "${selected?.map((e) => e['id']).toList()}"};
       emit(ToDoTaskerLoadingState());
       var response = await _updateToDo(body: mapData, todoId: model?['id']);
       if (response != null) _reFetchToDos();
-      triggerPreRequests;
     } catch (e) {
-      emit(ErrorState(e));
+      emit(ToDoTaskerErrorState(e));
     }
   }
 
@@ -882,7 +860,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       if (response.isNotEmpty && response.length == 3) _reFetchToDos();
     } catch (e) {
       Console.of.error("Error", error: e);
-      emit(ErrorState(e));
+      emit(ToDoTaskerErrorState(e));
     }
   }
 
@@ -938,7 +916,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       var response = await _addToDo(body: mapData);
       if (response != null) _reFetchToDos();
     } catch (e) {
-      emit(ErrorState(e));
+      emit(ToDoTaskerErrorState(e));
     }
   }
 
@@ -973,14 +951,14 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
         // if ((statusToDo.isNotEmpty) && (model?['todo_date'] == DateTime.now().toFormat())) emit(ToDoTaskerCompleteTransportCarState(model?..putIfAbsent("statusTodo", () => statusToDo)));
         if ((statusToDo.isNotEmpty)) {
           await _vehicleUpdateStatus(_statusUpdateBody(model), model?['vin']);
-          emit(CompleteTransportCarState(model?..putIfAbsent("statusTodo", () => statusToDo)));
+          emit(ToDoTaskerCompleteTransportCarState(model?..putIfAbsent("statusTodo", () => statusToDo)));
         }
-        emit(TaskCompletedState(model)); _reFetchToDos();
+        emit(ToDoTaskerTaskCompletedState(model)); _reFetchToDos();
       } else {
         emit(ToDoTaskerCommonState());
       }
     } catch (e) {
-      emit(ErrorState(e));
+      emit(ToDoTaskerErrorState(e));
     }
   }
 
@@ -1049,12 +1027,12 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       if (response != null) _reFetchToDos();
       if (response == null) emit(ToDoTaskerCommonState());
     } catch (e) {
-      emit(ErrorState(e));
+      emit(ToDoTaskerErrorState(e));
     }
   }
 
   void _onVehicleHistoryTapEvent(ToDoTaskerVehicleHistoryTapEvent event, Emitter<ToDoTaskerState> emit) {
-    emit(VehicleHistoryTapState(event.model));
+    emit(ToDoTaskerVehicleHistoryTapState(event.model));
   }
 
   void _onRefreshEvent(ToDoTaskerRefreshEvent event, Emitter<ToDoTaskerState> emit) {
@@ -1062,11 +1040,11 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
   }
 
   void _onViewVehicleEvent(ToDoTaskerViewVehicleEvent event, Emitter<ToDoTaskerState> emit) {
-    emit(ViewVehicleState(event.model));
+    emit(ToDoTaskerViewVehicleState(event.model));
   }
 
   void _onVehicleGroupTapEvent(ToDoTaskerVehicleGroupTapEvent event, Emitter<ToDoTaskerState> emit) {
-    emit(VehicleGroupTapState(event.model));
+    emit(ToDoTaskerVehicleGroupTapState(event.model));
   }
 
   void _onUserFilterEvent(ToDoTaskerUserFilterEvent event, Emitter<ToDoTaskerState> emit) {
@@ -1076,7 +1054,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
   }
 
   void _onFilterTaskEvent(ToDoTaskerFilterTaskEvent event, Emitter<ToDoTaskerState> emit) {
-    emit(FilterTaskState(isTimeSensitive));
+    emit(ToDoTaskerFilterTaskState());
   }
 
   void _filterTimeSensitiveTasks() {
@@ -1095,9 +1073,6 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       results = unfiltered.where((element) => element['time_sensitive'] == 1).toList();
     } else {
       results = unfiltered;
-    }
-    if (isMeetingFilter) {
-      results = results.where((element) => element['todo_user_type'] == 5).toList();
     }
     toDos = (tasks.isNotEmpty) ? results.where((element) => tasks.contains(element['title'].toString().toLowerCase())).toList() : results;
     toDos = toDos
@@ -1140,26 +1115,23 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
   }
 
   void _onViewAttachmentEvent(ToDoTaskerViewAttachmentEvent event, Emitter<ToDoTaskerState> emit) {
-    emit(ViewAttachmentState(event.model));
+    emit(ToDOTaskerViewAttachmentState(event.model));
   }
 
 
   void _onViewCustomLinkEvent(ToDoTaskerViewCustomLinkEvent event, Emitter<ToDoTaskerState> emit) {
     var link = event.model?['custom_link'];
-    final hasFaiRental = ((event.model?['custom_link_id'] == 3) && (event.model?['rental_booking_id'] != null));
-    final faiRentalBookingId = event.model?['rental_booking_id'];
     if (event.model?['display']?['customLinkText'].toString().isNotNullOrEmpty ?? false) {
       link = switch(event.model?['display']?['customLinkText']) {
         "G" => event.model?['reference_id'].toString().toGetAroundReserveUrl,
         _ => event.model?['reference_id'].toString().toTuroReserveUrl
       };
     }
-    if (hasFaiRental) link = faiRentalBookingId.toString().toFaiRentalReserveUrl;
-    emit(ViewCustomLinkState(event.model, link));
+    emit(ToDoTaskerViewCustomLinkState(event.model, link));
   }
 
   void _onViewReasonAttachmentEvent(ToDoTaskerViewReasonAttachmentEvent event, Emitter<ToDoTaskerState> emit) {
-    emit(ViewReasonAttachmentState(event.model));
+    emit(ToDoTaskerViewReasonAttachmentState(event.model));
   }
 
   void _onSaveRecordEvent(ToDoTaskerSaveRecordEvent event, Emitter<ToDoTaskerState> emit) async {
@@ -1177,7 +1149,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       emit(ToDoTaskerCommonState());
     } catch (e) {
       Console.of.error(e);
-      emit(ErrorState(e));
+      emit(ToDoTaskerErrorState(e));
     }
   }
 
@@ -1187,14 +1159,8 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     emit(ToDoTaskerCommonState());
   }
 
-  void _onMeetingFilterEvent(ToDoTaskerMeetingFilterEvent event, Emitter<ToDoTaskerState> emit) {
-    isMeetingFilter = event.isMeetingFilter;
-    _searchTasks();
-    emit(ToDoTaskerCommonState());
-  }
-
   void _onViewBouncieEvent(ToDoTaskerViewBouncieEvent event, Emitter<ToDoTaskerState> emit) {
-    emit(ViewBouncieState(event.model));
+    emit(ToDoTaskerViewBouncieState(event.model));
   }
 
   void _onRemoveVehiclePersonEvent(ToDoTaskerRemoveVehiclePersonEvent event, Emitter<ToDoTaskerState> emit) async {
@@ -1204,62 +1170,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       if (response != null) _reFetchToDos();
     } catch (e) {
       Console.of.error("Error", error: e);
-      emit(ErrorState(e));
-    }
-  }
-
-  void _onYesterdayEvent(ToDoTaskerYesterdayEvent event, Emitter<ToDoTaskerState> emit) {
-    selectedDate = event.selectedDate;
-    isCompleted = false;
-    _reFetchToDos();
-  }
-
-  void _onMeetingViewEvent(MeetingViewEvent event, Emitter<ToDoTaskerState> emit) {
-    final model = event.model;
-    final hasMeeting = ((model?['meeting_mode'] == "online") && (model?['meeting_link'].toString().isNotNullOrEmpty ?? false));
-    final meetingLink = model?['meeting_link'].toString();
-    if (hasMeeting) return emit(ViewCustomLinkState(model, meetingLink));
-  }
-
-  void _onFollowupTaskEvent(FollowupTaskEvent event, Emitter<ToDoTaskerState> emit) {
-    emit(AddToDoState(selectedDate,leadId: event.model?['lead_id'], taskType: TaskType.lead));
-  }
-
-  void _onTaskerLeadTapEvent(TaskerLeadTapEvent event, Emitter<ToDoTaskerState> emit) {
-    if ((event.model?['lead_id'].toString().isNotNullOrEmpty ?? false) || (event.model?['channel_id'].toString().isNotNullOrEmpty ?? false)) return emit(LeadChangeState(event.model));
-  }
-
-  void _onTaskerLeadUpdateEvent(TaskerLeadUpdateEvent event, Emitter<ToDoTaskerState> emit) async {
-    try {
-      var model = event.model;
-      var lead = event.selectedModel;
-      if (lead != null) {
-        var mapData = { (lead['type'] == "lead" ? "lead_id" : "channel_id"): lead['id']};
-        emit(ToDoTaskerLoadingState());
-        var response = await _updateToDo(body: mapData, todoId: model?['id']);
-        if (response != null) _reFetchToDos();
-      }
-    } catch (e) {
-      emit(ErrorState(e));
-    }
-  }
-
-  void _onMeetingTapEvent(MeetingTapEvent event, Emitter<ToDoTaskerState> emit) {
-    if (event.model?['meeting_mode'].toString().isNotNullOrEmpty ?? false) return emit(MeetingChangeState(event.model));
-  }
-
-  void _onMeetingUpdateEvent(MeetingUpdateEvent event, Emitter<ToDoTaskerState> emit) async {
-    try {
-      var model = event.model;
-      var meetingMode = event.selectedModel;
-      if (meetingMode != null) {
-        var mapData = {"meeting_mode": meetingMode['name'].toString().toLowerCase()};
-        emit(ToDoTaskerLoadingState());
-        var response = await _updateToDo(body: mapData, todoId: model?['id']);
-        if (response != null) _reFetchToDos();
-      }
-    } catch (e) {
-      emit(ErrorState(e));
+      emit(ToDoTaskerErrorState(e));
     }
   }
 }

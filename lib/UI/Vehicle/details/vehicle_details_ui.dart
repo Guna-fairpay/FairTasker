@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 class VehicleDetailsUi extends StatelessWidget {
   final Map<String, dynamic>? model;
   VehicleDetailsUi({super.key, required this.model});
-  final ValueNotifier<bool> _isExpanded = ValueNotifier<bool>(true);
+  final ValueNotifier<bool> _isExpanded = ValueNotifier<bool>(false);
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder(valueListenable: _isExpanded, builder: (context, value, child) => SingleChildScrollView(
@@ -60,7 +60,7 @@ class VehicleDetailsUi extends StatelessWidget {
               ),
               VehicleDetailDualValueItem(
                 firstLabel: "Wholesale Amount",
-                lastLabel: "Vehicle Status",
+                lastLabel: "vehicle_status",
                 firstValue: model?['wholesale_amount'],
                 lastValue: getIt<CommonService>().activeVehicleCountList.firstWhereOrNull((element) => element['id'] == model?['vehicle_status'])?['category_name'] ?? "" ,
               ),
@@ -133,7 +133,7 @@ class VehicleDetailsUi extends StatelessWidget {
                 lastValue: model?['insurance_cost'],
               ),
             ],
-          /*Row(
+          Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               GestureDetector(
@@ -144,7 +144,7 @@ class VehicleDetailsUi extends StatelessWidget {
                 child: Text("${value ? "Less" : "More"}...", style: context.textTheme.labelLarge?.copyWith(color: const Color(0xFF0580b5)),),
               ),
             ],
-          )*/
+          )
         ],
       ),
     ));

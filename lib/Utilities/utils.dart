@@ -16,7 +16,6 @@ import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/helper.dart';
-import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -143,7 +142,6 @@ class Utils {
         double borderWidth = Num.borderWidthField,
         AutovalidateMode? autovalidateMode,
         FormFieldValidator<dynamic>? validator,
-        bool enable = true,
       }) {
     return FormField<dynamic>(
       initialValue: initialSelection,
@@ -170,8 +168,7 @@ class Utils {
               key: ValueKey(selectedKey),
               initialSelection: initialSelection,
               hintText: hintText,
-              menuHeight: 250.spMin,
-              enabled: enable,
+              menuHeight: 250,
               selectedTrailingIcon: const Icon(Icons.keyboard_arrow_up_sharp,color: AppC.appColor,),
               trailingIcon: const Icon(Icons.keyboard_arrow_down_sharp,color: AppC.appColor,),
               textStyle: TextStyle(
@@ -183,8 +180,6 @@ class Utils {
                 hintStyle: const TextStyle(color: AppC.grey),
                 contentPadding: EdgeInsets.symmetric(horizontal: 10.sp),
                 border: border,
-                filled: !enable,
-                fillColor: AppC.grey[300],
                 enabledBorder: border,
                 isCollapsed: true,
                 isDense: true,
@@ -202,9 +197,6 @@ class Utils {
                   return  DropdownMenuEntry<Map<String, dynamic>>(
                     value: value,
                     label: '${value[labelKey]??''} ${value[labelKey2]??''}'.trim(),
-                    style: ButtonStyle(
-                      backgroundColor: WidgetStateProperty.all<Color>(Colors.white),
-                    ),
                   );
                 },
               ).toList(),
@@ -947,11 +939,12 @@ class Utils {
     if (existingDate.isNotEmpty) {
       currentDate = convertStringToDateTime(existingDate);
     }
-    var lastDate = last ?? DateTime(currentDate.year + 100, currentDate.month, currentDate.day);
+    var lastDate = last ??
+        DateTime(currentDate.year + 10, currentDate.month, currentDate.day);
 
     Widget dialog = DatePickerDialog(
       initialDate: initialDate,
-      firstDate:DateTime(1990, 1, 1),
+      firstDate:DateTime(1900, 1, 1),
       lastDate: lastDate,
       currentDate: currentDate,
       initialEntryMode: DatePickerEntryMode.calendarOnly,
@@ -1157,12 +1150,12 @@ class Utils {
     };
   }
 
-  static Map<String, String> getHeadersWithToken({required String url, String? token}) {
+  static Map<String, String> getHeadersWithToken({required String url}) {
     return {
       'accept': 'application/json',
       'Content-Type': 'application/json',
       'Accept-Encoding': 'gzip',
-      'Authorization': (token.isNotNullOrEmpty) ? token.toBearer : ((url.isFairReturns) ? returnBearerToken : bearerToken)
+      'Authorization': (url.isFairReturns) ? returnBearerToken : bearerToken
     };
   }
 
@@ -2856,11 +2849,11 @@ class Utils {
           mode: LaunchMode.externalApplication,
         );
       } else {
-        Toaster.showInfo("Oops! That doesn’t look like a proper link.\n\"${uri.toString()}\"", title: "Invalid URL");
+        showMobileToast("Could not launch $uri");
       }
     } catch (e) {
       log('Error launching URL: $e');
-      Toaster.showError(e.toString());
+      showMobileToast(e.toString());
     }
   }
 

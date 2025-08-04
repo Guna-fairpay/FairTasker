@@ -2,6 +2,8 @@ import 'package:fairpytasker/UI/Todo/todo_view_components/todo_top_header.dart';
 import 'package:fairpytasker/UI/Todo/todo_view_components/todo_top_hours_view.dart';
 import 'package:fairpytasker/UI/Todo/todo_view_components/todo_top_search_bar.dart';
 import 'package:fairpytasker/UI/tasker/bloc/tasker_todo_bloc.dart';
+import 'package:fairpytasker/UI/tasker/bloc/tasker_todo_events.dart';
+import 'package:fairpytasker/UI/tasker/bloc/tasker_todo_states.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -30,15 +32,15 @@ class TaskerHeader extends StatelessWidget {
             onVehicleSearchPressed: (details) => context.read<ToDoTaskerBloc>().add(ToDoTaskerTapVehicleFilterEvent(details)),
             isUserSelected: context.watch<ToDoTaskerBloc>().isUserSelected,
             isFilterSelected: context.watch<ToDoTaskerBloc>().isFilterSelected,
-            isMeetingSensitive: context.watch<ToDoTaskerBloc>().isMeetingFilter,
-            onChangeMeetingSensitive: (value) => context.read<ToDoTaskerBloc>().add(ToDoTaskerMeetingFilterEvent(value)),
+            isTimeSensitive: context.watch<ToDoTaskerBloc>().isTimeSensitive,
+            onChangeTimeSensitive: (value) => context.read<ToDoTaskerBloc>().add(ToDoTaskerTimeSensitiveEvent(value)),
           ),
           TodoTopHoursView(model: context.watch<ToDoTaskerBloc>().processedWorkingHours),
           TodoTopSearchBar(
             focusNode: context.read<ToDoTaskerBloc>().searchFocusNode,
             controller: context.read<ToDoTaskerBloc>().searchController,
             onChanged: (value) => context.read<ToDoTaskerBloc>().add(ToDoTaskerSearchEvent(value)),
-            onAdd: (details) => context.read<ToDoTaskerBloc>().add(ToDoTaskerOnAddToDoEvent(offset: details.globalPosition)),
+            onAdd: () => context.read<ToDoTaskerBloc>().add(ToDoTaskerOnAddToDoEvent()),
             onMic: () => context.read<ToDoTaskerBloc>().add(ToDoTaskerOnMicEvent()),
           ),
         ],

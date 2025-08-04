@@ -4,8 +4,7 @@ import 'package:remixicon/remixicon.dart';
 import 'package:flutter/material.dart';
 
 class TodoTopSearchBar extends StatelessWidget {
-  final VoidCallback? onMic;
-  final GestureTapDownCallback? onAdd;
+  final VoidCallback? onAdd, onMic;
   final TextEditingController? controller;
   final ValueChanged<String>? onChanged;
   final FocusNode? focusNode;
@@ -20,9 +19,7 @@ class TodoTopSearchBar extends StatelessWidget {
       dense: true,
       minVerticalPadding: 0,
       tileColor: Colors.blue[50],
-      leading: GestureDetector(
-          onTapDown: onAdd,
-          child: const IconButton(onPressed: null, icon: Icon(Remix.add_line, color: AppC.appColor))),
+      leading: IconButton(onPressed: onAdd, icon: const Icon(Remix.add_line), color: AppC.appColor),
       title: TextField(
         autofocus: false,
         focusNode: focusNode,

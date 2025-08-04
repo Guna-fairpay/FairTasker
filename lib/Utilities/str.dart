@@ -7,8 +7,6 @@ class Str{
     static String get TASKER_STORAGE_BASE_URL => flavor.taskerStorageUrl;
     static String get LIST_BASE_URL => flavor.returnsUrl;
     static String get TODO_ATTACHMENTS_URL => flavor.attachmentUrl;
-    static String get FAIRENTAL_BOOKING_SUMMARY => flavor.fairRentalBookingSummary;
-    static String get FAIRENTAL_URL => flavor.fairRentalUrl;
 
     static const String TURO_RESERV_URL = "https://turo.com/us/en/reservation/";
     static const String GETAROUND_RESERV_URL = "https://getaround.com/dashboard/rentals/";
@@ -27,13 +25,11 @@ class Str{
   static const String accessTokenPrefText = 'AccessTokenPref';
   static const String departmentIdPrefText = 'departmentIdPref';
   static const String userPrefText = 'userDataPref';
-  static const String availBioMetrics = 'availBioMetricsPref';
 
   static const String userPunchListRefresh = 'refresh_user_punch_list';
 
     static const String branchNamePrefText = 'BranchNamePref';
   static const String branchChange = 'branch_has_been_changed';
-  static const String valueChange = 'api_value_has_been_changed';
 
   static const String appName = "FairPYTasker";
   // static const String addExpense = "Add Expenses";
@@ -105,14 +101,6 @@ class Str{
     static const List<int> red = [212, 210];
 
     static const List<int> oilChangeCheckIds = [126, 294, 35];
-
-    static const List<int> userTypeId = [5,3];
-
-    static const List<String> checkInCheckOut = ['Check In','Check Out'];
-
-    static const List<int> basedBookingId = [393, 357];
-
-
 
 
 }

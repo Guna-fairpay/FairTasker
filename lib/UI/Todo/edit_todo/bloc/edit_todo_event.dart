@@ -1,4 +1,7 @@
-part of 'edit_todo_bloc.dart';
+
+import 'dart:math';
+import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 
 abstract class EditToDoEvent extends Equatable {
   @override
@@ -298,26 +301,7 @@ class RemoveMileageImageEvent extends EditToDoEvent {
 
 class EditToDoRefreshEvent extends EditToDoEvent {}
 
-class PartsRemovedEvent extends EditToDoEvent {}
+class PartsRemovedEvent extends EditToDoEvent {
 
-class EditToDoMeetingTypeEvent extends EditToDoEvent {
-  final dynamic meetingType;
-  EditToDoMeetingTypeEvent(this.meetingType);
-  @override
-  List<Object?> get props => [meetingType];
-}
-
-class LeadsEvent extends EditToDoEvent {
-  final dynamic leads;
-  LeadsEvent(this.leads);
-  @override
-  List<Object?> get props => [leads];
-}
-
-class MeetingTimeEvent extends EditToDoEvent {
-  final dynamic meetingTime;
-  MeetingTimeEvent(this.meetingTime);
-  @override
-  List<Object?> get props => [meetingTime];
 }
 

@@ -36,11 +36,11 @@ class ApiClient {
     }
   }
 
-  Future<http.Response?> callGetMethod(String url, {Map<String, dynamic>? params, String? token}) async {
+  Future<http.Response?> callGetMethod(String url, {Map<String, dynamic>? params}) async {
     if (await Utils.connection()) {
       http.Response response = await compute(_getCompute, {
         "url": url,
-        "token": Utils.getHeadersWithToken(url: url,token: token),
+        "token": Utils.getHeadersWithToken(url: url),
         "params" : params
       });
       // http.Response response = await client.get(Utils.getUri(url),
@@ -58,13 +58,11 @@ class ApiClient {
       String? fieldName,
       bool autoIncrement = false,
       int? lastImageIndex,
-      int? lastVideoIndex,
-        String? token
-      }) async {
+      int? lastVideoIndex}) async {
     if (await Utils.connection()) {
       http.Response response = await compute(_postMultiPartCompute, {
         "url": Uri.parse(url),
-        "token": Utils.getHeadersWithToken(url: url, token: token),
+        "token": Utils.getHeadersWithToken(url: url),
         "fields": body,
         "files": files,
         "fieldName": fieldName,
@@ -81,11 +79,11 @@ class ApiClient {
 
   /// InfusedFiles must be one type "List<Map<String, String?>>" / Map<String, String?>
   /// Value always file path
-  Future<http.Response?> callPostMethodWithBodyDynamic(String url, {Map<String, dynamic>? body, dynamic infusedFiles,  String? token}) async {
+  Future<http.Response?> callPostMethodWithBodyDynamic(String url, {Map<String, dynamic>? body, dynamic infusedFiles}) async {
     if (await Utils.connection()) {
       http.Response response = await compute(_postMultiPartComputeDynamic, {
         "url": Uri.parse(url),
-        "token": Utils.getHeadersWithToken(url: url, token: token),
+        "token": Utils.getHeadersWithToken(url: url),
         "fields": body,
         "infusedFiles": infusedFiles,
       });
@@ -97,12 +95,12 @@ class ApiClient {
   }
 
   Future<http.Response?> callPostMethodWithRawBody(String url,
-      {Map<String, dynamic>? body, String method = "POST", String? token}) async {
+      {Map<String, dynamic>? body, String method = "POST"}) async {
     if (await Utils.connection()) {
       http.Response response = await compute(_postRawJsonCompute, {
         "url": Uri.parse(url),
         "method" : method,
-        "token": Utils.getHeadersWithToken(url: url, token: token),
+        "token": Utils.getHeadersWithToken(url: url),
         "fields": body,
       });
       Console.of.log(jsonEncode(body));
@@ -123,14 +121,14 @@ class ApiClient {
     }
   }
 
-  Future<http.Response?> callDelete(String url, {Map<String, dynamic>? params, Map<String, dynamic>? body, String? token}) async {
+  Future<http.Response?> callDelete(String url, {Map<String, dynamic>? params, Map<String, dynamic>? body}) async {
     if (await Utils.connection()) {
       //   http.Response response = await client.delete(Utils.getUri(url),
       //       headers: Utils.getHeadersWithToken(),
       // );
       http.Response response = await compute(_deleteCompute, {
         "url": url,
-        "token": Utils.getHeadersWithToken(url: url, token: token),
+        "token": Utils.getHeadersWithToken(url: url),
         "params" : params,
         "body" : jsonEncode(body),
       });
@@ -236,13 +234,13 @@ class ApiClient {
     if (multiPartFiles.isNotEmpty) request.files.addAll(multiPartFiles);
     if (message['fields'] != null) {
       var fields = Map<String, dynamic>.from(message['fields']).map((key, value) => MapEntry(key, (value?.toString() ?? "")));
-      Console.of.log(jsonEncode(fields), name: "UPLOADED_FIELDS");
+      Console.of.log(fields, name: "UPLOADED_FIELDS");
       request.fields.addAll(fields);
     }
     if (message['token'] != null) request.headers.addAll(message['token']);
     var streamedResponse = await client.send(request);
     var response = await streamedResponse.stream.bytesToString();
-    Console.of.log("${streamedResponse.statusCode}: $response");
+    Console.of.log(response);
     return http.Response(response, streamedResponse.statusCode);
   }
 
@@ -254,50 +252,4 @@ class ApiClient {
     var response = await streamedResponse.stream.bytesToString();
     return http.Response(response, streamedResponse.statusCode);
   }
-
-  Future<http.Response?> callPostMethodWithBodyDynamicWithAutoIncrement(String url, {Map<String, dynamic>? body, dynamic infusedFiles,  String? token, bool autoIncrement = true}) async {
-    if (await Utils.connection()) {
-      http.Response response = await compute(_postMultiPartComputeDynamicWithAutoIncrement, {
-        "url": Uri.parse(url),
-        "token": Utils.getHeadersWithToken(url: url, token: token),
-        "fields": body,
-        "infusedFiles": infusedFiles,
-        "autoIncrement": autoIncrement,
-      });
-      return response;
-    } else {
-      Utils.showMobileToast(Str.checkInternetConnectionAlert);
-      return null;
-    }
-  }
-
-  Future<http.Response> _postMultiPartComputeDynamicWithAutoIncrement(dynamic message) async {
-    var infusedFiles = message['infusedFiles'];
-    Console.of.debug("${infusedFiles.runtimeType} ${infusedFiles is List}", name: "INFUSION_TYPE");
-    List<http.MultipartFile> multiPartFiles = [];
-    if (infusedFiles != null) {
-      if (infusedFiles is List) {
-        var files = List<Map<String, String?>>.from(message['infusedFiles'] ?? []);
-        if (files.isNotEmpty) {
-          multiPartFiles = (await Converter.instance.convertFilePathToMultipartDynamicWithAutoIncrement(files: files, autoIncrementField: message['autoIncrement'])) ?? [];
-        }
-      } else if (infusedFiles is Map<String, String?>) {
-        multiPartFiles = (await Converter.instance.convertFilePathToMultipartDynamicMap(files: infusedFiles)) ?? [];
-      }
-    }
-    if (multiPartFiles.isNotEmpty) multiPartFiles.forEach((element) => Console.of.debug("TYPE:\t${element.field} ${element.filename} ${element.contentType.type}", name: "MULTIPART_IMAGES"));
-    var request = http.MultipartRequest("POST", message['url']);
-    if (multiPartFiles.isNotEmpty) request.files.addAll(multiPartFiles);
-    if (message['fields'] != null) {
-      var fields = Map<String, dynamic>.from(message['fields']).map((key, value) => MapEntry(key, (value?.toString() ?? "")));
-      Console.of.log(jsonEncode(fields), name: "UPLOADED_FIELDS");
-      request.fields.addAll(fields);
-    }
-    if (message['token'] != null) request.headers.addAll(message['token']);
-    var streamedResponse = await client.send(request);
-    var response = await streamedResponse.stream.bytesToString();
-    Console.of.log("${streamedResponse.statusCode}: $response");
-    return http.Response(response, streamedResponse.statusCode);
-  }
-
 }

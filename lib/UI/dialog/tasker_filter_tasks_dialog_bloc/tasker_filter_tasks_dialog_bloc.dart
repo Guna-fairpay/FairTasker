@@ -1,14 +1,13 @@
-import 'dart:convert';
-import 'dart:math';
 import 'dart:async';
-import 'package:equatable/equatable.dart';
 import 'package:collection/collection.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fairpytasker/UI/dialog/tasker_filter_tasks_dialog_bloc/tasker_filter_tasks_dialog_events.dart';
+import 'package:fairpytasker/UI/dialog/tasker_filter_tasks_dialog_bloc/tasker_filter_tasks_dialog_states.dart';
+import 'package:fairpytasker/Utilities/Utils.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-part 'tasker_filter_tasks_dialog_events.dart';
-part 'tasker_filter_tasks_dialog_states.dart';
 class TFTDBloc extends Bloc<TFTDEvents, TFTDStates> {
   List<Map<String, dynamic>>? toDos;
   List<dynamic> selected = [];
@@ -20,28 +19,28 @@ class TFTDBloc extends Bloc<TFTDEvents, TFTDStates> {
   List<dynamic> allRelateds = [];
 
   bool isSelectedAll = false;
-  bool isTimeSensitive = false;
-
   TFTDBloc() : super(TFTDLoadingState()) {
-    on<InitialEvent>(_onInitialEvent);
-    on<SelectAllEvent>(_onAllSelectEvent);
+    on<TFTDInitialEvent>(_onInitialEvent);
+    on<TFTDAllSelectEvent>(_onAllSelectEvent);
     on<TFTDSingleSelectEvent>(_onSingleSelectEvent);
     on<TFTDMultiSelectEvent>(_onMultiSelectEvent);
-    on<TimeSensitiveEvent>(_onTimeSensitiveEvent);
   }
 
-  Future<List<Map<String, dynamic>>> _fetchTaskCategoryGroup() async => await getIt<CommonService>().getTaskCategoryGroupList();
-  List<Map<String, dynamic>> get _taskCategoryGroup => [...getIt<CommonService>().taskCategoryGroupList];
+  Future<List<Map<String, dynamic>>> _fetchTaskCategoryGroup() async => await getIt<CommonService>().getTaskCategoryGroupList(reset: true);
 
-  void _onInitialEvent(InitialEvent event, Emitter<TFTDStates> emit) async {
+  void _onInitialEvent(TFTDInitialEvent event, Emitter<TFTDStates> emit) async {
     try {
       toDos = event.toDos;
       selected = event.selected ?? [];
-      isTimeSensitive = event.isTimeSensitive;
       emit(TFTDLoadingState());
-      await _fetchTaskCategoryGroup();
-      taskCategoryGroup = _taskCategoryGroup;
-      processedCategories = _processedMapMod();
+      taskCategoryGroup = await _fetchTaskCategoryGroup();
+      mainCategories = taskCategoryGroup?.where((element) => element['parent_id'].toString().isNullOrEmpty || element['subcategories'].toString().isNotNullOrEmpty).toList();
+      subCategories = taskCategoryGroup?.where((element) => element['parent_id'].toString().isNotNullOrEmpty && (List.from(element['subcategories'] ?? []).isEmpty)).toList();
+      subCategories = [
+        ...(subCategories ?? []),
+        ...(mainCategories?.where((element) => element['subsubcategories'].toString().isNotNullOrEmpty).map((e) => e['subsubcategories'] ?? []).toList() ?? [])
+      ];
+      processedCategories = _processedMap() ?? [];
       for (var element in processedCategories) {
         element['related_sub_names'].forEach((e)=> allRelateds.add(e));
       }
@@ -56,126 +55,40 @@ class TFTDBloc extends Bloc<TFTDEvents, TFTDStates> {
     isSelectedAll = (selected.isEmpty) ? false : (selected.length == allRelateds.length);
   }
 
-  Future<List<Map<String, dynamic>>> _processMap() async {
-    Map<String, dynamic> value = {
-      "todos" : (toDos ?? []).map((e) => jsonEncode(e)).toList(),
-      "taskCategoryGroup" : (taskCategoryGroup ?? []).map((e) => jsonEncode(e)).toList(),
-      "isTimeSensitive" : isTimeSensitive ? 1 : 0
-    };
-    return await compute(_processCallback, jsonEncode(value));
-  }
-
-  Future<List<Map<String, dynamic>>> _processCallback(dynamic value) async {
-    Map<String, dynamic> input = jsonDecode(value);
-    List<Map<String, dynamic>> todos = input['todos'];
-    List<Map<String, dynamic>> taskCategoryGroup = input['taskCategoryGroup'];
-    int isTimeSensitive = input['isTimeSensitive'];
-    Map<String, dynamic> mapData = {};
-    List<Map<String, dynamic>> listMapData = [];
-    var addedTitles = <dynamic>{};
-    var todosNames = todos.where((element) => [isTimeSensitive, 1].contains(element['time_sensitive'])).map((e) => e['title'].toString().toLowerCase()).toSet().toList();
-    for (var element in taskCategoryGroup) {
-      final parentName = element['name'].toString().toLowerCase();
-      mapData[element['name']] = [];
-      if (element['subcategories'] is List) {
-        element['subcategories'].forEach((e) {
-          final subName = e['name'].toString().toLowerCase();
-          for (var lowercaseTile in todosNames) {
-            if (lowercaseTile == subName && !addedTitles.contains(lowercaseTile)) {
-              mapData[element['name']].add(lowercaseTile);
-              addedTitles.add(lowercaseTile);
-            }
-          }
-        });
-      }
-      for (var lowercaseTile in todosNames) {
-        if (lowercaseTile == parentName && !addedTitles.contains(lowercaseTile)) {
-          mapData[element['name']].add(lowercaseTile);
-          addedTitles.add(lowercaseTile);
-        }
-      }
-    }
-    mapData.removeWhere((key, value) => (value as List).isEmpty);
-    for (var element in todosNames) {
-      if (!addedTitles.contains(element) && !(['check out', 'check in'].contains(element))) {
-        if (!mapData.containsKey("Others")) mapData['Others'] = [];
-        mapData['Others'].add(element);
-      }
-    }
-    for (var element in mapData.entries) {
-      var key = element.key;
-      var value = List.from(element.value ?? []);
-      var id = taskCategoryGroup.firstWhereOrNull((e) => e['name'] == key)?['id'] ?? -1;
-      var tasks = todos.where((e) => value.contains(e['title'].toString().toLowerCase())).map((e) => e['title'].toString()).toList();
-      var map = {
-        "id" : id,
-        "name" : key,
-        "related_sub_names": tasks,
-        "task_count" : tasks.length,
-        "tasks" : value.map((e) => {
-          "task_name" : toDos?.firstWhereOrNull((task) => task['title'].toString().toLowerCase() == e)?['title'],
-          "count" : toDos?.where((task) => task['title'].toString().toLowerCase() == e).length ?? 0
+  List<Map<String, dynamic>>? _processedMap() {
+    var subNames = subCategories?.map((e) => e['name'].toString().toLowerCase()).toSet().toList();
+    var todosNames = toDos?.map((e) => e['title'].toString().toLowerCase()).toSet().toList();
+    var selectedGroups = subCategories?.where((element) => todosNames?.contains(element['name'].toString().toLowerCase()) ?? false).toList().unique((element) => element['name']);
+    var subIds = selectedGroups?.map((e) => e['parent_id']).toSet().toList();
+    var mainIds = mainCategories?.where((element) => subIds?.contains(element['id']) ?? false).map((e) => e['id']).toSet().toList();
+    var mapData = mainIds?.map((e) => {
+      "id" : e,
+      "name" : mainCategories?.firstWhereOrNull((element) => element['id'] == e)?['name'],
+      "related_sub_names" : subCategories?.where((element) => (element['parent_id'] == e) && (todosNames?.contains(element['name'].toString().toLowerCase()) ?? false)).map((e1) => e1['name']).toList(),
+      "task_count" : toDos?.where((element) =>  (subCategories?.where((element) => (element['parent_id'] == e) && (todosNames?.contains(element['name'].toString().toLowerCase()) ?? false)).map((e1) => e1['name'].toString().toLowerCase()).toList())?.contains(element['title'].toString().toLowerCase()) ?? false).length,
+      "tasks" : subCategories?.where((element) => (element['parent_id'] == e) && (todosNames?.contains(element['name'].toString().toLowerCase()) ?? false)).map((e1) => {
+        "task_name" : e1['name'],
+        "count" : toDos?.where((element) => element['title'].toString().toLowerCase() == e1['name'].toString().toLowerCase()).length
+      }).toList()
+    }).toList();
+    var unfoundedTasks = todosNames?.where((element) => !(subNames?.contains(element) ?? false)).toList();
+    var todoName = toDos?.where((element) => unfoundedTasks?.contains(element['title'].toString().toLowerCase()) ?? false).map((e) => e['title'] ?? "").toSet().toList();
+    if ((todoName != null) && (todoName.isNotEmpty)) {
+      mapData?.add({
+        "id" : -1,
+        "name" : "Others",
+        "related_sub_names" : todoName,
+        "task_count" : toDos?.where((element) => todoName.contains(element)).length,
+        "tasks" : todoName.map((e) => {
+          "task_name" : e,
+          "count" : toDos?.where((element) => element['title'] == e).length
         }).toList()
-      };
-      listMapData.add(map);
-    }
-    return listMapData;
-  }
-
-  List<Map<String, dynamic>> _processedMapMod() {
-    Map<String, dynamic> mapData = {};
-    List<Map<String, dynamic>> listMapData = [];
-    var addedTitles = <dynamic>{};
-    var todosNames = toDos?.where((element) => [(isTimeSensitive ? 1 : 0), 1].contains(element['time_sensitive'])).map((e) => e['title'].toString().toLowerCase()).toSet().toList();
-    taskCategoryGroup?.forEach((element) {
-      final parentName = element['name'].toString().toLowerCase();
-      mapData[element['name']] = [];
-      if (element['subcategories'] is List) {
-        element['subcategories'].forEach((e) {
-          final subName = e['name'].toString().toLowerCase();
-          todosNames?.forEach((lowercaseTile){
-            if (lowercaseTile == subName && !addedTitles.contains(lowercaseTile)) {
-              mapData[element['name']].add(lowercaseTile);
-              addedTitles.add(lowercaseTile);
-            }
-          });
-          });
-      }
-      todosNames?.forEach((lowercaseTile){
-        if (lowercaseTile == parentName && !addedTitles.contains(lowercaseTile)) {
-          mapData[element['name']].add(lowercaseTile);
-          addedTitles.add(lowercaseTile);
-        }
       });
-    });
-    mapData.removeWhere((key, value) => (value as List).isEmpty);
-    todosNames?.forEach((element) {
-      if (!addedTitles.contains(element) && !(['check out', 'check in'].contains(element))) {
-        if (!mapData.containsKey("Others")) mapData['Others'] = [];
-        mapData['Others'].add(element);
-      }
-    });
-    for (var element in mapData.entries) {
-      var key = element.key;
-      var value = List.from(element.value ?? []);
-      var id = taskCategoryGroup?.firstWhereOrNull((e) => e['name'] == key)?['id'] ?? -1;
-      var tasks = toDos?.where((e) => value.contains(e['title'].toString().toLowerCase())).map((e) => e['title'].toString()).toList() ?? [];
-      var map = {
-        "id" : id,
-        "name" : key,
-        "related_sub_names": tasks,
-        "task_count" : tasks.length,
-        "tasks" : value.map((e) => {
-          "task_name" : toDos?.firstWhereOrNull((task) => task['title'].toString().toLowerCase() == e)?['title'],
-          "count" : toDos?.where((task) => task['title'].toString().toLowerCase() == e).length ?? 0
-        }).toList()
-      };
-      listMapData.add(map);
     }
-    return listMapData;
+    return mapData;
   }
 
-  void _onAllSelectEvent(SelectAllEvent event, Emitter<TFTDStates> emit) {
+  void _onAllSelectEvent(TFTDAllSelectEvent event, Emitter<TFTDStates> emit) {
     if (selected.length == allRelateds.length) {
       selected.clear();
     } else {
@@ -204,11 +117,5 @@ class TFTDBloc extends Bloc<TFTDEvents, TFTDStates> {
     }
     _checkisAllChecked();
     emit(TFTDTriggerSelectedState(selected));
-  }
-
-  void _onTimeSensitiveEvent(TimeSensitiveEvent event, Emitter<TFTDStates> emit) async {
-    isTimeSensitive = event.value ?? false;
-    processedCategories = _processedMapMod();
-    emit(TimeSensitiveState(isTimeSensitive));
   }
 }

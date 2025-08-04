@@ -1,19 +1,14 @@
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/reports/reports_event.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/reports/reports_state.dart';
 import 'package:fairpytasker/Repository/report_repository.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/helper.dart';
-import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
 import 'package:path/path.dart' as p;
-import 'dart:math';
 import 'dart:io';
-
-part 'reports_event.dart';
-part 'reports_state.dart';
 
 class ReportsBloc extends Bloc<ReportDownloadEvent, ReportState> {
   final ReportRepository _reportRepository = ReportRepository();
@@ -21,7 +16,6 @@ class ReportsBloc extends Bloc<ReportDownloadEvent, ReportState> {
   File? tollFile;
   String? fileName;
   String? maintenanceFile, vehicleFile, earningFile, vehicleInventoryFile;
-  DateRange? dateRange;
   ReportsBloc() : super(ReportsLoadingState()) {
     on<ReportMaintenanceEvent>(_onReportMaintenanceEvent);
     on<ReportVehicleEvent>(_onReportVehicleEvent);
@@ -29,8 +23,90 @@ class ReportsBloc extends Bloc<ReportDownloadEvent, ReportState> {
     on<ReportVehicleInventoryEvent>(_onReportVehicleInventoryEvent);
     on<ReportTollsEvent>(_onPickFileEvent);
     on<UploadFileEvent>(_onUploadFileEvent);
-    on<TaskExportEvent>(_onTaskExportEvent);
-    on<DateRangeEvent>(_onDateRangeEvent);
+    /*on<ReportMaintenanceEvent>((event, emit) async {
+      if (state.maintenanceFile != null) {
+        state.maintenanceFile.toString().open;
+        return;
+      }
+      emit(state.copyWith(isLoading: true, isMaintenanceLoading: true));
+      String? errorText;
+      var val = await _reportRepository.downloadMaintenanceReport(onError: (v) => errorText = v);
+      if (errorText?.isNotEmpty ?? false) Utils.showMobileToast("$errorText");
+      emit(state.copyWith(isLoading: false, error: errorText, maintenanceFile: val, isMaintenanceLoading: false));
+    });*/
+
+    /*on<ReportVehicleEvent>((event, emit) async {
+      if (state.vehicleFile != null) {
+        state.vehicleFile.toString().open;
+        return;
+      }
+      emit(state.copyWith(isLoading: true, isVehicleLoading: true));
+      String? errorText;
+      var val = await _reportRepository.downloadVehicleReport(onError: (val) => errorText = val);
+      if (errorText?.isNotEmpty ?? false) Utils.showMobileToast("$errorText");
+      emit(state.copyWith(isLoading: false, error: errorText, vehicleFile: val, isVehicleLoading: false));
+    });*/
+
+    /*on<ReportEarningEvent>((event, emit) async {
+      if (state.earningFile != null) {
+        state.earningFile.toString().open;
+        return;
+      }
+      emit(state.copyWith(isLoading: true, isEarningLoading: true));
+      String? errorText;
+      var val = await _reportRepository.downloadEarningSummary(onError: (val) => errorText = val);
+      if (errorText?.isNotEmpty ?? false) Utils.showMobileToast("$errorText");
+      emit(state.copyWith(isLoading: false, error: errorText, earningFile: val, isEarningLoading: false));
+    });*/
+
+    /*on<ReportVehicleInventoryEvent>((event, emit) async {
+      if (state.vehicleInventoryFile != null) {
+        state.vehicleInventoryFile.toString().open;
+        return;
+      }
+      emit(state.copyWith(isLoading: true, isVehicleInventoryLoading: true));
+      String? errorText;
+      var val = await _reportRepository.downloadVehicleInventoryData(onError: (val) => errorText = val);
+      if (errorText?.isNotEmpty ?? false) Utils.showMobileToast("$errorText");
+
+      emit(state.copyWith(isLoading: false, error: errorText, vehicleInventoryFile: val, isVehicleInventoryLoading: false));
+    });*/
+
+    /*on<ReportTollsEvent>((event, emit) async{
+      //Open file picker
+      var result = await CommonHelper.instance.pickFiles(type: FileType.custom, allowedExtensions: ["xls", "xlsx"]);
+      // FilePickerResult? result = await FilePicker.platform.pickFiles(
+      //   type: FileType.custom,
+      //   allowedExtensions: ['xlsx'],//types allowed
+      // );
+      if (result.isNotEmpty) {
+        file = result.firstOrNull;
+        fileName = p.basename(file?.path ?? '');
+        tolls.text = fileName!;
+        log("${p.basename(file!.path)}", name: "File_name");
+        log("${file?.path}", name: "File_name");
+        emit(state.copyWith(tollsFile: file));
+      }
+    });*/
+
+    /*on<UploadFileEvent>((event, emit) async {
+      if (state.tollsFile == null) return;
+      if(state.tollsDownloadPath != null){
+        state.tollsDownloadPath.toString().open;
+        return;
+      } else {
+        emit(state.copyWith(tollFileLoading: true));
+        var response = await _reportRepository.uploadFile(state.tollsFile?.path.toString() ?? '');
+        log("Response: ${response}");
+        if((response != null) && (response.isNotEmpty)){
+          tollFileController.clear();
+          emit(state.copyWith(tollFileLoading: false, uploadSuccess: true, tollsDownloadPath: response));
+        } else {
+
+        }
+      }
+    });*/
+
   }
 
   void _onReportMaintenanceEvent(ReportMaintenanceEvent event, Emitter<ReportState> emit) async {
@@ -106,24 +182,5 @@ class ReportsBloc extends Bloc<ReportDownloadEvent, ReportState> {
       Console.of.error("Error", error: e);
       emit(ReportsErrorState(e));
     }
-  }
-
-  void _onTaskExportEvent(TaskExportEvent event, Emitter<ReportState> emit) async {
-    try {
-      if (dateRange == null) return emit(ReportsErrorState("No date range selected"));
-      emit(ReportsDownloadingState());
-      var response = await _reportRepository.downloadTaskReport(dateRange);
-      if ((response != null) && (response.isNotEmpty)) dateRange = null;
-      if (response?['download'].toString().isNotNullOrEmpty ?? false) Toaster.showSuccess("Report downloaded successfully!", title: "Task Report");
-      emit(ReportsCommonState());
-    } catch (e) {
-      Console.of.error("Error", error: e);
-      emit(ReportsErrorState(e));
-    }
-  }
-
-  void _onDateRangeEvent(DateRangeEvent event, Emitter<ReportState> emit) {
-    dateRange = event.dateRange;
-    emit(ReportsCommonState());
   }
 }

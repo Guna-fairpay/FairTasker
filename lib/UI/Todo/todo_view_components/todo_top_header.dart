@@ -1,22 +1,24 @@
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/assets.dart';
 import 'package:fairpytasker/Utilities/num.dart';
+import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:remixicon/remixicon.dart';
 
 class TodoTopHeader extends StatelessWidget {
-  final bool isFilterSelected, showCompleted, isUserSelected, isMeetingSensitive;
+  final bool isFilterSelected, showCompleted, isUserSelected, isTimeSensitive;
   final DateTime? selectedDate;
   final VoidCallback? onNextPressed, onPreviousPressed, onDatePressed;
   final void Function(TapDownDetails details)? onUserTapDown,
       onFilterPressed,
       onVehicleSearchPressed;
   final void Function(bool val)? onSwitch;
-  final ValueChanged<bool>? onChangeMeetingSensitive;
+  final ValueChanged<bool>? onChangeTimeSensitive;
   final Color? vehicleSearchColor;
 
   const TodoTopHeader(
@@ -25,7 +27,7 @@ class TodoTopHeader extends StatelessWidget {
       this.isUserSelected = false,
       this.selectedDate,
       this.isFilterSelected = false,
-      this.isMeetingSensitive = false,
+      this.isTimeSensitive = false,
       this.onFilterPressed,
       this.onNextPressed,
       this.onPreviousPressed,
@@ -34,7 +36,7 @@ class TodoTopHeader extends StatelessWidget {
       this.vehicleSearchColor,
       this.onSwitch,
       this.onUserTapDown,
-      this.onChangeMeetingSensitive});
+      this.onChangeTimeSensitive});
 
   @override
   Widget build(BuildContext context) {
@@ -83,18 +85,18 @@ class TodoTopHeader extends StatelessWidget {
             ),
             InkWell(
               borderRadius: BorderRadius.circular(Num.borderRadius),
-              onTap: () => onChangeMeetingSensitive?.call(!isMeetingSensitive),
+              onTap: () => onChangeTimeSensitive?.call(!isTimeSensitive),
               child: SizedBox.fromSize(
                 size: Size(18.sp, 18.sp),
                 child: Container(
                   decoration: BoxDecoration(
                     border: Border.all(
-                      color: (isMeetingSensitive) ? AppC.appColor : AppC.borderColor, width: Num.borderWidthThinField,
+                      color: (isTimeSensitive) ? AppC.appColor : AppC.borderColor, width: Num.borderWidthThinField,
                     ),
                     borderRadius: BorderRadius.circular(Num.borderRadius),
-                    color: (isMeetingSensitive) ? AppC.appColor : AppC.trans
+                    color: (isTimeSensitive) ? AppC.appColor : AppC.trans
                   ),
-                  child: Icon(Icons.check, size: 16.sp, color: (isMeetingSensitive) ? AppC.white : AppC.trans,),
+                  child: Icon(Icons.check, size: 16.sp, color: (isTimeSensitive) ? AppC.white : AppC.trans,),
                 ),
               ),
             ),

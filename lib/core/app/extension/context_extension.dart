@@ -19,7 +19,7 @@ extension ContextExtension on BuildContext {
       Console.of.error("Error", error: e);
     }
   }
-  Future<T> pushReplacement<T>(Widget page, {bool fullscreenDialog = false}) async => await Navigator.pushReplacement(this, ScaleRoute(page: page));
+  Future<T> pushReplacement<T>(Widget page, {bool fullscreenDialog = false}) async => await Navigator.pushReplacement(this, MaterialPageRoute(builder: (context) => page, fullscreenDialog: fullscreenDialog));
   Future<T> pushAndRemoveUntil<T>(Widget page, { bool maintainRoute = false, bool fullscreenDialog = false }) async => await Navigator.pushAndRemoveUntil(this, MaterialPageRoute(builder: (context) => page, fullscreenDialog: fullscreenDialog), (route) => maintainRoute);
   Future<T?> pushNamed<T>(String routeName) async => await Navigator.pushNamed(this, routeName);
   Future<T?> pushNamedAndRemoveUntil<T>(String routeName, { bool maintainRoute = false}) async => await Navigator.pushNamedAndRemoveUntil(this, routeName, (route) => maintainRoute);

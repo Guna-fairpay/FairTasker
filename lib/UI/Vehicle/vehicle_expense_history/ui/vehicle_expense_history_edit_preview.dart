@@ -1,6 +1,6 @@
 
 import 'package:fairpytasker/Component/custom_vehicle_expense_history_Info.dart';
-import 'package:fairpytasker/UI/Finance/Expense/Component/icon_and_text.dart';
+import 'package:fairpytasker/UI/Finance/Expense/Component/icon_with_text.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/Components/image_upload_selection.dart';
 import 'package:fairpytasker/UI/Vehicle/vehicle_expense_history/ui/vehicle_expense_history_edit_ui.dart';
 import 'package:fairpytasker/UI/Vehicle/vehicle_expense_history/ui/vehicle_expense_history_ui.dart';
@@ -112,6 +112,143 @@ class VehicleExpenseHistoryEditPreviewUI extends StatelessWidget {
                       isDeleteDialog: false,
                       isDeleteIcon: false,
                     ),
+
+                 /* Container(
+                    padding: const EdgeInsets.all(20.0),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.shade200,
+                          spreadRadius: 5,
+                          blurRadius: 10,
+                          offset: const Offset(0, 6),
+                        ),
+                      ],
+                      border: Border.all(
+                          color: Colors.blueAccent.shade100, width: 1),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+
+                        InfoWidget(
+                          icon: Icons.monetization_on_outlined,
+                          label: 'Amount',
+                          value:
+                              "${state.editResponse['expense_amount'] ?? ''}",
+                        ),
+                        const Divider(thickness: 0.5, color: Colors.grey),
+                        InfoWidget(
+                          icon: Icons.description,
+                          label: 'Description',
+                          value:
+                              "${state.editResponse['expense_description'] ?? ''}",
+                        ),
+                        const Divider(thickness: 0.5, color: Colors.grey),
+                        InfoWidget(
+                          icon: Icons.category,
+                          label: 'Category',
+                          value: "${state.selectedCategory['name'] ?? ''}",
+                        ),
+                        const Divider(thickness: 0.5, color: Colors.grey),
+                        InfoWidget(
+                          icon: Icons.category_outlined,
+                          label: 'SubCategory',
+                          value: "${state.selectedSubCategory['name'] ?? ''}",
+                        ),
+                        const Divider(thickness: 0.5, color: Colors.grey),
+                        InfoWidget(
+                          icon: Icons.payment,
+                          label: 'Payment Method',
+                          value: "${state.selectedPaymentMethod['name'] ?? ''}",
+                        ),
+                        const Divider(thickness: 0.5, color: Colors.grey),
+                        const InfoWidget(
+                          icon: Icons.attachment_outlined,
+                          label: 'Attachments',
+                          value: "",
+                        ),
+                        if (state.expenseAttachments.isNotEmpty)
+                          SizedBox(
+                            height: 100,
+                            child: GridView.builder(
+                              shrinkWrap: true,
+                              itemCount: state.expenseAttachments.length,
+                              scrollDirection: Axis.horizontal,
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 1, mainAxisSpacing: 10),
+                              itemBuilder: (context, index) => CloseBadge(
+                                  showClose: false,
+                                  onTapView: () {
+                                    *//*var currentData = state.expenseAttachments[index];
+                                    if ((currentData is String) && (currentData.isPDF)) {
+                                      // OPEN URL
+                                      Utils.openURL(currentData);
+                                    } else {
+                                      ShowAttachmentsDialog.of.show(context,
+                                          attachments: state.expenseAttachments,
+                                          title: "",
+                                          currentAttachment:
+                                          state.expenseAttachments[index]);
+                                    }*//*
+                                    ShowAttachmentsDialog.of.show(context,
+                                        attachments: state.expenseAttachments,
+                                        title: "",
+                                        currentAttachment:
+                                        state.expenseAttachments[index]);
+                                  },
+                                  child: Stack(
+                                    children: [
+                                      Container(
+                                        constraints: BoxConstraints(
+                                          minHeight:
+                                              MediaQuery.sizeOf(context).height,
+                                          minWidth:
+                                              MediaQuery.sizeOf(context).width,
+                                        ),
+                                        decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(16),
+                                            color:
+                                                AppC.grey.withValues(alpha: 0.2)),
+                                        clipBehavior: Clip.antiAliasWithSaveLayer,
+                                        child: ImageViewer(
+                                          fit: BoxFit.cover,
+                                          imageInput: state.expenseAttachments[index],
+                                          isNotImage: !((state.expenseAttachments[index]
+                                                  as Object)
+                                              .isImage),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                  if (getIt<CommonService>().isAdmin)...[
+                    10.height,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Utils.getElevatedButton(
+                              () => context.pushReplacement(
+                              VehicleExpenseHistoryEditPage(
+                                id: "${state.editResponse['id']}",
+                                showTotalAmount: showTotalAmount,
+                                currentExpenseAmount: currentExpenseAmount,
+                              ), fullscreenDialog: true
+                          ),
+                          text: 'Edit',
+                        ),
+                      ],
+                    )
+                  ],*/
                 ],
               ),
             ),

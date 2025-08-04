@@ -1,4 +1,5 @@
-part of 'reports_bloc.dart';
+import 'dart:math';
+import 'package:equatable/equatable.dart';
 
 abstract class ReportState extends Equatable {
   @override
@@ -8,7 +9,6 @@ abstract class ReportState extends Equatable {
 class ReportsLoadingState extends ReportState {}
 class ReportsGeneratingState extends ReportState {}
 class ReportsUploadingState extends ReportState {}
-class ReportsDownloadingState extends ReportState {}
 class ReportsCommonState extends ReportState {
   @override
   List<Object?> get props => [Random().nextDouble()];
