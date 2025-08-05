@@ -25,3 +25,18 @@ class ErrorState extends PrecheckState {
   @override
   List<Object?> get props => [message, Random().nextDouble()];
 }
+
+class TollAlertDialogState extends PrecheckState {
+  final dynamic model;
+  final bool showDialog;
+  TollAlertDialogState({this.model, this.showDialog = false});
+  @override
+  List<Object?> get props => [model, showDialog, Random().nextDouble()];
+}
+
+class DeleteImageState extends PrecheckState {
+  final dynamic model;
+  DeleteImageState({this.model});
+  @override
+  List<Object?> get props => [model, Random().nextDouble()];
+}

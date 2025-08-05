@@ -191,6 +191,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     showOdometer: false,
   )) {
     _broadcast.register(Str.addToDoRefresh, (value, callback) => add(EditToDoRefreshEvent()));
+    _broadcast.register(Str.editToDoRefresh, (value, callback) => add(EditToDoRefreshEvent()));
     on<EditToDoRefreshEvent>(_onRefreshEvent);
     on<GetEditTodoInitialEvent>(_onInitialEvent);
     on<EditToDoVLocationEvent>(_onVLocationEvent);

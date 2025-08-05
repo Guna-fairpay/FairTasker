@@ -7,6 +7,7 @@ import 'package:date_time/date_time.dart';
 import 'package:equatable/equatable.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/UI/tasker/helper/tasker_helper.dart';
+import 'package:fairpytasker/Utilities/Str.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/extension/timeday_extension.dart';
@@ -398,7 +399,7 @@ class SetVehiclesBloc extends Bloc<SetVehiclesEvent, SetVehiclesState> {
            );
            Console.of.log(todoResponse);
           }
-          // _broadcast.stickyBroadcast("todo_view", value: true);
+          _broadcast.broadcast(Str.editToDoRefresh);
           TaskerHelper.instance.refresh();
           emit(SuccessState("SpareKey Task Added"));
         } else {
