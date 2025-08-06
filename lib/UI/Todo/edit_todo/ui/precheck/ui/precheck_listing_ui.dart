@@ -1,4 +1,5 @@
 part of 'precheck_main_ui.dart';
+
 class PrecheckListingUI extends StatelessWidget {
   const PrecheckListingUI({super.key});
 
@@ -19,16 +20,35 @@ class PrecheckListingUI extends StatelessWidget {
                   Row(
                     spacing: 10.spMin,
                     children: [
-                      CustomCheckboxListTile(
-                        title: CompactText(e['title']),
-                        onChanged: (v)=> context.read<PrecheckBloc>().add(CheckEvent(payload: e, showDialog: (e['id'] == 4 && e['check_value'] == 1))),
-                        value:e['check_value'] == 1,
-                        padding: 0.padding,
-                        wrapExpand: true,
-                        useFlexible: true,
-                        mainAxisSize: MainAxisSize.min,
-                        radius: 8.spMin,
+                      FittedBox(
+                        child: SizedBox.fromSize(
+                          size: Size.fromRadius(14.spMin),
+                          child: Checkbox(
+                            activeColor: AppC.appColor,
+                            value: e['check_value'] == 1,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            side: const BorderSide(width: 0.8, color: AppC.appColor),
+                            onChanged:(v)=> context.read<PrecheckBloc>().add(
+                                CheckEvent(payload: e,
+                                    showDialog: (e['id'] == 4 && e['check_value'] == 1))),
+                          ),
+                        ),
                       ),
+                      Expanded(child: InkWell(
+                        onTap:()=> context.read<PrecheckBloc>().add(TextTapEvent(e)),
+                          child: CompactText(e['title'], overflow: TextOverflow.visible,))),
+                      // CustomCheckboxListTile(
+                      //   title: CompactText(e['title']),
+                      //   onChanged: (v)=> context.read<PrecheckBloc>().add(CheckEvent(payload: e, showDialog: (e['id'] == 4 && e['check_value'] == 1))),
+                      //   value:e['check_value'] == 1,
+                      //   padding: 0.padding,
+                      //   wrapExpand: true,
+                      //   useFlexible: true,
+                      //   mainAxisSize: MainAxisSize.min,
+                      //   radius: 8.spMin,
+                      // ),
                       if(e['id'] == 6)...[
                         CustomDateTimePicker<DateTime>(
                           controller: context.read<PrecheckBloc>().dateController,
@@ -81,7 +101,7 @@ class PrecheckListingUI extends StatelessWidget {
                       ],
                     ),
                   ],
-                  if(e['check_value'] == 0)...[
+                  if(e['check_value'] == 0 || e['isTap'])...[
                     Utils.getTextFormField(
                         null,
                         e['controller'] as TextEditingController,
@@ -89,8 +109,8 @@ class PrecheckListingUI extends StatelessWidget {
                         maxLines: 3,
                         inputAction: TextInputAction.done),
                     SuccessButton(
-                      text: 'Create Task',
-                      onPressed: (){},
+                      text: (e?['existing_task'] == 1) ? 'Update Task' : 'Create Task',
+                      onPressed: ()=> context.read<PrecheckBloc>().add(CreateOrUpdateEvent(e)),
                     ),
                     if([2,3,4,5].contains(e['id']))...[const CompactText('Note: Check Set Vehicle', color: AppC.redAccent,),],
                   ],

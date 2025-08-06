@@ -674,7 +674,7 @@ class APiRepository {
   }
 
   Future<Map<String, dynamic>?> updateToDoApi(
-      {Map<String, dynamic>? body, List<File>? images, String? todoId}) async {
+      {Map<String, dynamic>? body, List<File>? images, dynamic todoId}) async {
     try {
       body?.putIfAbsent("platform_type", () => getIt<CommonService>().currentPlatform);
       String apiUrl = "${Str.BASE_URL}$_updateToDoApi/$todoId";

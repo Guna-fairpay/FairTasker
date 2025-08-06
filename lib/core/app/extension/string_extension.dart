@@ -206,4 +206,12 @@ bool get isNullOrEmpty => (this == null) || (this?.isEmpty ?? false) || (this ==
     if (output is List<dynamic>) return output.firstOrNull;
     else return output;
   }
+
+  String get removeHtmlTags {
+    if (this == null || this!.isEmpty) return "";
+    return this!
+        .replaceAll(RegExp(r'<[^>]*>'), '') // Remove HTML tags
+        .replaceAll(RegExp(r'[\n\t]'), '')  // Remove \n and \t
+        .trim();
+  }
 }

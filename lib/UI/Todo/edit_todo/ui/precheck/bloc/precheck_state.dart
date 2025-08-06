@@ -14,9 +14,10 @@ class CommonState extends PrecheckState {
 
 class SuccessState extends PrecheckState {
   final dynamic message;
-  SuccessState(this.message);
+  final bool pop;
+  SuccessState({this.message, this.pop = false});
   @override
-  List<Object?> get props => [message, Random().nextDouble()];
+  List<Object?> get props => [message, pop, Random().nextDouble()];
 }
 
 class ErrorState extends PrecheckState {
@@ -37,6 +38,13 @@ class TollAlertDialogState extends PrecheckState {
 class DeleteImageState extends PrecheckState {
   final dynamic model;
   DeleteImageState({this.model});
+  @override
+  List<Object?> get props => [model, Random().nextDouble()];
+}
+
+class DeleteOrCompleteState extends PrecheckState {
+  final dynamic model;
+  DeleteOrCompleteState({this.model});
   @override
   List<Object?> get props => [model, Random().nextDouble()];
 }

@@ -47,3 +47,32 @@ class DeleteImageDialogEvent extends PrecheckEvent{
 }
 
 class SaveEvent extends PrecheckEvent{}
+
+class CreateOrUpdateEvent extends PrecheckEvent{
+  final dynamic payload;
+  CreateOrUpdateEvent(this.payload);
+  @override
+  List<Object?> get props => [payload];
+}
+
+class TextTapEvent extends PrecheckEvent{
+  final dynamic payload;
+  TextTapEvent(this.payload);
+  @override
+  List<Object?> get props => [payload];
+}
+
+class DeleteTaskEvent extends PrecheckEvent{
+  final dynamic payload;
+  final dynamic reason;
+  DeleteTaskEvent({this.payload, this.reason});
+  @override
+  List<Object?> get props => [payload, reason];
+}
+
+class CompleteTaskEvent extends PrecheckEvent{
+  final dynamic payload;
+  CompleteTaskEvent(this.payload);
+  @override
+  List<Object?> get props => [payload];
+}
