@@ -3805,13 +3805,13 @@ Future<Map<String, dynamic>?> getLocations() async {
       if (showOther) params["showOther"] = showOther;
       if (status != null) params["status"] = status ? "Completed" : "In Progress";
       Console.of.log(params);
-      return await RemoteClient.instance.getRequest(apiUrl, queryParameters: params);
-      /*final http.Response? response = await _apiClient.callGetMethod(apiUrl, params: params);
+      // return await RemoteClient.instance.getRequest(apiUrl, queryParameters: params);
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl, params: params);
       if (response?.isSuccess == true) {
         return await response.mapData;
       } else {
         throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
-      }*/
+      }
     } catch (e) {
       rethrow;
     }
