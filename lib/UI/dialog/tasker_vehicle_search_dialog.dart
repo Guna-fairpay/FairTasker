@@ -1,3 +1,4 @@
+import 'package:fairpytasker/Component/compact_drop_down.dart';
 import 'package:fairpytasker/Component/custom_searcher_view.dart';
 import 'package:fairpytasker/Component/custom_tab_button.dart';
 import 'package:fairpytasker/UI/Finance/cost/cost_list_view.dart';
@@ -89,19 +90,32 @@ class _TaskerVehicleSearchBodyView extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox.shrink(),
-                    SearchViewField<Map<String, dynamic>>(
+                    CompactDropDown(
                       controller: context.read<TVSBloc>().searchController,
-                      suggestions: context.watch<TVSBloc>().vehicleList,
                       itemAsString: (item) => item['vehicle_name'].toString(),
-                      selectedItem: context.watch<TVSBloc>().selectedModel,
-                      onSelected: (value) {
+                      items:  context.watch<TVSBloc>().vehicleList,
+                      onChanged: (value) {
                         context
                             .read<TVSBloc>()
                             .add(TVSSelectedEvent(model: value));
                         Utils.dismissKeyboard(context);
                       },
-                      showEmpty: false,
+                      hintText: 'Search Vehicle',
+                      initialSelection: context.watch<TVSBloc>().selectedModel,
                     ),
+                    // SearchViewField<Map<String, dynamic>>(
+                    //   controller: context.read<TVSBloc>().searchController,
+                    //   suggestions: context.watch<TVSBloc>().vehicleList,
+                    //   itemAsString: (item) => item['vehicle_name'].toString(),
+                    //   selectedItem: context.watch<TVSBloc>().selectedModel,
+                    //   onSelected: (value) {
+                    //     context
+                    //         .read<TVSBloc>()
+                    //         .add(TVSSelectedEvent(model: value));
+                    //     Utils.dismissKeyboard(context);
+                    //   },
+                    //   showEmpty: false,
+                    // ),
                     if (context.watch<TVSBloc>().selectedModel?.isNotEmpty ??
                         false)
                       IntrinsicWidth(

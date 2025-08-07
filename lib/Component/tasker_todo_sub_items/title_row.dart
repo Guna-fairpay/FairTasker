@@ -2,8 +2,8 @@ part of '../todo_task_item_card.dart';
 
 class TitleRow extends StatelessWidget {
   final Map<String, dynamic> model;
-  final VoidCallback? onTap, onReasonAttachmentView, onCustomLink, onViewAttachment, onDateChange, onCompletedTimeChange, onTimeChange, onMeetingView;
-  const TitleRow({super.key, required this.model, this.onTap, this.onReasonAttachmentView, this.onCustomLink, this.onViewAttachment, this.onDateChange, this.onCompletedTimeChange, this.onTimeChange, this.onMeetingView});
+  final VoidCallback? onTap, onReasonAttachmentView, onCustomLink, onViewAttachment, onDateChange, onCompletedTimeChange, onTimeChange, onMeetingView, bookingInfo;
+  const TitleRow({super.key, required this.model, this.onTap, this.onReasonAttachmentView, this.onCustomLink, this.onViewAttachment, this.onDateChange, this.onCompletedTimeChange, this.onTimeChange, this.onMeetingView, this.bookingInfo});
 
   @override
   Widget build(BuildContext context) {
@@ -21,6 +21,10 @@ class TitleRow extends StatelessWidget {
       CustomLinkText(
         model: model,
         onCustomLink: onCustomLink,
+      ),
+      BookingInfoView(
+        model: model,
+        info: bookingInfo,
       ),
       AttachmentView(model: model,
           onViewAttachment: onViewAttachment)

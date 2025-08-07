@@ -421,3 +421,10 @@ class MeetingUpdateEvent extends ToDoTaskerEvent {
   @override
   List<Object?> get props => [model, selectedModel];
 }
+
+class BookingInfoEvent extends ToDoTaskerEvent {
+  final Map<String, dynamic>? model;
+  BookingInfoEvent(this.model);
+  @override
+  List<Object?> get props => [model];
+}

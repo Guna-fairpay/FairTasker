@@ -80,6 +80,7 @@ class CommonService {
   List<Map<String, dynamic>> expensesCategory = [];
   List<Map<String, dynamic>> leads = [];
   List<Map<String, dynamic>> channels = [];
+  Map<String, dynamic>? token;
 
   PackageInfo? packageInfo;
 
@@ -699,6 +700,19 @@ class CommonService {
     } catch (e) {
       Toaster.showError(e.toString());
       return [];
+    }
+  }
+
+  Future<Map<String, dynamic>?> getRentalToken({bool reset = false}) async {
+    if (reset) token?.clear();
+    if (token != null) return token;
+    try {
+      var response = await _apiRepository.getRentalToken();
+      token = Map<String, dynamic>.from(response ?? {});
+      return token;
+      } catch (e) {
+      Toaster.showError(e.toString());
+      return {};
     }
   }
 
