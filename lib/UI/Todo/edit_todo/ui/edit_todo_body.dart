@@ -207,15 +207,15 @@ class EditTodoBody extends StatelessWidget {
                 ],
                 const EditTodoUpdateButton(),
                 10.height,
-                if(Str.basedBookingId.contains(state.apiResponse['identifier_id']) && state.apiResponse['rental_booking_id'] != null)...[
+                if(Str.basedBookingId.contains(state.selectedTask['id']) && state.apiResponse['rental_booking_id'] != null)...[
                   AgreementStatusList(data: state.apiResponse['bookingDetails'] ?? {}),
                   10.height,
                 ],
-                if (state.apiResponse.isNotEmpty && (state.apiResponse['identifier_id'] != 393 || state.apiResponse['rental_booking_id'] == null))
+                if (state.apiResponse.isNotEmpty && ((state.selectedTask['id'] != 393)  || state.apiResponse['rental_booking_id'] == null))
                   const PageKeepAliver(
                       key:PageStorageKey("EditTodoBottomTabs"),
                       child: EditTodoBottomTabs()),
-                if(state.apiResponse['identifier_id'] == 393 && state.apiResponse['bookingDetails']?['id'] != null)...[
+                if((state.selectedTask['id'] == 393) && state.apiResponse['bookingDetails']?['id'] != null)...[
                   PageKeepAliver(
                       key:const PageStorageKey("VerificationTabs"),
                       child: VerificationMainUI(data: state.apiResponse,)

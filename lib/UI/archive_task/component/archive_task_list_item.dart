@@ -129,7 +129,7 @@ class ArchiveTaskListItem extends StatelessWidget {
                                     Expanded(
                                         child: InkWell(
                                           onTap:()=> NotesDialog.show(context, message: item['notes'] ?? '',),
-                                        child: CompactText("(${(item['notes'] ?? '').toString().replaceAll("\n", "")})", color: AppC.grey, overflow: TextOverflow.ellipsis, maxLines: 1,))),
+                                        child: CompactText("(${(item['notes'] ?? '').toString().removeHtmlTags})", color: AppC.grey, overflow: TextOverflow.ellipsis, maxLines: 1,))),
                                 ]),
                              ]),
                     ),

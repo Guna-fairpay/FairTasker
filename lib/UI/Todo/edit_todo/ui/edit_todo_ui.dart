@@ -17,6 +17,7 @@ import 'package:fairpytasker/UI/Todo/Odometer/odometer_view.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/Component/ask_date_range_permission_dialog.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/Component/resource_popup.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/bloc/edit_todo_bloc.dart';
+import 'package:fairpytasker/UI/Todo/edit_todo/ui/precheck/ui/precheck_main_ui.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/ui/private_rental_checkin/ui/check_in_main_page.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/ui/private_rental_checkout/ui/checkout_main_ui.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/ui/verification/component/agreement_status_list.dart';
@@ -315,7 +316,7 @@ class EditTodoUI extends StatelessWidget {
                     ],
                   ),
                   body: SafeArea(
-                    minimum: 16.padding,
+                    minimum: 15.spMin.padding,
                     child: const EditTodoBody(),
                   ),
                 )),

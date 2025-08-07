@@ -73,6 +73,10 @@ class EditTodoBottomTabs extends StatelessWidget {
               9 =>  CheckInMainPage(
                 model: state.apiResponse,
               ),
+              10 => PrecheckMainUI(
+                model: state.apiResponse,
+                vinList: context.read<EditToDoBloc>().vinList,
+              ),
               _ => const SizedBox(),
             },
           ),

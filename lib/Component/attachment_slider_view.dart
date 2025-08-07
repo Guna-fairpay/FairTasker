@@ -1,5 +1,6 @@
 import 'package:fairpytasker/Component/compact_audio_player.dart';
 import 'package:fairpytasker/Component/compact_doc_viewer.dart';
+import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/Component/video_player_view.dart';
 import 'package:fairpytasker/Component/image_preview.dart';
@@ -8,6 +9,8 @@ import 'package:flutter/material.dart';
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:remixicon/remixicon.dart';
+
 class AttachmentSliderView extends StatefulWidget {
   final List<dynamic> attachments;
   final Object? currentAttachment;
@@ -15,7 +18,8 @@ class AttachmentSliderView extends StatefulWidget {
   final ValueChanged<dynamic>? onDownload;
   final VoidCallback? onClose;
   final bool showDownload;
-  const AttachmentSliderView({super.key, required this.attachments, this.currentAttachment, this.onDeleted, this.onClose, this.onDownload, this.showDownload = false});
+  final bool showDeleteAlertDialog;
+  const AttachmentSliderView({super.key, required this.attachments, this.currentAttachment, this.onDeleted, this.onClose, this.onDownload, this.showDownload = false, this.showDeleteAlertDialog = false});
 
   @override
   State<AttachmentSliderView> createState() => _AttachmentSliderViewState();
@@ -114,24 +118,49 @@ class _AttachmentSliderViewState extends State<AttachmentSliderView> {
               ...[
                 IconButton(
                     onPressed: () {
-                      widget.onDeleted?.call(currentAttachment);
-                      attachments.remove(currentAttachment);
-                      if (currentIndex <= attachments.length) {
-                        currentIndex = (attachments.isEmpty) ? 0 : (currentIndex - 1);
-                        currentIndex = currentIndex.abs();
-                      }
-                      Console.of.log("TOTAL ${attachments.length} $currentIndex");
-                      try {
-                        currentAttachment = attachments[currentIndex];
-                        if (mounted) setState(() {});
-                      } catch (e) {
+                      if (widget.showDeleteAlertDialog){
+                        AskPermissionDialog.show(context,
+                          description: 'Do you want to delete this image?',
+                          positiveText: 'Yes',
+                          onPositivePressed: (){
+                            widget.onDeleted?.call(currentAttachment);
+                            attachments.remove(currentAttachment);
+                            if (currentIndex <= attachments.length) {
+                              currentIndex = (attachments.isEmpty) ? 0 : (currentIndex - 1);
+                              currentIndex = currentIndex.abs();
+                            }
+                            Console.of.log("TOTAL ${attachments.length} $currentIndex");
+                            try {
+                              currentAttachment = attachments[currentIndex];
+                              if (mounted) setState(() {});
+                            } catch (e) {
 
-                      }
-                      if (attachments.isEmpty) {
-                        widget.onClose?.call();
+                            }
+                            if (attachments.isEmpty) {
+                              widget.onClose?.call();
+                            }
+                          },
+                        );
+                      }else{
+                        widget.onDeleted?.call(currentAttachment);
+                        attachments.remove(currentAttachment);
+                        if (currentIndex <= attachments.length) {
+                          currentIndex = (attachments.isEmpty) ? 0 : (currentIndex - 1);
+                          currentIndex = currentIndex.abs();
+                        }
+                        Console.of.log("TOTAL ${attachments.length} $currentIndex");
+                        try {
+                          currentAttachment = attachments[currentIndex];
+                          if (mounted) setState(() {});
+                        } catch (e) {
+
+                        }
+                        if (attachments.isEmpty) {
+                          widget.onClose?.call();
+                        }
                       }
                     },
-                    icon: const Icon(Icons.delete_outline_rounded, color: Colors.red,)),
+                    icon: const Icon(RemixIcons.delete_bin_fill, color: Colors.red,)),
                 const Spacer()
               ],
             if(widget.showDownload)...[
@@ -139,7 +168,7 @@ class _AttachmentSliderViewState extends State<AttachmentSliderView> {
                   onPressed: () {
                     widget.onDownload?.call(currentAttachment);
                   },
-                  icon: const Icon(Icons.download_rounded, color: Colors.green,)),
+                  icon: const Icon(RemixIcons.download_2_fill, color: Colors.green,)),
               const Spacer()
             ],
             if (attachments.length > 1)

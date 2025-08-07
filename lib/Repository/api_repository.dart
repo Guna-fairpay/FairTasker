@@ -506,6 +506,10 @@ class APiRepository {
 
   String get _uploadCheckInImages => 'upload-checkin-image';
 
+  String get _deletePrecheckImage => 'delete-precheck-image';
+
+  String get _saveFairentalPrecheck => 'save-fairental-precheck';
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -670,7 +674,7 @@ class APiRepository {
   }
 
   Future<Map<String, dynamic>?> updateToDoApi(
-      {Map<String, dynamic>? body, List<File>? images, String? todoId}) async {
+      {Map<String, dynamic>? body, List<File>? images, dynamic todoId}) async {
     try {
       body?.putIfAbsent("platform_type", () => getIt<CommonService>().currentPlatform);
       String apiUrl = "${Str.BASE_URL}$_updateToDoApi/$todoId";
@@ -1889,7 +1893,7 @@ Future<Map<String, dynamic>?> getLocations() async {
   Future<Map<String, dynamic>?> vehicleAddOrUpdateApi(
       {Map<String, dynamic>? body,
         List<Map<String, String?>>? infusedFiles,
-        String? id}) async {
+        dynamic id}) async {
     try {
       String apiUrl = '';
       if (id != null) {
@@ -4922,6 +4926,42 @@ Future<Map<String, dynamic>?> getLocations() async {
         throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
       }
     }catch(e){
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> deletePreCheckImage({dynamic id}) async {
+    try {
+      String apiUrl = '${Str.BASE_URL}$_deletePrecheckImage/$id';
+      final http.Response? response = await _apiClient.callDelete(apiUrl);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(
+            response?.body ?? "")?['message'] ??
+            jsonDecode(response?.body ?? "")?['error'] ??
+            "Some thing went wrong, try again later!..."}");
+      }
+    }catch(e){
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> saveFairentalPrecheck({dynamic infusedFiles, dynamic body})async{
+    try{
+      String apiUrl = '${Str.BASE_URL}$_saveFairentalPrecheck';
+      final http.Response? response = await _apiClient.callPostMethodWithBodyDynamicWithAutoIncrement(
+        apiUrl,
+        body: body,
+        infusedFiles: infusedFiles,
+        autoIncrement: false,
+      );
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      }else{
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+      }catch(e){
       rethrow;
     }
   }

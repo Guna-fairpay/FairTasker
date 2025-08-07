@@ -273,7 +273,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     }
     timeController.text = todoResponse?['todo_time'] ?? '';
     dateController.text = todoResponse?['todo_date'] ?? '';
-    notesController.text = todoResponse?['notes'] ?? '';
+    notesController.text = (todoResponse?['notes'] ?? '').toString().removeHtmlTags;
     departmentId = selectedUser.firstOrNull?['department'].toString();
     customLinkController.text = (todoResponse?['custom_link_id'] == 1)
         ? (todoResponse?['custom_link'] ?? '').toString()
@@ -380,8 +380,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     mileageImages =
         List.from(todoResponse?['todo_mileage_attachments']).map((e) => e['path'].toString().toAttachmentURL).toList();
     final title = todoResponse?['title'];
-    var selectedTask = taskResponse.firstWhereOrNull(
-            (element) => element['id'].toString() == todoResponse?['identifier_id'].toString());
+    var selectedTask = taskResponse.firstWhereOrNull((element) => element['id'].toString() == todoResponse?['identifier_id'].toString());
     final vehicleExists = todoResponse?['vehicle_name'] != null ||
         todoResponse?['vin'] != null ||
         (todoResponse?['vehicles']?.isNotEmpty ?? false);
@@ -390,6 +389,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         ? (todoResponse?['rental_booking_id'] == null) : true;
     bool isExpenseBased = !Str.checkInCheckOut.contains(title) && selectedTask?['user_type'].toString() != '5';
     bool isCheckList = [268, 219].contains(todoResponse?['identifier_id']);
+    bool isPreCheck = todoResponse?['identifier_id'] == 403;
     bool isMaintenance = todoResponse?['identifier_id'] == 257;
     bool isOdometer = [
       'oil change',
@@ -420,6 +420,8 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         {"id": 8, "title": "Check Out"},
       if (isCheckIn)
         {"id": 9, "title": "Check In"},
+      if(isPreCheck)
+        {"id": 10, "title": "Private Rental"},
     ];
 
     selectionTaps = tabs.firstWhere(
@@ -427,6 +429,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       ([268,219].contains(todoResponse?['identifier_id']) && e['title'] == "Check List") ||
           (todoResponse?['identifier_id'] == 257 && e['title'] == "Maintenance") ||
           (todoResponse?['identifier_id'] == 324 && e['title'] == "Private Rental Check") ||
+          (todoResponse?['identifier_id'] == 403 && e['title'] == "Private Rental") ||
           ((title == 'Oil change' || title == 'OilChange Check' || title == 'Oil Change Check') && e['title'] == "Odometer"),
       orElse: () => tabs.isNotEmpty ? tabs[0] : {},
     );
@@ -600,6 +603,8 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
 }
 
   Future<void> _onTaskEvent(EditToDoTaskEvent event, Emitter<EditTodoState> emit) async  {
+    var selectedTask = event.selectedTask;
+    Console.of.log(selectedTask);
     if(state.selectedTask['user_type'] != event.selectedTask['user_type']){
       selectedLead = null;
       leadsController.clear();
@@ -616,9 +621,63 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       }
     }
 
+    final vehicleExists = todoResponse?['vehicle_name'] != null ||
+        todoResponse?['vin'] != null ||
+        (todoResponse?['vehicles']?.isNotEmpty ?? false);
+
+    bool isBookingBased = selectedTask?['id'] == 357 || selectedTask?['id'] == 387
+        ? (todoResponse?['rental_booking_id'] == null) : true;
+    bool isExpenseBased = !Str.checkInCheckOut.contains(event.selectedTask?['task']) && event.selectedTask?['user_type'].toString() != '5';
+    bool isCheckList = [268, 219].contains(selectedTask?['id']);
+    bool isPreCheck = selectedTask?['id'] == 403;
+    bool isMaintenance = selectedTask?['id'] == 257;
+    bool isOdometer = [
+      'oil change',
+      'oilchange check',
+      'oil change check',
+    ].contains(event.selectedTask?['task'].toString().toLowerCase());
+    bool isSetVehicle = !['Check In', 'Check Out'].contains(event.selectedTask?['task']);
+    bool isPrivateRentalCheck = selectedTask?['id'] == 324;
+    bool isCheckOut = selectedTask?['id'] == 357 && todoResponse?['rental_booking_id'] != null;
+    bool isCheckIn = selectedTask?['id'] == 387 && todoResponse?['rental_booking_id'] != null;
+    bool isMeeting = selectedTask?['user_type'] == 5;
+
+
     showLead = (event.selectedTask?['user_type'].toString()) == '3' ? true : false;
     showCleanCar = Str.cleanCarCheckIds.contains(event.selectedTask['id']);
-    emit(state.copyWith(selectedTask: event.selectedTask, showCleanCar: showCleanCar));
+    final List<Map<String, dynamic>> tabs = [
+      if (isExpenseBased && isBookingBased)
+        {"id": 1, "title": "Expense"},
+      if (isBookingBased)
+        {"id": 2, "title": "Next Task"},
+      if (isCheckList)
+        {"id": 3, "title": "Check List"},
+      if (isMaintenance)
+        {"id": 4, "title": "Maintenance"},
+      if (isOdometer)
+        {"id": 7, "title": "Odometer"},
+      if (isSetVehicle && vehicleExists && isBookingBased && !isMeeting)
+        {"id": 5, "title": "Set Vehicle"},
+      if (isPrivateRentalCheck)
+        {"id": 6, "title": "Private Rental Check"},
+      if (isCheckOut)
+        {"id": 8, "title": "Check Out"},
+      if (isCheckIn)
+        {"id": 9, "title": "Check In"},
+      if(isPreCheck)
+        {"id": 10, "title": "Private Rental"},
+    ];
+
+    selectionTaps = tabs.firstWhere(
+          (e) =>
+      ([268,219].contains(selectedTask?['id']) && e['title'] == "Check List") ||
+          (selectedTask?['id'] == 257 && e['title'] == "Maintenance") ||
+          (selectedTask?['id'] == 324 && e['title'] == "Private Rental Check") ||
+          (selectedTask?['id'] == 403 && e['title'] == "Private Rental") ||
+          ((event.selectedTask?['task'] == 'Oil change' || event.selectedTask?['task'] == 'OilChange Check' || event.selectedTask?['task'] == 'Oil Change Check') && e['title'] == "Odometer"),
+      orElse: () => tabs.isNotEmpty ? tabs[0] : {},
+    );
+    emit(state.copyWith(selectedTask: event.selectedTask, showCleanCar: showCleanCar, bottomTapData: tabs, selectedBottomTap: selectionTaps));
   }
 
   Future<void> _onShowPartsEvent(EditToDoShowPartsEvent event, Emitter<EditTodoState> emit) async   {
@@ -1283,11 +1342,13 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     baseBody['rental_enquiry'] = QuillDeltaToHtmlConverter(
       (quillController).document.toDelta().toJson(),
       ConverterOptions.forEmail(),).convert();
-    // baseBody['meeting_mode'] = selectedMeetingType?['name'] ?? '';
-    baseBody['meeting_mode'] = selectedMeetingType?['id'] != 0 ? ( selectedMeetingType?['name'] ?? '').toString().toLowerCase() : '';
-    // baseBody['lead_id'] = "${selectedLead?['id'] ?? ''}";
-    baseBody['meeting_duration'] = "${selectedMeetingTime?['value'] ?? ''}";
-    baseBody['meeting_link'] = meetingLinkController.text;
+    if(state.selectedTask['user_type'].toString() == '5'){
+      baseBody['meeting_mode'] = selectedMeetingType?['id'] != 0
+          ? (selectedMeetingType?['name'] ?? '').toString().toLowerCase()
+          : '';
+      baseBody['meeting_duration'] = "${selectedMeetingTime?['value'] ?? ''}";
+      baseBody['meeting_link'] = meetingLinkController.text;
+    }
     if(selectedLead != null){
       if(selectedLead?['type'] == 'lead'){
         baseBody['lead_id'] = "${selectedLead?['id'] ?? ''}";
@@ -1383,7 +1444,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     baseBody['notes'] =
         notesController.text.trim().isNullOrEmpty ? "" : notesController.text;
     baseBody['time_sensitive'] = state.isTimeSensitive ? '1' : '0';
-    baseBody['todo_user_type'] = "0";
+    baseBody['todo_user_type'] = "2";
     baseBody['mileage'] = odometerController.text;
     baseBody['resolution_notes'] = "";
     baseBody['address'] = "${state.addresses.map((e) => e['id']).toList()}";
