@@ -316,7 +316,7 @@ class EditTodoUI extends StatelessWidget {
                     ],
                   ),
                   body: SafeArea(
-                    minimum: 16.padding,
+                    minimum: 15.spMin.padding,
                     child: const EditTodoBody(),
                   ),
                 )),

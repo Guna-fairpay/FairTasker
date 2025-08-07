@@ -34,12 +34,13 @@ mixin DrawerRoutes {
 
   List<String> get userId => ['20','31','3','17','2','1'];
   List<String> get approveTask => ['3','17','1','2','6'];
+  List<String> get archiveTask => ['1', '2', '3'];
 
   Map<String, Widget> get routes => {
     "Manage Custom Data's" : const ManageCustomDataMenuUI(),
     if (getIt<CommonService>().isAdmin) "Manage Employees" : const ManageEmployees(),
     if(approveTask.contains(Session.of.getString(Str.userIdPrefText))) "Approve Task" : const ApproveTaskMainUI(),
-    "Archive Task" : const ArchiveTaskMainUI(),
+    if(archiveTask.contains(Session.of.getString(Str.userIdPrefText)))  "Archive Task" : const ArchiveTaskMainUI(),
     "Leave Management" : const LeaveViewMainPage(),
     "Reports" : const ReportsView(),
     if (getIt<CommonService>().hasFairTechEOD) "Offshore Report" : const OffshoreReportBasePage(),
