@@ -8,9 +8,9 @@ import 'package:talker_dio_logger/talker_dio_logger.dart';
 
 abstract class DioClient {
   final Dio _dio = Dio(BaseOptions(
-    sendTimeout: const Duration(seconds: 30),
-    connectTimeout: const Duration(seconds: 30),
-    receiveTimeout: const Duration(seconds: 30),
+    sendTimeout: const Duration(seconds: 60),
+    connectTimeout: const Duration(seconds: 60),
+    receiveTimeout: const Duration(seconds: 60),
     responseType: ResponseType.json,
     maxRedirects: 2,
   ))..interceptors.addAll([
