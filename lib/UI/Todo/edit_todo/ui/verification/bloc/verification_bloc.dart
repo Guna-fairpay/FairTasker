@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'dart:math';
+import 'package:collection/collection.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:path/path.dart';
 
 import 'package:equatable/equatable.dart';
@@ -32,6 +34,7 @@ class VerificationBloc extends Bloc<VerificationEvent, VerificationState>{
   final TextEditingController insuranceAmountController = TextEditingController();
   final TextEditingController expiryDateController = TextEditingController();
   final TextEditingController insuranceFileNameController = TextEditingController();
+  final TextEditingController roadsideAssistanceNotesController = TextEditingController();
 
   List<dynamic> licenseCheckList = [];
   List<dynamic> addressCheckList = [];
@@ -44,6 +47,8 @@ class VerificationBloc extends Bloc<VerificationEvent, VerificationState>{
   List<dynamic> paymentAttachments = [];
   List<dynamic> addPaymentAttachments = [];
   List<dynamic> insuranceAttachments = [];
+  List<dynamic> categoryList = [];
+  List<dynamic> vinList = [];
 
   List<dynamic> paymentTypes = [{'id': 1, 'name': 'Initial'}, {'id': 2, 'name': 'Full'}];
   List<dynamic> updatePaymentMethod= [
@@ -76,8 +81,9 @@ class VerificationBloc extends Bloc<VerificationEvent, VerificationState>{
   Future<Map<String, dynamic>?> _createPayment({dynamic body, dynamic files,}) async => await apiRepository.createPayment(token: token, body: body, images: files);
   Future<Map<String, dynamic>?> _updatePayment({dynamic body,}) async => await apiRepository.updatePayment(token: token, body: body,);
   Future<Map<String, dynamic>?> _updateInsuranceRequirement({dynamic body,}) async => await apiRepository.updateInsuranceRequirement(token: token, body: body,);
-  Future<Map<String, dynamic>?> _updateInsurance({dynamic body, dynamic image}) async => await apiRepository.updateInsurance(token: token, body: body, images: image);
-  Future<Map<String, dynamic>?> _deleteInsurance({dynamic id,}) async => await apiRepository.deleteInsurance(token: token, id: id,);
+  Future<Map<String, dynamic>?> _updateInsurance({dynamic body, dynamic image}) async => await apiRepository.uploadInsurance(body: body, images: image);
+  Future<Map<String, dynamic>?> _deleteInsurance({dynamic body,}) async => await apiRepository.deleteInsurance(body: body);
+  Future<List<Map<String, dynamic>>> _getCategory() async => await getIt<CommonService>().getExpenseCategories();
 
   VerificationBloc() : super(LoadingState()){
     on<InitialEvent>(_onInitialEvent);
@@ -103,13 +109,16 @@ class VerificationBloc extends Bloc<VerificationEvent, VerificationState>{
     on<ChooseInsuranceFileEvent>(_onChooseInsuranceFileEvent);
     on<RemoveInsuranceFileEvent>(_onRemoveInsuranceFileEvent);
     on<DeleteAlertDialogEvent>(_onDeleteAlertDialogEvent);
+    on<RoadsideAssistEvent>(_onRoadsideAssistEvent);
 
   }
 
   Future<void> _onInitialEvent(InitialEvent event, Emitter<VerificationState> emit) async {
     try {
       emit(LoadingState());
+      categoryList = await _getCategory();
       model = event.data;
+      vinList = event.vinList;
       if(model?['identifier_id'] == 407){
         selectedValue = 6;
       }
@@ -514,8 +523,11 @@ class VerificationBloc extends Bloc<VerificationEvent, VerificationState>{
   void _onInsuranceDeleteEvent(InsuranceDeleteEvent event, Emitter<VerificationState> emit) async {
     try{
       emit(LoadingState());
-      var response = await _deleteInsurance(id: bookingDetails?['insurance']?['id']);
-      if(response?['success'] == true){
+      var response = await _deleteInsurance(body: {
+        'insurance_id': "${bookingDetails?['insurance']?['id'] ?? ''}",
+        if(event.deleteBoth == true) 'todo_id': "${model?['id'] ?? ''}"
+      });
+      if(response?['status'] == true){
         model?['bookingDetails']?['insurance_status'] = 'pending_admin_action';
         bookingDetails?['insurance_status'] = 'pending_admin_action';
         model?['bookingDetails']?['insurance'] = null;
@@ -549,14 +561,23 @@ class VerificationBloc extends Bloc<VerificationEvent, VerificationState>{
         body: input['data'],
         image: input['image'],
       );
-      if(response?['success'] == true){
-        model?['bookingDetails']?['insurance_status'] = response?['data']?['insurance_status'];
-        bookingDetails?['insurance_status'] = response?['data']?['insurance_status'];
-        model?['bookingDetails']?['insurance'] = response?['data'];
-        bookingDetails?['insurance'] = response?['data'];
+      if(response?['status'] == true){
+        model?['bookingDetails']?['insurance_status'] = response?['insurance']?['insurance_status'];
+        bookingDetails?['insurance_status'] = response?['insurance']?['insurance_status'];
+        model?['bookingDetails']?['insurance'] = response?['insurance'];
+        bookingDetails?['insurance'] = response?['insurance'];
         insuranceAttachments.clear();
         emit(SuccessState(response?['message']));
       }else{
+        if(response?['insurance'] != null){
+          model?['bookingDetails']?['insurance_status'] =
+              response?['insurance']?['insurance_status'];
+          bookingDetails?['insurance_status'] =
+              response?['insurance']?['insurance_status'];
+          model?['bookingDetails']?['insurance'] = response?['insurance'];
+          bookingDetails?['insurance'] = response?['insurance'];
+          insuranceAttachments.clear();
+        }
         emit(ErrorState(response?['message']));
       }
     } catch(e){
@@ -587,6 +608,15 @@ class VerificationBloc extends Bloc<VerificationEvent, VerificationState>{
     }
   }
 
+  void _onRoadsideAssistEvent(RoadsideAssistEvent event, Emitter<VerificationState> emit) async {
+    try {
+      bookingDetails?['insurance']?['roadside_assist'] = bookingDetails?['insurance']?['roadside_assist'] == 1 ? 0 : 1;
+      emit(CommonState());
+    } catch (e) {
+      _onError(e, emit);
+    }
+  }
+
   void _onRemoveInsuranceFileEvent(RemoveInsuranceFileEvent event, Emitter<VerificationState> emit) async {
     try{
       if (event.data == null) return;
@@ -609,7 +639,7 @@ class VerificationBloc extends Bloc<VerificationEvent, VerificationState>{
     expiryDateController.text = bookingDetails?['insurance']?['expiry_date'] ?? '';
     insuranceAmountController.text = bookingDetails?['insurance']?['amount'] ?? '';
     selectedInsuranceExpiryDate = bookingDetails?['insurance']?['expiry_date'] != null ? DateTime.parse(bookingDetails?['insurance']?['expiry_date']) : null;
-
+    roadsideAssistanceNotesController.text = bookingDetails?['insurance']?['roadside_assist_notes'] ?? '';
     insuranceInfo = bookingDetails?['insurance_info_required'] == 1;
 
     var tokenRes = await getToken();
@@ -681,6 +711,20 @@ class VerificationBloc extends Bloc<VerificationEvent, VerificationState>{
   }
 
   Map<String, dynamic> _updateData(){
+    int? subCategoryId;
+    int? expenseTo;
+
+    for (var element in categoryList) {
+      if (element['id'].toString() == '4') {
+        final subcategories = List.from(element['sub_categories'] ?? []);
+        final match = subcategories.firstWhereOrNull(
+              (e) => e['name'].toString().toLowerCase() == insuranceCompanyNameController.text.toLowerCase(),
+        );
+        subCategoryId = match?['id'];
+        expenseTo = match?['expense_to'];
+      }
+    }
+
     Map<String, dynamic> data = {
       'booking_id': bookingDetails?['id'],
       'user_id': bookingDetails?['user_id'],
@@ -689,6 +733,14 @@ class VerificationBloc extends Bloc<VerificationEvent, VerificationState>{
       'paid_by': paidByController.text,
       'amount': insuranceAmountController.text,
       'expiry_date': selectedInsuranceExpiryDate.toFormat(),
+      'roadside_assist': bookingDetails?['insurance']?['roadside_assist'],
+      'roadside_assist_notes': roadsideAssistanceNotesController.text,
+      'vin': vinList.firstOrNull,
+      'category_id': '4',
+      'subcategory_id': subCategoryId,
+      'expense_to': expenseTo,
+      'platform': 'tasker-app',
+      'todo_id': model?['id'],
     };
     List<dynamic> attachments = insuranceAttachments.whereType<File>().map((e) => {"document" : e.path }).toList();
     Console.of.log(data);
