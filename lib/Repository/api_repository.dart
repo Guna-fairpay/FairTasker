@@ -488,8 +488,6 @@ class APiRepository {
 
   String get _updateInsurance => 'admin/insurance/upload';
 
-  String get _deleteInsurance => 'admin/insurance';
-
   String get _adminBooking => 'admin/bookings';
 
   String get _admin => 'admin';
@@ -511,6 +509,10 @@ class APiRepository {
   String get _saveFairentalPrecheck => 'save-fairental-precheck';
 
   String get _bookingsInfo => 'bookings';
+
+  String get _uploadInsurance => 'upload-insurance';
+
+  String get _deleteInsurance => 'delete-insurance';
 
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
@@ -4857,20 +4859,6 @@ Future<Map<String, dynamic>?> getLocations() async {
     }
   }
 
-  Future<Map<String, dynamic>?> deleteInsurance({dynamic id, String? token}) async {
-    try{
-      String apiUrl = '${Str.FAIRENTAL_URL}$_deleteInsurance/$id';
-      final http.Response? response = await _apiClient.callDelete(apiUrl, token: token);
-      if (response?.isSuccess == true) {
-        return await response.mapData;
-      }else{
-        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
-      }
-    } catch(e) {
-      rethrow;
-    }
-  }
-
   Future<Map<String, dynamic>?> updateDeposit({dynamic id, String? token, dynamic body}) async {
     try{
       String apiUrl = '${Str.FAIRENTAL_URL}$_adminBooking/$id/$_updateDeposit';
@@ -4975,6 +4963,38 @@ Future<Map<String, dynamic>?> getLocations() async {
       if(response?.isSuccess == true){
         return await response.mapData;
       }else{
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    }catch(e){
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> uploadInsurance({required Map<String, dynamic> body, dynamic images})async{
+    try{
+      String apiUrl = '${Str.BASE_URL}$_uploadInsurance';
+      final http.Response? response = await _apiClient.callPostMethodWithBodyDynamicWithAutoIncrement(
+        apiUrl,
+        body: body,
+        infusedFiles: images,
+        autoIncrement: false,
+      );
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      }else{
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");}
+    }catch(e){
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> deleteInsurance({dynamic body}) async {
+    try{
+      String apiUrl = '${Str.BASE_URL}$_deleteInsurance';
+      final http.Response? response = await _apiClient.callDelete(apiUrl, params: body);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      }else {
         throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
       }
     }catch(e){

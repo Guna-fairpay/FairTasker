@@ -41,12 +41,13 @@ part 'final_agreement_page.dart';
 
 class VerificationMainUI extends StatelessWidget {
   final dynamic data;
-  const VerificationMainUI({super.key, required this.data});
+  final List<dynamic> vinList;
+  const VerificationMainUI({super.key, required this.data, required this.vinList});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => VerificationBloc()..add(InitialEvent(data: data)),
+      create: (context) => VerificationBloc()..add(InitialEvent(data: data, vinList: vinList)),
       child: BlocListener<VerificationBloc, VerificationState>(
         listener: (context, state) {
           if(state is LoadingState){
@@ -61,8 +62,10 @@ class VerificationMainUI extends StatelessWidget {
               case UpdatePaymentModelState(): UpdatePaymentModelDialog.show(context, model: state.data);
               case InsuranceDeleteState(): AskPermissionDialog.show(context,
                 description: 'Do you want to delete this insurance?',
-                positiveText: 'Yes, Delete',
-                onPositivePressed: ()=> context.read<VerificationBloc>().add(InsuranceDeleteEvent()),
+                subPositiveText: 'Delete Insurance',
+                onMultiSubmitted: (v)=> context.read<VerificationBloc>().add(InsuranceDeleteEvent(deleteBoth: false)),
+                positiveText: 'Delete both',
+                onPositivePressed: ()=> context.read<VerificationBloc>().add(InsuranceDeleteEvent(deleteBoth: true)),
               );
               default: break;
             }

@@ -10,6 +10,7 @@ class InsurancePage extends StatelessWidget {
         bool showDelete = context.watch<VerificationBloc>().bookingDetails['insurance'] != null;
         List<dynamic> insuranceFile =[context.watch<VerificationBloc>().bookingDetails?['insurance']?['attachment']?['file_url']];
         bool showView = context.watch<VerificationBloc>().bookingDetails?['insurance']?['attachment'] != null;
+        bool roadsideAssistance = context.watch<VerificationBloc>().bookingDetails?['insurance']?['roadside_assist'] == 1 ? true : false;
 
         return Form(
           key: context.read<VerificationBloc>().formKey,
@@ -42,31 +43,24 @@ class InsurancePage extends StatelessWidget {
                   ),
                 ],
               ),],
-              const CompactText(
-                'Insurance Company Name',
-                styleType: TextStyleType.labelLarge,
-              ),
               Utils.getTextFormField(null,
                 context.read<VerificationBloc>().insuranceCompanyNameController,
                 hintText: 'Enter Insurance Company Name',
                 autoValidate: context.watch<VerificationBloc>().autoValidateMode,
                 validator: (value) => (value?.isNullOrEmpty ?? false) ? "insurance company name is required" : null,
               ),
-              const CompactText('Insurance Type', styleType: TextStyleType.labelLarge,),
               Utils.getTextFormField(null,
                 context.read<VerificationBloc>().insuranceTypeController,
                 hintText: 'Enter Insurance Type',
                 autoValidate: context.watch<VerificationBloc>().autoValidateMode,
                 validator: (value) => (value?.isNullOrEmpty ?? false) ? "insurance type is required" : null,
               ),
-              const CompactText('Paid By', styleType: TextStyleType.labelLarge,),
               Utils.getTextFormField(null,
                 context.read<VerificationBloc>().paidByController,
                 hintText: 'Enter who paid for the insurance',
                 autoValidate: context.watch<VerificationBloc>().autoValidateMode,
                 validator: (value) => (value?.isNullOrEmpty ?? false) ? "paid by is required" : null,
               ),
-              const CompactText('Amount', styleType: TextStyleType.labelLarge,),
               Utils.getTextFormField(null,
                 context.read<VerificationBloc>().insuranceAmountController ,
                 hintText: 'Enter Insurance amount',
@@ -89,7 +83,32 @@ class InsurancePage extends StatelessWidget {
                 autovalidateMode: context.watch<VerificationBloc>().autoValidateMode,
                 onChanged: (value)=> context.read<VerificationBloc>().add(InsuranceExpiryDateEvent(value)),
               ),
-              const CompactText('Insurance Document', styleType: TextStyleType.labelLarge,),
+              Row(
+                spacing: 10,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: CustomCheckboxListTile(
+                      title: const CompactText('Roadside Assistance', styleType: TextStyleType.labelMedium,),
+                      value: roadsideAssistance,
+                      onChanged: (v)=> context.read<VerificationBloc>().add(RoadsideAssistEvent()),
+                      padding: 0.padding,
+                      mainAxisSize: MainAxisSize.min,
+                    ),
+                  ),
+                  if(roadsideAssistance) ...[
+                    Expanded(
+                      child: Utils.getTextFormField(
+                        null,
+                        context.read<VerificationBloc>().roadsideAssistanceNotesController,
+                        hintText: 'Enter notes',
+                        maxLines: 2,
+                        minLines: 2,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
               Row(
                 spacing: 10,
                 children: [

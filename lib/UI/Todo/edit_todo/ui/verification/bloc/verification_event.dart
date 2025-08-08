@@ -7,9 +7,10 @@ abstract class VerificationEvent extends Equatable{
 
 class InitialEvent extends VerificationEvent{
   final dynamic data;
-  InitialEvent({this.data});
+  final List<dynamic> vinList;
+  InitialEvent({this.data, required this.vinList});
   @override
-  List<Object?> get props => [data];
+  List<Object?> get props => [data, vinList];
 }
 
 class TabChangeEvent extends VerificationEvent{
@@ -95,7 +96,12 @@ class InsuranceInformationCheckEvent extends VerificationEvent{}
 
 class InsuranceInformationSaveEvent extends VerificationEvent{}
 
-class InsuranceDeleteEvent extends VerificationEvent{}
+class InsuranceDeleteEvent extends VerificationEvent{
+  final bool deleteBoth;
+  InsuranceDeleteEvent({this.deleteBoth = false});
+  @override
+  List<Object?> get props => [deleteBoth];
+}
 
 class DeleteAlertDialogEvent extends VerificationEvent{}
 
@@ -116,5 +122,7 @@ class RemoveInsuranceFileEvent extends VerificationEvent{
   @override
   List<Object?> get props => [data];
 }
+
+class RoadsideAssistEvent extends VerificationEvent{}
 
 

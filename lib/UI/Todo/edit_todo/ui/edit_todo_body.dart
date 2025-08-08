@@ -218,7 +218,7 @@ class EditTodoBody extends StatelessWidget {
                 if((state.selectedTask['id'] == 393 || state.selectedTask['id'] == 407) && state.apiResponse['bookingDetails']?['id'] != null)...[
                   PageKeepAliver(
                       key:const PageStorageKey("VerificationTabs"),
-                      child: VerificationMainUI(data: state.apiResponse,)
+                      child: VerificationMainUI(data: state.apiResponse, vinList: context.read<EditToDoBloc>().vinList,)
                   ),
                 ],
 
