@@ -510,6 +510,8 @@ class APiRepository {
 
   String get _saveFairentalPrecheck => 'save-fairental-precheck';
 
+  String get _bookingsInfo => 'bookings';
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -4742,10 +4744,10 @@ Future<Map<String, dynamic>?> getLocations() async {
     }
   }
 
-  Future<Map<String, dynamic>?> getAgreementPdf({dynamic id, String? token})async{
+  Future<Map<String, dynamic>?> getAgreementPdf({dynamic body, String? token})async{
     try{
       String apiUrl = '${Str.FAIRENTAL_URL}$_getAgreementPdf';
-      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: {'booking_id': id}, token: token);
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body, token: token);
       if (response?.isSuccess == true) {
         return await response.mapData;
       } else {
@@ -4962,6 +4964,20 @@ Future<Map<String, dynamic>?> getLocations() async {
         throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
       }
       }catch(e){
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getBookingInfo({dynamic id, String? token}) async {
+    try{
+      String apiUrl = '${Str.FAIRENTAL_URL}$_bookingsInfo/$id';
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl, token: token);
+      if(response?.isSuccess == true){
+        return await response.mapData;
+      }else{
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    }catch(e){
       rethrow;
     }
   }

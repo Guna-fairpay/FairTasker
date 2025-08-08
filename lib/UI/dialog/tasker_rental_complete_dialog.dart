@@ -347,7 +347,13 @@ class _TaskerRentalCompleteDialogContentView extends StatelessWidget {
                     )
                   ],
                 )),
-                Utils.getFilledButton("Submit", () => context.read<TRCDBloc>().add(TRCDSubmitEvent())),
+                ValueListenableBuilder(
+                    valueListenable: context.read<TRCDBloc>().odometerController,
+                    builder: (context, value, child) => SuccessButton(
+                      backgroundColor: (value.text.trim().isNullOrEmpty) ? AppC.appbgColor : AppC.appColor,
+                      foregroundColor: AppC.white,
+                      onPressed: (value.text.trim().isNullOrEmpty ) ? null : ()=> context.read<TRCDBloc>().add(TRCDSubmitEvent()),
+                    )),
                 const SizedBox.shrink(),
               ])),
     );

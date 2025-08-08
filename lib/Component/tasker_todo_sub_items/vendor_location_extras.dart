@@ -3,9 +3,9 @@ part of '../todo_task_item_card.dart';
 class VendorLocationExtras extends StatelessWidget {
   final Map<String, dynamic> model;
   final GestureTapDownCallback? onVendorOrLocation, onNotes, onAddress, onLead;
-  final VoidCallback? onVendorInfo;
+  final VoidCallback? onVendorInfo, onLeadInfo;
   final void Function(String? value)? onMore; // SHOW MORE TEXT WITH THIS FUNCTION
-  const VendorLocationExtras({super.key, required this.model, this.onVendorOrLocation, this.onVendorInfo, this.onNotes, this.onMore, this.onAddress, this.onLead});
+  const VendorLocationExtras({super.key, required this.model, this.onVendorOrLocation, this.onVendorInfo, this.onNotes, this.onMore, this.onAddress, this.onLead, this.onLeadInfo});
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +38,7 @@ class VendorLocationExtras extends StatelessWidget {
             if (hasVendorLocation) Flexible(child: GestureDetector(onTapDown: onVendorOrLocation, child: Utils.getText(vendorLocation, size: 12.spMin, overFlow: TextOverflow.ellipsis))),
             if (leadChannelName.isNotNullOrEmpty) Flexible(child: GestureDetector(onTapDown: onLead, child: Utils.getText(leadChannelName ?? "", size: 12.spMin, overFlow: TextOverflow.ellipsis))),
             if (hasVendorInfo) GestureDetector(onTap: onVendorInfo, child: Icon(Icons.info, size: 16.spMin, color: Colors.blue)),
+            if (hasLead) GestureDetector(onTap: onLeadInfo, child: Icon(RemixIcons.information_line, size: 16.spMin, color: AppC.appColor)),
             if (hasNotes && !hasLead) Flexible(
               child: RichText(
                   maxLines: 1,

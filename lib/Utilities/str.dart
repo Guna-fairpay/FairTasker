@@ -110,7 +110,7 @@ class Str{
 
     static const List<String> checkInCheckOut = ['Check In','Check Out'];
 
-    static const List<int> basedBookingId = [393, 357];
+    static const List<int> basedBookingId = [393, 357, 407];
 
 
 

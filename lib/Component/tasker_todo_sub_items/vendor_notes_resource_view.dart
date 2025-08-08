@@ -3,7 +3,7 @@ part of '../todo_task_item_card.dart';
 class VendorNotesResourceView extends StatelessWidget {
   final Map<String, dynamic> model;
   final bool? showCheckbox, value;
-  final VoidCallback? onVendorInfo;
+  final VoidCallback? onVendorInfo, onLeadInfo;
   final ValueChanged<bool?>? onChecked;
   final void Function(String? value)?
       onMore; // SHOW MORE TEXT WITH THIS FUNCTION
@@ -25,7 +25,8 @@ class VendorNotesResourceView extends StatelessWidget {
       this.onResource,
       this.showCheckbox,
       this.value,
-      this.onChecked});
+      this.onChecked,
+      this.onLeadInfo});
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +41,8 @@ class VendorNotesResourceView extends StatelessWidget {
             onVendorInfo: onVendorInfo,
             onVendorOrLocation: onVendorOrLocation,
             onLead: onLead,
-            onMore: onMore),
+            onMore: onMore,
+            onLeadInfo: onLeadInfo),
         ResourceExtras(
             model: model,
             showCheckbox: showCheckbox,

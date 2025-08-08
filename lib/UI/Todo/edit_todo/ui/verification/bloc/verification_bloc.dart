@@ -36,9 +36,11 @@ class VerificationBloc extends Bloc<VerificationEvent, VerificationState>{
   List<dynamic> licenseCheckList = [];
   List<dynamic> addressCheckList = [];
   List<dynamic> agreementCheckList = [];
+  List<dynamic> finalAgreementCheckList = [];
   List<dynamic> licenseAttachments = [];
   List<dynamic> addressAttachments = [];
   List<dynamic> agreementAttachments = [];
+  List<dynamic> finalAgreementAttachments = [];
   List<dynamic> paymentAttachments = [];
   List<dynamic> addPaymentAttachments = [];
   List<dynamic> insuranceAttachments = [];
@@ -70,7 +72,7 @@ class VerificationBloc extends Bloc<VerificationEvent, VerificationState>{
   Future<Map<String, dynamic>?> _licenseVerify({dynamic body}) async => await apiRepository.licenseVerify(token: token,body: body);
   Future<Map<String, dynamic>?> _addressVerify({dynamic body}) async => await apiRepository.addressVerify(token: token,body: body);
   Future<Map<String, dynamic>?> _agreementVerify({dynamic body}) async => await apiRepository.agreementVerify(token: token,body: body);
-  Future<Map<String, dynamic>?> _getAgreementPdf({dynamic id}) async => await apiRepository.getAgreementPdf(token: token, id: id);
+  Future<Map<String, dynamic>?> _getAgreementPdf({dynamic body}) async => await apiRepository.getAgreementPdf(token: token, body: body);
   Future<Map<String, dynamic>?> _createPayment({dynamic body, dynamic files,}) async => await apiRepository.createPayment(token: token, body: body, images: files);
   Future<Map<String, dynamic>?> _updatePayment({dynamic body,}) async => await apiRepository.updatePayment(token: token, body: body,);
   Future<Map<String, dynamic>?> _updateInsuranceRequirement({dynamic body,}) async => await apiRepository.updateInsuranceRequirement(token: token, body: body,);
@@ -88,6 +90,7 @@ class VerificationBloc extends Bloc<VerificationEvent, VerificationState>{
     on<PaymentAttachmentEvent>(_onPaymentAttachmentEvent);
     on<RemovePaymentAttachmentEvent>(_onRemovePaymentAttachmentEvent);
     on<GenerateAgreementEvent>(_onGenerateAgreementEvent);
+    on<GenerateFinalAgreementEvent>(_onGenerateFinalAgreementEvent);
     on<ViewAgreementEvent>(_onViewAgreementEvent);
     on<SavePaymentEvent>(_onSavePaymentEvent);
     on<PaymentTypeEvent>(_onPaymentTypeEvent);
@@ -107,6 +110,10 @@ class VerificationBloc extends Bloc<VerificationEvent, VerificationState>{
     try {
       emit(LoadingState());
       model = event.data;
+      if(model?['identifier_id'] == 407){
+        selectedValue = 6;
+      }
+      Console.of.log(model);
       await fetchData();
       emit(CommonState());
     } catch (e) {
@@ -145,6 +152,9 @@ class VerificationBloc extends Bloc<VerificationEvent, VerificationState>{
         }
         if (event.data['entity_type'] == 'agreement') {
           agreementCheckList.where((element) => element['id'] == event.data['id']).first['is_checked'] = !event.data['is_checked'];
+        }
+        if (event.data['entity_type'] == 'final_agreement') {
+          finalAgreementCheckList.where((element) => element['id'] == event.data['id']).first['is_checked'] = !event.data['is_checked'];
         }
         emit(CommonState());
       }else{
@@ -211,6 +221,16 @@ class VerificationBloc extends Bloc<VerificationEvent, VerificationState>{
           emit(ErrorState(response?['message']));
         }
       }
+      if(approveModel?['label'] == 'final_agreement'){
+        var response = await _agreementVerify(body: body..["is_final_agreement"] = "1");
+        if(response?['success'] == true){
+          finalAgreementAttachments.where((element) => element['id'] == approveModel['id']).first['verification'] = response?['data'];
+          model?['bookingDetails']?['final_agreement_status'] = response?['data']?['agreement_status'];
+          emit(CommonState());
+        }else{
+          emit(ErrorState(response?['message']));
+        }
+      }
 
     }catch (e){
       _onError(e, emit);
@@ -259,7 +279,16 @@ class VerificationBloc extends Bloc<VerificationEvent, VerificationState>{
           emit(ErrorState(response?['message']));
         }
       }
-
+      if(rejectModel?['label'] == 'final_agreement'){
+        var response = await _agreementVerify(body: body..["is_final_agreement"] = "1");
+        if(response?['success'] == true){
+          finalAgreementAttachments.where((element) => element['id'] == rejectModel['id']).first['verification'] = response?['data'];
+          model?['bookingDetails']?['final_agreement_status'] = response?['data']?['agreement_status'];
+          emit(CommonState());
+        }else{
+          emit(ErrorState(response?['message']));
+        }
+      }
 
     }catch (e){
       _onError(e, emit);
@@ -329,7 +358,7 @@ class VerificationBloc extends Bloc<VerificationEvent, VerificationState>{
           bookingDetails?['payment_model'] = selectedPaymentMethod?['value'];
         }
       }
-      var response = await _getAgreementPdf(id: model?['bookingDetails']?['id']);
+      var response = await _getAgreementPdf(body: {'booking_id': model?['bookingDetails']?['id']} );
       if(response?['success'] == true){
         agreementAttachments.clear();
         agreementAttachments.add(response?['data']);
@@ -338,6 +367,42 @@ class VerificationBloc extends Bloc<VerificationEvent, VerificationState>{
           (element['controller'] = TextEditingController());
         }
         model?['bookingDetails']?['agreement_status'] = response?['data']?['booking']?['agreement_status'];
+        emit(CommonState());
+      }else{
+        emit(ErrorState(response?['message']));
+      }
+    }catch (e){
+      _onError(e, emit);
+    }
+  }
+
+  void _onGenerateFinalAgreementEvent(GenerateFinalAgreementEvent event, Emitter<VerificationState> emit) async {
+    try {
+      if(bookingDetails['payment_model'] == null && event.isChecked == false) return emit(UpdatePaymentModelState());
+      if(event.isChecked == true && selectedPaymentMethod['id'] == 0) return emit(ErrorState('Please select a payment model'));
+      emit(LoadingState());
+      if(event.isChecked == true){
+       var response = await _updatePayment(body: {
+          'booking_id': bookingDetails?['id'],
+          'payment_model': selectedPaymentMethod['value'],
+        });
+        if(response?['success'] == true){
+          model?['bookingDetails']?['payment_model'] = selectedPaymentMethod?['value'];
+          bookingDetails?['payment_model'] = selectedPaymentMethod?['value'];
+        }
+      }
+      var response = await _getAgreementPdf(body: {
+        'booking_id': model?['bookingDetails']?['id'],
+        'is_final_agreement': '1'
+      } );
+      if(response?['success'] == true){
+        finalAgreementAttachments.clear();
+        finalAgreementAttachments.add(response?['data']);
+        Console.of.log(finalAgreementAttachments);
+        for (var element in finalAgreementAttachments) {
+          (element['controller'] = TextEditingController());
+        }
+        model?['bookingDetails']?['final_agreement_status'] = response?['data']?['booking']?['final_agreement_status'];
         emit(CommonState());
       }else{
         emit(ErrorState(response?['message']));
@@ -554,16 +619,20 @@ class VerificationBloc extends Bloc<VerificationEvent, VerificationState>{
       licenseCheckList = List.from(response['data']?['license'] ?? []);
       addressCheckList = List.from(response['data']?['address_proof'] ?? []);
       agreementCheckList = List.from(response['data']?['agreement'] ?? []);
+      finalAgreementCheckList = List.from(response['data']?['final_agreement'] ?? []);
     }
     for (var item in licenseCheckList) {item['entity_type'] = 'license';}
     for (var item in addressCheckList) {item['entity_type'] = 'address_proof';}
     for (var item in agreementCheckList) {item['entity_type'] = 'agreement';}
+    for (var item in finalAgreementCheckList) {item['entity_type'] = 'final_agreement';}
     licenseAttachments = List.from(bookingDetails['bookingattachments'] ?? [])
         .where((element) => element['label'] == 'driving_license').toList();
     addressAttachments = List.from(bookingDetails['bookingattachments'] ?? [])
         .where((element) => element['label'] == 'address_proof').toList();
     agreementAttachments = List.from(bookingDetails['bookingattachments'] ?? [])
         .where((element) => element['label'] == 'agreement').toList();
+    finalAgreementAttachments = List.from(bookingDetails['bookingattachments'] ?? [])
+        .where((element) => element['label'] == 'final_agreement').toList();
     paymentAttachments = List.from(bookingDetails['bookingattachments'] ?? [])
         .where((element) => element['label'] == 'payment')
         .map((e) => e['file_url'])
@@ -571,6 +640,7 @@ class VerificationBloc extends Bloc<VerificationEvent, VerificationState>{
     for (var item in licenseAttachments) {item['controller'] = TextEditingController();}
     for (var item in addressAttachments) {item['controller'] = TextEditingController();}
     for (var item in agreementAttachments) {item['controller'] = TextEditingController();}
+    for (var item in finalAgreementAttachments) {item['controller'] = TextEditingController();}
 
     for (var element in licenseAttachments) {
       (element['controller'] as TextEditingController).text = element['reject_reason']?? '';
@@ -583,6 +653,11 @@ class VerificationBloc extends Bloc<VerificationEvent, VerificationState>{
     for (var element in agreementAttachments) {
       (element['controller'] as TextEditingController).text = element['reject_reason']?? '';
     }
+
+    for (var element in finalAgreementAttachments) {
+      (element['controller'] as TextEditingController).text = element['reject_reason']?? '';
+    }
+
     selectedPaymentMethod = updatePaymentMethod.lastOrNull;
 
   }

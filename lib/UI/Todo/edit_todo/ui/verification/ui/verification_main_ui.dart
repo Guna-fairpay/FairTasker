@@ -37,6 +37,7 @@ part 'address_page.dart';
 part 'agreement_page.dart';
 part 'payment_page.dart';
 part 'insurance_page.dart';
+part 'final_agreement_page.dart';
 
 class VerificationMainUI extends StatelessWidget {
   final dynamic data;

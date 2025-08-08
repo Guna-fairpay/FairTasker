@@ -29,6 +29,7 @@ part 'tasker_todo_sub_items/vehicle_bouncie_row.dart';
 part 'tasker_todo_sub_items/vendor_location_extras.dart';
 part 'tasker_todo_sub_items/resource_extras.dart';
 part 'tasker_todo_sub_items/vendor_notes_resource_view.dart';
+part 'tasker_todo_sub_items/booking_info_view.dart';
 
 class TodoTaskItemCard extends StatelessWidget {
   final Map<String, dynamic> model;
@@ -36,9 +37,9 @@ class TodoTaskItemCard extends StatelessWidget {
   final Future<bool?> Function()? onComplete, onPrevious, onInProgress;
   final ValueChanged<bool?>? onChecked;
   final void Function(String? value)? onMore; // SHOW MORE TEXT WITH THIS FUNCTION
-  final VoidCallback? onTap, onPlateNumTap, onVendorInfo, onBouncie, onCustomLink, onViewAttachment, onDateChange, onCompletedTimeChange, onTimeChange, onVehicleHistory, onReasonAttachmentView, onMeetingView;
+  final VoidCallback? onTap, onPlateNumTap, onVendorInfo, onBouncie, onCustomLink, onViewAttachment, onDateChange, onCompletedTimeChange, onTimeChange, onVehicleHistory, onReasonAttachmentView, onMeetingView,  onBookingInfo, onLeadInfo;
   final GestureTapDownCallback? onVehicleOrPerson, onVehicleGroup, onParts, onSupplies, onVendorOrLocation, onAddress, onResource, onNotes, onLead, onMeeting;
-  const TodoTaskItemCard({super.key, required this.model, this.onTap, this.onPlateNumTap, this.onVendorInfo, this.onBouncie, this.onCustomLink, this.onViewAttachment, this.onDateChange, this.onCompletedTimeChange, this.onTimeChange, this.onVehicleOrPerson, this.onVehicleHistory, this.onVehicleGroup, this.onParts, this.onSupplies, this.onVendorOrLocation, this.onAddress, this.onResource, this.onNotes, this.onComplete, this.onPrevious, this.showCheckbox = false, this.value = false, this.onChecked, this.onInProgress, this.onReasonAttachmentView, this.onMore, this.onMeetingView, this.onLead, this.onMeeting});
+  const TodoTaskItemCard({super.key, required this.model, this.onTap, this.onPlateNumTap, this.onVendorInfo, this.onBouncie, this.onCustomLink, this.onViewAttachment, this.onDateChange, this.onCompletedTimeChange, this.onTimeChange, this.onVehicleOrPerson, this.onVehicleHistory, this.onVehicleGroup, this.onParts, this.onSupplies, this.onVendorOrLocation, this.onAddress, this.onResource, this.onNotes, this.onComplete, this.onPrevious, this.showCheckbox = false, this.value = false, this.onChecked, this.onInProgress, this.onReasonAttachmentView, this.onMore, this.onMeetingView, this.onLead, this.onMeeting, this.onBookingInfo, this.onLeadInfo});
 
   @override
   Widget build(BuildContext context) {
@@ -117,7 +118,8 @@ class TodoTaskItemCard extends StatelessWidget {
                           onMeetingView: onMeetingView,
                           onViewAttachment: onViewAttachment,
                           onCompletedTimeChange: onCompletedTimeChange,
-                          onReasonAttachmentView: onReasonAttachmentView),
+                          onReasonAttachmentView: onReasonAttachmentView,
+                          bookingInfo: onBookingInfo),
                       VehicleBouncieRow(
                         model: model,
                         onParts: onParts,
@@ -139,6 +141,7 @@ class TodoTaskItemCard extends StatelessWidget {
                         value: value,
                         onChecked: onChecked,
                         onLead: onLead,
+                        onLeadInfo: onLeadInfo,
                       )
                     ],
                   ),

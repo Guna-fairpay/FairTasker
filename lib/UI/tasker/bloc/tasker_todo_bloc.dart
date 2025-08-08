@@ -135,6 +135,8 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     on<TaskerLeadUpdateEvent>(_onTaskerLeadUpdateEvent);
     on<MeetingTapEvent>(_onMeetingTapEvent);
     on<MeetingUpdateEvent>(_onMeetingUpdateEvent);
+    on<BookingInfoEvent>(_onBookingInfoEvent);
+    on<LeadInfoEvent>(_onLeadInfoEvent);
   }
 
   bool _isCheckInOutTask(Map<String, dynamic>? model) => _checkInOutTask.contains(model?['title']);
@@ -1262,4 +1264,21 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       emit(ErrorState(e));
     }
   }
+
+  void _onBookingInfoEvent(BookingInfoEvent event, Emitter<ToDoTaskerState> emit) {
+    try{
+      emit(BookingInfoState(event.model));
+    }catch (e){
+      emit(ErrorState(e));
+    }
+  }
+
+  void _onLeadInfoEvent(LeadInfoEvent event, Emitter<ToDoTaskerState> emit) {
+    try {
+      emit(LeadInfoState(event.model));
+    } catch (e) {
+      emit(ErrorState(e));
+    }
+  }
+
 }
