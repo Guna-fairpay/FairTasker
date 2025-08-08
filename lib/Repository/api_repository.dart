@@ -4744,10 +4744,10 @@ Future<Map<String, dynamic>?> getLocations() async {
     }
   }
 
-  Future<Map<String, dynamic>?> getAgreementPdf({dynamic id, String? token})async{
+  Future<Map<String, dynamic>?> getAgreementPdf({dynamic body, String? token})async{
     try{
       String apiUrl = '${Str.FAIRENTAL_URL}$_getAgreementPdf';
-      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: {'booking_id': id}, token: token);
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body, token: token);
       if (response?.isSuccess == true) {
         return await response.mapData;
       } else {

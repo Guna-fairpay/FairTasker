@@ -19,7 +19,8 @@ class TabBarUI extends StatelessWidget {
               physics: const BouncingScrollPhysics(),
               child: Row(
                 children: [
-                  CustomTabButton(
+                  if(context.read<VerificationBloc>().model?['identifier_id'] != 407)...[
+                    CustomTabButton(
                     subText: context.watch<VerificationBloc>().model?['bookingDetails']?['license_status'].toString().label,
                     subTextColor: context.watch<VerificationBloc>().model?['bookingDetails']?['license_status'].toString().type?.color,
                     buttonText: null,
@@ -32,8 +33,8 @@ class TabBarUI extends StatelessWidget {
                       border: Border.all(color: AppC.grey, width: Num.borderWidthButton),
                       borderRadius: const BorderRadius.only(topLeft: Radius.circular(Num.borderRadius), topRight: Radius.circular(Num.borderRadius)),
                     ),
-                  ),
-                  CustomTabButton(
+                    ),
+                    CustomTabButton(
                     subText: context.watch<VerificationBloc>().model?['bookingDetails']?['address_proof_status'].toString().label,
                     subTextColor: context.watch<VerificationBloc>().model?['bookingDetails']?['address_proof_status'].toString().type?.color,
                     buttonText: null,
@@ -88,7 +89,21 @@ class TabBarUI extends StatelessWidget {
                       border: Border.all(color: AppC.grey, width: Num.borderWidthButton),
                       borderRadius: const BorderRadius.only(topLeft: Radius.circular(Num.borderRadius), topRight: Radius.circular(Num.borderRadius)),
                     ),
-                  ),
+                  ),],
+                  if(context.read<VerificationBloc>().model?['identifier_id'] == 407)...[
+                    CustomTabButton(
+                      subText: context.watch<VerificationBloc>().model?['bookingDetails']?['final_agreement_status'].toString().label,
+                      subTextColor: context.watch<VerificationBloc>().model?['bookingDetails']?['final_agreement_status'].toString().type?.color,
+                      buttonText: 'Final Agreement',
+                      value: 6,
+                      selectedValue: context.watch<VerificationBloc>().selectedValue,
+                      onPressed: (v)=> context.read<VerificationBloc>().add(TabChangeEvent(v)),
+                      decoration:  BoxDecoration(
+                        border: Border.all(color: AppC.grey, width: Num.borderWidthButton),
+                        borderRadius: const BorderRadius.only(topLeft: Radius.circular(Num.borderRadius), topRight: Radius.circular(Num.borderRadius)),
+                      ),
+                    ),
+                  ]
                 ],
               ),
             ),
@@ -100,6 +115,7 @@ class TabBarUI extends StatelessWidget {
             3 => const AgreementPage(),
             4 => const PaymentPage(),
             5 => const InsurancePage(),
+            6 => const FinalAgreementPage(),
             _ => const Placeholder(color: Colors.brown,)
           }
         ],

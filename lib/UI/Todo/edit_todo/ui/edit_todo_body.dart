@@ -211,11 +211,11 @@ class EditTodoBody extends StatelessWidget {
                   AgreementStatusList(data: state.apiResponse['bookingDetails'] ?? {}),
                   10.height,
                 ],
-                if (state.apiResponse.isNotEmpty && ((state.selectedTask['id'] != 393)  || state.apiResponse['rental_booking_id'] == null))
+                if (state.apiResponse.isNotEmpty && ((state.selectedTask['id'] != 393 && state.selectedTask['id'] != 407)  || state.apiResponse['rental_booking_id'] == null))
                   const PageKeepAliver(
                       key:PageStorageKey("EditTodoBottomTabs"),
                       child: EditTodoBottomTabs()),
-                if((state.selectedTask['id'] == 393) && state.apiResponse['bookingDetails']?['id'] != null)...[
+                if((state.selectedTask['id'] == 393 || state.selectedTask['id'] == 407) && state.apiResponse['bookingDetails']?['id'] != null)...[
                   PageKeepAliver(
                       key:const PageStorageKey("VerificationTabs"),
                       child: VerificationMainUI(data: state.apiResponse,)

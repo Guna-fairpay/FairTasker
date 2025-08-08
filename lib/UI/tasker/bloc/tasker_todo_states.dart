@@ -325,3 +325,10 @@ class BookingInfoState extends ToDoTaskerState {
   @override
   List<Object?> get props => [model, Random().nextDouble()];
 }
+
+class LeadInfoState extends ToDoTaskerState {
+  final Map<String, dynamic>? model;
+  LeadInfoState(this.model);
+  @override
+  List<Object?> get props => [model, Random().nextDouble()];
+}

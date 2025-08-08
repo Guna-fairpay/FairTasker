@@ -70,6 +70,13 @@ class GenerateAgreementEvent extends VerificationEvent{
   List<Object?> get props => [isChecked];
 }
 
+class GenerateFinalAgreementEvent extends VerificationEvent{
+  final bool isChecked;
+  GenerateFinalAgreementEvent({this.isChecked = false});
+  @override
+  List<Object?> get props => [isChecked];
+}
+
 class ViewAgreementEvent extends VerificationEvent{
   final dynamic data;
   ViewAgreementEvent(this.data);

@@ -190,6 +190,12 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     mileageImages: const [],
     showOdometer: false,
   )) {
+    taskNameController.addListener((){
+      if(taskNameController.text.isNullOrEmpty){
+        Console.of.log("Task Name is Empty");
+        emit(state.copyWith(selectedTask: state.selectedTask..clear()));
+      }
+    });
     _broadcast.register(Str.addToDoRefresh, (value, callback) => add(EditToDoRefreshEvent()));
     on<EditToDoRefreshEvent>(_onRefreshEvent);
     on<GetEditTodoInitialEvent>(_onInitialEvent);

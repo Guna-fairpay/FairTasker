@@ -1,4 +1,5 @@
 import 'package:fairpytasker/UI/dialog/follow_up_task_dialog.dart';
+import 'package:fairpytasker/UI/dialog/lead_info_dialog.dart';
 import 'package:fairpytasker/UI/dialog/tasker_booking_info_dialog/ui/booking_info_dialog.dart';
 import 'package:fairpytasker/UI/dialog/tasker_lead_change_dialog/tasker_lead_change_dialog.dart';
 import 'package:fairpytasker/UI/dialog/tasker_maintenance_complete_dialog/tasker_maintenance_complete_dialog.dart';
