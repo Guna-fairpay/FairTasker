@@ -63,7 +63,7 @@ class VerificationMainUI extends StatelessWidget {
               case InsuranceDeleteState(): AskPermissionDialog.show(context,
                 description: 'Do you want to delete this insurance?',
                 subPositiveText: 'Delete Insurance',
-                onMultiSubmitted: (v)=> context.read<VerificationBloc>().add(InsuranceDeleteEvent(deleteBoth: false)),
+                onSaveMultiPressed:()=> context.read<VerificationBloc>().add(InsuranceDeleteEvent(deleteBoth: false)),
                 positiveText: 'Delete both',
                 onPositivePressed: ()=> context.read<VerificationBloc>().add(InsuranceDeleteEvent(deleteBoth: true)),
               );

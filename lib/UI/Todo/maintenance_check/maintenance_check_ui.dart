@@ -56,7 +56,17 @@ class MaintenanceCheckUi extends StatelessWidget {
           physics: const BouncingScrollPhysics(),
           children: [
             const MaintenanceCheckAllUi(),
-            const MaintenanceCheckListUi(),
+           if(editToDo?['identifier_id'] == 408)...[
+             CompactTextField(
+               controller: TextEditingController(),
+               hintText: "Notes",
+               keyboardType: TextInputType.multiline,
+               textInputAction: TextInputAction.newline,
+               minLines: 3,
+               maxLines: 10,
+             ),
+           ],
+           if(editToDo?['identifier_id'] != 408)...[const MaintenanceCheckListUi(),
             16.spMin.height,
             CompactTextField(
               controller: commentsController,
@@ -65,7 +75,7 @@ class MaintenanceCheckUi extends StatelessWidget {
               textInputAction: TextInputAction.newline,
               minLines: 3,
               maxLines: 10,
-            ),
+            ),],
             16.spMin.height,
           ],
         ),

@@ -81,7 +81,7 @@ class Str{
 
     static const List<int> getAroundIds = [268, 177];
 
-    static const List<int> unCompletedOdometer = [257, 268, 324];
+    static const List<int> unCompletedOdometer = [257, 268, 324, 403, 408];
 
     static const List<int> completedOdometer = [212, 210];
 

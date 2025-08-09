@@ -77,7 +77,7 @@ class PrecheckBloc extends Bloc<PrecheckEvent, PrecheckState> {
         element['existing_task'] = 0;
       }
       selectedDate = DateTime.tryParse(precheckList.firstWhere((element) => element['id'] == 6, orElse: () => null)?['last_maintanence_date']);
-      odometerController.text = precheckList.firstWhere((element) => element['id'] == 6, orElse: () => null)?['odometer'] ?? '';
+      odometerController.text = precheckList.firstWhere((element) => element['id'] == 7, orElse: () => null)?['odometer'] ?? '';
       attachmentList = model?['precheckImages'];
       attachmentPaths = attachmentList.map((e) => e['path'].toString().toTaskerStorageURL).toList();
       fixTask = jsonDecode(model?['fix_tasks'] ?? "{}");
@@ -182,7 +182,8 @@ class PrecheckBloc extends Bloc<PrecheckEvent, PrecheckState> {
       var response = await _savePreCheck(body: data['body'], infusedFiles: data['file']);
       await vehicleApiCall();
       if(response?['status'] == 200){
-        emit(SuccessState(message: response?['message']));
+        _broadcast.stickyBroadcast("todo_view", value: true);
+        emit(SuccessState(message: response?['message'], pop: true));
       }else{
         emit(ErrorState(response?['message']));
       }

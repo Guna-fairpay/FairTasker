@@ -53,6 +53,7 @@ void navigation(BuildContext context, ToDoTaskerState state) {
       case MeetingChangeState(): MeetingChangeDialog.show(context, state.model, onChanged: (value, {model}) => context.read<ToDoTaskerBloc>().add(MeetingUpdateEvent(model, value))); break;
       case BookingInfoState(): BookingInfoDialog.show(context, state.model); break;
       case LeadInfoState(): LeadInfoDialog.show(context, state.model); break;
+      case CompletePreCheckState(): context.push(EditTodoUI(todoId: state.model?['id'].toString(), model: state.model)); break;
       default: break;
     }
   }

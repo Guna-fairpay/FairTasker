@@ -396,7 +396,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     bool isExpenseBased = !Str.checkInCheckOut.contains(title) && selectedTask?['user_type'].toString() != '5';
     bool isCheckList = [268, 219].contains(todoResponse?['identifier_id']);
     bool isPreCheck = todoResponse?['identifier_id'] == 403;
-    bool isMaintenance = todoResponse?['identifier_id'] == 257;
+    bool isMaintenance = [257, 408].contains(todoResponse?['identifier_id']);
     bool isOdometer = [
       'oil change',
       'oilchange check',
@@ -433,7 +433,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     selectionTaps = tabs.firstWhere(
           (e) =>
       ([268,219].contains(todoResponse?['identifier_id']) && e['title'] == "Check List") ||
-          (todoResponse?['identifier_id'] == 257 && e['title'] == "Maintenance") ||
+          ((todoResponse?['identifier_id'] == 257 || todoResponse?['identifier_id'] == 408) && e['title'] == "Maintenance") ||
           (todoResponse?['identifier_id'] == 324 && e['title'] == "Private Rental Check") ||
           (todoResponse?['identifier_id'] == 403 && e['title'] == "Private Rental") ||
           ((title == 'Oil change' || title == 'OilChange Check' || title == 'Oil Change Check') && e['title'] == "Odometer"),
@@ -464,6 +464,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           vin: List.from(vinList).firstOrNull ?? '',
           identifierId: todoResponse?['identifier_id']);*/
     }
+    Console.of.log(todoResponse, name: 'TODO_RESPONSE');
     showCleanCar = Str.cleanCarCheckIds.contains(todoResponse?['identifier_id']);
     RegExp dateRegExp = RegExp(r'\d{2}-\d{2}-\d{4}');
     if(todoResponse?['recurring'] != null && todoResponse?['recurring_last_date'] != null){
@@ -677,7 +678,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     selectionTaps = tabs.firstWhere(
           (e) =>
       ([268,219].contains(selectedTask?['id']) && e['title'] == "Check List") ||
-          (selectedTask?['id'] == 257 && e['title'] == "Maintenance") ||
+          ((selectedTask?['identifier_id'] == 257 || selectedTask?['identifier_id'] == 408) && e['title'] == "Maintenance") ||
           (selectedTask?['id'] == 324 && e['title'] == "Private Rental Check") ||
           (selectedTask?['id'] == 403 && e['title'] == "Private Rental") ||
           ((event.selectedTask?['task'] == 'Oil change' || event.selectedTask?['task'] == 'OilChange Check' || event.selectedTask?['task'] == 'Oil Change Check') && e['title'] == "Odometer"),
@@ -701,7 +702,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     Console.of.log(status.toString(), name: 'STATUS');
     try {
       if(status==true){
-        if ((state.apiResponse['identifier_id'] == 257)) {
+        if ((state.selectedTask['id'] == 257 || state.selectedTask['id'] == 408)) {
           if (odometerController.text.isEmpty || state.apiResponse['mileage']==null) {
             return Toaster.showError("odometer is mandatory");
           } else if (state.apiResponse['mandatory'] == 1) {
@@ -714,9 +715,10 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
             _broadcast.stickyBroadcast("todo_view", value: true);
             emit(state.copyWith(
                 todoStatus: !state.todoStatus,
-                isLoading: false,
                 isPop: true));
           }
+        }else if(state.selectedTask['id'] == 403 && List.from(state.apiResponse['precheckImages'] ?? []).isEmpty){
+          return Toaster.showError("Upload internal,external,etc., pictures to complete");
         } else {
           var model = state.apiResponse;
           model.putIfAbsent("display", () => {"vins": vinList});
@@ -729,7 +731,6 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         _broadcast.stickyBroadcast("todo_view", value: true);
         emit(state.copyWith(
             todoStatus: !state.todoStatus,
-            isLoading: false,
             isPop: true));
       }
     } catch (e) {
@@ -969,7 +970,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     } catch (e) {
       Toaster.showError("$e");
       Console.of.error(e.toString(), name: 'ERROR');
-      // emit(state.copyWith(isLoading: false));
+      emit(state.copyWith(isLoading: false));
     }
   }
 
@@ -1154,7 +1155,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       if (response != null) {
         Toaster.showSuccess(response['message'] ?? "Success");
       }
-      emit(state.copyWith(isLoading: false));
+      //emit(state.copyWith(isLoading: false));
     } catch (e) {
       Toaster.showError("$e");
       emit(state.copyWith(isLoading: false));
