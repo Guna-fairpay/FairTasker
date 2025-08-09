@@ -1,5 +1,5 @@
 import 'package:fairpytasker/Component/custom_tab_button.dart';
-import 'package:fairpytasker/UI/Finance/Expense/Component/expense_tap_ui.dart';
+import 'package:fairpytasker/UI/Finance/Expense/tab/ui/expense_tap_ui.dart';
 import 'package:fairpytasker/UI/Finance/revenue/ui/revenue_main_ui.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';

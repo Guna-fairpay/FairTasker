@@ -1,4 +1,4 @@
-
+import 'package:fairpytasker/Component/custom_text/compact_text.dart';
 import 'package:fairpytasker/UI/Finance/Expense/vehicles/vehicle_add_edit/ui/vehicle_add_edit_main_ui.dart';
 import 'package:fairpytasker/UI/Vehicle/vehicle_expense_history/ui/vehicle_expense_history_ui.dart';
 import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
@@ -20,6 +20,7 @@ class ExpenseVehicleListItem extends StatelessWidget {
   final VoidCallback? onCategoryTapEvent;
   final VoidCallback? onCohortTapEvent;
   final VoidCallback? onResetEvent;
+  final Function(dynamic value)? onFairRental;
 
   const ExpenseVehicleListItem({
     super.key,
@@ -29,6 +30,7 @@ class ExpenseVehicleListItem extends StatelessWidget {
     this.onCategoryTapEvent,
     this.onCohortTapEvent,
     this.onResetEvent,
+    required this.onFairRental,
   });
 
   @override
@@ -131,6 +133,10 @@ class ExpenseVehicleListItem extends StatelessWidget {
                                   weight: FontWeight.bold),
                             ),
                           ),
+                          if(expense['rental_booking_id'] != null)
+                          InkWell(
+                            onTap: ()=> onFairRental?.call(expense['rental_booking_id']),
+                              child: const CompactText('F', fontWeight: FontWeight.bold, color: AppC.blue,)),
                         ],
                       ),
                     ),

@@ -29,7 +29,6 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
   List<dynamic>? selectedSubCategory;
   List<dynamic>? subCategories = [];
   List<Map<String, dynamic>>? categories = [];
-  List<dynamic>? selectedPaymentId;
   List<dynamic>? attachments = [];
   List<dynamic>? ogAttachments = [];
   TextEditingController subCategoryController = TextEditingController();
@@ -37,7 +36,6 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
   List<dynamic>? selectedVehicle;
   dynamic minDate;
   dynamic maxDate;
-  List<dynamic>? employeeList;
   DateTime now = DateTime.now();
   dynamic approvedAmount = 0.0;
   dynamic unApprovedAmount = 0.0;
@@ -118,6 +116,17 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
     // else _broadcast.unregister("expense_vehicle_refresh");
     Utils.getStringPreference(Str.userIdPrefText).then((id) {
       resourceId = id;
+    });
+
+    on<FairRentalEvent>((event, emit) async {
+      try {
+        var url = event.id.toString().toFaiRentalReserveUrl;
+        Utils.openURL(url);
+        emit(state.copyWith());
+      } catch (e) {
+        emit(state.copyWith(isLoading: false));
+        log("$e", name: "Error In FairRentalEvent");
+      }
     });
 
     on<GetVehicleExpenseData>((event, emit) async {
