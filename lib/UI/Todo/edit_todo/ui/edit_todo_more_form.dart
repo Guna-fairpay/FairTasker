@@ -155,7 +155,7 @@ class EditTodoMoreForm extends StatelessWidget {
               spacing: 5,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if(state.previousOdometer.toString() != '0')
+                if(state.previousOdometer.toString() != '0' )
                 RichText(text: TextSpan(
                   text: 'Previous Odometer : ',
                   style: context.textTheme.labelMedium?.copyWith(),

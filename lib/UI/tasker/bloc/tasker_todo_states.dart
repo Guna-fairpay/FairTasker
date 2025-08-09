@@ -332,3 +332,10 @@ class LeadInfoState extends ToDoTaskerState {
   @override
   List<Object?> get props => [model, Random().nextDouble()];
 }
+
+class CompletePreCheckState extends ToDoTaskerState {
+  final Map<String, dynamic>? model;
+  CompletePreCheckState(this.model);
+  @override
+  List<Object?> get props => [model, Random().nextDouble()];
+}

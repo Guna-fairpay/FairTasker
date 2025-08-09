@@ -449,6 +449,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     var hasMandatory = ( mandatory == 0);
     var isAbleMaintenanceComplete = (hasMileage && hasMandatory);
     var hasLead = (model?['lead_id'].toString().isNotNullOrEmpty ?? false);
+    var hasPrecheckImages = (List.from(model?['precheck_images'] ?? []).isNotEmpty);
     Console.of.log("TASK COMPLETE ${identifierId} $taskTitle MILEAGE $hasMileage ($mileage) MANDATORY $hasMandatory ($mandatory) ${hasMileage && hasMandatory}");
     if (identifierId.toString().isNullOrEmpty) {
       /// CUSTOM TASK
@@ -479,6 +480,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       switch(identifierId) {
         case 35: // OIL CHANGE STATE
         case 126: emit(CompleteOilChangeState(event.model)); break;
+        case 408:
         case 257: {
           if (isAbleMaintenanceComplete) {
             _insertMaintenanceCheckTask(model, incrementDays: 30);
@@ -501,6 +503,14 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
             emit(ErrorState("Odometer is mandatory"));
             await Future.delayed(Durations.short1);
             emit(CompleteMaintenanceCheckState(event.model));
+          }
+        } break;
+        case 403: {
+          if(hasPrecheckImages){
+            _callCompleteApi(model);
+          }else{
+            emit(ErrorState("Upload internal,external,etc., pictures to complete"));
+            emit(CompletePreCheckState(event.model));
           }
         } break;
         default: _callCompleteApi(model); break; // CALL API TO COMPLETE TASK

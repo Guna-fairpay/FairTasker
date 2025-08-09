@@ -18,3 +18,10 @@ class TVSSelectPageEvent extends TVSEvents {
   @override
   List<Object?> get props => [page];
 }
+
+class SearchEvent extends TVSEvents {
+  final String query;
+  SearchEvent({required this.query});
+  @override
+  List<Object?> get props => [query];
+}
