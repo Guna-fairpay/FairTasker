@@ -57,7 +57,7 @@ class TRCDBloc extends Bloc<TRCDEvents, TRCDStates> {
   }
   Future<Map<String, dynamic>?> _fetchPreviousOdometer({required String date, required dynamic vin, required dynamic identifierId}) async => await _aPiRepository.getPreviousOdometer(date: date, vin: vin, identifierId: identifierId);
 
-  Future<Map<String, dynamic>?> _completeToDo({required dynamic todoId, required Map<String, dynamic> body, required List<Map<String, String?>> infusedFiles}) async => await _aPiRepository.completeTodoWithAttachments(todoId: todoId, body: body, infusedFiles: infusedFiles);
+  Future<Map<String, dynamic>?> _completeToDo({required dynamic todoId, required Map<String, dynamic> body, required List<Map<String, String?>> infusedFiles, bool addInline = true}) async => await _aPiRepository.completeTodoWithAttachments(todoId: todoId, body: body, infusedFiles: infusedFiles, addInline: addInline);
 
   Future<Map<String, dynamic>?> _updateVehicleStatus({required Map<String, dynamic> body}) async => await _aPiRepository.vehicleStatusUpdate(body: body);
 
@@ -232,7 +232,7 @@ class TRCDBloc extends Bloc<TRCDEvents, TRCDStates> {
     ];
     Console.of.log(bodyData);
     emit(TRCDLoadingState());
-    var response = await _completeToDo(todoId: model?['id'], body: bodyData, infusedFiles: infusedFiles);
+    var response = await _completeToDo(todoId: model?['id'], body: bodyData, infusedFiles: infusedFiles, addInline: false);
     if (isMoveToRepair) await _completeUpdateVehicleStatus();
     if (response != null) {
       Console.of.log(response);

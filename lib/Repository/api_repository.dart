@@ -1631,10 +1631,12 @@ Future<Map<String, dynamic>?> getLocations() async {
     }
   }
 
-  Future<Map<String, dynamic>?> completeTodoWithAttachments({required dynamic todoId, required Map<String, dynamic> body, required List<Map<String, String?>> infusedFiles}) async {
+  Future<Map<String, dynamic>?> completeTodoWithAttachments({required dynamic todoId, required Map<String, dynamic> body, required List<Map<String, String?>> infusedFiles, bool addInline = true}) async {
     try {
       String apiUrl = "${Str.BASE_URL}$_completeToDoApi/$todoId";
-      body.putIfAbsent("type", () => "inline");
+      if (addInline) {
+        body.putIfAbsent("type", () => "inline");
+      }
       body.putIfAbsent("platform_type", () => getIt<CommonService>().currentPlatform);
       final http.Response? response = await _apiClient.callPostMethodWithBodyDynamic(apiUrl, body: body, infusedFiles: infusedFiles);
       var mapData = await response.mapData;
@@ -1644,10 +1646,12 @@ Future<Map<String, dynamic>?> getLocations() async {
     }
   }
 
-  Future<Map<String, dynamic>?> addToDo({required Map<String, dynamic> body, List<dynamic>? infusedFiles}) async {
+  Future<Map<String, dynamic>?> addToDo({required Map<String, dynamic> body, List<dynamic>? infusedFiles, bool addInline = true}) async {
     try {
       String apiUrl = "${Str.BASE_URL}$_addTodo";
-      body.putIfAbsent("type", () => "inline");
+      if (addInline) {
+        body.putIfAbsent("type", () => "inline");
+      }
       body.putIfAbsent("platform_type", () => getIt<CommonService>().currentPlatform);
       final http.Response? response = await  _apiClient.callPostMethodWithBodyDynamic(apiUrl, body: body, infusedFiles: infusedFiles);
       var mapData = await response.mapData;
