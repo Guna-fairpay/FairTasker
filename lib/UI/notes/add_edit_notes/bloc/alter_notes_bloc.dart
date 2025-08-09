@@ -44,31 +44,21 @@ class AlterNotesBloc extends Bloc<AlterNotesEvents, AlterNotesStates> {
     on<PickSharingUsersEvent>(_onPickSharingUsersEvent);
   }
 
-  Future<Map<String, dynamic>?> _getNote(dynamic id) async =>
-      await _aPiRepository.getNote(id: id);
+  Future<Map<String, dynamic>?> _getNote(dynamic id) async => await _aPiRepository.getNote(id: id);
 
-  Future<Map<String, dynamic>?> _createNotes(Map<String, dynamic> body) async =>
-      await _aPiRepository.createNote(body: body);
+  Future<Map<String, dynamic>?> _createNotes(Map<String, dynamic> body) async => await _aPiRepository.createNote(body: body);
 
-  Future<Map<String, dynamic>?> _createTask(Map<String, dynamic> body) async =>
-      await _aPiRepository.addToDo(body: body);
+  Future<Map<String, dynamic>?> _createTask(Map<String, dynamic> body) async => await _aPiRepository.addToDo(body: body, addInline: false);
 
-  Future<Map<String, dynamic>?> _updateTask(
-          Map<String, dynamic> body, dynamic toDoId) async =>
-      await _aPiRepository.updateToDo(body: body, toDoId: toDoId);
+  Future<Map<String, dynamic>?> _updateTask(Map<String, dynamic> body, dynamic toDoId) async => await _aPiRepository.updateToDo(body: body, toDoId: toDoId);
 
-  Future<Map<String, dynamic>?> _updateNoteItem(
-          Map<String, dynamic> body, dynamic id) async =>
-      await _aPiRepository.updateNoteItem(body: body, id: id);
+  Future<Map<String, dynamic>?> _updateNoteItem(Map<String, dynamic> body, dynamic id) async => await _aPiRepository.updateNoteItem(body: body, id: id);
 
-  Future<Map<String, dynamic>?> _updateNote(Map<String, dynamic> body, dynamic id) async =>
-      await _aPiRepository.putNotes(id: id,body: body);
+  Future<Map<String, dynamic>?> _updateNote(Map<String, dynamic> body, dynamic id) async => await _aPiRepository.putNotes(id: id,body: body);
 
-  Future<GeneralResponse?> _deleteTask(dynamic id) async =>
-      await _aPiRepository.deleteToDo(id, "Deleted using notes delete option");
+  Future<GeneralResponse?> _deleteTask(dynamic id) async => await _aPiRepository.deleteToDo(id, "Deleted using notes delete option");
 
-  Future<Map<String, dynamic>?> _deleteNote(dynamic id) async =>
-      await _aPiRepository.removeNoteItem(id: id);
+  Future<Map<String, dynamic>?> _deleteNote(dynamic id) async => await _aPiRepository.removeNoteItem(id: id);
 
   int get _randomId => Random().nextInt(99999); // USING ONLY FOR NEW TASKS
 
