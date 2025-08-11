@@ -210,7 +210,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       // _generateKeys();
       isUserSelected = (selectedUsers?.isNotEmpty ?? false);
       Console.of.log("TASKER_ALL_API_LOADED", name: "TASKER_TODO_BLOC");
-      emit(ToDoTaskerCommonState());
+      //emit(ToDoTaskerCommonState());
       await _taskerHoursProcessor.initialize();
       processedWorkingHours = _taskerHoursProcessor.processWorkingHours();
       emit(ToDoTaskerCommonState());
@@ -282,7 +282,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       toDos = unfiltered;
       _searchTasks();
       Console.of.debug("CHECK ${toDos.length}");
-      if (!isClosed) emit(ToDoTaskerCommonState());
+      //if (!isClosed) emit(ToDoTaskerCommonState());
       processedWorkingHours = await _taskerHoursProcessor.refresh();
       if (!isClosed) emit(ToDoTaskerCommonState());
     } catch (e) {

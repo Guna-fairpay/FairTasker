@@ -123,11 +123,38 @@ class TaskerListingUi extends StatelessWidget {
                         onLeadInfo: ()=> context.read<ToDoTaskerBloc>().add(LeadInfoEvent(model)),
                       );
                     },
-                    onReorder: (oldIndex, newIndex) {
-                      var currentTask =
+                    // onReorder: (oldIndex, newIndex) {
+                    //   final toDos = context.read<ToDoTaskerBloc>().toDos;
+                    //   if (newIndex < 0 || newIndex >= toDos.length) {
+                    //     final currentTask = toDos[oldIndex];
+                    //     final lastTask = toDos[toDos.length - 1];
+                    //     context.read<ToDoTaskerBloc>().add(
+                    //       ToDoTaskerSwapTaskEvent(currentTask['id'], lastTask['id']),
+                    //     );
+                    //     return;
+                    //   }
+                    //
+                    //   final currentTask = toDos[oldIndex];
+                    //   final newTask = toDos[newIndex];
+                    //   context.read<ToDoTaskerBloc>().add(
+                    //     ToDoTaskerSwapTaskEvent(currentTask['id'], newTask['id']),
+                    //   );
+                    // }
+
+                  onReorder: (oldIndex, newIndex) {
+                    Console.of.log("oldIndex: $oldIndex, newIndex: $newIndex");
+
+                    final toDos = context.read<ToDoTaskerBloc>().toDos;
+                    Console.of.log(toDos.length);
+                    var newInd = newIndex;
+                    if (newIndex >= toDos.length){
+                      newInd = toDos.length - 1;
+                      Console.of.log(newInd);
+                    }
+                    var currentTask =
                       context.read<ToDoTaskerBloc>().toDos[oldIndex];
                       var newTask =
-                      context.read<ToDoTaskerBloc>().toDos[newIndex];
+                      context.read<ToDoTaskerBloc>().toDos[newInd];
                       context.read<ToDoTaskerBloc>().add(ToDoTaskerSwapTaskEvent(
                           currentTask['id'], newTask['id']));
                     }
