@@ -12,7 +12,7 @@ class ExpenseTabBloc extends Bloc<ExpenseTabEvent, ExpenseTabState>{
 
   List<dynamic> tabs = [];
 
-  int selectedTab = 0;
+  int selectedTab = 1;
 
   ExpenseTabBloc() : super(CommonState()){
     on<InitialEvent>(_onInitialEvent);

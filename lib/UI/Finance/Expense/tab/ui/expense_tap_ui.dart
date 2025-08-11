@@ -54,7 +54,7 @@ class ExpenseTab extends StatelessWidget {
                   Expanded(
                     child: Container(
                       child: switch(context.watch<ExpenseTabBloc>().selectedTab) {
-                        0 => const VehicleViewMainUI(),
+                        //0 => const VehicleViewMainUI(),
                         1 => const ExpenseVehicleViewUI(),
                         2 => const PersonViewMainUI(),
                         3 => const OtherMainPage(),
