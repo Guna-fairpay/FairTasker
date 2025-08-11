@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:core';
 import 'dart:io';
 import 'dart:convert';
@@ -192,8 +191,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   )) {
     taskNameController.addListener((){
       if(taskNameController.text.isNullOrEmpty){
-        Console.of.log("Task Name is Empty");
-        emit(state.copyWith(selectedTask: state.selectedTask..clear()));
+        emit(state.copyWith(selectedTask: {}));
       }
     });
     _broadcast.register(Str.addToDoRefresh, (value, callback) => add(EditToDoRefreshEvent()));
@@ -315,7 +313,6 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       vinList.addAll(vVins);
       vinList.removeWhere((element) => element.toString().isNullOrEmpty);
       vinList = vinList.unique((element) => element);
-      Console.of.log("Vins $vinList");
       if (vinList.isNotEmpty) {
         vehicleList = vehicleResponse
             .where((element) => vinList.contains(element['vin'].toString()))
@@ -464,7 +461,6 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           vin: List.from(vinList).firstOrNull ?? '',
           identifierId: todoResponse?['identifier_id']);*/
     }
-    Console.of.log(todoResponse, name: 'TODO_RESPONSE');
     showCleanCar = Str.cleanCarCheckIds.contains(todoResponse?['identifier_id']);
     RegExp dateRegExp = RegExp(r'\d{2}-\d{2}-\d{4}');
     if(todoResponse?['recurring'] != null && todoResponse?['recurring_last_date'] != null){
@@ -480,7 +476,6 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     todoId = todoResponse?['id'].toString()??'';
     partsIdList=List<Map<String, dynamic>>.from(todoResponse?['parts'] ?? []).map((e) => e['parts_id']).toList();
     suppliesIdList=List<Map<String, dynamic>>.from(todoResponse?['supplies'] ?? []).map((e) => e['supplies_id']).toList();
-    Console.of.log(partsIdList.toString(), name: "partsIdList");
     task =List.from(taskResponse);
     vehiclePersonList=CustomSearchDataConverter.convertVPerson(
         vehicles: vehicleList,
@@ -490,7 +485,6 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
 
     if((todoResponse?['identifier_id'] == null) || (selectedTask == null)
         || (selectedTask['task'] != (todoResponse?['title'] ?? '')) ){
-      Console.of.debug(todoResponse?['title']);
       taskNameController.text = todoResponse?['title'] ?? '';
       selectedTask=null;
     }
@@ -499,7 +493,6 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         && todoResponse?['status']=="Completed")
         || (Str.unCompletedOdometer.contains(todoResponse?['identifier_id']));
 
-    Console.of.log(showOdometer.toString(), name: "show");
     isRecurring = todoResponse?['recurring_id'] != null;
 
     selectedMeetingType = meetingType.firstWhereOrNull((element) => element['name'].toString().toLowerCase() == todoResponse?['meeting_mode'].toString().toLowerCase());
@@ -590,23 +583,19 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
 }
 
   Future<void> _onVPersonEvent(EditToDoVPersonEvent event, Emitter<EditTodoState> emit) async  {
-  var existingVPersons =
-  List<Map<String, dynamic>>.from(state.selectedVPerson);
-  String? type =
-  existingVPersons.isNotEmpty ? existingVPersons.first['type'] : null;
-  String? newType = List.from(event.vPerson).firstOrNull?['type'];
-  if (['person', 'g_vehicles'].contains(newType)) {
-    existingVPersons.clear();
-  }
-  if (type != null && type != newType) {
-    existingVPersons.clear();
-  }
-  existingVPersons.addAll(event.vPerson);
-  existingVPersons = existingVPersons.unique((element) => element['id']);
-  Console.of.log(existingVPersons.toString(), name: "existingVPersons");
-  emit(state.copyWith(
-    selectedVPerson: existingVPersons,
-  ));
+    var existingVPersons =
+    List<Map<String, dynamic>>.from(state.selectedVPerson);
+    String? type = existingVPersons.isNotEmpty ? existingVPersons.first['type'] : null;
+    String? newType = List.from(event.vPerson).firstOrNull?['type'];
+    if (['person', 'g_vehicles'].contains(newType)) {
+      existingVPersons.clear();
+    }
+    if (type != null && type != newType) {
+      existingVPersons.clear();
+    }
+    existingVPersons.addAll(event.vPerson);
+    existingVPersons = existingVPersons.unique((element) => element['id']);
+    emit(state.copyWith(selectedVPerson: existingVPersons,));
 }
 
   Future<void> _onTaskEvent(EditToDoTaskEvent event, Emitter<EditTodoState> emit) async  {
@@ -684,7 +673,13 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           ((event.selectedTask?['task'] == 'Oil change' || event.selectedTask?['task'] == 'OilChange Check' || event.selectedTask?['task'] == 'Oil Change Check') && e['title'] == "Odometer"),
       orElse: () => tabs.isNotEmpty ? tabs[0] : {},
     );
-    emit(state.copyWith(selectedTask: event.selectedTask, showCleanCar: showCleanCar, bottomTapData: tabs, selectedBottomTap: selectionTaps));
+    emit(state.copyWith(
+        selectedTask: event.selectedTask,
+        showCleanCar: showCleanCar,
+        bottomTapData: tabs,
+        selectedBottomTap: selectionTaps,
+      isLoading: false,
+    ));
   }
 
   Future<void> _onShowPartsEvent(EditToDoShowPartsEvent event, Emitter<EditTodoState> emit) async   {
@@ -951,22 +946,22 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
 
   Future<void> _onDeleteVehicleEvent(EditToDoDeleteVehicleEvent event, Emitter<EditTodoState> emit) async {
     try {
-      emit(state.copyWith(isLoading: false));
-
-      if(event.data['type']=='vehicles'){
-        Console.of.log(event.data, name: "event.data");
+      var vin = event.data?['value']?['vin'] ?? '';
+      var newVehicle = vinList.any((v) => vin.contains(v));
+      if(event.data['type']=='vehicles' && newVehicle){
         var id = vehicleData.firstWhereOrNull(
                 (element) => element['vin'] == event.data?['value']?['vin'])?['id'];
-        vinList.removeWhere(
-              (element) => event.data?['value']?['vin'].contains(element),
-        );
         await apiRepository.deleteTodoVehicle(id: "$id");
+        _broadcast.stickyBroadcast("todo_view", value: true);
+        vinList.removeWhere((element) => event.data?['value']?['vin'].contains(element),);
+        state.selectedVPerson.removeWhere((element) => element['id'] == event.data['id']);
+      }else{
+        state.selectedVPerson.removeWhere((element) => element['id'] == event.data['id']);
       }
-      state.selectedVPerson.removeWhere((element) => element['id'] == event.data['id']);
+      //state.selectedVPerson.removeWhere((element) => element['id'] == event.data['id']);
       // await getIt<CommonService>().getActiveVehicles(reset: true);
-      // _broadcast.stickyBroadcast("todo_view", value: false);
-      TaskerHelper.instance.withoutLoadingRefresh();
-      emit(state.copyWith(isLoading: false));
+      //TaskerHelper.instance.withoutLoadingRefresh();
+      emit(state.copyWith());
     } catch (e) {
       Toaster.showError("$e");
       Console.of.error(e.toString(), name: 'ERROR');

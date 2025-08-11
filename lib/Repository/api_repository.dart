@@ -979,7 +979,7 @@ class APiRepository {
   }
 
   Future<Map<String, dynamic>?> expenseApprove(
-      {String? id, String? approved}) async {
+      {dynamic id, dynamic approved}) async {
     try {
       String apiUrl = '${Str.LIST_BASE_URL}$_expenseApprove';
       final http.Response? response = await _apiClient.callPostMethod(apiUrl,
@@ -1546,7 +1546,7 @@ Future<Map<String, dynamic>?> getLocations() async {
         "from" : "$fromId",
         "to" : "$toId"
       };
-      body.putIfAbsent("type", () => "inline");
+      //body.putIfAbsent("type", () => "inline");
       body.putIfAbsent("platform_type", () => getIt<CommonService>().currentPlatform);
       final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body);
       var mapData = await response.mapData;

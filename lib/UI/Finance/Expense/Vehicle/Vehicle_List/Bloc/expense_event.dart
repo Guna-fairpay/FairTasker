@@ -133,3 +133,10 @@ class SaveSubcategory extends ExpenseEvent {
 
 class RefreshEvent extends ExpenseEvent {}
 
+class FairRentalEvent extends ExpenseEvent {
+  final dynamic id;
+  const FairRentalEvent({required this.id});
+  @override
+  List<Object?> get props => [id];
+}
+

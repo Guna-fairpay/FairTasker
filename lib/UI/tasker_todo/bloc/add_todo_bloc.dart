@@ -136,7 +136,8 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> with AddToDoMixin {
       if (isCurrentDate && lasVehicleVin.isNotNullOrEmpty && isCleanCar) return add(CleanCarEvent());
       if (hasOilChange && lasVehicleVin.isNotNullOrEmpty && !event.oilChangeOverride) {
         final response = await _getOilChangeTask(vin: lasVehicleVin);
-        if (response?.isEmpty ?? false) return add(SubmitEvent(oilChangeOverride: true));
+        Console.of.log(response);
+        if ((response == null || response.isEmpty)) return add(SubmitEvent(oilChangeOverride: true));
         return emit(OilChangeTaskExistState(response));
       }
       final images = attachments.whereType<File>().map((e) => {"images" : e.path}).toList();

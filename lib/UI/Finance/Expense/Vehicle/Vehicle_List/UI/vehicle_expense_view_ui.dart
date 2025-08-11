@@ -130,12 +130,9 @@ class ExpenseVehicleViewUI extends StatelessWidget {
                             expense: state.filteredResponse[index],
                           );
                         },
-                        onChanged: (value) => context.read<ExpenseBloc>()
-                            .add(ApproveEvent(
-                            model: state.filteredResponse[index],
-                            approved: "${value == true ? 1 : 0}")),
-                        onDelete: (id) => context.read<ExpenseBloc>()
-                            .add(DeleteExpenseEvent(id: id)),
+                        onChanged: (value) => context.read<ExpenseBloc>().add(ApproveEvent(model: state.filteredResponse[index], approved: "${value == true ? 1 : 0}")),
+                        onDelete: (id) => context.read<ExpenseBloc>().add(DeleteExpenseEvent(id: id)),
+                        onFairRental: (id) => context.read<ExpenseBloc>().add(FairRentalEvent(id: id)),
                       ),
                     )),
                   ),
