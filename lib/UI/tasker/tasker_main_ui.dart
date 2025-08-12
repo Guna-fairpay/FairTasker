@@ -4,6 +4,7 @@ import 'package:fairpytasker/UI/dialog/tasker_booking_info_dialog/ui/booking_inf
 import 'package:fairpytasker/UI/dialog/tasker_lead_change_dialog/tasker_lead_change_dialog.dart';
 import 'package:fairpytasker/UI/dialog/tasker_maintenance_complete_dialog/tasker_maintenance_complete_dialog.dart';
 import 'package:fairpytasker/UI/dialog/tasker_meeting_change_dialog/tasker_meeting_dialog.dart';
+import 'package:fairpytasker/UI/dialog/tasker_meeting_complete_dialog/ui/tasker_meeting_dialog.dart';
 import 'package:fairpytasker/UI/dialog/tasker_status_todo_complete/tasker_status_todo_complete_dialog.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/UI/vehicle_main_view_ui.dart';
 import 'package:fairpytasker/UI/dialog/tasker_bouncie/tasker_bouncie_dialog.dart';

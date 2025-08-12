@@ -475,6 +475,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
         case "Check In": emit(CompleteCheckInState(event.model)); break;
       }
     } else {
+      if(model?['todo_user_type'] == 5) return emit(MeetingCompleteState(model));
       var autoCompleteIds = [27];
       if (autoCompleteIds.contains(identifierId)) _callCompleteApi(model);
       switch(identifierId) {
@@ -955,11 +956,23 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
   }
 
   Future<Map<String, dynamic>?> _onCompleteToDo(Map<String, dynamic>? model) async {
-    Map<String, dynamic> body = {
-      "complete_time_approved" : model?['complete_time_approved'],
-      "complete_time_taken" : (model?['display']?['completed_time'] ?? model?['complete_time_taken']),
-      "status" : true
-    };
+    Console.of.log("MODEL: $model");
+    Map<String, dynamic> body = {};
+    body["complete_time_approved"] = model?['complete_time_approved'];
+    body["complete_time_taken"] = (model?['display']?['completed_time'] ?? model?['complete_time_taken']);
+    if((model?['title'].toString().toLowerCase() == "check in") || (model?['title'].toString().toLowerCase() == "check out")){
+      var lastLocation = await _getLastKnownLocation;
+      body['address'] = lastLocation?['address'];
+      if(model?['title'].toString().toLowerCase() == "check in"){
+        body['start_time_device_type'] = "Mobile";
+      } else{
+        body['end_time_device_type'] = "Mobile";
+      }
+      body['start_time_device_type'] = "Mobile";
+      body['start_time_latitude'] = lastLocation?['latitude'];
+      body['start_time_longitude'] = lastLocation?['longitude'];
+    }
+    body['status'] = true;
     return await _completeToDo(body : body, todoId: model?['id']);
   }
 
