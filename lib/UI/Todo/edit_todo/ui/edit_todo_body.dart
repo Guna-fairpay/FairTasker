@@ -173,7 +173,11 @@ class EditTodoBody extends StatelessWidget {
                 ),
                 10.height,
                 if(state.selectedTask['id'] == 358)...[
-                  CustomQuillEditor(controller: context.read<EditToDoBloc>().quillController,),
+                  CustomQuillEditor(controller: context.read<EditToDoBloc>().quillEnquiryController,),
+                  10.height,
+                ],
+                if(state.selectedTask['user_type'] == 5 && state.apiResponse['meeting_summary'] != null)...[
+                  CustomQuillEditor(controller: context.read<EditToDoBloc>().quillMeetingController,),
                   10.height,
                 ],
                 if(state.apiResponse['maintenance_task_id'] != null && state.apiResponse['comments'] != null)...[

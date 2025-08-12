@@ -53,7 +53,7 @@ class CustomQuillEditor extends StatelessWidget {
               showQuote: false,
               showItalicButton: true,
               showListBullets: true,
-              showListNumbers: false,
+              showListNumbers: true,
               color: AppC.inProgress,
               toolbarIconAlignment: WrapAlignment.start,
               showFontFamily: false,

@@ -56,7 +56,8 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   final TextEditingController leadsController = TextEditingController();
   final TextEditingController meetingLinkController = TextEditingController();
   final TextEditingController customerNameController = TextEditingController();
-  QuillController quillController = QuillController.basic();
+  QuillController quillEnquiryController = QuillController.basic();
+  QuillController quillMeetingController = QuillController.basic();
 
   int? get branchId => Session.of.getInt(Str.branchIdPrefText);
   String? get currentUserId => Session.of.getString(Str.userIdPrefText);
@@ -272,8 +273,12 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         .where((element) => element['id'].toString() == currentUserId)
         .toList();
     if(todoResponse?['identifier_id'] == 358) {
-      quillController.document = Document.fromDelta(
+      quillEnquiryController.document = Document.fromDelta(
           HtmlToDelta().convert(todoResponse?['rental_enquiry'] ?? ''));
+    }
+    if(todoResponse?['todo_user_type'] == 5 && todoResponse?['meeting_summary'] != null) {
+      quillMeetingController.document = Document.fromDelta(
+          HtmlToDelta().convert(todoResponse?['meeting_summary'] ?? ''));
     }
     timeController.text = todoResponse?['todo_time'] ?? '';
     dateController.text = todoResponse?['todo_date'] ?? '';
@@ -1342,7 +1347,10 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     baseBody['person'] = firstPerson?['name']?.toString() ?? "";
     baseBody['person_id'] = firstPerson?['id']?.toString() ?? "";
     baseBody['rental_enquiry'] = QuillDeltaToHtmlConverter(
-      (quillController).document.toDelta().toJson(),
+      (quillEnquiryController).document.toDelta().toJson(),
+      ConverterOptions.forEmail(),).convert();
+    baseBody['meeting_summary'] = QuillDeltaToHtmlConverter(
+      (quillMeetingController).document.toDelta().toJson(),
       ConverterOptions.forEmail(),).convert();
     if(state.selectedTask['user_type'].toString() == '5'){
       baseBody['meeting_mode'] = selectedMeetingType?['id'] != 0

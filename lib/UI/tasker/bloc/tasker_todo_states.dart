@@ -339,3 +339,10 @@ class CompletePreCheckState extends ToDoTaskerState {
   @override
   List<Object?> get props => [model, Random().nextDouble()];
 }
+
+class MeetingCompleteState extends ToDoTaskerState {
+  final Map<String, dynamic>? model;
+  MeetingCompleteState(this.model);
+  @override
+  List<Object?> get props => [model, Random().nextDouble()];
+}
