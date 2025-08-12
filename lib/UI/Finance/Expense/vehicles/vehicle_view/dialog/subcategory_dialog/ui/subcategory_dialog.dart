@@ -2,30 +2,31 @@ import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/UI/Finance/Expense/vehicles/vehicle_view/dialog/subcategory_dialog/bloc/subcategory_dialog_bloc.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
+import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
-class AddNewSubcategoryDialog {
-  AddNewSubcategoryDialog._();
+class SubcategoryDialog {
+  SubcategoryDialog._();
 
-  static void show(BuildContext context, {required dynamic model}) async {
+  static void show(BuildContext context, {required dynamic categoryId}) async {
     await showDialog(
         context: context,
-        builder: (context) => _AddNewSubcategoryDialog(model: model,));
+        builder: (context) => _SubcategoryDialog(categoryId: categoryId,));
   }
 }
 
-class _AddNewSubcategoryDialog extends StatelessWidget {
-  final String model;
-  const _AddNewSubcategoryDialog({required this.model,});
+class _SubcategoryDialog extends StatelessWidget {
+  final dynamic categoryId;
+  const _SubcategoryDialog({required this.categoryId,});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => SubcategoryDialogBloc()..add(InitialEvent(data: model)),
+      create: (context) => SubcategoryDialogBloc()..add(InitialEvent(data: categoryId)),
       child: BlocListener<SubcategoryDialogBloc, SubcategoryDialogState>(
           listener: (context, state) {
             if(state is LoadingState){
@@ -35,8 +36,10 @@ class _AddNewSubcategoryDialog extends StatelessWidget {
               switch(state){
                 case ErrorState(): Toaster.showError(state.message);
                   break;
-                case SuccessState(): Toaster.showSuccess(state.data);
-                  break;
+                case SuccessState():{
+                  Toaster.showSuccess(state.data);
+                  context.pop();
+                }break;
               }
             }
           },

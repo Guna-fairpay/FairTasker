@@ -16,25 +16,6 @@ class VehicleListItem extends StatelessWidget {
             ? '${expense['cohort']?['cohort'] ?? ''}'
             : "";
 
-        Color getCategoryColor(String category) {
-          switch (category) {
-            case 'Fair Returns LP LLC':
-              return Colors.blue;
-            case 'Fair Returns Prime LP':
-              return Colors.green;
-            case 'FairFund 2024':
-              return Colors.purple;
-            case 'Fair Returns Fall 2023':
-              return Colors.black;
-            case 'Personal Car':
-              return Colors.brown;
-            case 'Unassigned':
-              return Colors.orange;
-            default:
-              return const Color.fromRGBO(9, 131, 74, 1);
-          }
-        }
-
         Color categoryColor = (expense['payment_method_id']).toString() == '4' ? const Color(0xFF13b3b3) : AppC.grey;
         List<dynamic> expenseImages = List.from(expense['attachments'] ?? []).map((e) => e['path'].toString().toStorageURL).toList();
         return Dismissible(
@@ -117,7 +98,7 @@ class VehicleListItem extends StatelessWidget {
                                 cohort,
                                 overflow: TextOverflow.ellipsis,
                                 color: (expense['expense_to']).toString() == '4'
-                                    ? getCategoryColor(cohort)
+                                    ?context.watch<VehicleExpenseViewBloc>().getCategoryColor(cohort)
                                     : AppC.appColor,
                               ),
                             ),
@@ -125,7 +106,7 @@ class VehicleListItem extends StatelessWidget {
                         const CompactText(" | ", fontWeight: FontWeight.w900),
                         Expanded(
                           child: InkWell(
-                            onTap: (){},
+                            onTap: ()=> context.read<VehicleExpenseViewBloc>().add(CategoryEvent(category: expense)),
                             child: CompactText(
                               '${expense['category']?['name'] ?? ''} ',
                               overflow: TextOverflow.ellipsis,
@@ -136,7 +117,7 @@ class VehicleListItem extends StatelessWidget {
                         const CompactText(" | ", fontWeight: FontWeight.w900),
                         Expanded(
                           child: InkWell(
-                            onTap: (){},
+                            onTap: ()=> context.read<VehicleExpenseViewBloc>().add(CategoryEvent(category: expense)),
                             child: CompactText(
                               '${expense['subcategory']?['name'] ?? ''}',
                               overflow: TextOverflow.ellipsis,

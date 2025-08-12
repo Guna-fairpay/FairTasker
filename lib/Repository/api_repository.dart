@@ -1253,10 +1253,7 @@ Future<Map<String, dynamic>?> getLocations() async {
     }
   }
 
-  Future<Map<String, dynamic>?> createSubCategory(
-      {String? expenseTo,
-        String? name,
-        String? parentId}) async {
+  Future<Map<String, dynamic>?> createSubCategory({String? expenseTo, String? name, String? parentId}) async {
     try {
       String apiUrl = "${Str.LIST_BASE_URL}$_expensesCategory";
       var body = {
@@ -5002,6 +4999,20 @@ Future<Map<String, dynamic>?> getLocations() async {
         throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
       }
     }catch(e){
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> addSubCategory({dynamic body}) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_expensesCategory";
+      final http.Response? response = await _apiClient.callPostMethodWithBodyDynamic(apiUrl, body: body);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      }else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    } catch (e) {
       rethrow;
     }
   }

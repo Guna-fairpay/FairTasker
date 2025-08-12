@@ -8,10 +8,12 @@ import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fairpytasker/utilities/utils.dart';
 import 'package:fbroadcast/fbroadcast.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
 
@@ -58,6 +60,7 @@ class VehicleExpenseViewBloc extends Bloc<VehicleViewEvent, VehicleExpenseViewSt
     on<CategoryEvent>(_onCategoryEvent);
     on<CohortEvent>(_onCohortEvent);
     on<RefreshEvent>(_onRefreshEvent);
+    _registerBroadcast();
   }
 
   Future<void> _onInitialEvent(InitialEvent event, Emitter<VehicleExpenseViewState> emit) async {
@@ -126,7 +129,7 @@ class VehicleExpenseViewBloc extends Bloc<VehicleViewEvent, VehicleExpenseViewSt
   Future<void> _onCategoryEvent(CategoryEvent event, Emitter<VehicleExpenseViewState> emit) async {
     try {
       var data = event.category;
-      emit(CommonState());
+      emit(ShowCategoryState(data));
     }catch(e){
       _onError(e, emit);
     }
@@ -217,6 +220,33 @@ class VehicleExpenseViewBloc extends Bloc<VehicleViewEvent, VehicleExpenseViewSt
       return existResponse.where((item) => item['approved'] == 0).toList();
     }
     return existResponse;
+  }
+
+  void _registerBroadcast() {
+    _broadcast.register("expense_vehicle_refresh", (value, callback) {
+      Console.of.log("expense_vehicle_refresh");
+      add(RefreshEvent());
+    });
+    getIt<CommonService>().branchUpdate(callback: () => add(RefreshEvent()));
+  }
+
+  Color getCategoryColor(String category) {
+    switch (category) {
+      case 'Fair Returns LP LLC':
+        return Colors.blue;
+      case 'Fair Returns Prime LP':
+        return Colors.green;
+      case 'FairFund 2024':
+        return Colors.purple;
+      case 'Fair Returns Fall 2023':
+        return Colors.black;
+      case 'Personal Car':
+        return Colors.brown;
+      case 'Unassigned':
+        return Colors.orange;
+      default:
+        return const Color.fromRGBO(9, 131, 74, 1);
+    }
   }
 
 }

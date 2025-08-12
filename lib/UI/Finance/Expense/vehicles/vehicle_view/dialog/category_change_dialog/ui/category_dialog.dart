@@ -1,8 +1,10 @@
 import 'package:fairpytasker/Component/custom_text/compact_text.dart';
 import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/UI/Finance/Expense/vehicles/vehicle_view/dialog/category_change_dialog/bloc/category_change_dialog_bloc.dart';
+import 'package:fairpytasker/UI/Finance/Expense/vehicles/vehicle_view/dialog/subcategory_dialog/ui/subcategory_dialog.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
+import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,28 +15,28 @@ class CategoryDialog {
 
   static void show(
       BuildContext context, {
-        required dynamic expense,
+        required dynamic expenseData,
       }) async {
     await showDialog(
       context: context,
       builder: (context) =>
           _CategoryDialog(
-              expense: expense,
+            expenseData: expenseData,
           ),
     );
   }
 }
 
 class _CategoryDialog extends StatelessWidget {
-  final dynamic expense;
+  final dynamic expenseData;
   const _CategoryDialog({
-    required this.expense,
+    required this.expenseData,
   });
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => CategoryChangeDialogBloc()..add(InitialEvent(data: expense)),
+      create: (context) => CategoryChangeDialogBloc()..add(InitialEvent(data: expenseData)),
       child: BlocListener<CategoryChangeDialogBloc, CategoryDialogState>(
         listener: (context, state) {
           if(state is LoadingState){
@@ -44,13 +46,21 @@ class _CategoryDialog extends StatelessWidget {
             switch(state){
               case ErrorState(): Toaster.showError(state.message);
                 break;
-              case SuccessState(): Toaster.showSuccess(state.data);
-                break;
+              case SuccessState():
+                {
+                  Toaster.showSuccess(state.data);
+                  context.pop();
+                }break;
+              case SubcategoryState():
+                {
+                  SubcategoryDialog.show(context, categoryId: state.data);
+                }break;
             }
           }
         },
         child: BlocBuilder<CategoryChangeDialogBloc, CategoryDialogState>(
             builder: (context, state) {
+              var expense = context.watch<CategoryChangeDialogBloc>().model;
               return Dialog(
                 backgroundColor: AppC.white,
                 insetPadding: const EdgeInsets.all(10),
@@ -65,17 +75,23 @@ class _CategoryDialog extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Expanded(
-                            child: CompactText(
-                              expense['vehicle']?['vehicle_name'] ?? '',
-                              fontWeight: FontWeight.w700,
-                            ),
+                            child: Text.rich(TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: expense?['vehicle']?['vehicle_name'] ?? '',
+                                ),
+                                TextSpan(text:  " (\$${expense?['expense_amount'] ??''})",)
+                              ],
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w700,
+                                  color: AppC.appColor
+                              ),
+                            )),
                           ),
-                          CompactText(
-                            "\$ ${expense['expense_amount'] ??''}",
-                            fontWeight: FontWeight.w700,
-                          ),
+                          IconButton(onPressed: ()=> context.pop(), icon: const Icon(Icons.close, color: AppC.redAccent)),
                         ],
                       ),
                       const CompactText('Category', fontWeight: FontWeight.w300),
@@ -105,7 +121,7 @@ class _CategoryDialog extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             InkWell(
-                                onTap: () {},
+                                onTap: ()=> context.read<CategoryChangeDialogBloc>().add(NavigateSubcategoryEvent(data: expense)),
                                 child: const CompactText('+ Add New Sub Category', color: AppC.appColor)),
                           ],
                         ),
@@ -117,10 +133,6 @@ class _CategoryDialog extends StatelessWidget {
                             text: 'Save',
                             onPressed: () => context.read<CategoryChangeDialogBloc>().add(UpdateCategoryEvent()),
                           ),
-                          SuccessButton(
-                              text: 'Cancel',
-                              onPressed: () => Navigator.pop(context),
-                              backgroundColor: AppC.redAccent),
                         ],
                       ),
                     ],
