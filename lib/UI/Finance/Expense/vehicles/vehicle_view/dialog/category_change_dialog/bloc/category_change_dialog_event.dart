@@ -34,3 +34,5 @@ class NavigateSubcategoryEvent extends CategoryDialogEvent{
 }
 
 class UpdateCategoryEvent extends CategoryDialogEvent{}
+
+class RefreshEvent extends CategoryDialogEvent{}

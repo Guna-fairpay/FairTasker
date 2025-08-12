@@ -27,6 +27,8 @@ class CommonState extends CategoryDialogState{
 }
 
 class SubcategoryState extends CategoryDialogState{
+  final dynamic data;
+  SubcategoryState(this.data);
   @override
-  List<Object?> get props => [Random().nextDouble()];
+  List<Object?> get props => [data, Random().nextDouble()];
 }

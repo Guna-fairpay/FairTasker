@@ -2,11 +2,11 @@ import 'package:fairpytasker/Component/custom_checkbox.dart';
 import 'package:fairpytasker/Component/custom_compact_icon_button.dart';
 import 'package:fairpytasker/Component/custom_text/compact_text.dart';
 import 'package:fairpytasker/UI/Finance/Expense/Component/date_range_selection.dart';
-import 'package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_List/Dialog/category_subcategory_dialog.dart';
-import 'package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_List/Dialog/cohort_dialog.dart';
 import 'package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_List/Dialog/expense_summery/ui/expense_summery_main_ui.dart';
 import 'package:fairpytasker/UI/Finance/Expense/vehicles/vehicle_add_edit/ui/vehicle_add_edit_main_ui.dart';
 import 'package:fairpytasker/UI/Finance/Expense/vehicles/vehicle_view/bloc/vehicle_view_bloc.dart';
+import 'package:fairpytasker/UI/Finance/Expense/vehicles/vehicle_view/dialog/category_change_dialog/ui/category_dialog.dart';
+import 'package:fairpytasker/UI/Finance/Expense/vehicles/vehicle_view/dialog/cohort_change_dialog/ui/cohort_change_dialog.dart';
 import 'package:fairpytasker/UI/Vehicle/vehicle_expense_history/ui/vehicle_expense_history_ui.dart';
 import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
@@ -39,9 +39,8 @@ class VehicleViewMainUI extends StatelessWidget {
             }else{
               if(EasyLoading.isShow) EasyLoading.dismiss();
               switch(state){
-                case ShowCohortState():  CohortDialog.show(context, expense: state.data,); break;
-                case ShowCategoryState(): CategorySubcategoryDialog.show(context, expense: state.data,); break;
-
+                case ShowCohortState():  CohortChangeDialog.show(context, cohort: state.data,); break;
+                case ShowCategoryState(): CategoryDialog.show(context, expenseData: state.data,); break;
                 default: break;
               }
             }
