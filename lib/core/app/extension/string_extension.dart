@@ -211,7 +211,7 @@ bool get isNullOrEmpty => (this == null) || (this?.isEmpty ?? false) || (this ==
     if (this == null || this!.isEmpty) return "";
     return this!
         .replaceAll(RegExp(r'<[^>]*>'), '') // Remove HTML tags
-        .replaceAll(RegExp(r'[\n\t]'), '')  // Remove \n and \t
+        .replaceAll(RegExp(r'[\n\t]'), ' ')  // Remove \n and \t
         .trim();
   }
 }

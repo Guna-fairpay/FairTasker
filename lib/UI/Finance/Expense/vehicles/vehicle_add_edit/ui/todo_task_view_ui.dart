@@ -61,7 +61,7 @@ class TodoTaskViewUI extends StatelessWidget {
                 if (todoDetails['notes'] != null)
                   IconAndText(
                     icon: Icons.speaker_notes,
-                    label: "${todoDetails['notes'] ?? ''}",
+                    label: (todoDetails['notes'] ?? '').toString().removeHtmlTags,
                   ),
                 if (List.from(todoDetails?['parts']).isNotEmpty)
                   ChoiceBoxWidget<String>(
@@ -96,7 +96,7 @@ class TodoTaskViewUI extends StatelessWidget {
                 ),
                 IconAndText(
                   icon: Icons.speaker_notes_outlined,
-                  label: "${todoDetails['description'] ?? ''}",
+                  label: (todoDetails['description'] ?? '').toString().removeHtmlTags,
                 ),
                 IconAndText(
                   icon: Icons.category,
