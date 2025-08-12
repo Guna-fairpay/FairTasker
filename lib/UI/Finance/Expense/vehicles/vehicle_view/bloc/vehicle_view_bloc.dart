@@ -50,6 +50,8 @@ class VehicleExpenseViewBloc extends Bloc<VehicleViewEvent, VehicleExpenseViewSt
   Future<List<Map<String, dynamic>>> _getUsers() async => await getIt<CommonService>().getUsers();
   Future<List<Map<String, dynamic>>> _getExpenseCategories() async => await getIt<CommonService>().getExpenseCategories();
   Future<Map<String, dynamic>?> _expenseApprove({dynamic id, dynamic approved}) async => await apiRepository.expenseApprove(id: id, approved: approved);
+  Future<Map<String, dynamic>?> _deleteExpenseTodo({dynamic id}) async => await apiRepository.deleteExpenseTodo(id);
+  Future<Map<String, dynamic>?> _deleteVehicleExpense({dynamic id}) async => await apiRepository.deleteVehicleExpense(id);
 
   VehicleExpenseViewBloc() : super(LoadingState()){
     on<InitialEvent>(_onInitialEvent);
@@ -59,6 +61,7 @@ class VehicleExpenseViewBloc extends Bloc<VehicleViewEvent, VehicleExpenseViewSt
     on<FairRentalEvent>(_onFairRentalEvent);
     on<CategoryEvent>(_onCategoryEvent);
     on<CohortEvent>(_onCohortEvent);
+    on<DeleteExpenseEvent>(_onDeleteExpenseEvent);
     on<RefreshEvent>(_onRefreshEvent);
     _registerBroadcast();
   }
@@ -141,6 +144,23 @@ class VehicleExpenseViewBloc extends Bloc<VehicleViewEvent, VehicleExpenseViewSt
       cohortList = data['cohortList'] ?? [];
       selectedCohort = cohortList.where((element) => element['id'].toString() == data['expense_to'].toString(),).firstOrNull ?? {};
       emit(ShowCohortState(data));
+    }catch(e){
+      _onError(e, emit);
+    }
+  }
+
+  Future<void> _onDeleteExpenseEvent(DeleteExpenseEvent event, Emitter<VehicleExpenseViewState> emit) async {
+    try{
+      emit(LoadingState());
+      var response = await _deleteVehicleExpense(id: event.id);
+      await _deleteExpenseTodo(id: event.id);
+      if(response != null){
+        await refetch();
+        emit(SuccessState('Expense Deleted Successfully'));
+      }else{
+        emit(ErrorState(response?['message']));
+      }
+      emit(CommonState());
     }catch(e){
       _onError(e, emit);
     }
@@ -233,9 +253,9 @@ class VehicleExpenseViewBloc extends Bloc<VehicleViewEvent, VehicleExpenseViewSt
   Color getCategoryColor(String category) {
     switch (category) {
       case 'Fair Returns LP LLC':
-        return Colors.blue;
+        return const Color(0xFF0000FF);
       case 'Fair Returns Prime LP':
-        return Colors.green;
+        return const Color(0xFF09834A);
       case 'FairFund 2024':
         return Colors.purple;
       case 'Fair Returns Fall 2023':

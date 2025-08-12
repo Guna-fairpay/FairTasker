@@ -46,7 +46,7 @@ class VehicleListItem extends StatelessWidget {
                 positiveText: "Yes, delete it!",
                 negativeText: "Cancel",
                 isReasonRequired: false,
-                onPositivePressed: (){});
+                onPositivePressed: ()=> context.read<VehicleExpenseViewBloc>().add(DeleteExpenseEvent(id: expense['id'])));
             return false;
           },
           child: SafeArea(

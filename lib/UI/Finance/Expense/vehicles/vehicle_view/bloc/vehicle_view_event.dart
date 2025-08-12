@@ -57,5 +57,12 @@ class SubCategoryEvent extends VehicleViewEvent {
   List<Object?> get props => [subCategory];
 }
 
+class DeleteExpenseEvent extends VehicleViewEvent {
+  final dynamic id;
+  DeleteExpenseEvent({required this.id});
+  @override
+  List<Object?> get props => [id];
+}
+
 class RefreshEvent extends VehicleViewEvent{}
 
