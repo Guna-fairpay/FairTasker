@@ -146,40 +146,27 @@ class VehicleAddEditBloc extends Bloc<VehicleAddEditEvent, VehicleAddEditState> 
         var response = await _getEditVehicleExpense(editModel?['id']);
         var todoDetails = await _getTodoDetails(editModel?['id']);
         editResponse = response?['expenses'];
-        attachmentList.addAll(
-            List.from(editResponse?['attachments'] ?? []).map((e) =>
-            e['path']
-                .toString()
-                .toStorageURL).toList());
-        selectedVehicle = vehicleList.firstWhereOrNull((e) =>
-        e['vin'].toString() == editResponse?['vin'].toString()) ?? {};
+        attachmentList.addAll(List.from(editResponse?['attachments'] ?? []).map((e) => e['path'].toString().toStorageURL).toList());
+        selectedVehicle = vehicleList.firstWhereOrNull((e) => e['vin'].toString() == editResponse?['vin'].toString()) ?? {};
         vehicleController.text = selectedVehicle['vehicle_name'] ?? '';
-        selectedCategory = categoryList.firstWhereOrNull((e) =>
-        e['id'].toString() == editResponse?['category_id'].toString());
-        categoryName = selectedCategory?['name'];
-        subCategoryList = List.from(selectedCategory['subcategories'] ?? []);
-        selectedSubCategory = subCategoryList.firstWhereOrNull((e) =>
-        e['id'].toString() == editResponse?['subcategory_id'].toString());
-        subCategoryName = selectedSubCategory?['name'];
-        selectedPaymentMethod = paymentMethod.firstWhereOrNull((e) =>
-        e['id'].toString() == editResponse?['payment_method_id'].toString());
+        selectedCategory = categoryList.firstWhereOrNull((e) => e['id'].toString() == editResponse?['category_id'].toString());
+        categoryName = selectedCategory?['name'] ?? '';
+        subCategoryList = List.from(selectedCategory?['subcategories'] ?? []);
+        selectedSubCategory = subCategoryList.firstWhereOrNull((e) => e?['id'].toString() == editResponse?['subcategory_id'].toString());
+        subCategoryName = selectedSubCategory?['name'] ?? '';
+        selectedPaymentMethod = paymentMethod.firstWhereOrNull((e) => e['id'].toString() == editResponse?['payment_method_id'].toString());
         descriptionController.text = editResponse?['expense_description'] ?? '';
-        selectedExpenseTo = expenseTo.firstWhereOrNull((e) =>
-        e['id'].toString() == editResponse?['expense_to'].toString());
-        amountController.text =
-            editResponse?['expense_amount'].toString() ?? '';
+        selectedExpenseTo = expenseTo.firstWhereOrNull((e) => e?['id'].toString() == editResponse?['expense_to'].toString());
+        amountController.text = editResponse?['expense_amount'].toString() ?? '';
         selectedDate = DateTime.parse(editResponse?['expense_date']);
-        splitExpense =
-            List.from(response?['expenses']?['split_expenses'] ?? []);
+        splitExpense = List.from(response?['expenses']?['split_expenses'] ?? []);
         partsCostController.addListener(_updateExpenseTotal);
         labourCostController.addListener(_updateExpenseTotal);
         saleTaxController.addListener(_updateExpenseTotal);
         shippingController.addListener(_updateExpenseTotal);
         percentageOrAmountController.addListener(_updateExpenseTotal);
         totalAmountController.addListener(_updateExpenseTotal);
-        saleTaxController.text =
-            ((double.tryParse(partsCostController.text) ?? 0) +
-                (double.tryParse(labourCostController.text) ?? 0)).toString();
+        saleTaxController.text = ((double.tryParse(partsCostController.text) ?? 0) + (double.tryParse(labourCostController.text) ?? 0)).toString();
 
         if (todoDetails != null) {
           todoItems = todoDetails;
@@ -193,7 +180,7 @@ class VehicleAddEditBloc extends Bloc<VehicleAddEditEvent, VehicleAddEditState> 
           suppliesList = suppliesResponse ?? [];
           dynamic userId;
           if (todoDetails['user_id'] != null) {
-            userId = todoDetails['user_id'];
+            userId = todoDetails['user_id'] ?? '';
           }
 
           if (todoDetails['user_group_id'] != null) {

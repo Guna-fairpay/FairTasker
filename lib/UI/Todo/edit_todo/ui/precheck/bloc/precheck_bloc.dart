@@ -76,8 +76,8 @@ class PrecheckBloc extends Bloc<PrecheckEvent, PrecheckState> {
         element['isTap'] = false;
         element['existing_task'] = 0;
       }
-      selectedDate = DateTime.tryParse(precheckList.firstWhere((element) => element['id'] == 6, orElse: () => null)?['last_maintanence_date']);
-      odometerController.text = precheckList.firstWhere((element) => element['id'] == 7, orElse: () => null)?['odometer'] ?? '';
+      selectedDate = DateTime.tryParse(precheckList.firstWhereOrNull((element) => element['id'] == 6)?['last_maintanence_date'] ?? '');
+      odometerController.text = precheckList.firstWhereOrNull((element) => element['id'] == 7)?['odometer'] ?? '';
       attachmentList = model?['precheckImages'];
       attachmentPaths = attachmentList.map((e) => e['path'].toString().toTaskerStorageURL).toList();
       fixTask = jsonDecode(model?['fix_tasks'] ?? "{}");

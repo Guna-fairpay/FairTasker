@@ -2,6 +2,7 @@ import 'package:fairpytasker/Component/choice_box_widget.dart';
 import 'package:fairpytasker/Component/compact_app_bar.dart';
 import 'package:fairpytasker/Component/custom_date_time_picker.dart';
 import 'package:fairpytasker/Component/custom_single_selection_field.dart';
+import 'package:fairpytasker/Component/custom_text/compact_text.dart';
 import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/UI/Finance/Expense/Component/icon_and_text.dart';
 import 'package:fairpytasker/UI/Finance/Expense/vehicles/vehicle_add_edit/bloc/vehicle_add_edit_bloc.dart';
@@ -9,6 +10,7 @@ import 'package:fairpytasker/UI/Finance/Expense/vehicles/vehicle_add_edit/dialog
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/Components/image_upload_selection.dart';
 import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
+import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
