@@ -25,15 +25,19 @@ class TaskerMeetingBloc extends Bloc<TaskerMeetingEvent, TaskerMeetingState>{
     on<InitialEvent>(_onInitialEvent);
     on<SubmitEvent>(_onSubmitEvent);
   }
+
   void _onInitialEvent(InitialEvent event, Emitter<TaskerMeetingState> emit){
     try {
       model = event.model;
-      quillMeetingController.document = Document.fromDelta(HtmlToDelta().convert(model?['meeting_summary'] ?? ''));
+      quillMeetingController.document = model?['meeting_summary'] != null
+          ? Document.fromDelta(HtmlToDelta().convert(model?['meeting_summary'] ?? ''))
+          : Document();
       emit(CommonState());
     }catch (e) {
       _onErrorEvent(e, emit);
     }
   }
+
   Future<void> _onSubmitEvent(SubmitEvent event, Emitter<TaskerMeetingState> emit) async {
     try {
       emit(LoadingState());
@@ -60,6 +64,6 @@ class TaskerMeetingBloc extends Bloc<TaskerMeetingEvent, TaskerMeetingState>{
   void _onErrorEvent(dynamic error, Emitter<TaskerMeetingState> emit){
     Console.of.error(error);
     emit(ErrorState(error));
-
   }
+
 }

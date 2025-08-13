@@ -5,6 +5,7 @@ import 'package:fairpytasker/Component/custom_quill_editor.dart';
 import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/UI/dialog/tasker_meeting_complete_dialog/bloc/tasker_meeting_bloc.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/utilities/appC.dart';
 import 'package:flutter/material.dart';
@@ -48,12 +49,12 @@ class _TaskerMeetingDialog extends StatelessWidget {
             }
           }
         },
-            child: BlocBuilder<TaskerMeetingBloc, TaskerMeetingState>(builder: (context, state) => Column(
-              spacing: 10.spMin,
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: BlocBuilder<TaskerMeetingBloc, TaskerMeetingState>(builder: (context, state) => ListView(
+              shrinkWrap: true,
+              physics: const BouncingScrollPhysics(),
               children: [
                 CustomQuillEditor(controller: context.read<TaskerMeetingBloc>().quillMeetingController,),
+                  10.spMin.height,
                   SuccessButton(
                       onPressed: () => context.read<TaskerMeetingBloc>().add(SubmitEvent()),
                     backgroundColor: AppC.appColor,

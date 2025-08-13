@@ -101,6 +101,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   dynamic selectedMeetingType;
   dynamic selectedMeetingTime;
   dynamic linkSelection;
+  dynamic editTodoId;
 
   Map<String, dynamic>? selectedLead;
 
@@ -236,13 +237,16 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     on<EditToDoMeetingTypeEvent>(_onMeetingTypeEvent);
     on<LeadsEvent>(_onLeadsEvent);
     on<MeetingTimeEvent>(_onMeetingTimeEvent);
+    on<ExpenseIdRefreshEvent>(_onExpenseIdRefreshEvent);
+    _registerBroadcast();
   }
 
   Future<void>_onInitialEvent(GetEditTodoInitialEvent event, Emitter<EditTodoState> emit) async  {
   try {
     await CommonHelper.instance.waitForPostFrameCallback();
     emit(state.copyWith(isLoading: true));
-    todoResponse = await _editToDo(id: event.todoId);
+    editTodoId = event.todoId;
+    todoResponse = await _editToDo(id: editTodoId);
     var partsResponse = await _getPartsList();
     var suppliesResponse = await _getSuppliesList();
     var vehicleResponse = await _getActiveVehicles();
@@ -667,7 +671,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         {"id": 9, "title": "Check In"},
       if(isPreCheck)
         {"id": 10, "title": "Private Rental"},
-    ];
+     ];
 
     selectionTaps = tabs.firstWhere(
           (e) =>
@@ -1161,6 +1165,19 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       emit(state.copyWith(isLoading: false));
     }
   }
+
+  Future<void> _onExpenseIdRefreshEvent(ExpenseIdRefreshEvent event, Emitter<EditTodoState> emit)  async {
+    todoResponse = await _editToDo(id: editTodoId);
+    emit(state.copyWith(apiResponse: todoResponse));
+  }
+
+  void _registerBroadcast() {
+    _broadcast.register("expenseID_refresh", (value, callback) {
+      Console.of.log("expenseID_refresh");
+      add(ExpenseIdRefreshEvent());
+    });
+  }
+
 
   Future<void> _findOilChangeTaskExist({required dynamic vin}) async {
     try {

@@ -4,6 +4,7 @@ import 'package:collection/collection.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
+import 'package:fbroadcast/fbroadcast.dart';
 import 'package:path/path.dart';
 
 import 'package:equatable/equatable.dart';
@@ -20,6 +21,7 @@ class VerificationBloc extends Bloc<VerificationEvent, VerificationState>{
 
   final APiRepository apiRepository = APiRepository();
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  final FBroadcast _broadcast = FBroadcast.instance();
   AutovalidateMode? autoValidateMode;
 
   final TextEditingController notesController = TextEditingController();
@@ -528,6 +530,7 @@ class VerificationBloc extends Bloc<VerificationEvent, VerificationState>{
         if(event.deleteBoth == true) 'todo_id': "${model?['id'] ?? ''}"
       });
       if(response?['status'] == true){
+        _broadcast.broadcast("expenseID_refresh");
         model?['bookingDetails']?['insurance_status'] = 'pending_admin_action';
         bookingDetails?['insurance_status'] = 'pending_admin_action';
         model?['bookingDetails']?['insurance'] = null;
@@ -562,6 +565,7 @@ class VerificationBloc extends Bloc<VerificationEvent, VerificationState>{
         image: input['image'],
       );
       if(response?['status'] == true){
+        _broadcast.broadcast("expenseID_refresh");
         model?['bookingDetails']?['insurance_status'] = response?['insurance']?['insurance_status'];
         bookingDetails?['insurance_status'] = response?['insurance']?['insurance_status'];
         model?['bookingDetails']?['insurance'] = response?['insurance'];
