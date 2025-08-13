@@ -321,3 +321,5 @@ class MeetingTimeEvent extends EditToDoEvent {
   List<Object?> get props => [meetingTime];
 }
 
+class ExpenseIdRefreshEvent extends EditToDoEvent {}
+

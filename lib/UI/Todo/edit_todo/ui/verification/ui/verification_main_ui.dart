@@ -61,7 +61,7 @@ class VerificationMainUI extends StatelessWidget {
               case ApproveWarningState(): AddressApproveWarningDialog.show(context, model: state.data);
               case UpdatePaymentModelState(): UpdatePaymentModelDialog.show(context, model: state.data);
               case InsuranceDeleteState(): AskPermissionDialog.show(context,
-                description: 'Do you want to delete this insurance?',
+                description: 'Do you want to delete insurance and expense?',
                 subPositiveText: 'Delete Insurance',
                 onSaveMultiPressed:()=> context.read<VerificationBloc>().add(InsuranceDeleteEvent(deleteBoth: false)),
                 positiveText: 'Delete both',
