@@ -1,5 +1,3 @@
-
-
 import 'package:fairpytasker/Component/compact_alert_dialog.dart';
 import 'package:fairpytasker/Component/custom_quill_editor.dart';
 import 'package:fairpytasker/Component/success_button.dart';
@@ -23,7 +21,7 @@ class TaskerMeetingDialog {
 
 class _TaskerMeetingDialog extends StatelessWidget {
   final Map<String, dynamic>? model;
-  const _TaskerMeetingDialog({super.key, this.model});
+  const _TaskerMeetingDialog({this.model});
 
   @override
   Widget build(BuildContext context) {
