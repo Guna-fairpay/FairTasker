@@ -956,7 +956,6 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
   }
 
   Future<Map<String, dynamic>?> _onCompleteToDo(Map<String, dynamic>? model) async {
-    Console.of.log("MODEL: $model");
     Map<String, dynamic> body = {};
     body["complete_time_approved"] = model?['complete_time_approved'];
     body["complete_time_taken"] = (model?['display']?['completed_time'] ?? model?['complete_time_taken']);
