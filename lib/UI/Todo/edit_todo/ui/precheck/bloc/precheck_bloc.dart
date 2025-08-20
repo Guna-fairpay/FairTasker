@@ -332,6 +332,7 @@ class PrecheckBloc extends Bloc<PrecheckEvent, PrecheckState> {
       imageFiles.add({
         'images[$imageIndex]': element,
       });
+      imageIndex++;
     }
     Console.of.log(body);
     Console.of.log(imageFiles);

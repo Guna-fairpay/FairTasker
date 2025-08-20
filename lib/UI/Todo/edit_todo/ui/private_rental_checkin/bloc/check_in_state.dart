@@ -32,3 +32,11 @@ class ViewImageState extends CheckInState {
   @override
   List<Object?> get props => [data, Random().nextDouble()];
 }
+
+class AddOnPictureDialogState extends CheckInState {
+  final List<dynamic> data;
+  final String title;
+  AddOnPictureDialogState({required this.data, required this.title});
+  @override
+  List<Object?> get props => [data, title, Random().nextDouble()];
+}

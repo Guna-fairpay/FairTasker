@@ -16,6 +16,8 @@ class TextWithAttachmentIcon extends StatelessWidget {
   final Function() onCamera;
   final Function() onPreview;
   final List<dynamic> attachments;
+  final List<dynamic> addOnPicturesList;
+  final Function() onAddOnPictures;
 
   const TextWithAttachmentIcon({super.key,
     this.showCheckBox = false,
@@ -26,6 +28,8 @@ class TextWithAttachmentIcon extends StatelessWidget {
     required this.onCamera,
     required this.onPreview,
     required this.attachments,
+    required this.addOnPicturesList,
+    required this.onAddOnPictures,
   });
 
   @override
@@ -65,6 +69,17 @@ class TextWithAttachmentIcon extends StatelessWidget {
           ),
           onPressed: ()=> onCamera(),
         ),
+         if(addOnPicturesList.isNotEmpty)...[
+           CompactIconButton(
+             icon: RemixIcons.file_upload_line,
+             iconSize: 20.spMin,
+             backgroundColor: AppC.white,
+             foregroundColor: Colors.black54,
+             side: const WidgetStatePropertyAll<BorderSide?>(
+               BorderSide(color: Colors.black54, width: 1.0,),
+             ),
+             onPressed: ()=> onAddOnPictures(),
+           ),],
         if(attachments.isNotEmpty)...[
           CompactIconButton(
             icon: RemixIcons.eye_fill,

@@ -53,3 +53,10 @@ class ShowImageUploadEvent extends CheckInEvent {
   @override
   List<Object?> get props => [checkBoxName,];
 }
+
+class InternalPictureDialogEvent extends CheckInEvent {
+  final String title;
+  InternalPictureDialogEvent({required this.title});
+  @override
+  List<Object?> get props => [title];
+}

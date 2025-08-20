@@ -29,6 +29,7 @@ class CheckInBloc extends Bloc<CheckInEvent, CheckInState>{
   List<dynamic> spareTyrePicture = [];
   List<dynamic> spareKeyPicture = [];
   List<dynamic> underhoodPicture = [];
+  List<dynamic> addOnPicture = [];
 
   dynamic model;
 
@@ -55,6 +56,7 @@ class CheckInBloc extends Bloc<CheckInEvent, CheckInState>{
     on<SaveDepositEvent>(_onSaveDepositEvent);
     on<SaveOdometerEvent>(_onSaveOdometerEvent);
     on<SaveImagesEvent>(_onSaveImagesEvent);
+    on<InternalPictureDialogEvent>(_onInternalPictureDialogEvent);
   }
 
   Future<void> _onInitialEvent(InitialEvent event, Emitter<CheckInState> emit) async {
@@ -237,6 +239,14 @@ class CheckInBloc extends Bloc<CheckInEvent, CheckInState>{
     }
   }
 
+  Future<void> _onInternalPictureDialogEvent(InternalPictureDialogEvent event, Emitter<CheckInState> emit) async {
+    try {
+      emit(AddOnPictureDialogState(data: addOnPicture, title: event.title));
+    } catch (e) {
+      _onError(e, emit);
+    }
+  }
+
   void _onError(dynamic message, Emitter<CheckInState> emit) {
     Console.of.error(message);
     emit(ErrorState(message));
@@ -278,6 +288,7 @@ class CheckInBloc extends Bloc<CheckInEvent, CheckInState>{
     spareTyrePicture = attachments.where((element) => element['label'] == 'checkin_spare_tyre_picture').map((e) => e['file_url']).toList();
     spareKeyPicture = attachments.where((element) => element['label'] == 'checkin_spare_key_picture').map((e) => e['file_url']).toList();
     underhoodPicture = attachments.where((element) => element['label'] == 'checkin_underhood_picture').map((e) => e['file_url']).toList();
+    addOnPicture = List.from(model?['precheckImages'] ?? []);
   }
 
   Map<String, dynamic> bodyData() {

@@ -39,6 +39,9 @@ class DocumentViewer extends StatelessWidget {
           interactionMode: PdfInteractionMode.pan,
           scrollDirection: PdfScrollDirection.horizontal);
     } else if (input is File) {
+      // child = SfPdfViewer.network(input.toString(), enableDoubleTapZooming: true,
+      //     interactionMode: PdfInteractionMode.pan,
+      //     scrollDirection: PdfScrollDirection.horizontal);
       child = Column(
         spacing: 10.spMin,
         mainAxisSize: MainAxisSize.min,

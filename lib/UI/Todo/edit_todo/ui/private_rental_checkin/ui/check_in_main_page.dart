@@ -3,6 +3,7 @@ import 'package:fairpytasker/Component/custom_text/compact_text.dart';
 import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/ui/private_rental_checkin/bloc/check_in_bloc.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/ui/private_rental_checkin/component/text_with_attachment_icon.dart';
+import 'package:fairpytasker/UI/Todo/edit_todo/ui/private_rental_checkin/dialog/additional_picture_dialog/ui/additional_picture_dialog_ui.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/ui/verification/component/image_view_dialog.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
@@ -36,6 +37,7 @@ class CheckInMainPage extends StatelessWidget {
                 case ErrorState(): Toaster.showError(state.message); break;
                 case SuccessState(): Toaster.showSuccess(state.message); break;
                 case ViewImageState(): ImageViewDialog.show(context, attachments: state.data); break;
+                case AddOnPictureDialogState(): AdditionalPictureDialogUi.show(context, title: state.title, model: state.data); break;
               }
             }
           },

@@ -16,6 +16,8 @@ class CheckInPicturesListUI extends StatelessWidget {
               onUploaded: ()=> context.read<CheckInBloc>().add(UploadImageEvent(imageName: 'Internal_Picture')),
               title: 'Internal Picture',
               attachments: context.watch<CheckInBloc>().internalPicture,
+              addOnPicturesList: context.watch<CheckInBloc>().addOnPicture,
+              onAddOnPictures: ()=> context.read<CheckInBloc>().add(InternalPictureDialogEvent(title: 'Internal Picture'))
             ),
             TextWithAttachmentIcon(
               onCamera: ()=> context.read<CheckInBloc>().add(CapturedImageEvent(imageName: 'External_Picture')),
@@ -23,6 +25,8 @@ class CheckInPicturesListUI extends StatelessWidget {
               onUploaded: ()=> context.read<CheckInBloc>().add(UploadImageEvent(imageName: 'External_Picture')),
               title: 'External Picture',
               attachments: context.watch<CheckInBloc>().externalPicture,
+              addOnPicturesList: context.watch<CheckInBloc>().addOnPicture,
+              onAddOnPictures: ()=> context.read<CheckInBloc>().add(InternalPictureDialogEvent(title: 'External Picture')),
             ),
             TextWithAttachmentIcon(
               onCamera: ()=> context.read<CheckInBloc>().add(CapturedImageEvent(imageName: 'Registration_Sticker_Image')),
@@ -33,6 +37,8 @@ class CheckInPicturesListUI extends StatelessWidget {
               checkBoxValue: context.watch<CheckInBloc>().showRegistrationSticker,
               onChanged: (v)=> context.read<CheckInBloc>().add(ShowImageUploadEvent(checkBoxName: 'Registration_Sticker_Image')),
               attachments: context.watch<CheckInBloc>().registrationPicture,
+              addOnPicturesList: context.watch<CheckInBloc>().addOnPicture,
+              onAddOnPictures: ()=> context.read<CheckInBloc>().add(InternalPictureDialogEvent(title: 'Registration Sticker Images')),
             ),
             TextWithAttachmentIcon(
               onCamera: ()=> context.read<CheckInBloc>().add(CapturedImageEvent(imageName: 'Toll_Images')),
@@ -43,6 +49,8 @@ class CheckInPicturesListUI extends StatelessWidget {
               checkBoxValue: context.watch<CheckInBloc>().showTollSticker,
               onChanged: (v)=> context.read<CheckInBloc>().add(ShowImageUploadEvent(checkBoxName: 'Toll_Images')),
               attachments: context.watch<CheckInBloc>().tollPicture,
+              addOnPicturesList: context.watch<CheckInBloc>().addOnPicture,
+              onAddOnPictures: ()=> context.read<CheckInBloc>().add(InternalPictureDialogEvent(title: 'Toll Images')),
             ),
             TextWithAttachmentIcon(
               onCamera: ()=> context.read<CheckInBloc>().add(CapturedImageEvent(imageName: 'Odometer_Images')),
@@ -50,6 +58,8 @@ class CheckInPicturesListUI extends StatelessWidget {
               onUploaded: ()=> context.read<CheckInBloc>().add(UploadImageEvent(imageName: 'Odometer_Images')),
               title: 'Odometer Images',
               attachments: context.watch<CheckInBloc>().odometerPicture,
+              addOnPicturesList: context.watch<CheckInBloc>().addOnPicture,
+              onAddOnPictures: ()=> context.read<CheckInBloc>().add(InternalPictureDialogEvent(title: 'Odometer Images')),
             ),
             TextWithAttachmentIcon(
               onCamera: ()=> context.read<CheckInBloc>().add(CapturedImageEvent(imageName: 'Oil_Change_Sticker_Picture')),
@@ -57,6 +67,8 @@ class CheckInPicturesListUI extends StatelessWidget {
               onUploaded: ()=> context.read<CheckInBloc>().add(UploadImageEvent(imageName: 'Oil_Change_Sticker_Picture')),
               title: 'Oil Change Sticker Picture',
               attachments: context.watch<CheckInBloc>().oilChangePicture,
+              addOnPicturesList: context.watch<CheckInBloc>().addOnPicture,
+              onAddOnPictures: ()=> context.read<CheckInBloc>().add(InternalPictureDialogEvent(title: 'Oil Change Sticker Picture')),
             ),
             TextWithAttachmentIcon(
               onCamera: ()=> context.read<CheckInBloc>().add(CapturedImageEvent(imageName: 'Spare_Tyre_Picture')),
@@ -67,6 +79,8 @@ class CheckInPicturesListUI extends StatelessWidget {
               checkBoxValue: context.watch<CheckInBloc>().showSpareTyreSticker,
               onChanged: (v)=> context.read<CheckInBloc>().add(ShowImageUploadEvent(checkBoxName: 'Spare_Tyre_Picture')),
               attachments: context.watch<CheckInBloc>().spareTyrePicture,
+              addOnPicturesList: context.watch<CheckInBloc>().addOnPicture,
+              onAddOnPictures: ()=> context.read<CheckInBloc>().add(InternalPictureDialogEvent(title: 'Spare Tyre Picture')),
             ),
             TextWithAttachmentIcon(
               onCamera: ()=> context.read<CheckInBloc>().add(CapturedImageEvent(imageName: 'Spare_Key_Picture')),
@@ -77,6 +91,8 @@ class CheckInPicturesListUI extends StatelessWidget {
               checkBoxValue: context.watch<CheckInBloc>().showSpareKeySticker,
               onChanged: (v)=> context.read<CheckInBloc>().add(ShowImageUploadEvent(checkBoxName: 'Spare_Key_Picture')),
               attachments: context.watch<CheckInBloc>().spareKeyPicture,
+              addOnPicturesList: context.watch<CheckInBloc>().addOnPicture,
+              onAddOnPictures: ()=> context.read<CheckInBloc>().add(InternalPictureDialogEvent(title: 'Spare Key Picture')),
             ),
             TextWithAttachmentIcon(
               onCamera: ()=> context.read<CheckInBloc>().add(CapturedImageEvent(imageName: 'Underhood_Picture')),
@@ -84,6 +100,8 @@ class CheckInPicturesListUI extends StatelessWidget {
               onUploaded: ()=> context.read<CheckInBloc>().add(UploadImageEvent(imageName: 'Underhood_Picture')),
               title: 'Underhood Picture',
               attachments: context.watch<CheckInBloc>().underhoodPicture,
+              addOnPicturesList: context.watch<CheckInBloc>().addOnPicture,
+              onAddOnPictures: ()=> context.read<CheckInBloc>().add(InternalPictureDialogEvent(title: 'Underhood Picture')),
             ),
           ],
         );
