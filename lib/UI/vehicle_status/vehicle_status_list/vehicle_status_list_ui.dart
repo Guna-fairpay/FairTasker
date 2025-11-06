@@ -41,7 +41,6 @@ class VehicleStatusListUi extends StatelessWidget {
                 case VehicleStatusOnPressedState(): {
                   var pressType = state.type;
                   var data = state.data;
-                  var tripCategory = state.tripCategory;
                   if ((pressType != null) && (data != null)) {
                     switch(pressType) {
 

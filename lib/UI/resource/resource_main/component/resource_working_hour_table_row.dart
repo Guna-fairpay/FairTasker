@@ -17,6 +17,6 @@ class WorkingHourRow extends TableRow {
     TableCell(verticalAlignment: TableCellVerticalAlignment.middle,child: Text("${model?['start_time'].toString().toDateTime(inputFormat: "dd-MM-yyyy HH:mm:ss")?.toFormat(format: "hh:mm a")}", textAlign: textAlign)),
     TableCell(verticalAlignment: TableCellVerticalAlignment.middle,child: Text(model?['end_time'].toString().toDateTime(inputFormat: "dd-MM-yyyy HH:mm:ss")?.toFormat(format: "hh:mm a") ?? "", textAlign: textAlign)),
     TableCell(verticalAlignment: TableCellVerticalAlignment.middle,child: Text(model?['active'] ?? "", textAlign: textAlign)),
-    TableCell(verticalAlignment: TableCellVerticalAlignment.middle,child: Text(Time.fromMilliseconds((model?['end_time'].toString().toDateTime(inputFormat: "dd-MM-yyyy HH:mm:ss") ?? getIt<CommonService>().usNow).time.inMilliseconds - (model?['start_time'].toString().toDateTime(inputFormat: "dd-MM-yyyy HH:mm:ss") ?? getIt<CommonService>().usNow).time.inMilliseconds ?? 0).toHM(), textAlign: textAlign)),
+    TableCell(verticalAlignment: TableCellVerticalAlignment.middle,child: Text(Time.fromMilliseconds((model?['end_time'].toString().toDateTime(inputFormat: "dd-MM-yyyy HH:mm:ss") ?? getIt<CommonService>().usNow).time.inMilliseconds - (model?['start_time'].toString().toDateTime(inputFormat: "dd-MM-yyyy HH:mm:ss") ?? getIt<CommonService>().usNow).time.inMilliseconds).toHM(), textAlign: textAlign)),
   ];
 }

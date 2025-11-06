@@ -10,7 +10,7 @@ extension IntExtension on int {
   }
 
   String get getDaySuffix {
-    var day = this ?? 0;
+    var day = this;
     if (day >= 11 && day <= 13) return 'th';
     switch (day % 10) {
       case 1:

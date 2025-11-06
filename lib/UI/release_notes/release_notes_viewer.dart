@@ -21,7 +21,7 @@ class ReleaseNotesViewer {
 
 class _ReleaseNotesViewer extends StatelessWidget {
   final String? notes;
-  const _ReleaseNotesViewer({super.key, this.notes});
+  const _ReleaseNotesViewer({this.notes});
 
   @override
   Widget build(BuildContext context) {

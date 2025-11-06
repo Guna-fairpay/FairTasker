@@ -21,7 +21,7 @@ class VendorInfoDialog {
 class _VendorInfoDialogView extends StatelessWidget {
   final Map<String, dynamic>? model;
 
-  const _VendorInfoDialogView({super.key, this.model});
+  const _VendorInfoDialogView({this.model});
 
   @override
   Widget build(BuildContext context) {

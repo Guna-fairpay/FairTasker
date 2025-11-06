@@ -1,4 +1,3 @@
-import 'package:fairpytasker/Component/compact_alert_dialog.dart';
 import 'package:fairpytasker/Component/custom_search_bar.dart';
 import 'package:fairpytasker/Component/custom_text/compact_text.dart';
 import 'package:fairpytasker/Component/custom_checkbox.dart';
@@ -29,7 +28,6 @@ class _ProjectFilterUI extends StatelessWidget {
   final List<Map<String, dynamic>>? model;
   final void Function(List<dynamic>)? onChanged;
   const _ProjectFilterUI({
-    super.key,
     required this.model,
     this.onChanged,
   });

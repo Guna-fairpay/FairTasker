@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:collection/collection.dart';
 import 'package:fairpytasker/Repository/authentication_repository.dart';
 import 'package:fairpytasker/Utilities/Utils.dart';

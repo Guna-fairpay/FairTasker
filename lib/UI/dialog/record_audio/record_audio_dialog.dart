@@ -77,7 +77,7 @@ class _RecordAudioDialogView extends StatelessWidget {
 }
 
 class _RecordAudioDialogContentView extends StatelessWidget {
-  const _RecordAudioDialogContentView({super.key});
+  const _RecordAudioDialogContentView();
 
   @override
   Widget build(BuildContext context) {

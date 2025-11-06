@@ -1,8 +1,6 @@
-import 'dart:convert';
 
 import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
-import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
 
@@ -26,7 +24,7 @@ class TaskerHoursProcessor {
     final checkInCount = users.where((element) => element['end_time'].toString().trim().isNullOrEmpty).length;
     final checkOutCount = users.where((element) => element['end_time'].toString().trim().isNotNullOrEmpty).length;
     // var checkInOutCount = "${_response?['checkInCount'] ?? 0}/${_response?['checkOutCount'] ?? 0}";
-    var checkInOutCount = "${checkInCount ?? 0}/${checkOutCount ?? 0}";
+    var checkInOutCount = "$checkInCount/$checkOutCount";
     _broadcast.broadcast("check_in_out_count", value: checkInOutCount);
     return processWorkingHours();
   }

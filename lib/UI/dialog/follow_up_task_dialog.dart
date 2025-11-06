@@ -13,7 +13,7 @@ class TaskerFollowupTaskDialog {
 
 class _FollowUpTaskDialog extends StatelessWidget {
   final VoidCallback? onPositive;
-  const _FollowUpTaskDialog({super.key, this.onPositive});
+  const _FollowUpTaskDialog({this.onPositive});
 
   @override
   Widget build(BuildContext context) {

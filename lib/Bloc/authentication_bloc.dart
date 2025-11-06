@@ -1,4 +1,3 @@
-import 'dart:convert';
 
 import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
@@ -43,7 +42,7 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
           Session.of.set(Str.branchNamePrefText, branchName);
         }
         User? user = response.user;
-        if ( (user != null) && (user.token.isNotNullOrEmpty ?? false)) {
+        if ( (user != null) && (user.token.isNotNullOrEmpty)) {
           Utils.saveUserData(
               user.id ?? 0,
               user.name ?? "",

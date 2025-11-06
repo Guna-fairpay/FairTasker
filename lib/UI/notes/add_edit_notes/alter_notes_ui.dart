@@ -3,7 +3,6 @@ import 'package:fairpytasker/UI/dialog/multioption_permission_dialog.dart';
 import 'package:fairpytasker/UI/dialog/popup/resource_selection_popup.dart';
 import 'package:fairpytasker/UI/notes/add_edit_notes/alter_notes_body.dart';
 import 'package:fairpytasker/UI/notes/add_edit_notes/bloc/alter_notes_bloc.dart';
-import 'package:fairpytasker/UI/notes/bloc/notes_bloc.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';

@@ -67,8 +67,7 @@ class _AskDateRangePermissionDialogView extends StatelessWidget {
   final String? positiveText;
 
   _AskDateRangePermissionDialogView(
-      {super.key,
-        this.startDate,
+      {this.startDate,
         this.endDate,
         this.selectedEndDate,
         this.selectedStartDate,

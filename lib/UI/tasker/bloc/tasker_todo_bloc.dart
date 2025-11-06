@@ -143,8 +143,11 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
 
   void _listenBroadCast() {
     _fBroadcast.register("todo_view", (value, callback) {
-      if (value is Map) add(ToDoTaskerRefreshEvent(showLoading: (value?['showLoading'] ?? false), refresh: (value?['refresh'] ?? false)));
-      else add(ToDoTaskerRefreshEvent(showLoading: (value ?? false)));
+      if (value is Map) {
+        add(ToDoTaskerRefreshEvent(showLoading: (value['showLoading'] ?? false), refresh: (value['refresh'] ?? false)));
+      } else {
+        add(ToDoTaskerRefreshEvent(showLoading: (value ?? false)));
+      }
     });
     _fBroadcast.register("show_completed_popup", (value, callback) => add(ToDoTaskerCompleteEvent(value)));
     getIt<CommonService>().branchUpdate(callback: _reFetchToDos);
@@ -207,6 +210,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       if (response != null) _setOtherValues(response);
       unfiltered = _processTodo(List.from(response?['todos'] ?? []));
       toDos = unfiltered;
+      Console.of.log(response, name: 'TEST');
       // _generateKeys();
       isUserSelected = (selectedUsers?.isNotEmpty ?? false);
       Console.of.log("TASKER_ALL_API_LOADED", name: "TASKER_TODO_BLOC");
@@ -686,12 +690,12 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       if (((uploadParts?.isNotEmpty ?? false) ||
           (uploadSupplies?.isNotEmpty ?? false))) {
         Map<String, dynamic> body = {};
-        if (uploadParts != null && (uploadParts.isNotEmpty ?? false)) {
+        if (uploadParts != null && (uploadParts.isNotEmpty)) {
           body["parts"] = uploadParts
               .map((e) => {"parts_id": e['id'], "parts_name": e['name']}).toList();
         }
 
-        if (uploadSupplies != null && (uploadSupplies.isNotEmpty ?? false)) {
+        if (uploadSupplies != null && (uploadSupplies.isNotEmpty)) {
           body["supplies"] = uploadSupplies
               .map((e) => {"supplies_id": e['id'], "supplies_name": e['name']}).toList();
         }
@@ -1105,7 +1109,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
 
   void _filterTimeSensitiveTasks() {
     if (isTimeSensitive) {
-      unfiltered = unfiltered.where((element) => (element['time_sensitive'] == ((isTimeSensitive ?? false) ? 1 : 0))).toList();
+      unfiltered = unfiltered.where((element) => (element['time_sensitive'] == ((isTimeSensitive) ? 1 : 0))).toList();
     } else {
       unfiltered = unfiltered;
     }

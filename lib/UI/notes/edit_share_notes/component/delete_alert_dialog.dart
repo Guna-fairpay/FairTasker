@@ -1,10 +1,7 @@
 import 'package:fairpytasker/Component/success_button.dart';
-import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
-import 'package:fairpytasker/core/app/extension/string_extension.dart';
-import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -25,7 +22,7 @@ class DeleteAlertDialog {
 
 class _DeleteAlertDialog extends StatelessWidget {
   final void Function()? onChanged;
-  const _DeleteAlertDialog({super.key, this.onChanged});
+  const _DeleteAlertDialog({this.onChanged});
 
   @override
   Widget build(BuildContext context) {

@@ -1,4 +1,3 @@
-import 'package:fairpytasker/Component/custom_search_bar.dart';
 import 'package:fairpytasker/Component/custom_text/compact_text.dart';
 import 'package:fairpytasker/Component/custom_checkbox.dart';
 import 'package:fairpytasker/UI/offshore_report/tech/components/priority_filter/bloc/priority_filter_bloc.dart';
@@ -29,7 +28,6 @@ class _PriorityFilterDialog extends StatelessWidget {
   final List<dynamic>? model;
 
   const _PriorityFilterDialog({
-    super.key,
     required this.model,
     this.onChanged,
   });

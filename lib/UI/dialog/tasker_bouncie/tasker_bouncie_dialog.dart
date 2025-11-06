@@ -91,7 +91,7 @@ class _TaskerBouncieDialogViewState extends State<_TaskerBouncieDialogView> {
 }
 
 class _TaskerBouncieErrorWidget extends StatelessWidget {
-  const _TaskerBouncieErrorWidget({super.key});
+  const _TaskerBouncieErrorWidget();
 
   @override
   Widget build(BuildContext context) {
@@ -132,7 +132,7 @@ class _TaskerBouncieErrorWidget extends StatelessWidget {
 }
 
 class _TaskerBouncieMapWidget extends StatelessWidget {
-  const _TaskerBouncieMapWidget({super.key});
+  const _TaskerBouncieMapWidget();
 
   @override
   Widget build(BuildContext context) {

@@ -1,6 +1,5 @@
 import 'package:collection/collection.dart';
 import 'package:fairpytasker/Component/vehicle_detail_dual_value_item.dart';
-import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';

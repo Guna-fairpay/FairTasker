@@ -11,7 +11,6 @@ import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 
 part 'notes_events.dart';
 part 'notes_states.dart';
@@ -58,7 +57,6 @@ class NotesBloc extends Bloc<NotesEvents, NotesStates> {
   Future<Map<String, dynamic>?> _fetchNotes() async => await _apiRepository.getNotes(selectedDate: selectedDate, status: showCompletedStates);
   Future<Map<String, dynamic>?> _updateNotes({Map<String, dynamic>? body, dynamic id}) async => await _apiRepository.putNotes(id: id, body: body);
   Future<Map<String, dynamic>?> _updateNoteStatus({Map<String, dynamic>? body, dynamic id}) async => await _apiRepository.updateNoteStatus(id: id, body: body);
-  Future<Map<String, dynamic>?> _deleteNotes({dynamic id}) async => await _apiRepository.deleteNotes(id: id);
   Future<Map<String, dynamic>?> _addNoteItem({dynamic id, Map<String, dynamic>? body}) async => await _apiRepository.addNoteItem(id: id, body: body);
   Future<Map<String, dynamic>?> _updateNoteItem({dynamic id, Map<String, dynamic>? body}) async => await _apiRepository.updateNoteItem(id: id, body: body);
   Future<Map<String, dynamic>?> _swapNoteItem({Map<String, dynamic>? body}) async => await _apiRepository.swapNoteItems(body: body);

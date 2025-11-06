@@ -53,7 +53,7 @@ class VoiceToTextBody extends StatelessWidget {
                              IconButton(onPressed: () =>  PlayAudioDialog.show(context, audioUrl:voiceData['attachment_path'] ?? '' ), icon: const Icon(Icons.play_arrow),),
                              10.width,
                              Utils.getText(
-                               "${voiceData['user']['first_name'][0]}${voiceData['user']['last_name'][0]}" ?? '',),
+                               "${voiceData['user']['first_name'][0]}${voiceData['user']['last_name'][0]}",),
                              10.width,
                              Utils.getText(
                         "${DateTime.parse(voiceData['created_at']).toFormat(format: 'MM-dd-yy')}",),

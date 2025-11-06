@@ -32,7 +32,7 @@ class TOCDBloc extends Bloc<TOCDEvents, TOCDStates> {
     try {
       _model = event.model;
       emit(TOCDLoadingState());
-      var hasVins = List.from(_model?['display']?['vins']).firstOrNull.toString().isNotNullOrEmpty ?? false;
+      var hasVins = List.from(_model?['display']?['vins']).firstOrNull.toString().isNotNullOrEmpty;
       previousOdometerResponse = hasVins ? await _getPreviousOdometer(date: _model?['todo_date'], vin: List.from(_model?['display']?['vins']).firstOrNull, identifierId: _model?['identifier_id']) : null;
       toDoOdometerResponse = await _getToDoOdometer(todoId: _model?['id']);
       if (toDoOdometerResponse?['data'] != null) {

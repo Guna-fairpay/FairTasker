@@ -10,9 +10,9 @@ class MainForm extends StatelessWidget {
       children: [
         SegmentedAutocomplete<Map<String, dynamic>>(
             segmentedSuggestions: context.watch<AddToDoBloc>().taskIdentifierList,
-            itemAsString: (option) => (option?.containsKey("subname") ?? false) ? "${option?['name'] ?? ""} (${option?['subname'] ?? ""})" : (option?['name'] ?? ""),
-            itemAsStringTitle: (option) => option?['name'] ?? "",
-            itemAsSearchString: (option) => option?['searchBy'] ?? [],
+            itemAsString: (option) => (option.containsKey("subname")) ? "${option['name'] ?? ""} (${option['subname'] ?? ""})" : (option['name'] ?? ""),
+            itemAsStringTitle: (option) => option['name'] ?? "",
+            itemAsSearchString: (option) => option['searchBy'] ?? [],
             selectedValues: List<Map<String, dynamic>>.from(context.watch<AddToDoBloc>().selectedTaskIdentifier.values),
             onChanged: (val) => context.read<AddToDoBloc>().add(IdentifierEvent(val)),
           onItemRemoved: (removedItem, index) => context.read<AddToDoBloc>().add(RemoveIdentifierEvent(removedItem, index)),

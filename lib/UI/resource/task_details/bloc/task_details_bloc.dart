@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:collection/collection.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
@@ -46,7 +45,7 @@ class TaskDetailsBloc extends Bloc<TaskDetailsEvent, TaskDetailsState> {
     for (var element in mainCategories) {
       var sub = subCategories.where((e) => e['parent_id'].toString() == element['id'].toString()).toList();
       var subList = List<Map<String, dynamic>>.from(element['subcategories'] ?? []);
-      subList.addAll(sub ?? []);
+      subList.addAll(sub);
       element['subcategories'] = subList;
     }
     mainCategories.removeWhere((element) => !_requiredCateIds.contains(element['id']));

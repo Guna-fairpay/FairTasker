@@ -1,5 +1,4 @@
 import 'package:collection/collection.dart';
-import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
@@ -11,9 +10,6 @@ import 'package:fbroadcast/fbroadcast.dart';
 class ToDoSupport {
   final FBroadcast _broadcast = FBroadcast.instance();
   List<Map<String, dynamic>> _todos = [];
-  final DateTime _currentDate = DateTime.now().toUtc();
-  final APiRepository _aPiRepository = APiRepository();
-  final CommonService _commonService = getIt<CommonService>();
   final int _cleanCarTaskId = 30;
   ToDoSupport() {
     _initialize();

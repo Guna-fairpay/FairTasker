@@ -1,7 +1,6 @@
 import 'package:fairpytasker/Component/compact_text_field.dart';
 import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/Utilities/num.dart';
-import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';

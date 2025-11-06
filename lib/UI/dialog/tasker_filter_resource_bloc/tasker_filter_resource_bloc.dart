@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:collection/collection.dart';
 import 'package:fairpytasker/UI/dialog/tasker_filter_resource_bloc/tasker_filter_resource_events.dart';
@@ -56,7 +55,7 @@ class TFRDBloc extends Bloc<TFRDEvents, TFRDStates> {
       Console.of.log(offshore);
       if((offshore != null) && (offshore.isNotEmpty)) {
         departments?.removeWhere((element) => element['name'] == "OffShore");
-        departments?.add(offshore ?? {});
+        departments?.add(offshore);
       }
       isAllSelected = (selected?.length == users?.length);
       emit(TFRDCommonState());

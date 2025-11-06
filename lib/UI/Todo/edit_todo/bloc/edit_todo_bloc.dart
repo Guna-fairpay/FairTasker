@@ -1216,7 +1216,6 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       var taskResponse = await _getTaskExpenseData();
       var userGroupResponse = await _getGroupPersons();
       var assignedToResponse = await _getResources();
-      var leadResponse = leadChannels;
       var resources = assignedToResponse;
       resources.removeWhere((resource) => resource['id'] == 2);
       resources.removeWhere((resource) =>

@@ -13,9 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class TVPDBloc extends Bloc<TVPDEvents, TVPDStates> {
-  List<Map<String, dynamic>> _vehicles = [];
   List<Map<String, dynamic>> groupVehicles = [];
-  List<Map<String, dynamic>> _persons = [];
   List<Map<String, dynamic>> selectedVehicles = [];
   Map<String, dynamic>? selectedModel;
   final TextEditingController controller = TextEditingController();
@@ -48,8 +46,6 @@ class TVPDBloc extends Bloc<TVPDEvents, TVPDStates> {
   Map<String, dynamic>? _removeExisting(Map<String, dynamic>? model) {
     Console.of.log("Removing_Model $model");
     var _vehicles = selectedModel?['display']?['vehicles'];
-    var _persons = (selectedModel?['display']?['personId'].toString().isNotNullOrEmpty ?? false) ? persons.where((element) => element['id'].toString() == selectedModel?['display']?['personId']).toList() : [];
-    var _groupVehicles = (selectedModel?['display']?['vehicleGroupId'].toString().isNotNullOrEmpty ?? false) ? groupVehicles.where((element) => element['id'] == selectedModel?['display']?['vehicleGroupId']).toList() : [];
     if (model?['type'] == 'vehicles') {
       var vin = model?['value']?['vin'];
       _vehicles.removeWhere((element) => element['id'] == model?['id']);
@@ -71,9 +67,7 @@ class TVPDBloc extends Bloc<TVPDEvents, TVPDStates> {
     selectedModel = event.data;
     Console.of.log(selectedModel);
     var response = await Future.wait([_fetchVehicles(), _fetchGroupVehicles(), _fetchPersons()]);
-    _vehicles = response[0].where((element) => element['branch_code'] == _branchId).toList();
     groupVehicles = response[1];
-    _persons = response[2].where((element) => element['branch_id'] == _branchId).toList();
     selectedVehicles = _selectedValues;
     Console.of.log(selectedVehicles);
     emit(TVPDCommonState());

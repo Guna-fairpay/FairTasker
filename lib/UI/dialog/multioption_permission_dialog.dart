@@ -3,7 +3,6 @@ import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
-import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -24,7 +23,7 @@ class NotesMultiOptionDialog {
 class _MultiOptionDialogView extends StatelessWidget {
   final ValueChanged<String>? onChanged;
   final bool showNotes, showTask;
-  const _MultiOptionDialogView({super.key, this.onChanged, this.showNotes = false, this.showTask = false});
+  const _MultiOptionDialogView({this.onChanged, this.showNotes = false, this.showTask = false});
 
   @override
   Widget build(BuildContext context) {

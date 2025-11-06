@@ -6,14 +6,11 @@ import 'package:fairpytasker/UI/vehicle_status/cumulative_expense/cumulative_exp
 import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
-import 'package:fairpytasker/core/initializer/common_initializer.dart';
-import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CumulativeExpenseBloc extends Bloc<CumulativeExpenseEvent, CumulativeExpenseState>{
 
   final APiRepository _apiRepository = APiRepository();
-  final FBroadcast _broadcast = FBroadcast.instance();
   List<Map<String, dynamic>> apiResponse = [];
   List<Map<String, dynamic>> filteredResponse = [];
 

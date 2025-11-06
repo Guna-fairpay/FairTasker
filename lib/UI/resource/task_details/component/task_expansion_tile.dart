@@ -22,7 +22,7 @@ class TaskExpansionTile extends StatelessWidget {
       title: Row(
         children: [
           Expanded(child: CompactText(model?['name'] ?? "", color: AppC.appColor, fontWeight: FontWeight.bold, styleType: styleType ?? TextStyleType.bodyMedium)),
-          CompactText("${list.length ?? 0}", color: AppC.appColor, fontWeight: FontWeight.bold, styleType: styleType ?? TextStyleType.bodyMedium)
+          CompactText("${list.length}", color: AppC.appColor, fontWeight: FontWeight.bold, styleType: styleType ?? TextStyleType.bodyMedium)
         ],
       ),
       child: ListView.separated(
@@ -34,8 +34,8 @@ class TaskExpansionTile extends StatelessWidget {
         return CompactExpansionTile(
           title: Row(
             children: [
-              Expanded(child: CompactText(keyVal ?? "", color: AppC.appColor, fontWeight: FontWeight.bold, styleType: styleType ?? TextStyleType.bodyMedium)),
-              CompactText("${subList.length ?? 0}", color: AppC.appColor, fontWeight: FontWeight.bold, styleType: styleType ?? TextStyleType.bodyMedium)
+              Expanded(child: CompactText(keyVal, color: AppC.appColor, fontWeight: FontWeight.bold, styleType: styleType ?? TextStyleType.bodyMedium)),
+              CompactText("${subList.length}", color: AppC.appColor, fontWeight: FontWeight.bold, styleType: styleType ?? TextStyleType.bodyMedium)
             ],
           ),
           child: ListView.separated(

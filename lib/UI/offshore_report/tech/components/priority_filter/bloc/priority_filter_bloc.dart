@@ -1,6 +1,5 @@
 import 'dart:math';
 import 'package:equatable/equatable.dart';
-import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 part 'priority_filter_event.dart';

@@ -40,7 +40,7 @@ class VehicleHistoryDetailsUiDialog {
 
 class _ViewHistoryDetailsUi extends StatelessWidget {
   final Map<String, dynamic>? mapData;
-  const _ViewHistoryDetailsUi({super.key, this.mapData});
+  const _ViewHistoryDetailsUi({this.mapData});
 
   @override
   Widget build(BuildContext context) {

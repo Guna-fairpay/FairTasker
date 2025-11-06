@@ -65,10 +65,6 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
 
   Map<String, dynamic>? selectedVLocation;
 
-  List<Map<String, dynamic>> _locations = [];
-  List<Map<String, dynamic>> _persons = [];
-  List<Map<String, dynamic>> _tasks = [];
-  List<Map<String, dynamic>> _vehicles = [];
 
   /// SELECTED AND STORING VARIABLES
   List<dynamic> attachments = [];
@@ -194,14 +190,14 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
       emit(state.copyWith(isLoading: true));
       var response = await _getOilChangeTask(vin: vin);
       emit(state.copyWith(isLoading: false));
-      if ((response == null) || (response?.isEmpty ?? false)) return add(AddToDoSaveEvent(oilChangeOverride: true));
+      if ((response == null) || (response.isEmpty)) return add(AddToDoSaveEvent(oilChangeOverride: true));
       var context = CommonHelper.instance.navigatorKey.currentContext;
       if (context != null) {
         var result = await OilChangeTaskExistDialog.show(context, model: response);
         Utils.dismissKeyboard(context);
         if (result == true) {
           emit(state.copyWith(isLoading: true));
-          var deleteResponse = await _deleteToDo(todoId: response?['id']);
+          var deleteResponse = await _deleteToDo(todoId: response['id']);
           emit(state.copyWith(isLoading: false));
           if (deleteResponse?['status'] == 200) return add(AddToDoSaveEvent(oilChangeOverride: true));
         }
@@ -533,10 +529,6 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
       Console.of.log(response.map((e) => e?.length).join(", "));
       vendorLocations = CustomSearchDataConverter.convertVLocation(
           vendors: response[2], locations: response[3]);
-      _tasks = response[0] ?? [];
-      _vehicles = response[1] ?? [];
-      _persons = resources;
-      _locations = response[3] ?? [];
       emit(state.copyWith(
           isLoading: false,
           tasks: response[0] ?? [],
@@ -677,10 +669,6 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
       Console.of.log(response.map((e) => e?.length).join(", "));
       vendorLocations = CustomSearchDataConverter.convertVLocation(
           vendors: response[2], locations: response[3]);
-      _tasks = response[0] ?? [];
-      _vehicles = response[1] ?? [];
-      _persons = resources;
-      _locations = response[3] ?? [];
       if (event.selectedVPerson?.length == 1) await _findReservationColor(event.selectedVPerson?.firstOrNull?['value']?['vin']);
       var selectedOption = getIt<CommonService>().isAdmin ? AddToDoConfig.customOptions.first : AddToDoConfig.customOptions[1];
       if (existingRefId.toString().isNotNullOrEmpty) selectedOption = AddToDoConfig.customOptions[1];

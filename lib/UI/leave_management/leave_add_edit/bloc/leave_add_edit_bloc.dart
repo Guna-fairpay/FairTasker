@@ -148,9 +148,9 @@ class LeaveAddEditBloc extends Bloc<LeaveAddEditEvent, LeaveAddEditState> {
       emit(LeaveAddEditLoadingState());
       Console.of.log(_saveLeaveData());
       if(model != null){
-      var response =  await _apiRepository.updateLeave(id: model['id'].toString(),body:  _saveLeaveData());
+      await _apiRepository.updateLeave(id: model['id'].toString(),body:  _saveLeaveData());
       }else{
-      var response =  await _apiRepository.addLeave(body: _saveLeaveData());
+      await _apiRepository.addLeave(body: _saveLeaveData());
       }
       FBroadcast.instance().broadcast("refreshLeaveList");
       emit(LeaveAddEditSuccessState());

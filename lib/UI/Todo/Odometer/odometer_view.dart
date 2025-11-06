@@ -1,5 +1,4 @@
 import 'package:fairpytasker/Component/success_button.dart';
-import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/Utilities/Utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/helper/warning_helper.dart';

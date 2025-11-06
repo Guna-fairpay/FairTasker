@@ -1,7 +1,6 @@
 import 'package:fairpytasker/UI/vehicle_status/vehicle_status_list/bloc/vehicle_status_bloc.dart';
 import 'package:fairpytasker/UI/vehicle_status/vehicle_status_list/bloc/vehicle_status_events.dart';
 import 'package:fairpytasker/UI/vehicle_status/vehicle_status_list/bloc/vehicle_status_states.dart';
-import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -38,7 +37,7 @@ class VehicleStatusTripCategories extends StatelessWidget {
                           style: context.textTheme.labelSmall?.copyWith(
                               color: ((context
                                           .read<VehicleStatusBloc>()
-                                          .selectedTripCategory?['id'] ==
+                                          .selectedTripCategory['id'] ==
                                       e['id'])
                                   ? Colors.white
                                   : null),
@@ -50,7 +49,7 @@ class VehicleStatusTripCategories extends StatelessWidget {
                             .add(VehicleStatusOnChangeTripCategory(e)),
                         selected: (context
                                 .read<VehicleStatusBloc>()
-                                .selectedTripCategory?['id'] ==
+                                .selectedTripCategory['id'] ==
                             e['id']),
                         onSelected: (value) => context
                             .read<VehicleStatusBloc>()

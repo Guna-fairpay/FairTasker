@@ -31,7 +31,6 @@ class _ShareNotesEditDialogUI extends StatelessWidget {
   final List<dynamic>? list;
 
   const _ShareNotesEditDialogUI({
-    super.key,
     required this.model,
     required this.list,
   });

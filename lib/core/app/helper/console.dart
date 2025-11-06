@@ -1,5 +1,4 @@
 import 'dart:developer' as developer;
-import 'dart:io' as io;
 import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart' show ConsoleOutput, DevelopmentFilter, Logger, OutputEvent, PrettyPrinter, ProductionFilter;
 

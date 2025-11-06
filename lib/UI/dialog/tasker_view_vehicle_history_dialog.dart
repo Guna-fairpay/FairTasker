@@ -80,7 +80,7 @@ class _TaskerViewVehicleHistoryView extends StatelessWidget {
                   Utils.getText(
                     model?['display']?['vehicleStatusCategoryName'] ?? '',
                     size: 12.spMin,
-                    color: Color(int.parse('0xFF${model?['display']?['vehicleHistoryIconColorCode']}') ?? 0x00000000),
+                    color: Color(int.parse('0xFF${model?['display']?['vehicleHistoryIconColorCode']}')),
                   ),
                 ],
               ),

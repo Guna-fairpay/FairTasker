@@ -26,7 +26,7 @@ class TaskCountDetailsDialog {
 class _TaskCountDetailsView extends StatelessWidget {
   final Map<String, dynamic>? model;
   final DateRange? dateRange;
-  const _TaskCountDetailsView({super.key, this.dateRange, this.model});
+  const _TaskCountDetailsView({this.dateRange, this.model});
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +65,7 @@ class _TaskCountDetailsView extends StatelessWidget {
 }
 
 class _TaskCountDetailsContentView extends StatelessWidget {
-  const _TaskCountDetailsContentView({super.key});
+  const _TaskCountDetailsContentView();
 
   @override
   Widget build(BuildContext context) {

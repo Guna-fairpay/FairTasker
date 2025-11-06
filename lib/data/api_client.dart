@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:fairpytasker/Utilities/str.dart';
@@ -12,7 +11,6 @@ import 'package:http/http.dart' as http;
 import 'package:talker/talker.dart' show Talker;
 import 'package:http_interceptor/http_interceptor.dart';
 import 'package:talker_http_logger/talker_http_logger.dart';
-import 'package:talker_http_logger/talker_http_logger_settings.dart';
 
 class ApiClient {
   // get client => http.Client()

@@ -1,7 +1,6 @@
 
 import 'dart:developer';
 import 'dart:io';
-import 'dart:math' as math;
 import 'package:date_time/date_time.dart' as dt;
 import 'package:fairpytasker/Component/custom_search_bar.dart';
 import 'package:fairpytasker/Component/focus_node_wrapper.dart';
@@ -17,7 +16,6 @@ import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/helper.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
-import 'package:fairpytasker/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:dropdown_search/dropdown_search.dart';
@@ -1002,7 +1000,7 @@ class Utils {
           data: ThemeData.light().copyWith(
             primaryColor: AppC().base,
             colorScheme: ColorScheme.light(primary: AppC().base),
-            dialogBackgroundColor: Colors.white,
+            dialogTheme: const DialogThemeData(backgroundColor: Colors.white),
           ),
           child: dialog,
         );
@@ -1639,7 +1637,7 @@ class Utils {
     ..set(Str.loginPrefText, token.isNotEmpty)
     ..set("name", name)
     ..set(Str.rolePrefText, role ?? [])
-    ..set(Str.userPermissionPrefText, (userPermissionList ?? []))
+    ..set(Str.userPermissionPrefText, (userPermissionList))
     ..set(Str.passwordPrefText, password.toString())
     ..set(Str.userIdPrefText, userId.toString())
     ..set(Str.branchIdPrefText, branchId)
@@ -1652,7 +1650,7 @@ class Utils {
     Utils.setStringPreference("name", name.toString());
     Utils.setStringListPreference(Str.rolePrefText, role ?? []);
     Utils.setStringListPreference(
-        Str.userPermissionPrefText, (userPermissionList ?? []));
+        Str.userPermissionPrefText, (userPermissionList));
     Utils.setStringPreference(Str.passwordPrefText, password.toString());
     Utils.setStringPreference(Str.userIdPrefText, userId.toString());
     Utils.setIntPreference(Str.branchIdPrefText, branchId);
@@ -1985,7 +1983,7 @@ class Utils {
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.1),
+                color: Colors.grey.withValues(alpha: 0.1),
                 spreadRadius: 1,
                 blurRadius: 1,
                 offset: const Offset(20,
@@ -2234,11 +2232,11 @@ class Utils {
             top: const BorderSide(color: AppC.white, width: 1),
             left: const BorderSide(color: AppC.white, width: 1),
             right: const BorderSide(color: AppC.white, width: 1),
-            bottom: BorderSide(color: Colors.grey.withOpacity(0.1), width: 1),
+            bottom: BorderSide(color: Colors.grey.withValues(alpha: 0.1), width: 1),
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
+              color: Colors.grey.withValues(alpha: 0.1),
               spreadRadius: 1,
               blurRadius: 1,
               offset: const Offset(
@@ -2319,11 +2317,11 @@ class Utils {
             top: const BorderSide(color: AppC.white, width: 1),
             left: const BorderSide(color: AppC.white, width: 1),
             right: const BorderSide(color: AppC.white, width: 1),
-            bottom: BorderSide(color: Colors.grey.withOpacity(0.1), width: 1),
+            bottom: BorderSide(color: Colors.grey.withValues(alpha: .1), width: 1),
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
+              color: Colors.grey.withValues(alpha: 0.1),
               spreadRadius: 1,
               blurRadius: 1,
               offset: const Offset(
@@ -2407,11 +2405,11 @@ class Utils {
             top: const BorderSide(color: AppC.white, width: 1),
             left: const BorderSide(color: AppC.white, width: 1),
             right: const BorderSide(color: AppC.white, width: 1),
-            bottom: BorderSide(color: Colors.grey.withOpacity(0.1), width: 1),
+            bottom: BorderSide(color: Colors.grey.withValues(alpha: 0.1), width: 1),
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
+              color: Colors.grey.withValues(alpha: 0.1),
               spreadRadius: 1,
               blurRadius: 1,
               offset: const Offset(
@@ -2503,11 +2501,11 @@ class Utils {
                   left: const BorderSide(color: AppC.white, width: 1),
                   right: const BorderSide(color: AppC.white, width: 1),
                   bottom:
-                      BorderSide(color: Colors.grey.withOpacity(0.1), width: 1),
+                      BorderSide(color: Colors.grey.withValues(alpha: 0.1), width: 1),
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.withOpacity(0.1),
+                    color: Colors.grey.withValues(alpha: 0.1),
                     spreadRadius: 1,
                     blurRadius: 1,
                     offset: const Offset(0,
@@ -2600,11 +2598,11 @@ class Utils {
                   left: const BorderSide(color: AppC.white, width: 1),
                   right: const BorderSide(color: AppC.white, width: 1),
                   bottom:
-                      BorderSide(color: Colors.grey.withOpacity(0.1), width: 1),
+                      BorderSide(color: Colors.grey.withValues(alpha: .1), width: 1),
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.withOpacity(0.1),
+                    color: Colors.grey.withValues(alpha: .1),
                     spreadRadius: 1,
                     blurRadius: 1,
                     offset: const Offset(0,

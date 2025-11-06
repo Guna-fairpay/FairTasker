@@ -1,8 +1,6 @@
-import 'dart:convert';
 
 import 'package:fairpytasker/core/app/enums/task_enum.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
-import 'package:fairpytasker/core/app/helper/console.dart';
 
 class CustomSearchDataConverter {
   CustomSearchDataConverter._();

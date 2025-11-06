@@ -77,8 +77,7 @@ class _AskPermissionDialogView extends StatelessWidget {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   _AskPermissionDialogView(
-      {super.key,
-      this.title,
+      {this.title,
       this.boldWords,
       this.description,
       this.subDescription,

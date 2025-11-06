@@ -23,7 +23,6 @@ class TaskerStatusBloc extends Bloc<TaskerStatusEvent, TaskerStatusState> {
   List<Map<String, dynamic>>? selectedTasks;
   final FocusNode taskFocusNode = FocusNode();
   final FocusNode notesFocusNode = FocusNode();
-  Map<String, dynamic>? _vehicleStatusResponse;
   final FocusNode customFocusNode = FocusNode();
   List<Map<String, dynamic>>? _resources, _vendors, _locations;
   final TextEditingController taskController = TextEditingController();
@@ -65,9 +64,6 @@ class TaskerStatusBloc extends Bloc<TaskerStatusEvent, TaskerStatusState> {
   Future<Map<String, dynamic>?> _addToDo(Map<String, dynamic> body) async =>
       await _aPiRepository.vehicleStatusCreateTask(body: body);
 
-  Future<Map<String, dynamic>?> _vehicleUpdateStatus(
-          Map<String, dynamic> body, dynamic vin) async =>
-      await _aPiRepository.vehicleStatusUpdateApi(body: body, vin: vin);
 
   Future<Map<String, dynamic>?> _ignoreVehicleUpdateStatus(
       Map<String, dynamic> body) async =>
@@ -100,13 +96,6 @@ class TaskerStatusBloc extends Bloc<TaskerStatusEvent, TaskerStatusState> {
     return "${value ?? ""} - $suffix";
   }
 
-  Map<String, dynamic> get _statusUpdateBody => {
-        "config_id": [(_model?['vehicle_status_id'] ?? 0)],
-        "category_id": (_model?['vehicle_status_category'] ?? 0),
-        "vin": _model?['vin'] ?? "",
-        "checklist_id": [(_model?['vehicle_status_checklist'] ?? 0)],
-        "checkbox_value": 1
-      };
 
   Map<String, dynamic> get _ignoreBody => {"vin": _model?['vin'] ?? "", "vehicle_status": (_model?['vehicle_status_category'] ?? 0), "vehicle_status_update": null};
 
